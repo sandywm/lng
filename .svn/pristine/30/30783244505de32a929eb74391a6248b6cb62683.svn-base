@@ -1,0 +1,32 @@
+package com.lng.service;
+
+import java.util.List;
+
+import com.lng.pojo.Super;
+
+public interface SuperService {
+
+	/**
+	 * @description 根据账号、密码获取后台管理人员
+	 * @author wm
+	 * @Version : 版本
+	 * @ModifiedBy : 修改人
+	 * @date  2019年12月4日 上午9:18:30
+	 * @param account 账号
+	 * @param password 密码（可以为空）
+	 * @return
+	 */
+	List<Super> findInfoByOpt(String account,String password);
+	
+	/**
+	 * @description 根据主键获取后台人员实体信息
+	 * @author wm
+	 * @Version : 版本
+	 * @ModifiedBy : 修改人
+	 * @date  2019年12月4日 上午9:20:03
+	 * @param superId 主键
+	 * @return
+	 */
+	Super getEntityById(String superId);
+	
+}

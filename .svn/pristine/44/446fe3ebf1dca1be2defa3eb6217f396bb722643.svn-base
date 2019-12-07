@@ -1,0 +1,53 @@
+
+server:
+  #配置端口号
+  port: 8080
+  #servlet:
+    #项目访问前缀
+    #context-path: /springboot
+ 
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/lng?serverTimezone=UTC
+    username: root
+    password: 123456
+  thymeleaf:
+    #html页面有改动的时候，我们只需要用快捷键crtl+F9或者点击如图的编译按钮，重新编译下就可以在页面看结果，而不需要再次启动Tomcat服务了。
+    cache: false
+          #实现前后端分离
+    prefix: file:///d:/lngWeb/templates/
+    check-template-location: true
+    suffix: .html
+    encoding: UTF-8
+    servlet:
+      content-type: text/html; charset=utf-8
+    mode: HTML
+  servlet:
+          #设置上传文件大小
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+      enabled: false
+  resources:
+          #实现前后端分离
+    static-locations: file:///d:/lngWeb/static/
+  #配置发送邮件
+  mail:
+    host: smtp.163.com
+    port: 25
+    username: pylysy8888@163.com
+    password: 12346789
+    default-encoding: UTF-8
+  jpa:
+    database: MYSQL
+    show-sql: false
+    open-in-view: false #忽略警告
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        #采用MySQL55Dialect的原因是自动生成表时不创建外键的异常
+        dialect: org.hibernate.dialect.MySQL55Dialect
+
+    

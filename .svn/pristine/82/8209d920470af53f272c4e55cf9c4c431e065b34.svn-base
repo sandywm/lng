@@ -1,0 +1,10 @@
+package com.lng.dao;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+
+import com.lng.pojo.ModuleAct;
+
+public interface ModuleActDao extends JpaRepository<ModuleAct, Object>,JpaSpecificationExecutor<ModuleAct>{
+
+}

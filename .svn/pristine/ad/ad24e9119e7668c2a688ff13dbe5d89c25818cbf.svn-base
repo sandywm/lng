@@ -1,0 +1,11 @@
+package com.lng.util;
+
+public class Constants {
+
+	public static final String LAST_LOGIN_DATE = "last_login_date";
+	public static final String LOGIN_STATUS = "login_status";
+	public static final String LOGIN_USER_ID = "login_user_id";
+	public static final String LOGIN_ACCOUNT = "login_account";
+	public static final String LOGIN_REAL_NAME = "login_real_name";
+	public static final String LOGIN_USER_ROLE_ID = "login_user_role_id";
+}
