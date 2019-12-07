@@ -2,7 +2,6 @@ package com.lng.service;
 
 import java.util.List;
 
-import com.lng.pojo.SuperDep;
 import com.lng.pojo.SuperUser;
 
 public interface SuperService {
@@ -40,17 +39,6 @@ public interface SuperService {
 	 * @return
 	 */
 	String addOrUpUser(SuperUser user);
-	
-	/**
-	 * @description 添加或者修改后台人员部门关联信息
-	 * @author wm
-	 * @Version : 版本
-	 * @ModifiedBy : 修改人
-	 * @date  2019年12月4日 下午4:24:08
-	 * @param sp
-	 * @return
-	 */
-	String addOrUpSuperDep(SuperDep sp);
 	
 	/**
 	 * @description 获取所有后台管理人员列表

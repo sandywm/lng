@@ -3,14 +3,19 @@ package com.lng.controller;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.lng.pojo.GasType;
 import com.lng.service.GasTypeService;
+import com.lng.tools.CommonTools;
+import com.lng.util.Constants;
 import com.lng.util.GenericResponse;
 import com.lng.util.ResponseFormat;
 
@@ -23,6 +28,7 @@ import io.swagger.annotations.ApiResponses;
 
 @RestController
 @Api(tags = "液质类型相关接口")
+@RequestMapping("/gasType")
 public class GasTypeController {
 	@Autowired
 	private GasTypeService gTypeService;
@@ -30,25 +36,29 @@ public class GasTypeController {
 	@PostMapping("/addGasType")
 	@ApiOperation(value = "添加液质类型", notes = "添加液质类型信息")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
-			@ApiResponse(code = 50003, message = "数据已存在") })
+			@ApiResponse(code = 50003, message = "数据已存在"), @ApiResponse(code = 70001, message = "无权限访问") })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "name", value = "液质类型名称", defaultValue = "天然气", required = true),
 			@ApiImplicitParam(name = "yzImg", value = "液质图片", required = true) })
-	public GenericResponse addGasType(String name, String yzImg) {
+	public GenericResponse addGasType(HttpServletRequest request, String name, String yzImg) {
 		Integer status = 200;
 		String gtId = "";
-		try {
-			if (gTypeService.getGasTypeByNameList(name).size() == 0) {
-				GasType gType = new GasType();
-				gType.setName(name);
-				gType.setYz_img(yzImg);
-				gtId = gTypeService.saveOrUpdate(gType);
-			} else {
-				status = 50003;
-			}
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.ADD_GAST)) {
+			try {
+				if (gTypeService.getGasTypeByNameList(name).size() == 0) {
+					GasType gType = new GasType();
+					gType.setName(name);
+					gType.setYz_img(yzImg);
+					gtId = gTypeService.saveOrUpdate(gType);
+				} else {
+					status = 50003;
+				}
 
-		} catch (Exception e) {
-			e.printStackTrace();
-			status = 1000;
+			} catch (Exception e) {
+				e.printStackTrace();
+				status = 1000;
+			}
+		} else {
+			status = 70001;
 		}
 		return ResponseFormat.retParam(status, gtId);
 	}
@@ -56,33 +66,38 @@ public class GasTypeController {
 	@PutMapping("/updateGasType")
 	@ApiOperation(value = "修改液质类型", notes = "修改液质类型信息")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
-			@ApiResponse(code = 50003, message = "数据已存在"), @ApiResponse(code = 50001, message = "数据未找到") })
+			@ApiResponse(code = 50003, message = "数据已存在"), @ApiResponse(code = 50001, message = "数据未找到"),
+			@ApiResponse(code = 70001, message = "无权限访问") })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "液质类型编号", required = true),
 			@ApiImplicitParam(name = "name", value = "液质类型名称", defaultValue = "天然气", required = true),
 			@ApiImplicitParam(name = "yzImg", value = "液质图片", required = true) })
-	public GenericResponse updateGasType(String id, String name, String yzImg) {
+	public GenericResponse updateGasType(HttpServletRequest request, String id, String name, String yzImg) {
 		Integer status = 200;
-		try {
-			GasType gt = gTypeService.findById(id);
-			if (gt == null) {
-				status = 50001;
-			} else {
-				if (name.equals(gt.getName())) {
-					gt.setYz_img(yzImg);
-					gTypeService.saveOrUpdate(gt);
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.UP_GAST)) {
+			try {
+				GasType gt = gTypeService.findById(id);
+				if (gt == null) {
+					status = 50001;
 				} else {
-					if (gTypeService.getGasTypeByNameList(name).size() == 0) {
-						gt.setName(name);
+					if (name.equals(gt.getName())) {
 						gt.setYz_img(yzImg);
 						gTypeService.saveOrUpdate(gt);
 					} else {
-						status = 50003;
+						if (gTypeService.getGasTypeByNameList(name).size() == 0) {
+							gt.setName(name);
+							gt.setYz_img(yzImg);
+							gTypeService.saveOrUpdate(gt);
+						} else {
+							status = 50003;
+						}
 					}
 				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				status = 1000;
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			status = 1000;
+		} else {
+			status = 70001;
 		}
 		return ResponseFormat.retParam(status, "");
 	}

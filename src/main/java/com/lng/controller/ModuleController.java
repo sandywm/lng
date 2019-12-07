@@ -58,7 +58,7 @@ public class ModuleController {
 	
 	@SuppressWarnings("unchecked")
 	@GetMapping("getModuleData")
-	@ApiOperation(value = "获取平台模块",notes = "超管和后台管理人员通用，当时超管时获取全平台所有模块，当是其他管理人员时，只显示分配的权限模块")
+	@ApiOperation(value = "获取平台模块--所有人",notes = "超管和后台管理人员通用，当时超管时获取全平台所有模块，当是其他管理人员时，只显示分配的权限模块")
 	@ApiResponses({@ApiResponse(code = 1000, message = "服务器错误"),@ApiResponse(code = 50001, message = "数据未找到")})
 	public GenericResponse getModuleData(HttpServletRequest request) {
 		Integer status = 200;
@@ -67,13 +67,34 @@ public class ModuleController {
 		try {
 			//获取用户所在部门
 			List<SuperDep> sdList = sds.listSpecInfoByUserId(superUserId);
-			List<Module> mList = new ArrayList<Module>();
 			if(sdList.size() > 0) {
 				String roleName = sdList.get(0).getDepartment().getDepName();
 				if(Constants.SUPER_DEP_ABILITY.contains(roleName)) {//拥有全部权限
 					//获取所有模块
-					mList = ms.listAllInfo();
-					return ResponseFormat.retParam(status, mList);
+					List<Module> mList  = ms.listAllInfo();
+					for(Module mod : mList) {
+						Map<String,Object> map_d = new HashMap<String,Object>();
+						map_d.put("modId", mod.getId());
+						map_d.put("modName", mod.getModName());
+						map_d.put("modUrl", mod.getModUrl());
+						map_d.put("modOrder", mod.getModOrder());
+						if(mod.getModOrder() == 0) {//系统配置
+							List<Object> list_d1 = new ArrayList<Object>();
+							List<ModuleAct> maList = mas.listInfoByModId(mod.getId());
+							if(maList.size() > 0) {
+								for(ModuleAct ma : maList) {
+									Map<String,Object> map_d1 = new HashMap<String,Object>();
+									map_d1.put("maId", ma.getId());
+									map_d1.put("maChi", ma.getActNameChi());
+									map_d1.put("maEng", ma.getActNameEng());
+									list_d1.add(map_d1);
+								}
+								map_d.put("modSubList", list_d1);
+							}
+						}
+						list_d.add(map_d);
+					}
+					return ResponseFormat.retParam(status, list_d);
 				}else {
 					//其他部门的人员根据子模块获取主模块列表
 					List<ActSuper> asList = ass.listSpecInfoByUserId(superUserId, "");
@@ -87,7 +108,20 @@ public class ModuleController {
 								map_d.put("modName", mod.getModName());
 								map_d.put("modUrl", mod.getModUrl());
 								map_d.put("modOrder", mod.getModOrder());
-								map_d.put("modType", mod.getModType());
+								if(mod.getModOrder() == 0) {//系统配置
+									List<Object> list_d1 = new ArrayList<Object>();
+									List<ModuleAct> maList = mas.listInfoByModId(mod.getId());
+									if(maList.size() > 0) {
+										for(ModuleAct ma : maList) {
+											Map<String,Object> map_d1 = new HashMap<String,Object>();
+											map_d1.put("maId", ma.getId());
+											map_d1.put("maChi", ma.getActNameChi());
+											map_d1.put("maEng", ma.getActNameEng());
+											list_d1.add(map_d1);
+										}
+										map_d.put("modSubList", list_d1);
+									}
+								}
 								list_d.add(map_d);
 								list_m.add(mod);
 							}else {
@@ -106,7 +140,20 @@ public class ModuleController {
 									map_d.put("modName", mod.getModName());
 									map_d.put("modUrl", mod.getModUrl());
 									map_d.put("modOrder", mod.getModOrder());
-									map_d.put("modType", mod.getModType());
+									if(mod.getModOrder() == 0) {//系统配置
+										List<Object> list_d1 = new ArrayList<Object>();
+										List<ModuleAct> maList = mas.listInfoByModId(mod.getId());
+										if(maList.size() > 0) {
+											for(ModuleAct ma : maList) {
+												Map<String,Object> map_d1 = new HashMap<String,Object>();
+												map_d1.put("maId", ma.getId());
+												map_d1.put("maChi", ma.getActNameChi());
+												map_d1.put("maEng", ma.getActNameEng());
+												list_d1.add(map_d1);
+											}
+											map_d.put("modSubList", list_d1);
+										}
+									}
 									list_d.add(map_d);
 									list_m.add(mod);
 								}
@@ -129,64 +176,91 @@ public class ModuleController {
 		return ResponseFormat.retParam(status, list_d);
 	}
 	
-	@GetMapping("getModuleDetail")
-	@ApiOperation(value = "获取平台模块明细",notes = "设置权限时使用")
+	@GetMapping("getModuleDetailData")
+	@ApiOperation(value = "获取平台模块详细信息",notes = "修改主模块时使用")
+	@ApiResponses({@ApiResponse(code = 1000, message = "服务器错误"),
+		@ApiResponse(code = 50001, message = "数据未找到")})
+	@ApiImplicitParams({
+		@ApiImplicitParam(name = "modId", value = "主模块编号")
+	})
+	public GenericResponse getModuleDetailData(HttpServletRequest request,String modId) {
+		Integer status = 200;
+		List<Module> modList = new ArrayList<Module>();
+		try {
+			Module mod = ms.getEntityById(modId);
+			if(mod != null) {
+				modList.add(mod);
+			}else {
+				status = 50001;
+			}
+		}catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			status = 1000;
+		}
+		return ResponseFormat.retParam(status, modList);
+	}
+	
+	@GetMapping("getAllModuleData")
+	@ApiOperation(value = "获取平台所有模块--超管",notes = "设置权限时使用")
 	@ApiResponses({@ApiResponse(code = 1000, message = "服务器错误"),
 		@ApiResponse(code = 50001, message = "数据未找到"),
 		@ApiResponse(code = 70001, message = "无权限访问")})
 	@ApiImplicitParams({
 		@ApiImplicitParam(name = "specUserId", value = "后台人员编号")
 	})
-	public GenericResponse getModuleDetail(HttpServletRequest request,String specUserId) {
+	public GenericResponse getAllModuleData(HttpServletRequest request,String specUserId) {
 		Integer status = 200;
 		List<Object> modList = new ArrayList<Object>();
-		String superUserId = CommonTools.getLoginUserId(request);
 		try {
-			//获取用户所在部门
-			List<SuperDep> sdList = sds.listSpecInfoByUserId(superUserId);
-			if(sdList.size() > 0) {
-				if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.SET_ABILITY)) {
-					//获取所有模块
-					List<Module> mList = ms.listAllInfo();
-					if(mList.size() > 0) {
-						for(Module mod : mList) {
-							Map<String,Object> map_d = new HashMap<String,Object>();
-							map_d.put("modId", mod.getId());
-							map_d.put("modName", mod.getModName());
-							map_d.put("modUrl", mod.getModUrl());
-							map_d.put("modType", mod.getModType());
-							List<Object> list_d1 = new ArrayList<Object>();
-							List<ModuleAct> maList = mas.listInfoByModId(mod.getId());
-							if(maList.size() > 0) {
-								for(ModuleAct ma : maList) {
-									Map<String,Object> map_d1 = new HashMap<String,Object>();
-									map_d1.put("maId", ma.getId());
-									map_d1.put("maChi", ma.getActNameChi());
-									map_d1.put("maEng", ma.getActNameEng());
-									//获取指定人员的子模块
-									if(specUserId == null || specUserId == "") {
-										map_d1.put("selFlag", false);
+			if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.SET_ABILITY)) {
+				//获取所有模块
+				List<Module> mList = ms.listAllInfo();
+				Integer i = 1;
+				if(mList.size() > 0) {
+					for(Module mod : mList) {
+						Map<String,Object> map_d = new HashMap<String,Object>();
+						map_d.put("modId", mod.getId());
+						map_d.put("modName", mod.getModName());
+						map_d.put("modUrl", mod.getModUrl());
+						map_d.put("modOrder", i++);
+						List<Object> list_d1 = new ArrayList<Object>();
+						List<ModuleAct> maList = mas.listInfoByModId(mod.getId());
+						Integer mainModCheckStatus = 1;
+						if(maList.size() > 0) {
+							for(ModuleAct ma : maList) {
+								Map<String,Object> map_d1 = new HashMap<String,Object>();
+								map_d1.put("maId", ma.getId());
+								map_d1.put("maChi", ma.getActNameChi());
+								map_d1.put("maEng", ma.getActNameEng());
+								//获取指定人员的子模块
+								if(specUserId == null || specUserId == "") {
+									map_d1.put("selFlag", false);
+									mainModCheckStatus *= 0;
+									
+								}else {
+									if(ass.listSpecInfoByUserId(specUserId, ma.getId()).size() > 0) {
+										map_d1.put("selFlag", true);
+										mainModCheckStatus *= 1;
 									}else {
-										if(ass.listSpecInfoByUserId(specUserId, ma.getId()).size() > 0) {
-											map_d1.put("selFlag", true);
-										}else {
-											map_d1.put("selFlag", false);
-										}
+										map_d1.put("selFlag", false);
+										mainModCheckStatus *= 0;
 									}
-									list_d1.add(map_d1);
 								}
-								map_d.put("modSubList", list_d1);
+								list_d1.add(map_d1);
 							}
-							modList.add(map_d);
+						}else {
+							mainModCheckStatus = 0;
 						}
-					}else {
-						status = 50001;
+						map_d.put("modSubList", list_d1);
+						map_d.put("mainBindFlag", mainModCheckStatus);
+						modList.add(map_d);
 					}
 				}else {
-					status = 70001;
+					status = 50001;
 				}
 			}else {
-				status = 50001;
+				status = 70001;
 			}
 		} catch (Exception e) {
 			// TODO: handle exception
@@ -203,33 +277,28 @@ public class ModuleController {
 		@ApiResponse(code = 70001, message = "无权限访问")})
 	@ApiImplicitParams({
 		@ApiImplicitParam(name = "modName", value = "模块名称",  required = true),
-		@ApiImplicitParam(name = "modUrl", value = "模块URL",  required = true),
-		@ApiImplicitParam(name = "modType", value = "模块类型",  required = true),
+		@ApiImplicitParam(name = "modUrl", value = "模块URL",  required = true)
 	})
-	public GenericResponse addMod(HttpServletRequest request,String modName, String modUrl,Integer modType) {
+	public GenericResponse addMod(HttpServletRequest request,String modName, String modUrl) {
 		Integer status = 200;
 		String modId = "";
-		String superUserId = CommonTools.getLoginUserId(request);
 		try {
-			//获取用户所在部门
-			List<SuperDep> sdList = sds.listSpecInfoByUserId(superUserId);
-			if(sdList.size() > 0) {
-				if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.ADD_MOD)) {
-					//查询名字不能相同
-					List<Module> mList = ms.listSpecInfoByName(modName);
-					if(mList.size() == 0) {
-						mList = ms.listAllInfo();
-						Integer modOrder = 1;
-						if(mList.size() > 0) {
-							modOrder = mList.get(mList.size() - 1).getModOrder() + 1;
-						}
-						modId = ms.addOrUpMod(new Module(modName, modUrl, modOrder,modType));
-					}else {
-						status = 50003;
+			if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.ADD_MOD)) {
+				//查询名字不能相同
+				List<Module> mList = ms.listSpecInfoByName(modName);
+				if(mList.size() == 0) {
+					mList = ms.listAllInfo();
+					Integer modOrder = 1;
+					if(mList.size() > 0) {
+						modOrder = mList.get(mList.size() - 1).getModOrder() + 1;
 					}
+					modId = ms.addOrUpMod(new Module(modName, modUrl, modOrder));
+					//默认
 				}else {
-					status = 70001;
+					status = 50003;
 				}
+			}else {
+				status = 70001;
 			}
 		} catch (Exception e) {
 			// TODO: handle exception
@@ -237,6 +306,49 @@ public class ModuleController {
 			status = 1000;
 		}
 		return ResponseFormat.retParam(status, modId);
+	}
+	
+	@PostMapping("upMod")
+	@ApiOperation(value = "修改主模块",notes = "修改主模块")
+	@ApiResponses({@ApiResponse(code = 1000, message = "服务器错误"),
+		@ApiResponse(code = 50003, message = "数据已存在"),
+		@ApiResponse(code = 70001, message = "无权限访问"),
+		@ApiResponse(code = 50001, message = "数据未找到")
+	})
+	@ApiImplicitParams({
+		@ApiImplicitParam(name = "modId", value = "模块编号",  required = true),
+		@ApiImplicitParam(name = "modName", value = "模块名称",  required = true),
+		@ApiImplicitParam(name = "modUrl", value = "模块URL",  required = true)
+	})
+	public GenericResponse upMod(HttpServletRequest request,String modId,String modName, String modUrl) {
+		Integer status = 200;
+		try {
+			if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.UP_MOD)) {
+				//查询名字不能相同
+				Module mod = ms.getEntityById(modId);
+				if(mod != null) {
+					if(!mod.getModName().equals(modName)) {
+						//需要检测是否重名
+						if(ms.listSpecInfoByName(modName).size() > 0) {
+							status = 50003;
+						}else {
+							mod.setModName(modName);
+							mod.setModUrl(modUrl);
+							ms.addOrUpMod(mod);
+						}
+					}
+				}else {
+					status = 50001;
+				}
+			}else {
+				status = 70001;
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			status = 1000;
+		}
+		return ResponseFormat.retParam(status, "");
 	}
 	
 	@PostMapping("addModAct")
@@ -283,6 +395,47 @@ public class ModuleController {
 		return ResponseFormat.retParam(status, maId);
 	}
 	
+	@PostMapping("upModAct")
+	@ApiOperation(value = "修改子模块",notes = "修改子模块")
+	@ApiResponses({@ApiResponse(code = 1000, message = "服务器错误"),
+		@ApiResponse(code = 50003, message = "数据已存在"),
+		@ApiResponse(code = 70001, message = "无权限访问"),
+		@ApiResponse(code = 50001, message = "数据未找到")
+	})
+	@ApiImplicitParams({
+		@ApiImplicitParam(name = "maId", value = "模块动作编号",  required = true),
+		@ApiImplicitParam(name = "actNameChi", value = "动作名称中文",  required = true),
+		@ApiImplicitParam(name = "actNameEng", value = "动作名称英文",  required = true)
+	})
+	public GenericResponse upModAct(HttpServletRequest request,String maId,String actNameChi, String actNameEng) {
+		Integer status = 200;
+		try {
+			if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.UP_MOD)) {
+				//查询名字不能相同
+				ModuleAct mc = mas.getEntityById(maId);
+				if(mc != null) {
+					String actNameChi_db = mc.getActNameChi();
+					String actNameEng_db = mc.getActNameEng();
+					if(actNameChi_db.equals(actNameChi) && actNameEng_db.equals(actNameEng)) {
+						mc.setActNameChi(actNameChi);
+						mc.setActNameEng(actNameEng);
+						mas.addOrUpModuleAct(mc);
+					}else {
+						status = 50003;
+					}
+				}else {
+					status = 50001;
+				}
+			}else {
+				status = 70001;
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			status = 1000;
+		}
+		return ResponseFormat.retParam(status, "");
+	}
 	
 	@PostMapping("setAbility")
 	@ApiOperation(value = "设置动作权限",notes = "给指定用户设置权限")

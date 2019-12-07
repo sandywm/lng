@@ -12,8 +12,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.lng.dao.SuperDao;
-import com.lng.dao.SuperDepDao;
-import com.lng.pojo.SuperDep;
 import com.lng.pojo.SuperUser;
 import com.lng.service.SuperService;
 import com.lng.tools.MD5;
@@ -23,8 +21,6 @@ public class SuperServiceImpl implements SuperService{
 
 	@Autowired
 	private SuperDao sDao; 
-	@Autowired
-	private SuperDepDao sdDao;
 	
 	@Override
 	public List<SuperUser> findInfoByOpt(String account, String password) {
@@ -69,12 +65,6 @@ public class SuperServiceImpl implements SuperService{
 	public String addOrUpUser(SuperUser user) {
 		// TODO Auto-generated method stub
 		return sDao.save(user).getId();
-	}
-
-	@Override
-	public String addOrUpSuperDep(SuperDep sp) {
-		// TODO Auto-generated method stub
-		return sdDao.save(sp).getId();
 	}
 
 	@Override

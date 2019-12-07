@@ -12,7 +12,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.lng.dao.QualificationDao;
-import com.lng.pojo.GasType;
 import com.lng.pojo.Qualification;
 import com.lng.service.QualificationService;
 

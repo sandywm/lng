@@ -33,6 +33,8 @@ public class GasFactory implements java.io.Serializable {
 	private GasType gasType;
 	@ApiModelProperty(value = "液厂名称")
 	private String name;
+	@ApiModelProperty(value = "液厂名称拼音码")
+	private String namePy;
 	@ApiModelProperty(value = "液厂图片")
 	private String facImage;
 	@ApiModelProperty(value = "省")
@@ -61,11 +63,12 @@ public class GasFactory implements java.io.Serializable {
 	public GasFactory() {
 	}
 
-	public GasFactory( GasType gasType, String name, String facImage, String province, String city,
+	public GasFactory( GasType gasType, String name, String namePy, String facImage, String province, String city,
 			String county, String address, String lxName, String lxTel, String addTime, String yzbgImg, int checkStatus,
 			String checkTime,String owerUserId) {
 		this.gasType = gasType;
 		this.name = name;
+		this.namePy = namePy;
 		this.facImage = facImage;
 		this.province = province;
 		this.city = city;
@@ -209,13 +212,22 @@ public class GasFactory implements java.io.Serializable {
 		this.checkTime = checkTime;
 	}
 
-	@Column(name = "ower_user_id", nullable = false, columnDefinition = "varchar(100) COMMENT '液厂负责人'")
+	@Column(name = "ower_user_id", columnDefinition = "varchar(100) COMMENT '液厂负责人'")
 	public String getOwerUserId() {
 		return owerUserId;
 	}
 
 	public void setOwerUserId(String owerUserId) {
 		this.owerUserId = owerUserId;
+	}
+
+	@Column(name = "name_py", nullable = false, columnDefinition = "varchar(100) COMMENT '液厂名称拼音码'")
+	public String getNamePy() {
+		return namePy;
+	}
+
+	public void setNamePy(String namePy) {
+		this.namePy = namePy;
 	}
 
 }

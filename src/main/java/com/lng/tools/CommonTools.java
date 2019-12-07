@@ -10,8 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.lng.pojo.SuperDep;
+import com.lng.pojo.SystemInfo;
 import com.lng.service.ActSuperService;
 import com.lng.service.SuperDepService;
+import com.lng.service.SysConfigService;
 import com.lng.util.Constants;
 
 @Component//申明为spring组件
@@ -21,6 +23,8 @@ public class CommonTools {
 	private SuperDepService sds;
 	@Autowired
 	private ActSuperService ass;
+	@Autowired
+	private SysConfigService scs;
 	
 	public static CommonTools ct;
 	
@@ -92,8 +96,9 @@ public class CommonTools {
 	 * @param inputValue
 	 * @return
 	 */
-	public static String getFinalStr(String inputValue) {
-		if(inputValue == null) {
+	public static String getFinalStr(String inputValue,HttpServletRequest request) {
+		inputValue = String.valueOf(request.getParameter(inputValue));
+		if(inputValue.equals("") || inputValue.equals("null")){
 			return "";
 		}
 		return inputValue;
@@ -108,11 +113,12 @@ public class CommonTools {
 	 * @param inputValue
 	 * @return
 	 */
-	public static Integer getFinalInteger(Integer inputValue) {
-		if(inputValue == null) {
+	public static Integer getFinalInteger(String inputValue,HttpServletRequest request) {
+		inputValue = String.valueOf(request.getParameter(inputValue));
+		if(inputValue.equals("") || inputValue.equals("null")){
 			return 0;
 		}
-		return inputValue;
+		return Integer.parseInt(inputValue);
 	}
 	
 	/**
@@ -131,6 +137,24 @@ public class CommonTools {
         	return "";
         }
         return userId;
+	}
+	
+	/**
+	 * @description 获取session中的用户身份
+	 * @author wm
+	 * @Version : 版本
+	 * @ModifiedBy : 修改人
+	 * @date  2019年12月7日 上午11:49:16
+	 * @param request
+	 * @return
+	 */
+	public static String getLoginRoleName(HttpServletRequest request){
+		String roleName = "";
+		roleName = (String)request.getSession(false).getAttribute(Constants.LOGIN_USER_ROLE_NAME);
+        if(roleName == null){
+        	return "";
+        }
+        return roleName;
 	}
 	
 	/**
@@ -158,4 +182,19 @@ public class CommonTools {
 		return abilityFlag;
 	}
 	
+	/**
+	 * @description 获取水印
+	 * @author wm
+	 * @Version : 版本
+	 * @ModifiedBy : 修改人
+	 * @date  2019年12月7日 下午2:23:55
+	 * @return
+	 */
+	public static String getWatermark() {
+		List<SystemInfo> sysList = ct.scs.findInfo();
+		if(sysList.size() > 0) {
+			return sysList.get(0).getWaterMark();
+		}
+		return "";
+	}
 }

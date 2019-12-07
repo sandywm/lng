@@ -3,16 +3,21 @@ package com.lng.controller;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.lng.pojo.Qualification;
 import com.lng.service.QualificationService;
+import com.lng.tools.CommonTools;
 import com.lng.tools.CurrentTime;
+import com.lng.util.Constants;
 import com.lng.util.GenericResponse;
 import com.lng.util.ResponseFormat;
 
@@ -25,6 +30,7 @@ import io.swagger.annotations.ApiResponses;
 
 @RestController
 @Api(tags = "进港资质相关接口")
+@RequestMapping("/qual")
 public class QualificationController {
 	@Autowired
 	private QualificationService quaService;
@@ -32,26 +38,30 @@ public class QualificationController {
 	@PostMapping("/addQual")
 	@ApiOperation(value = "添加进港资质", notes = "添加进港资质信息")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
-			@ApiResponse(code = 50003, message = "数据已存在") })
+			@ApiResponse(code = 50003, message = "数据已存在"), @ApiResponse(code = 70001, message = "无权限访问") })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "name", value = "进港资质名称", defaultValue = "进港资质测试", required = true),
 			@ApiImplicitParam(name = "validStatus", value = "有效状态(0:有效,1:无效)", defaultValue = "1", required = true) })
-	public GenericResponse addQual(String name, Integer validStatus) {
+	public GenericResponse addQual(HttpServletRequest request, String name, Integer validStatus) {
 		Integer status = 200;
 		String qId = "";
-		try {
-			if (quaService.getQualByNameList(name).size() == 0) {
-				Qualification qua = new Qualification();
-				qua.setName(name);
-				qua.setValidStatus(validStatus);
-				qua.setAddTime(CurrentTime.getCurrentTime());
-				qId = quaService.save(qua);
-			} else {
-				status = 50003;
-			}
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.ADD_QUAL)) {
+			try {
+				if (quaService.getQualByNameList(name).size() == 0) {
+					Qualification qua = new Qualification();
+					qua.setName(name);
+					qua.setValidStatus(validStatus);
+					qua.setAddTime(CurrentTime.getCurrentTime());
+					qId = quaService.save(qua);
+				} else {
+					status = 50003;
+				}
 
-		} catch (Exception e) {
-			e.printStackTrace();
-			status = 1000;
+			} catch (Exception e) {
+				e.printStackTrace();
+				status = 1000;
+			}
+		} else {
+			status = 70001;
 		}
 		return ResponseFormat.retParam(status, qId);
 	}
@@ -59,34 +69,41 @@ public class QualificationController {
 	@PutMapping("/updateQual")
 	@ApiOperation(value = "修改进港资质", notes = "修改进港资质信息")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
-			@ApiResponse(code = 50003, message = "数据已存在"), @ApiResponse(code = 50001, message = "数据未找到") })
+			@ApiResponse(code = 50003, message = "数据已存在"), @ApiResponse(code = 50001, message = "数据未找到"),
+			@ApiResponse(code = 70001, message = "无权限访问") })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "qId", value = "进港资质编号", required = true),
 			@ApiImplicitParam(name = "name", value = "进港资质名称", defaultValue = "进港资质测试", required = true),
 			@ApiImplicitParam(name = "validstatus", value = "有效状态(0:有效,1:无效)", defaultValue = "1", required = true) })
-	public GenericResponse updateQual(String qId, String name, Integer validstatus) {
+	public GenericResponse updateQual(HttpServletRequest request, String qId, String name, Integer validstatus) {
 		Integer status = 200;
-		try {
-			Qualification qual = quaService.findById(qId);
-			if (qual == null) {
-				status = 50001;
-			} else {
-				if (name.equals(qual.getName())) {
-					qual.setValidStatus(validstatus);
-					quaService.edit(qual);
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.UP_QUAL)) {
+			try {
+				Qualification qual = quaService.findById(qId);
+				if (qual == null) {
+					status = 50001;
 				} else {
-					if (quaService.getQualByNameList(name).size() == 0) {
-						qual.setName(name);
+					if (name.equals(qual.getName())) {
 						qual.setValidStatus(validstatus);
+						qual.setAddTime(CurrentTime.getCurrentTime());
 						quaService.edit(qual);
 					} else {
-						status = 50003;
+						if (quaService.getQualByNameList(name).size() == 0) {
+							qual.setName(name);
+							qual.setValidStatus(validstatus);
+							qual.setAddTime(CurrentTime.getCurrentTime());
+							quaService.edit(qual);
+						} else {
+							status = 50003;
+						}
 					}
-				}
 
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				status = 1000;
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			status = 1000;
+		} else {
+			status = 70001;
 		}
 		return ResponseFormat.retParam(status, "");
 	}

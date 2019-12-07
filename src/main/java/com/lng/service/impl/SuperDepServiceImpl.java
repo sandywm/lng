@@ -56,5 +56,31 @@ public class SuperDepServiceImpl implements SuperDepService{
 		}
 		return sdDao.findAll();
 	}
+	@Override
+	public void delBatch(List<SuperDep> sdList) {
+		// TODO Auto-generated method stub
+		sdDao.deleteInBatch(sdList);
+	}
+
+	@Override
+	public String addOrUpSuperDep(SuperDep sp) {
+		// TODO Auto-generated method stub
+		return sdDao.save(sp).getId();
+	}
+	@Override
+	public List<SuperDep> listInfoByOpt(String userId, String roleId) {
+		// TODO Auto-generated method stub
+		Specification<SuperDep> spec = new Specification<SuperDep>() {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public Predicate toPredicate(Root<SuperDep> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+				// TODO Auto-generated method stub
+				Predicate pre = cb.conjunction();
+				pre.getExpressions().add(cb.equal(root.get("department").get("id"), roleId));
+				pre.getExpressions().add(cb.equal(root.get("superUser").get("id"), userId));
+				return pre;
+		}};
+		return sdDao.findAll(spec);
+	}
 
 }

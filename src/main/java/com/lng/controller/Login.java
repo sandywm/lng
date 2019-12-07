@@ -1,7 +1,10 @@
 package com.lng.controller;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -13,7 +16,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.lng.pojo.Department;
+import com.lng.pojo.SuperDep;
 import com.lng.pojo.SuperUser;
+import com.lng.service.SuperDepService;
 import com.lng.service.SuperService;
 import com.lng.tools.AuthImg;
 import com.lng.tools.CurrentTime;
@@ -46,10 +52,20 @@ public class Login {
 	@Autowired
 	public SuperService ss;
 	
-	@ApiOperation("跳转到首页")
-	@GetMapping("index")
+	@Autowired
+	public SuperDepService sds;
+	
+	@ApiOperation("后台用户登录首页")
+	@GetMapping("goLoginPage")
 	public ModelAndView welcome(){
-		return new ModelAndView("hello");
+		return new ModelAndView("index");
+	}
+	
+	@ApiOperation("后台用户登出系统")
+	@GetMapping("loginOut")
+	public ModelAndView loginOut(HttpServletRequest request){
+		request.getSession(false).invalidate();
+		return new ModelAndView("index");
 	}
 	
 	@ApiOperation("生成随机验证码")
@@ -67,7 +83,7 @@ public class Login {
 		}
 	}
 	
-	@ApiOperation("登录动作接口")
+	@ApiOperation("后台用户登录动作接口")
 	@ApiImplicitParams({
 		@ApiImplicitParam(name = "account", value = "用户账号", defaultValue = "wmk", required = true),
 		@ApiImplicitParam(name = "password", value = "用户密码", defaultValue = "123456", required = true),
@@ -82,11 +98,12 @@ public class Login {
 	})
 	public GenericResponse superLogin(HttpServletRequest request,String account,String password,String inputCode) {
 		Integer status = 40001;
+		List<Object> list_d = new ArrayList<Object>();
 		HttpSession sess = request.getSession(true);
 		if(account == null || password == null || inputCode == null) {
 			status = 10002;
 		}else {
-			String sessionCode = (String) sess.getAttribute("rand");
+			String sessionCode = String.valueOf(sess.getAttribute("rand"));
 			if(sessionCode.equals(inputCode)) {
 				List<SuperUser> sList = ss.findInfoByOpt(account, password);
 				if(sList.size() > 0) {
@@ -104,6 +121,17 @@ public class Login {
 						}
 						su.setLoginTimes(loginTimes);
 						ss.addOrUpUser(su);
+						//获取该用户所有身份列表
+						List<SuperDep> sdList = sds.listSpecInfoByUserId(su.getId());
+						if(sdList.size() > 0) {
+							for(SuperDep sd : sdList) {
+								Department role = sd.getDepartment();
+								Map<String,Object> map_d = new HashMap<String,Object>();
+								map_d.put("roleId", role.getId());
+								map_d.put("roleName", role.getDepName());
+								list_d.add(map_d);
+							}
+						}
 						status = 200;
 					}else{
 						status = 20003;
@@ -115,6 +143,6 @@ public class Login {
 				status = 20006;
 			}
 		}
-		return ResponseFormat.retParam(status, null);
-	}
+		return ResponseFormat.retParam(status, list_d);
+	}	
 }

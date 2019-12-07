@@ -18,7 +18,7 @@ import io.swagger.annotations.ApiModelProperty;
 @Entity
 @Table(name = "trucks_head_pp", catalog = "lng")
 @GenericGenerator(name = "system-uuid", strategy = "org.hibernate.id.UUIDGenerator")
-@ApiModel("槽车储罐品牌--TrucksHeadPp")
+@ApiModel("槽车车头品牌--TrucksHeadPp")
 public class TrucksHeadPp implements java.io.Serializable {
 
 	/**
@@ -26,7 +26,7 @@ public class TrucksHeadPp implements java.io.Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 	private String id;
-	@ApiModelProperty(value = "槽车罐品牌")
+	@ApiModelProperty(value = "槽车车头品牌")
 	private String name;
 
 	public TrucksHeadPp() {
@@ -48,7 +48,7 @@ public class TrucksHeadPp implements java.io.Serializable {
 		this.id = id;
 	}
 
-	@Column(name = "name", nullable = false, columnDefinition = "varchar(50) COMMENT '槽车罐品牌'")
+	@Column(name = "name", nullable = false, columnDefinition = "varchar(50) COMMENT '槽车车头品牌'")
 	public String getName() {
 		return this.name;
 	}

@@ -52,21 +52,20 @@ public class DepartmentServiceImpl implements DepartmentService{
 	@Override
 	public List<Department> findSpecInfo(String depName) {
 		// TODO Auto-generated method stub
-		if(!depName.isEmpty()) {
-			Specification<Department> spec = new Specification<Department>() {
-				private static final long serialVersionUID = 1L;
+		Specification<Department> spec = new Specification<Department>() {
+			private static final long serialVersionUID = 1L;
 
-				@Override
-				public Predicate toPredicate(Root<Department> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-					// TODO Auto-generated method stub
-					Predicate pre = cb.conjunction();
+			@Override
+			public Predicate toPredicate(Root<Department> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+				// TODO Auto-generated method stub
+				Predicate pre = cb.conjunction();
+				if(!depName.isEmpty()) {
 					pre.getExpressions().add(cb.equal(root.get("depName"), depName));
-					pre.getExpressions().add(cb.equal(root.get("showStatus"), 0));
-					return pre;
-			}};
-			return dDao.findAll(spec);
-		}
-		return dDao.findAll();
+				}
+				pre.getExpressions().add(cb.equal(root.get("showStatus"), 0));
+				return pre;
+		}};
+		return dDao.findAll(spec);
 	}
 
 }
