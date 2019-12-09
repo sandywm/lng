@@ -201,6 +201,31 @@ public class ModuleController {
 		return ResponseFormat.retParam(status, modList);
 	}
 	
+	@GetMapping("getSubModuleDetailData")
+	@ApiOperation(value = "获取平台指定子模块详细信息",notes = "修改子模块时使用")
+	@ApiResponses({@ApiResponse(code = 1000, message = "服务器错误"),
+		@ApiResponse(code = 50001, message = "数据未找到")})
+	@ApiImplicitParams({
+		@ApiImplicitParam(name = "maId", value = "子模块编号")
+	})
+	public GenericResponse getSubModuleDetailData(HttpServletRequest request,String maId) {
+		Integer status = 200;
+		List<ModuleAct> maList = new ArrayList<ModuleAct>();
+		try {
+			ModuleAct ma = mas.getEntityById(maId);
+			if(ma != null) {
+				maList.add(ma);
+			}else {
+				status = 50001;
+			}
+		}catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			status = 1000;
+		}
+		return ResponseFormat.retParam(status, maList);
+	}
+	
 	@GetMapping("getAllModuleData")
 	@ApiOperation(value = "获取平台所有模块--超管",notes = "设置权限时使用")
 	@ApiResponses({@ApiResponse(code = 1000, message = "服务器错误"),
@@ -237,14 +262,24 @@ public class ModuleController {
 								if(specUserId == null || specUserId == "") {
 									map_d1.put("selFlag", false);
 									mainModCheckStatus *= 0;
-									
+									map_d1.put("disabledFlag", false);
 								}else {
 									if(ass.listSpecInfoByUserId(specUserId, ma.getId()).size() > 0) {
 										map_d1.put("selFlag", true);
 										mainModCheckStatus *= 1;
+										if(ma.getActNameEng().startsWith("list")) {
+											if(ass.listSpecInfoByOpt1(specUserId, mod.getId()).size() >= 2) {//拥有两个或者两个以上的权限(包括list)
+												map_d1.put("disabledFlag", true);
+											}else {
+												map_d1.put("disabledFlag", false);
+											}
+										}else {
+											map_d1.put("disabledFlag", false);
+										}
 									}else {
 										map_d1.put("selFlag", false);
 										mainModCheckStatus *= 0;
+										map_d1.put("disabledFlag", false);
 									}
 								}
 								list_d1.add(map_d1);
@@ -336,6 +371,10 @@ public class ModuleController {
 							mod.setModUrl(modUrl);
 							ms.addOrUpMod(mod);
 						}
+					}else {
+						mod.setModName(modName);
+						mod.setModUrl(modUrl);
+						ms.addOrUpMod(mod);
 					}
 				}else {
 					status = 50001;
@@ -416,12 +455,21 @@ public class ModuleController {
 				if(mc != null) {
 					String actNameChi_db = mc.getActNameChi();
 					String actNameEng_db = mc.getActNameEng();
-					if(actNameChi_db.equals(actNameChi) && actNameEng_db.equals(actNameEng)) {
+					if(actNameChi_db.equals(actNameChi) && actNameEng_db.equals(actNameEng)) {//不变时不修改数据库
+						
+					}else if(!actNameChi_db.equals(actNameChi)){//模块名称不同时
+						//需要判断模块是否重复
+						if(mas.listInfoByOpt(actNameChi, "").size() == 0) {
+							mc.setActNameChi(actNameChi);
+							mc.setActNameEng(actNameEng);
+							mas.addOrUpModuleAct(mc);
+						}else {
+							status = 50003;
+						}
+					}else {//模块名称相同，动作不同时
 						mc.setActNameChi(actNameChi);
 						mc.setActNameEng(actNameEng);
 						mas.addOrUpModuleAct(mc);
-					}else {
-						status = 50003;
 					}
 				}else {
 					status = 50001;

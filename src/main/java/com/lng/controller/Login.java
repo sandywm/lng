@@ -46,7 +46,7 @@ import io.swagger.annotations.ApiResponses;
  */
 
 @RestController
-@Api(tags = "用户登录之前相关接口")
+@Api(tags = "1--用户登录之前相关接口")
 public class Login {
 
 	@Autowired

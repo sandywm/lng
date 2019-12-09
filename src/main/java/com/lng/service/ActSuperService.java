@@ -49,4 +49,16 @@ public interface ActSuperService {
 	 * @param selMaIdStr 权限动作（多个逗号隔开）
 	 */
 	void addBatchInfo(String userId,String selMaIdStr);
+	
+	/**
+	 * @description 获取指定人员、指定模块下已拥有的权限
+	 * @author wm
+	 * @Version : 版本
+	 * @ModifiedBy : 修改人
+	 * @date  2019年12月9日 下午1:01:38
+	 * @param userId 后台用户编号
+	 * @param modId 模块编号
+	 * @return
+	 */
+	List<ActSuper> listSpecInfoByOpt1(String userId,String modId);
 }

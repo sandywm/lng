@@ -88,4 +88,25 @@ public class ActSuperServiceImpl implements ActSuperService{
 		}
 	}
 
+	@Override
+	public List<ActSuper> listSpecInfoByOpt1(String userId, String modId) {
+		// TODO Auto-generated method stub
+		Specification<ActSuper> spec = new Specification<ActSuper>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public Predicate toPredicate(Root<ActSuper> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+				// TODO Auto-generated method stub
+				Predicate pre = cb.conjunction();
+				if(!userId.isEmpty()) {
+					pre.getExpressions().add(cb.equal(root.get("superUser").get("id"), userId));
+				}
+				if(!modId.isEmpty()) {
+					pre.getExpressions().add(cb.equal(root.get("moduleAct").get("module").get("id"), modId));
+				}
+				return pre;
+		}};
+		return asDao.findAll(spec);
+	}
+
 }

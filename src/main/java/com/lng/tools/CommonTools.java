@@ -16,6 +16,12 @@ import com.lng.service.SuperDepService;
 import com.lng.service.SysConfigService;
 import com.lng.util.Constants;
 
+import net.sourceforge.pinyin4j.PinyinHelper;
+import net.sourceforge.pinyin4j.format.HanyuPinyinCaseType;
+import net.sourceforge.pinyin4j.format.HanyuPinyinOutputFormat;
+import net.sourceforge.pinyin4j.format.HanyuPinyinToneType;
+import net.sourceforge.pinyin4j.format.exception.BadHanyuPinyinOutputFormatCombination;
+
 @Component//申明为spring组件
 public class CommonTools {
 
@@ -88,7 +94,7 @@ public class CommonTools {
 	}
 	
 	/**
-	 * @description 自定义字符型变量值
+	 * @description 自定义字符型变量值--页面传递
 	 * @author wm
 	 * @Version : 版本
 	 * @ModifiedBy : 修改人
@@ -98,6 +104,23 @@ public class CommonTools {
 	 */
 	public static String getFinalStr(String inputValue,HttpServletRequest request) {
 		inputValue = String.valueOf(request.getParameter(inputValue));
+		if(inputValue.equals("") || inputValue.equals("null")){
+			return "";
+		}
+		return inputValue;
+	}
+	
+	/**
+	 * @description 自定义字符型变量值--后台重组
+	 * @author wm
+	 * @Version : 版本
+	 * @ModifiedBy : 修改人
+	 * @date  2019年12月9日 上午11:23:08
+	 * @param inputValue
+	 * @return
+	 */
+	public static String getFinalStr(String inputValue) {
+		inputValue = String.valueOf(inputValue);
 		if(inputValue.equals("") || inputValue.equals("null")){
 			return "";
 		}
@@ -119,6 +142,23 @@ public class CommonTools {
 			return 0;
 		}
 		return Integer.parseInt(inputValue);
+	}
+	/**
+	 * 
+	 * @description 自定义整型变量值--后台重组
+	 * @author zdf
+	 * @Version : 1.0
+	 * @ModifiedBy : 
+	 * @date  2019年12月9日 下午1:58:56
+	 * @param inputValue 传的值
+	 * @return
+	 */
+
+	public static Integer getFinalInteger(Integer inputValue) {
+		if(inputValue==null){
+			return 0;
+		}
+	  return inputValue;
 	}
 	
 	/**
@@ -196,5 +236,41 @@ public class CommonTools {
 			return sysList.get(0).getWaterMark();
 		}
 		return "";
+	}
+	
+	/**
+	 * @description 获取中文首字母
+	 * @author wm
+	 * @Version : 版本
+	 * @ModifiedBy : 修改人
+	 * @date  2019年12月9日 上午10:37:41
+	 * @param inputStr_chi
+	 * @return
+	 */
+	public static String getFirstSpell(String inputStr_chi){
+		StringBuffer pybf = new StringBuffer();   
+        char[] arr = inputStr_chi.toCharArray();   
+        HanyuPinyinOutputFormat defaultFormat = new HanyuPinyinOutputFormat();   
+        defaultFormat.setCaseType(HanyuPinyinCaseType.LOWERCASE);   
+        defaultFormat.setToneType(HanyuPinyinToneType.WITHOUT_TONE);  
+        for (int i = 0; i < arr.length; i++) {   
+            if (arr[i] > 128) {   
+                    try {   
+                            String[] temp = PinyinHelper.toHanyuPinyinStringArray(arr[i], defaultFormat);   
+                            if (temp != null) {   
+                                    pybf.append(temp[0].charAt(0));   
+                            }   
+                    } catch (BadHanyuPinyinOutputFormatCombination e) {   
+                            e.printStackTrace();   
+                    }   
+            } else {   
+                    pybf.append(arr[i]);   
+            }   
+        }   
+        return pybf.toString().replaceAll("\\W", "").trim(); 
+	}
+	
+	public static void main(String[] args) {
+		System.out.println(CommonTools.getFirstSpell("我们的家"));
 	}
 }
