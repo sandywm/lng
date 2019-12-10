@@ -1,6 +1,0 @@
-package com.lng.service;
-
-public interface SuperService {
-
-	
-}
