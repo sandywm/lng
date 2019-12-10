@@ -59,13 +59,17 @@ public class GasFactory implements java.io.Serializable {
 	private String checkTime;
 	@ApiModelProperty(value = "液厂负责人")
 	private String owerUserId;
+	@ApiModelProperty(value = "液厂总体排序")
+	private Integer orderNo;
+	@ApiModelProperty(value = "液厂省内排序")
+	private Integer orderSubNo;
 
 	public GasFactory() {
 	}
 
 	public GasFactory( GasType gasType, String name, String namePy, String facImage, String province, String city,
 			String county, String address, String lxName, String lxTel, String addTime, String yzbgImg, int checkStatus,
-			String checkTime,String owerUserId) {
+			String checkTime,String owerUserId,Integer orderNo,Integer orderSubNo) {
 		this.gasType = gasType;
 		this.name = name;
 		this.namePy = namePy;
@@ -81,6 +85,8 @@ public class GasFactory implements java.io.Serializable {
 		this.checkStatus = checkStatus;
 		this.checkTime = checkTime;
 		this.owerUserId = owerUserId;
+		this.orderNo = orderNo;
+		this.orderSubNo = orderSubNo;
 	}
 
 	@Id
@@ -122,7 +128,7 @@ public class GasFactory implements java.io.Serializable {
 		this.facImage = facImage;
 	}
 
-	@Column(name = "province", columnDefinition = "varchar(50) COMMENT '省'")
+	@Column(name = "province", nullable = false,columnDefinition = "varchar(50) COMMENT '省'")
 	public String getProvince() {
 		return this.province;
 	}
@@ -230,4 +236,22 @@ public class GasFactory implements java.io.Serializable {
 		this.namePy = namePy;
 	}
 
+	@Column(name = "order_no", nullable = false, columnDefinition = "int(11) COMMENT '液厂总体排序'")
+	public Integer getOrderNo() {
+		return orderNo;
+	}
+
+	public void setOrderNo(Integer orderNo) {
+		this.orderNo = orderNo;
+	}
+
+	@Column(name = "order_sub_no", nullable = false, columnDefinition = "int(11) COMMENT '液厂省内排序'")
+	public Integer getOrderSubNo() {
+		return orderSubNo;
+	}
+
+	public void setOrderSubNo(Integer orderSubNo) {
+		this.orderSubNo = orderSubNo;
+	}
+	
 }

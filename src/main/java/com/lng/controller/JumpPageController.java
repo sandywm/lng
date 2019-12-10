@@ -62,4 +62,16 @@ public class JumpPageController {
 	public ModelAndView goUserManagerPage(){
 		return new ModelAndView("userManager/userManager");
 	}
+	
+	@ApiOperation("角色管理")
+	@GetMapping("goRolePage")
+	public ModelAndView goRolePage(){
+		return new ModelAndView("roleManager/roleManager");
+	}
+	
+	@ApiOperation("个人资料设置")
+	@GetMapping("goPerInfoPage")
+	public ModelAndView goPerInfoPage(){
+		return new ModelAndView("personalInfoSet");
+	}
 }

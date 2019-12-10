@@ -30,7 +30,6 @@ public class GasType implements java.io.Serializable {
 	private String name;
 	@ApiModelProperty(value = "液质图")
 	private String yz_img;
-	
 	public GasType() {
 	}
 

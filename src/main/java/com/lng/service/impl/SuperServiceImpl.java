@@ -44,19 +44,8 @@ public class SuperServiceImpl implements SuperService{
 	@Override
 	public SuperUser getEntityById(String superId) {
 		// TODO Auto-generated method stub
-		Specification<SuperUser> spec = new Specification<SuperUser>() {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public Predicate toPredicate(Root<SuperUser> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-				// TODO Auto-generated method stub
-				Predicate pre = cb.conjunction();
-				pre.getExpressions().add(cb.equal(root.get("id"), superId));
-				return pre;
-		}};
-		List<SuperUser> sList = sDao.findAll(spec);
-		if(sList.size() > 0) {
-			return sList.get(0);
+		if(!superId.equals("")) {
+			return sDao.findById(superId).get();
 		}
 		return null;
 	}
@@ -71,6 +60,12 @@ public class SuperServiceImpl implements SuperService{
 	public List<SuperUser> findAllInfo() {
 		// TODO Auto-generated method stub
 		return sDao.findAll();
+	}
+
+	@Override
+	public List<SuperUser> findInfoByRoleId(String roleId) {
+		// TODO Auto-generated method stub
+		return sDao.findInfoByRoleId(roleId);
 	}
 
 }

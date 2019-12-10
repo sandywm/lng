@@ -1,5 +1,6 @@
 package com.lng.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -67,7 +68,12 @@ public class GasFactoryServiceImpl implements GasFactoryService{
 				}
 				return pre;
 		}};
-		Sort sort = Sort.by(Sort.Direction.DESC, "addTime");//降序排列
+		Sort.Order sort1 = new Sort.Order(Sort.Direction.ASC, "orderNo");//升序排列
+		Sort.Order sort2 = new Sort.Order(Sort.Direction.ASC, "orderSubNo");//升序排列
+		List<Sort.Order> list = new ArrayList<Sort.Order>();
+		list.add(sort1);
+		list.add(sort2);
+		Sort sort = Sort.by(list);
 		return gfDao.findAll(spec, sort);
 	}
 
@@ -110,7 +116,12 @@ public class GasFactoryServiceImpl implements GasFactoryService{
 				}
 				return pre;
 		}};
-		Sort sort = Sort.by(Sort.Direction.DESC, "addTime");//降序排列
+		Sort.Order sort1 = new Sort.Order(Sort.Direction.ASC, "orderNo");//升序排列
+		Sort.Order sort2 = new Sort.Order(Sort.Direction.ASC, "orderSubNo");//升序排列
+		List<Sort.Order> list = new ArrayList<Sort.Order>();
+		list.add(sort1);
+		list.add(sort2);
+		Sort sort = Sort.by(list);
 		Pageable pageable = PageRequest.of(pageIndex-1, pageSize, sort);
 		return gfDao.findAll(spec, pageable);
 	}
@@ -118,23 +129,11 @@ public class GasFactoryServiceImpl implements GasFactoryService{
 	@Override
 	public GasFactory getEntityById(String gfId) {
 		// TODO Auto-generated method stub
-		Specification<GasFactory> spec = new Specification<GasFactory>() {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public Predicate toPredicate(Root<GasFactory> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-				// TODO Auto-generated method stub
-				Predicate pre = cb.conjunction();
-				if(!gfId.isEmpty()) {
-					pre.getExpressions().add(cb.equal(root.get("id"), gfId));
-				}
-				return pre;
-		}};
-		List<GasFactory> gfList = gfDao.findAll(spec);
-		if(gfList.size() > 0) {
-			return gfList.get(0);
+		if(!gfId.isEmpty()) {
+			return gfDao.findById(gfId).get();
+		}else {
+			return null;
 		}
-		return null;
 	}
 
 }

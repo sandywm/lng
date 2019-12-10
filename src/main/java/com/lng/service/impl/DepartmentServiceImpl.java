@@ -23,22 +23,8 @@ public class DepartmentServiceImpl implements DepartmentService{
 	@Override
 	public Department getEntityById(String depId) {
 		// TODO Auto-generated method stub
-		Specification<Department> spec = new Specification<Department>() {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public Predicate toPredicate(Root<Department> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-				// TODO Auto-generated method stub
-				Predicate pre = cb.conjunction();
-				if(!depId.isEmpty()) {
-					pre.getExpressions().add(cb.equal(root.get("id"), depId));
-					pre.getExpressions().add(cb.equal(root.get("showStatus"), 0));
-				}
-				return pre;
-			}};
-		List<Department> dList = dDao.findAll(spec);
-		if(dList.size() > 0) {
-			return dList.get(0);
+		if(!depId.isEmpty()) {
+			return dDao.findById(depId).get();
 		}
 		return null;
 	}
@@ -66,6 +52,12 @@ public class DepartmentServiceImpl implements DepartmentService{
 				return pre;
 		}};
 		return dDao.findAll(spec);
+	}
+
+	@Override
+	public void delInfoById(String id) {
+		// TODO Auto-generated method stub
+		dDao.deleteById(id);
 	}
 
 }

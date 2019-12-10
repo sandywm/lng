@@ -71,4 +71,10 @@ public class Constants {
 	
 	public static final String ADD_YC = "add_yc";//添加液厂
 	public static final String UP_YC = "up_yc";//添加液厂
+	
+	public static final String ADD_COMPANY = "add_company";//添加公司
+	public static final String UP_COMPANY = "up_company";//添加公司
+	
+	public static final String ADD_PROV = "add_prov";//添加省份
+	public static final String UP_PROV = "up_prov";//添加省份
 }

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.lng.pojo.Department;
 import com.lng.pojo.SuperDep;
 import com.lng.pojo.SuperUser;
 import com.lng.service.DepartmentService;
@@ -161,12 +162,16 @@ public class SuperController {
 				if(roleIdStr == null || roleIdStr == "") {
 					status = 10002;
 				}else {
-					//先删除指定用户全部身份
-					sds.delBatch(sds.listSpecInfoByUserId(uId));
-					//增加新身份
-					String[] roleIdArr = roleIdStr.split(",");
-					for(int i = 0 ; i < roleIdArr.length ; i++) {
-						sds.addOrUpSuperDep(new SuperDep(ds.getEntityById(roleIdArr[i]),ss.getEntityById(uId),CurrentTime.getCurrentTime()));
+					if(uId == null || uId == "") {
+						status = 10002;
+					}else {
+						//先删除指定用户全部身份
+						sds.delBatch(sds.listSpecInfoByUserId(uId));
+						//增加新身份
+						String[] roleIdArr = roleIdStr.split(",");
+						for(int i = 0 ; i < roleIdArr.length ; i++) {
+							sds.addOrUpSuperDep(new SuperDep(ds.getEntityById(roleIdArr[i]),ss.getEntityById(uId),CurrentTime.getCurrentTime()));
+						}
 					}
 				}
 			}else {
@@ -187,38 +192,67 @@ public class SuperController {
 		@ApiImplicitParam(name = "uId", value = "用户编号(空时不查询)"),
 		@ApiImplicitParam(name = "roleId", value = "用户身份编号(空时不查询)")
 	})
-	public GenericResponse queryUser(String uId,String roleId) {
+	public GenericResponse queryUser(HttpServletRequest request,String uId,String roleId) {
 		Integer status = 200;
 		List<Object> list_d = new ArrayList<Object>();
 		List<SuperUser> suList = new ArrayList<SuperUser>();
+		String loginUserId = CommonTools.getLoginUserId(request);
 		try {
 			if(uId == null || uId == "") {
-				suList = ss.findAllInfo();
+				if(roleId == null || roleId == ""){
+					suList = ss.findAllInfo();
+				}else {
+					suList = ss.findInfoByRoleId(roleId);
+				}
 			}else {
-				suList.add(ss.getEntityById(uId));
+				SuperUser su = ss.getEntityById(uId);
+				if(su != null) {
+					suList.add(su);
+				}
 			}
 			if(suList.size() > 0) {
 				for(SuperUser su : suList) {
-					Map<String,Object> map_d = new HashMap<String,Object>();
-					map_d.put("userId", su.getId());
-					map_d.put("account", su.getAccount());
-					map_d.put("realName", su.getRealName());
-					map_d.put("sex", su.getSex());
-					map_d.put("mobile", su.getMobile());
-					map_d.put("lastLoginTime", su.getLastLoginTime());
-					map_d.put("accountStatus", su.getAccountStatus());
-					//获取当前人员角色
-					List<SuperDep> sdList = sds.listSpecInfoByUserId(uId);
-					String roleName = "";
-					if(sdList.size() > 0) {
-						for(SuperDep sd : sdList) {
-							roleName += sd.getDepartment().getDepName() + ",";
+					if(!su.getId().equals(loginUserId)) {
+						Map<String,Object> map_d = new HashMap<String,Object>();
+						map_d.put("userId", su.getId());
+						map_d.put("account", su.getAccount());
+						map_d.put("realName", su.getRealName());
+						map_d.put("sex", su.getSex());
+						map_d.put("mobile", su.getMobile());
+						map_d.put("lastLoginTime", su.getLastLoginTime());
+						map_d.put("accountStatus", su.getAccountStatus());
+						//获取当前人员角色
+						List<SuperDep> sdList = sds.listSpecInfoByUserId(su.getId());
+						List<Object> list_d1 = new ArrayList<Object>(); 
+						if(uId == null || uId == "") {
+							for(SuperDep sd : sdList) {
+								Map<String,Object> map_d1 = new HashMap<String,Object>();
+								Department dep = sd.getDepartment();
+								map_d1.put("roleId", dep.getId());
+								map_d1.put("roleName", dep.getDepName());
+								list_d1.add(map_d1);
+							}
+						}else {//指定人员详情
+							List<Department> dList = ds.findSpecInfo("");
+							if(sdList.size() > 0) {
+								for(Department dep : dList) {
+									Map<String,Object> map_d1 = new HashMap<String,Object>();
+									map_d1.put("roleId", dep.getId());
+									map_d1.put("roleName", dep.getDepName());
+									map_d1.put("selFlag", false);
+									for(SuperDep sd : sdList) {
+										if(sd.getDepartment().getId().equals(dep.getId())) {
+											map_d1.put("selFlag", true);
+											break;
+										}
+									}
+									list_d1.add(map_d1);
+								}
+							}
 						}
-						map_d.put("roleName", roleName.substring(0, roleName.length() - 1));
-					}else {
-						map_d.put("roleName", "");
+						map_d.put("roleList", list_d1);
+						list_d.add(map_d);
 					}
-					list_d.add(map_d);
 				}
 			}else {
 				status = 50001;

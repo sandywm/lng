@@ -50,4 +50,15 @@ public interface SuperService {
 	 */
 	List<SuperUser> findAllInfo();
 	
+	/**
+	 * @description 根据角色编号获取用户列表
+	 * @author wm
+	 * @Version : 版本
+	 * @ModifiedBy : 修改人
+	 * @date  2019年12月10日 上午11:55:34
+	 * @param roleId 角色编号
+	 * @return
+	 */
+	List<SuperUser> findInfoByRoleId(String roleId);
+	
 }
