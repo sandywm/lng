@@ -48,13 +48,13 @@ public class LoginIntercept {
 	        		response.setHeader("CONTEXTPATH", "/index");
 	                // FORBIDDEN，forbidden。也就是禁止、403
 	        		response.setStatus(HttpServletResponse.SC_FORBIDDEN); 
-	        		String url = "window.top.location.href = '"+CommonTools.getWebAddress(request)+"/index'";
+	        		String url = "window.top.location.href = '"+CommonTools.getWebAddress(request)+"/loginOut'";
 					String authorizeScript = "由于您60分钟内没上线，系统已强制您下线，请重新登录！";
 					Ability.PrintAuthorizeScript(url,authorizeScript, response);
 	            }else {
 	            	// 如果不是 ajax 请求，则直接跳转即可
 	            	System.out.println("session丢失，拦截(不是ajax请求)---" + uri);
-	            	String url = "window.top.location.href = '"+CommonTools.getWebAddress(request)+"/index'";
+	            	String url = "window.top.location.href = '"+CommonTools.getWebAddress(request)+"/loginOut'";
 					String authorizeScript = "由于您60分钟内没上线，系统已强制您下线，请重新登录！";
 					Ability.PrintAuthorizeScript(url,authorizeScript, response);
 	            }

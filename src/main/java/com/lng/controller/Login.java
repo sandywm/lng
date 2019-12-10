@@ -64,7 +64,10 @@ public class Login {
 	@ApiOperation("后台用户登出系统")
 	@GetMapping("loginOut")
 	public ModelAndView loginOut(HttpServletRequest request){
-		request.getSession(false).invalidate();
+		HttpSession session = request.getSession(false);
+		if(session != null) {
+			session.invalidate();
+		}
 		return new ModelAndView("index");
 	}
 	
