@@ -74,4 +74,23 @@ public class JumpPageController {
 	public ModelAndView goPerInfoPage(){
 		return new ModelAndView("personalInfoSet");
 	}
+	
+	@ApiOperation("密码设置")
+	@GetMapping("goUpPassPage")
+	public ModelAndView goUpPassPage(){
+		return new ModelAndView("upPassword");
+	}
+	
+	@ApiOperation("气源类型设置")
+	@GetMapping("goGasTypePage")
+	public ModelAndView goGasTypePage(){
+		return new ModelAndView("gasTypeManager/gasTypeList");
+	}
+	
+	@ApiOperation("液质类型设置")
+	@GetMapping("goLqTypePage")
+	public ModelAndView goLqTypePage(){
+		return new ModelAndView("lqTypeManager/lqTypeList");
+	}
+	
 }

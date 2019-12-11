@@ -56,7 +56,7 @@ public class LngController {
 					String[] gfIdArr = gfId.split(",");
 					for(int i = 0 ; i < gfIdArr.length ; i++) {
 						GasFactory gs = gfs.getEntityById(gfIdArr[i]);
-//						LngPriceDetail lpd = new LngPriceDetail(gs, 0, CurrentTime.getCurrentTime(), String remark, String addTime);
+//						LngPriceDetail lpd = new LngPriceDetail(gs, 0, CurrentTime.getCurrentTime(), "", String addTime);
 					}
 //					lpds.saveBatch(lpdList);
 				}
