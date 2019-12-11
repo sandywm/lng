@@ -46,7 +46,7 @@ public class CompanyTypeController {
 			try {
 				if (cTypeService.getCompanyTypeByNameList(name).size() == 0) {
 					CompanyType cType = new CompanyType();
-					cType.setName(name);
+					cType.setName(CommonTools.getFinalStr(name));
 					cType.setAddTime(CurrentTime.getCurrentTime());
 					ctId = cTypeService.saveOrUpdate(cType);
 				} else {
@@ -71,6 +71,8 @@ public class CompanyTypeController {
 	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "公司类型编号", required = true),
 			@ApiImplicitParam(name = "name", value = "公司类型名称", defaultValue = "LNG贸易商", required = true) })
 	public GenericResponse updateComType(HttpServletRequest request, String id, String name) {
+		id = CommonTools.getFinalStr(id);
+		name = CommonTools.getFinalStr(name);
 		Integer status = 200;
 		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.UP_COMT)) {
 			try {
@@ -78,19 +80,17 @@ public class CompanyTypeController {
 				if (ct == null) {
 					status = 50001;
 				} else {
-					if (name.equals(ct.getName())) {
-						ct.setAddTime(CurrentTime.getCurrentTime());
-						cTypeService.saveOrUpdate(ct);
-					} else {
-						if (cTypeService.getCompanyTypeByNameList(name).size() == 0) {
+					if (cTypeService.getCompanyTypeByNameList(name).size() == 0) {
+						if (!name.equals("") && !name.equals(ct.getName())) {
 							ct.setName(name);
 							ct.setAddTime(CurrentTime.getCurrentTime());
-							cTypeService.saveOrUpdate(ct);
-						} else {
-							status = 50003;
 						}
+						cTypeService.saveOrUpdate(ct);
+					} else {
+						status = 50003;
 					}
 				}
+
 			} catch (Exception e) {
 				e.printStackTrace();
 				status = 1000;
@@ -107,6 +107,7 @@ public class CompanyTypeController {
 			@ApiResponse(code = 50001, message = "数据未找到") })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "公司类型编号") })
 	public GenericResponse queryComType(String id) {
+		id = CommonTools.getFinalStr(id);
 		Integer status = 200;
 		List<CompanyType> ctList = new ArrayList<CompanyType>();
 		try {

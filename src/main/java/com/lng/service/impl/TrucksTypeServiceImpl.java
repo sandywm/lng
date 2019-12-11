@@ -28,7 +28,12 @@ public class TrucksTypeServiceImpl implements TrucksTypeService {
 
 	@Override
 	public TrucksType findById(String id) {
-		return trucksTypeDao.findById(id).get();
+		if(!id.isEmpty()) {
+			return trucksTypeDao.findById(id).get();
+		}else {
+			return null;
+		}
+		
 	}
 
 	@SuppressWarnings("serial")

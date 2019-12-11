@@ -15,4 +15,15 @@ public interface SysConfigService {
 	 * @return
 	 */
 	List<SystemInfo> findInfo();
+	
+	/**
+	 * @description 增加或者修改配置信息
+	 * @author wm
+	 * @Version : 版本
+	 * @ModifiedBy : 修改人
+	 * @date  2019年12月11日 上午10:59:23
+	 * @param sys
+	 * @return
+	 */
+	String addOrUpdate(SystemInfo sys);
 }

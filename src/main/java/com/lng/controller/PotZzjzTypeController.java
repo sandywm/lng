@@ -46,7 +46,7 @@ public class PotZzjzTypeController {
 			try {
 				if (potZzjztypeService.getPotZzjzTypeByNameList(name).size() == 0) {
 					PotZzjzType jzType = new PotZzjzType();
-					jzType.setName(name);
+					jzType.setName(CommonTools.getFinalStr(name));
 					jzId = potZzjztypeService.saveOrUpdate(jzType);
 				} else {
 					status = 50003;
@@ -70,6 +70,8 @@ public class PotZzjzTypeController {
 	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "装载介质类型编号", required = true),
 			@ApiImplicitParam(name = "name", value = "装载介质类型名称", defaultValue = "酒精", required = true) })
 	public GenericResponse updatePotZzjzType(HttpServletRequest request, String id, String name) {
+		id = CommonTools.getFinalStr(id);
+		name = CommonTools.getFinalStr(name);
 		Integer status = 200;
 		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.UP_ZZJZ)) {
 			try {
@@ -78,7 +80,9 @@ public class PotZzjzTypeController {
 					status = 50001;
 				} else {
 					if (potZzjztypeService.getPotZzjzTypeByNameList(name).size() == 0) {
-						jz.setName(name);
+						if (!(name.equals("") && !name.equals(jz.getName()))) {
+							jz.setName(name);
+						}
 						potZzjztypeService.saveOrUpdate(jz);
 					} else {
 						status = 50003;
@@ -100,6 +104,7 @@ public class PotZzjzTypeController {
 			@ApiResponse(code = 50001, message = "数据未找到") })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "装载介质类型编号") })
 	public GenericResponse queryPotZzjzType(String id) {
+		id = CommonTools.getFinalStr(id);
 		Integer status = 200;
 		List<PotZzjzType> jzList = new ArrayList<PotZzjzType>();
 		try {

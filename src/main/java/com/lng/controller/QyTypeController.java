@@ -46,7 +46,7 @@ public class QyTypeController {
 			try {
 				if (qytypeService.getQyTypeByNameList(name).size() == 0) {
 					QyType qyType = new QyType();
-					qyType.setName(name);
+					qyType.setName(CommonTools.getFinalStr(name));
 					qyId = qytypeService.saveOrUpdate(qyType);
 				} else {
 					status = 50003;
@@ -70,6 +70,8 @@ public class QyTypeController {
 	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "气源类型编号", required = true),
 			@ApiImplicitParam(name = "name", value = "气源类型名称", defaultValue = "海气", required = true) })
 	public GenericResponse updateQyType(HttpServletRequest request, String id, String name) {
+		id = CommonTools.getFinalStr(id);
+		name = CommonTools.getFinalStr(name);
 		Integer status = 200;
 		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.UP_QYT)) {
 			try {
@@ -78,7 +80,9 @@ public class QyTypeController {
 					status = 50001;
 				} else {
 					if (qytypeService.getQyTypeByNameList(name).size() == 0) {
-						qy.setName(name);
+						if (!name.equals("") && !name.equals(qy.getName())) {
+							qy.setName(name);
+						}
 						qytypeService.saveOrUpdate(qy);
 					} else {
 						status = 50003;
@@ -100,6 +104,7 @@ public class QyTypeController {
 			@ApiResponse(code = 50001, message = "数据未找到") })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "气源类型编号") })
 	public GenericResponse queryQyType(String id) {
+		id = CommonTools.getFinalStr(id);
 		Integer status = 200;
 		List<QyType> qyList = new ArrayList<QyType>();
 		try {

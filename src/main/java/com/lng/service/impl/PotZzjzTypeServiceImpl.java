@@ -30,7 +30,12 @@ public class PotZzjzTypeServiceImpl implements PotZzjzTypeService {
 
 	@Override
 	public PotZzjzType findById(String id) {
-		return potZzjzTypeDao.findById(id).get();
+		if(!id.isEmpty()) {
+			return potZzjzTypeDao.findById(id).get();
+		}else {
+			return null;
+		}
+		
 	}
 	
 	@SuppressWarnings("serial")

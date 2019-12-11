@@ -28,8 +28,12 @@ public class TrucksHeadPpServiceImpl implements TrucksHeadPpService {
 
 	@Override
 	public TrucksHeadPp findById(String id) {
-
-		return trucksHeadPpDao.findById(id).get();
+		if(!id.isEmpty()) {
+			return trucksHeadPpDao.findById(id).get();
+		}else {
+			return null;
+		}
+		
 	}
 
 	@SuppressWarnings("serial")

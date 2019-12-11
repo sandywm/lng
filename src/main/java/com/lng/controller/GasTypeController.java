@@ -1,5 +1,6 @@
 package com.lng.controller;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,15 +40,20 @@ public class GasTypeController {
 			@ApiResponse(code = 50003, message = "数据已存在"), @ApiResponse(code = 70001, message = "无权限访问") })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "name", value = "液质类型名称", defaultValue = "天然气", required = true),
 			@ApiImplicitParam(name = "yzImg", value = "液质图片", required = true) })
-	public GenericResponse addGasType(HttpServletRequest request, String name, String yzImg) {
+	public GenericResponse addGasType(HttpServletRequest request) {
 		Integer status = 200;
 		String gtId = "";
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.ADD_GAST)) {
+		String name = CommonTools.getFinalStr("name", request);
+		String yzImg = CommonTools.getFinalStr("yzImg", request);
+		String loginUserId = CommonTools.getLoginUserId(request);
+		if (CommonTools.checkAuthorization(loginUserId, Constants.ADD_GAST)) {
 			try {
 				if (gTypeService.getGasTypeByNameList(name).size() == 0) {
 					GasType gType = new GasType();
 					gType.setName(name);
-					gType.setYz_img(yzImg);
+					if(!yzImg.equals("")) {//上传图
+						gType.setYz_img(CommonTools.dealUploadDetail(loginUserId, yzImg));
+					}
 					gtId = gTypeService.saveOrUpdate(gType);
 				} else {
 					status = 50003;
@@ -72,20 +78,30 @@ public class GasTypeController {
 			@ApiImplicitParam(name = "name", value = "液质类型名称", defaultValue = "天然气", required = true),
 			@ApiImplicitParam(name = "yzImg", value = "液质图片", required = true) })
 	public GenericResponse updateGasType(HttpServletRequest request, String id, String name, String yzImg) {
+		id = CommonTools.getFinalStr(id);
+		name = CommonTools.getFinalStr(name);
+		yzImg = CommonTools.getFinalStr(yzImg);
 		Integer status = 200;
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.UP_GAST)) {
+		String loginUserId = CommonTools.getLoginUserId(request);
+		if (CommonTools.checkAuthorization(loginUserId, Constants.UP_GAST)) {
 			try {
 				GasType gt = gTypeService.findById(id);
 				if (gt == null) {
 					status = 50001;
 				} else {
-					if (name.equals(gt.getName())) {
-						gt.setYz_img(yzImg);
-						gTypeService.saveOrUpdate(gt);
-					} else {
+					if(gt.getName().equals(name)) {
+						if (!yzImg.equals("") && !yzImg.equals(gt.getYz_img())) {
+							gt.setYz_img(CommonTools.dealUploadDetail(loginUserId, yzImg));
+							gTypeService.saveOrUpdate(gt);
+						}
+					}else {
 						if (gTypeService.getGasTypeByNameList(name).size() == 0) {
-							gt.setName(name);
-							gt.setYz_img(yzImg);
+							if (!name.equals("") && !name.equals(gt.getName())) {
+								gt.setName(name);
+							}
+							if (!yzImg.equals("") && !yzImg.equals(gt.getYz_img())) {
+								gt.setYz_img(CommonTools.dealUploadDetail(loginUserId, yzImg));
+							}
 							gTypeService.saveOrUpdate(gt);
 						} else {
 							status = 50003;
@@ -108,6 +124,7 @@ public class GasTypeController {
 			@ApiResponse(code = 50001, message = "数据未找到") })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "液质类型编号") })
 	public GenericResponse queryGasType(String id) {
+		id = CommonTools.getFinalStr(id);
 		Integer status = 200;
 		List<GasType> gtList = new ArrayList<GasType>();
 		try {

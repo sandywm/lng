@@ -41,7 +41,8 @@ public class DepartmentController {
 	@ApiOperation(value = "增加身份",notes = "增加身份接口信息")
 	@ApiResponses({@ApiResponse(code = 1000, message = "服务器错误"),
 		@ApiResponse(code = 50003, message = "数据已存在"),
-		@ApiResponse(code = 70001, message = "无权限访问")
+		@ApiResponse(code = 70001, message = "无权限访问"),
+		@ApiResponse(code = 10002, message = "参数为空")
 	})
 	@ApiImplicitParams({
 		@ApiImplicitParam(name = "roleName", value = "身份名称",  required = true),
@@ -52,11 +53,17 @@ public class DepartmentController {
 		String uId = "";
 		if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.ADD_ROLE)) {
 			try {
-				if(ds.findSpecInfo(roleName).size() > 0) {
-					status = 50003;
+				roleName = CommonTools.getFinalStr(roleName);
+				description = CommonTools.getFinalStr(description);
+				if(!roleName.equals("")) {
+					if(ds.findSpecInfo(roleName).size() > 0) {
+						status = 50003;
+					}else {
+						Department dep = new Department(roleName,description,0);
+						uId = ds.addOrUpDepartment(dep);
+					}
 				}else {
-					Department dep = new Department(roleName,description,0);
-					uId = ds.addOrUpDepartment(dep);
+					status = 10002;
 				}
 			} catch (Exception e) {
 				// TODO: handle exception
@@ -85,20 +92,25 @@ public class DepartmentController {
 		Integer status = 200;
 		if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.UP_ROLE)) {
 			try {
-				Department dep = ds.getEntityById(roleId);
-				if(dep == null) {
+				roleId = CommonTools.getFinalStr(roleId);
+				if(roleId.equals("")) {
 					status = 50001;
 				}else {
-					if(roleName.equals(dep.getDepName())) {//身份相同时不判断
-						dep.setDescription(description);
-						ds.addOrUpDepartment(dep);
+					Department dep = ds.getEntityById(roleId);
+					if(dep == null) {
+						status = 50001;
 					}else {
-						if(ds.findSpecInfo(roleName).size() == 0) {
-							dep.setDepName(roleName);
+						if(roleName.equals(dep.getDepName())) {//身份相同时不判断
 							dep.setDescription(description);
 							ds.addOrUpDepartment(dep);
 						}else {
-							status = 50003;
+							if(ds.findSpecInfo(roleName).size() == 0) {
+								dep.setDepName(roleName);
+								dep.setDescription(description);
+								ds.addOrUpDepartment(dep);
+							}else {
+								status = 50003;
+							}
 						}
 					}
 				}

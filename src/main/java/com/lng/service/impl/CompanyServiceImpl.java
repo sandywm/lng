@@ -32,7 +32,12 @@ public class CompanyServiceImpl implements CompanyService {
 
 	@Override
 	public Company getEntityById(String id) {
-		return companyDao.findById(id).get();
+		if(!id.isEmpty()) {
+			return companyDao.findById(id).get();
+		}else {
+			return null;
+		}
+		
 	}
 
 	@SuppressWarnings("serial")
@@ -49,7 +54,7 @@ public class CompanyServiceImpl implements CompanyService {
 					pre.getExpressions().add(cb.like(root.get("name"), "%" + name + "%"));
 				}
 				if (!typeId.isEmpty()) {
-					pre.getExpressions().add(cb.equal(root.get("CompanyType").get("id"), typeId));
+					pre.getExpressions().add(cb.equal(root.get("companyType").get("id"), typeId));
 				}
 				if (checkSta != -1) { //checkSta  等于 -1  全部
 					pre.getExpressions().add(cb.equal(root.get("checkStatus"), checkSta));

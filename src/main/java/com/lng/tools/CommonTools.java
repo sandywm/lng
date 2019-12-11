@@ -1,5 +1,7 @@
 package com.lng.tools;
 
+import java.io.File;
+import java.text.DecimalFormat;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -162,6 +164,25 @@ public class CommonTools {
 	}
 	
 	/**
+	 * @description 自定义double变量值--后台重组
+	 * @author wm
+	 * @Version : 版本
+	 * @ModifiedBy : 修改人
+	 * @date  2019年12月11日 下午2:03:16
+	 * @param inputData
+	 * @param request
+	 * @return
+	 */
+	public static Double getFinalDouble(String inputData,HttpServletRequest request){
+		inputData = String.valueOf(request.getParameter(inputData));
+		if(inputData.equals("") || inputData.equals("null")  || inputData.equals("undefined")){
+			return 0.0;
+		}else{
+			return Double.parseDouble(inputData);
+		}
+	}
+	
+	/**
 	 * @description 获取session中的用户编号
 	 * @author wm
 	 * @Version : 版本
@@ -268,6 +289,61 @@ public class CommonTools {
             }   
         }   
         return pybf.toString().replaceAll("\\W", "").trim(); 
+	}
+	
+	/**
+	 * @description 保留2位小数四舍五入
+	 * @author wm
+	 * @Version : 版本
+	 * @ModifiedBy : 修改人
+	 * @date  2019年12月11日 下午1:26:05
+	 * @param inputD
+	 * @return
+	 */
+	public static String convertInputNumber(double inputD){
+		DecimalFormat    df   = new DecimalFormat("######0.00");   
+		return df.format(inputD);
+	}
+	
+	/**
+	 * @description 保存时处理之前上传的图片
+	 * @author wm
+	 * @Version : 版本
+	 * @ModifiedBy : 修改人
+	 * @date  2019年12月11日 下午2:46:22
+	 * @param upFileStr
+	 * @throws Exception 
+	 */
+	public static String dealUploadDetail(String loingUserId,String upFileStr) throws Exception {
+		String finalPath = "";
+		if(!upFileStr.equals("") && !loingUserId.equals("")) {
+			String[] upFileArr = upFileStr.split(",");
+			String imagePath = Constants.UPLOAD_PATH + loingUserId;
+			File filePath = new File(imagePath);
+			if(!filePath.exists()) {
+				filePath.mkdirs();
+			}
+			for(int i = 0 ; i < upFileArr.length ; i++) {
+				//复制原图
+				FileOpration.copyFile(Constants.UPLOAD_PATH+"temp/"+upFileArr[i], imagePath+"/"+upFileArr[i]);
+				Integer lastIndex = upFileArr[i].lastIndexOf(".");
+				String suffix = upFileArr[i].substring(lastIndex+1);
+				String newFileNamePre = upFileArr[i].substring(0, lastIndex);
+				String formatName = FileOpration.getImageFormat(suffix);
+				if(!formatName.equals("")) {
+					String newFileName = newFileNamePre+"_small."+suffix;
+					String newUrl = imagePath+"/"+newFileName;
+					FileOpration.makeImage(imagePath+"/"+upFileArr[i], 0.5, newUrl, formatName);
+					finalPath += loingUserId + "/" + newFileName + ",";
+				}
+				//删除临时文件夹图片
+				FileOpration.deleteFile(Constants.UPLOAD_PATH+"temp/"+upFileArr[i]);
+			}
+			if(!finalPath.equals("")) {
+				finalPath = finalPath.substring(0, finalPath.length() - 1);
+			}
+		}
+		return finalPath;
 	}
 	
 	public static void main(String[] args) {

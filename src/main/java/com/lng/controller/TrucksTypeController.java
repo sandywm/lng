@@ -37,7 +37,8 @@ public class TrucksTypeController {
 	@ApiOperation(value = "添加槽车类型", notes = "添加槽车类型信息")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
 			@ApiResponse(code = 50003, message = "数据已存在"), @ApiResponse(code = 70001, message = "无权限访问") })
-	@ApiImplicitParams({ @ApiImplicitParam(name = "name", value = "车辆种类（油罐车...）", defaultValue = "槽车类型测试", required = true),
+	@ApiImplicitParams({
+			@ApiImplicitParam(name = "name", value = "车辆种类（油罐车...）", defaultValue = "槽车类型测试", required = true),
 			@ApiImplicitParam(name = "type", value = "车辆类型（1：普货车，2：危货车）", defaultValue = "2", required = true) })
 	public GenericResponse addTrucksType(HttpServletRequest request, String name, int type) {
 		Integer status = 200;
@@ -46,8 +47,8 @@ public class TrucksTypeController {
 			try {
 				if (ttService.getTrucksTypeByNameList(name).size() == 0) {
 					TrucksType tt = new TrucksType();
-					tt.setName(name);
-					tt.setType(type);
+					tt.setName(CommonTools.getFinalStr(name));
+					tt.setType(CommonTools.getFinalInteger(type));
 					ttId = ttService.saveOrUpdate(tt);
 				} else {
 					status = 50003;
@@ -71,8 +72,10 @@ public class TrucksTypeController {
 	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "槽车类型编号", required = true),
 			@ApiImplicitParam(name = "name", value = "车辆种类（油罐车...）", defaultValue = "槽车类型测试", required = true),
 			@ApiImplicitParam(name = "type", value = "车辆类型（1：普货车，2：危货车）", defaultValue = "2", required = true) })
-	public GenericResponse updateTrucksType(HttpServletRequest request, String id, String name, int type) {
+	public GenericResponse updateTrucksType(HttpServletRequest request, String id, String name, Integer type) {
 		Integer status = 200;
+		id = CommonTools.getFinalStr(id);
+		name=CommonTools.getFinalStr(name);
 		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.UP_TT)) {
 			try {
 				TrucksType tt = ttService.findById(id);
@@ -80,8 +83,13 @@ public class TrucksTypeController {
 					status = 50001;
 				} else {
 					if (ttService.getTrucksTypeByNameList(name).size() == 0) {
-						tt.setName(name);
-						tt.setType(type);
+						if (!name.equals("") && ! name.equals(tt.getName())) {
+							tt.setName(name);
+						}
+						if (type != null) {
+							tt.setType(type);
+						}
+						
 						ttService.saveOrUpdate(tt);
 					} else {
 						status = 50003;
@@ -105,6 +113,7 @@ public class TrucksTypeController {
 	public GenericResponse queryTrucksType(String id) {
 		Integer status = 200;
 		List<TrucksType> ttList = new ArrayList<TrucksType>();
+		id = CommonTools.getFinalStr(id);
 		try {
 			if (id.equals("")) {
 				ttList = ttService.getTrucksTypeByNameList("");

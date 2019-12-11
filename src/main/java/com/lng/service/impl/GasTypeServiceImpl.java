@@ -29,8 +29,12 @@ public class GasTypeServiceImpl implements GasTypeService {
 
 	@Override
 	public GasType findById(String id) {
+		if(!id.isEmpty()) {
+			return gTypeDao.findById(id).get();
+		}else {
+			return null;
+		}
 		
-		return gTypeDao.findById(id).get();
 	}
 
 	@Override

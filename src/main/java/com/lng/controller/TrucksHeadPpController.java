@@ -45,7 +45,7 @@ public class TrucksHeadPpController {
 			try {
 				if (thppService.getTrucksHeadPpByNameList(name).size() == 0) {
 					TrucksHeadPp thpp = new TrucksHeadPp();
-					thpp.setName(name);
+					thpp.setName(CommonTools.getFinalStr(name));
 					thppId = thppService.saveOrUpdate(thpp);
 				} else {
 					status = 50003;
@@ -69,6 +69,8 @@ public class TrucksHeadPpController {
 	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "槽车车头品牌编号", required = true),
 			@ApiImplicitParam(name = "name", value = "槽车车头品牌名称", defaultValue = "槽车车头品牌测试", required = true) })
 	public GenericResponse updateRqType(HttpServletRequest request, String id, String name) {
+		id = CommonTools.getFinalStr(id);
+		name=CommonTools.getFinalStr(name);
 		Integer status = 200;
 		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.UP_THPP)) {
 			try {
@@ -77,7 +79,9 @@ public class TrucksHeadPpController {
 					status = 50001;
 				} else {
 					if (thppService.getTrucksHeadPpByNameList(name).size() == 0) {
-						thpp.setName(name);
+						if(!name.equals("")&& ! name.equals(thpp.getName())) {
+							thpp.setName(name);
+						}
 						thppService.saveOrUpdate(thpp);
 					} else {
 						status = 50003;
@@ -99,6 +103,7 @@ public class TrucksHeadPpController {
 			@ApiResponse(code = 50001, message = "数据未找到") })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "槽车车头品牌编号") })
 	public GenericResponse queryTHeadPp(String id) {
+		id = CommonTools.getFinalStr(id);
 		Integer status = 200;
 		List<TrucksHeadPp> thppList = new ArrayList<TrucksHeadPp>();
 		try {

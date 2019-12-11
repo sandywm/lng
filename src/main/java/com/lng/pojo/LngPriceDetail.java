@@ -29,8 +29,8 @@ public class LngPriceDetail implements java.io.Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 	private String id;
-	@ApiModelProperty(value = "lng编号")
-	private LngInfo lngInfo;
+	@ApiModelProperty(value = "液厂编号")
+	private GasFactory gf;
 	@ApiModelProperty(value = "价格")
 	private int price;
 	@ApiModelProperty(value = "价格时间")
@@ -43,13 +43,15 @@ public class LngPriceDetail implements java.io.Serializable {
 	public LngPriceDetail() {
 	}
 
-	public LngPriceDetail(LngInfo lngInfo, int price, String priceTime, String remark, String addTime) {
-		this.lngInfo = lngInfo;
+
+	public LngPriceDetail(GasFactory gf, int price, String priceTime, String remark, String addTime) {
+		this.gf = gf;
 		this.price = price;
 		this.priceTime = priceTime;
 		this.remark = remark;
 		this.addTime = addTime;
 	}
+
 
 	@Id
 	@GeneratedValue(generator = "system-uuid")
@@ -63,13 +65,13 @@ public class LngPriceDetail implements java.io.Serializable {
 	}
 
 	@ManyToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "lng_id", nullable = false, columnDefinition = "varchar(100) COMMENT 'lng编号'")
-	public LngInfo getLngInfo() {
-		return this.lngInfo;
+	@JoinColumn(name = "gf_id", nullable = false, columnDefinition = "varchar(100) COMMENT '液厂编号'")
+	public GasFactory getGf() {
+		return gf;
 	}
-
-	public void setLngInfo(LngInfo lngInfo) {
-		this.lngInfo = lngInfo;
+	
+	public void setGf(GasFactory gf) {
+		this.gf = gf;
 	}
 
 	@Column(name = "price", nullable = false, columnDefinition = "int(11) COMMENT '价格'")

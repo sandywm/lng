@@ -27,8 +27,12 @@ public class CompanyTypeServiceImpl implements CompanyTypeService {
 
 	@Override
 	public CompanyType findById(String id) {
+		if(!id.isEmpty()) {
+			return cTypeDao.findById(id).get();
+		}else {
+			return null;
+		}
 		
-		return cTypeDao.findById(id).get();
 	}
 
 	@Override

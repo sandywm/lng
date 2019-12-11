@@ -27,7 +27,12 @@ public class TrucksHeadTypeServiceImpl implements TrucksHeadTypeService {
 
 	@Override
 	public TrucksHeadType findById(String id) {
-		return trucksHeadTypeDao.findById(id).get();
+		if(!id.isEmpty()) {
+			return trucksHeadTypeDao.findById(id).get();
+		}else {
+			return null;
+		}
+		
 	}
 
 	@SuppressWarnings("serial")

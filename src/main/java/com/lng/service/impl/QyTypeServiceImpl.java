@@ -29,7 +29,12 @@ public class QyTypeServiceImpl implements QyTypeService {
 
 	@Override
 	public QyType findById(String id) {
-		return qyTypeDao.findById(id).get();
+		if(!id.isEmpty()) {
+			return qyTypeDao.findById(id).get();
+		}else {
+			return null;
+		}
+		
 	}
 
 

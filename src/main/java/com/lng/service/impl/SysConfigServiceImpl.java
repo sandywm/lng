@@ -21,4 +21,10 @@ public class SysConfigServiceImpl implements SysConfigService{
 		return scDao.findAll();
 	}
 
+	@Override
+	public String addOrUpdate(SystemInfo sys) {
+		// TODO Auto-generated method stub
+		return scDao.save(sys).getId();
+	}
+
 }

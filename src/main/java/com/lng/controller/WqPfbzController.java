@@ -45,7 +45,7 @@ public class WqPfbzController {
 			try {
 				if (pfbzService.getWqPfbzByNameList(name).size() == 0) {
 					WqPfbz pfbz = new WqPfbz();
-					pfbz.setName(name);
+					pfbz.setName(CommonTools.getFinalStr(name));
 					pfbzId = pfbzService.saveOrUpdate(pfbz);
 				} else {
 					status = 50003;
@@ -70,14 +70,18 @@ public class WqPfbzController {
 			@ApiImplicitParam(name = "name", value = "尾气排放标准名称", defaultValue = "尾气排放标准测试", required = true) })
 	public GenericResponse updateWqPfbz(HttpServletRequest request, String id, String name) {
 		Integer status = 200;
+		name=CommonTools.getFinalStr(name);
+		
 		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.UP_PFBZ)) {
 			try {
-				WqPfbz pfbz = pfbzService.findById(id);
+				WqPfbz pfbz = pfbzService.findById(CommonTools.getFinalStr(id));
 				if (pfbz== null) {
 					status = 50001;
 				} else {
 					if (pfbzService.getWqPfbzByNameList(name).size() == 0) {
-						pfbz.setName(name);
+						if(!name.equals("") && ! name.equals(pfbz.getName())) {
+							pfbz.setName(name);
+						}
 						pfbzService.saveOrUpdate(pfbz);
 					} else {
 						status = 50003;
@@ -101,6 +105,7 @@ public class WqPfbzController {
 	public GenericResponse queryWqPfbz(String id) {
 		Integer status = 200;
 		List<WqPfbz> pfbzList = new ArrayList<WqPfbz>();
+		id= CommonTools.getFinalStr(id);
 		try {
 			if (id.equals("")) {
 				pfbzList = pfbzService.getWqPfbzByNameList("");

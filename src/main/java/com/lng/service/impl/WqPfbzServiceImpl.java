@@ -27,7 +27,12 @@ public class WqPfbzServiceImpl implements WqPfbzService {
 
 	@Override
 	public WqPfbz findById(String id) {
-		return wqPfbzDao.findById(id).get();
+		if(!id.isEmpty()) {
+			return wqPfbzDao.findById(id).get();
+		}else {
+			return null;
+		}
+		
 	}
 
 	@SuppressWarnings("serial")

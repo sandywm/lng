@@ -63,13 +63,15 @@ public class GasFactory implements java.io.Serializable {
 	private Integer orderNo;
 	@ApiModelProperty(value = "液厂省内排序")
 	private Integer orderSubNo;
+	@ApiModelProperty(value = "热度")
+	private Integer hot;
 
 	public GasFactory() {
 	}
 
 	public GasFactory( GasType gasType, String name, String namePy, String facImage, String province, String city,
 			String county, String address, String lxName, String lxTel, String addTime, String yzbgImg, int checkStatus,
-			String checkTime,String owerUserId,Integer orderNo,Integer orderSubNo) {
+			String checkTime,String owerUserId,Integer orderNo,Integer orderSubNo,Integer hot) {
 		this.gasType = gasType;
 		this.name = name;
 		this.namePy = namePy;
@@ -87,6 +89,7 @@ public class GasFactory implements java.io.Serializable {
 		this.owerUserId = owerUserId;
 		this.orderNo = orderNo;
 		this.orderSubNo = orderSubNo;
+		this.hot = hot;
 	}
 
 	@Id
@@ -252,6 +255,15 @@ public class GasFactory implements java.io.Serializable {
 
 	public void setOrderSubNo(Integer orderSubNo) {
 		this.orderSubNo = orderSubNo;
+	}
+
+	@Column(name = "hot", nullable = false, columnDefinition = "int(11) COMMENT '热度'")
+	public Integer getHot() {
+		return hot;
+	}
+
+	public void setHot(Integer hot) {
+		this.hot = hot;
 	}
 	
 }

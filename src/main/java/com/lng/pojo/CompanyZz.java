@@ -21,7 +21,7 @@ import io.swagger.annotations.ApiModelProperty;
 @Entity
 @Table(name = "company_zz", catalog = "lng")
 @GenericGenerator(name = "system-uuid", strategy = "org.hibernate.id.UUIDGenerator")
-@ApiModel("公司车头车牌--CompanyZz")
+@ApiModel("公司执照--CompanyZz")
 public class CompanyZz implements java.io.Serializable {
 
 	/**

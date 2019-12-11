@@ -97,7 +97,7 @@ public class Login {
 				   @ApiResponse(code = 10002, message = "参数为空"),
 				   @ApiResponse(code = 40001, message = "系统繁忙，请稍后重试"),
 				   @ApiResponse(code = 20006, message = "验证码错误"),
-				   @ApiResponse(code = 20006, message = "账号已被禁用")
+				   @ApiResponse(code = 20003, message = "账号已被禁用")
 	})
 	public GenericResponse superLogin(HttpServletRequest request,String account,String password,String inputCode) {
 		Integer status = 40001;

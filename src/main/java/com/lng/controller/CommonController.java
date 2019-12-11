@@ -111,7 +111,7 @@ public class CommonController {
 				}else {
 					hpList = hpos.listAllInfo("asc");
 					boolean flag = false;
-					Integer orderNo = hpList.size() + 1;
+					Integer orderNo = hpList.size() + 100000;
 					if(hpList.size() == 0) {
 						flag = true;
 					}else {

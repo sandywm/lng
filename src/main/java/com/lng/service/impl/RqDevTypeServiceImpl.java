@@ -28,7 +28,12 @@ public class RqDevTypeServiceImpl implements RqDevTypeService {
 
 	@Override
 	public RqDevType findById(String id) {
-		return rqDevTypeDao.findById(id).get();
+		if(!id.isEmpty()) {
+			return rqDevTypeDao.findById(id).get();
+		}else {
+			return null;
+		}
+		
 	}
 
 	@SuppressWarnings("serial")

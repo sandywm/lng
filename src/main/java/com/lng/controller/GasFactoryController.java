@@ -80,6 +80,13 @@ public class GasFactoryController {
 			name = CommonTools.getFinalStr(name);
 			province = CommonTools.getFinalStr(province);
 			gasTypeId = CommonTools.getFinalStr(gasTypeId);
+			facImage = CommonTools.getFinalStr(facImage);
+			city = CommonTools.getFinalStr(city);
+			county = CommonTools.getFinalStr(county);
+			address = CommonTools.getFinalStr(address);
+			lxName = CommonTools.getFinalStr(lxName);
+			lxTel = CommonTools.getFinalStr(lxTel);
+			yzbgImg = CommonTools.getFinalStr(yzbgImg);
 			if(!name.equals("") && !province.equals("") && !gasTypeId.equals("")) {
 				if(CommonTools.checkAuthorization(userId, Constants.ADD_YC)) {
 					if(gfs.listInfoByOpt(name, "", "", "", "", "", -1).size() == 0) {
@@ -103,7 +110,7 @@ public class GasFactoryController {
 							Integer orderSubNo = gfList.size() + 1;
 							GasFactory gf = new GasFactory(gts.findById(gasTypeId), name, namePy, facImage, province, city,
 									county, address, lxName, lxTel, CurrentTime.getCurrentTime(), yzbgImg, 1,
-									CurrentTime.getCurrentTime(),userId,orderNo,orderSubNo);
+									CurrentTime.getCurrentTime(),userId,orderNo,orderSubNo,0);
 							uId = gfs.addOrUpGasFactory(gf);
 						}else {
 							status = 50001;
@@ -154,6 +161,13 @@ public class GasFactoryController {
 			name = CommonTools.getFinalStr(name);
 			province = CommonTools.getFinalStr(province);
 			gasTypeId = CommonTools.getFinalStr(gasTypeId);
+			facImage = CommonTools.getFinalStr(facImage);
+			city = CommonTools.getFinalStr(city);
+			county = CommonTools.getFinalStr(county);
+			address = CommonTools.getFinalStr(address);
+			lxName = CommonTools.getFinalStr(lxName);
+			lxTel = CommonTools.getFinalStr(lxTel);
+			yzbgImg = CommonTools.getFinalStr(yzbgImg);
 			if(!name.equals("") && !province.equals("") && !gasTypeId.equals("")) {
 				if(CommonTools.checkAuthorization(userId, Constants.ADD_YC)) {
 					GasFactory gf = gfs.getEntityById(gfId);
@@ -234,20 +248,39 @@ public class GasFactoryController {
 	})
 	public GenericResponse getGasFactoryDetail(HttpServletRequest request,String gfId) {
 		Integer status = 200;
-		List<GasFactory> gfList = new ArrayList<GasFactory>();
+		List<Object> list = new ArrayList<Object>();
 		try {
-			GasFactory gf = gfs.getEntityById(gfId);
-			if(gf != null) {
-				gfList.add(gf);
-			}else {
+			gfId = CommonTools.getFinalStr(gfId);
+			if(gfId.equals("")) {
 				status = 50001;
+			}else {
+				GasFactory gf = gfs.getEntityById(gfId);
+				if(gf != null) {
+					Map<String,Object> map = new HashMap<String,Object>();
+					map.put("gfId", gf.getId());
+					map.put("name", gf.getName());
+					map.put("namePy", gf.getNamePy());
+					map.put("facImage", gf.getFacImage());
+					map.put("gasTypeName", gf.getGasType().getName());
+					map.put("province", gf.getProvince());
+					map.put("city", gf.getCity());
+					map.put("county", gf.getCounty());
+					map.put("address", gf.getAddress());
+					map.put("lxName", gf.getLxName());
+					map.put("addTime", gf.getAddTime());
+					map.put("yzbg", gf.getYzbgImg());
+					map.put("checkStatus", gf.getCheckStatus());
+					list.add(map);
+				}else {
+					status = 50001;
+				}
 			}
 		} catch (Exception e) {
 			// TODO: handle exception
 			e.printStackTrace();
 			status = 1000;
 		}
-		return ResponseFormat.retParam(status, gfList);
+		return ResponseFormat.retParam(status, list);
 	}
 	
 	@GetMapping("getGasFactoryData")
@@ -273,6 +306,11 @@ public class GasFactoryController {
 			if(checkStatus == null) {
 				checkStatus = -1;
 			}
+			name = CommonTools.getFinalStr(name);
+			province = CommonTools.getFinalStr(province);
+			gasTypeId = CommonTools.getFinalStr(gasTypeId);
+			city = CommonTools.getFinalStr(city);
+			county = CommonTools.getFinalStr(county);
 			List<GasFactory> gfList = gfs.listInfoByOpt(name, namePy, gasTypeId, province, city, county, checkStatus);
 			if(gfList.size() == 0) {
 				status = 50001;
@@ -328,6 +366,11 @@ public class GasFactoryController {
 			if(checkStatus == null) {
 				checkStatus = -1;
 			}
+			name = CommonTools.getFinalStr(name);
+			province = CommonTools.getFinalStr(province);
+			gasTypeId = CommonTools.getFinalStr(gasTypeId);
+			city = CommonTools.getFinalStr(city);
+			county = CommonTools.getFinalStr(county);
 			Page<GasFactory> page = gfs.listPageInfoByOpt(name, namePy, gasTypeId, province, city, county, 
 					checkStatus, owerUserId, pageIndex, pageSize);
 			count = page.getTotalElements();

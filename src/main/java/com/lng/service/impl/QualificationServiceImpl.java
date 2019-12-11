@@ -35,13 +35,20 @@ public class QualificationServiceImpl implements QualificationService {
 
 	@Override
 	public void delete(String id) {
-		qualificationDao.deleteById(id);
+		if(!id.isEmpty()) {
+			qualificationDao.deleteById(id);
+		}
+		
 	}
 
 	@Override
 	public Qualification findById(String id) {
-
-		return qualificationDao.findById(id).get();
+		if(!id.isEmpty()) {
+			return qualificationDao.findById(id).get();
+		}else {
+			return null;
+		}
+		
 	}
 
 	@Override

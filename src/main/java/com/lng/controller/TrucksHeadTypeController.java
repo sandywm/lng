@@ -45,7 +45,7 @@ public class TrucksHeadTypeController {
 			try {
 				if (thtService.getTrucksHeadTypeByNameList(name).size() == 0) {
 					TrucksHeadType tht = new TrucksHeadType();
-					tht.setName(name);
+					tht.setName(CommonTools.getFinalStr(name));
 					thtId = thtService.saveOrUpdate(tht);
 				} else {
 					status = 50003;
@@ -69,6 +69,8 @@ public class TrucksHeadTypeController {
 	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "槽车车头类型编号", required = true),
 			@ApiImplicitParam(name = "name", value = "槽车车头类型名称", defaultValue = "槽车车头类型测试", required = true) })
 	public GenericResponse updateTHeadType(HttpServletRequest request, String id, String name) {
+		id = CommonTools.getFinalStr(id);
+		name=CommonTools.getFinalStr(name);
 		Integer status = 200;
 		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.UP_THT)) {
 			try {
@@ -77,7 +79,9 @@ public class TrucksHeadTypeController {
 					status = 50001;
 				} else {
 					if (thtService.getTrucksHeadTypeByNameList(name).size() == 0) {
-						tht.setName(name);
+						if(!name.equals("") && name.equals(tht.getName())) {
+							tht.setName(name);
+						}
 						thtService.saveOrUpdate(tht);
 					} else {
 						status = 50003;
@@ -99,6 +103,7 @@ public class TrucksHeadTypeController {
 			@ApiResponse(code = 50001, message = "数据未找到") })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "槽车车头类型编号") })
 	public GenericResponse queryTHeadType(String id) {
+		id = CommonTools.getFinalStr(id);
 		Integer status = 200;
 		List<TrucksHeadType> thtList = new ArrayList<TrucksHeadType>();
 		try {

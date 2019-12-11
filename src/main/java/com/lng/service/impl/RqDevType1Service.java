@@ -27,8 +27,12 @@ public class RqDevType1Service implements com.lng.service.RqDevType1Service {
 
 	@Override
 	public RqDevType1 findById(String id) {
-
-		return rqDevType1Dao.findById(id).get();
+		if(!id.isEmpty()) {
+			return rqDevType1Dao.findById(id).get();
+		}else {
+			return null;
+		}
+		
 	}
 
 	@SuppressWarnings("serial")

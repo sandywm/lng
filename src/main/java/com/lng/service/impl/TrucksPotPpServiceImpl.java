@@ -27,7 +27,12 @@ public class TrucksPotPpServiceImpl implements TrucksPotPpService {
 
 	@Override
 	public TrucksPotPp findById(String id) {
-		return trucksPotPpDao.findById(id).get();
+		if(!id.isEmpty()) {
+			return trucksPotPpDao.findById(id).get();
+		}else {
+			return null;
+		}
+		
 	}
 
 	@SuppressWarnings("serial")

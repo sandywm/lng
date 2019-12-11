@@ -48,8 +48,8 @@ public class QualificationController {
 			try {
 				if (quaService.getQualByNameList(name).size() == 0) {
 					Qualification qua = new Qualification();
-					qua.setName(name);
-					qua.setValidStatus(validStatus);
+					qua.setName(CommonTools.getFinalStr(name));
+					qua.setValidStatus(CommonTools.getFinalInteger(validStatus));
 					qua.setAddTime(CurrentTime.getCurrentTime());
 					qId = quaService.save(qua);
 				} else {
@@ -75,6 +75,8 @@ public class QualificationController {
 			@ApiImplicitParam(name = "name", value = "进港资质名称", defaultValue = "进港资质测试", required = true),
 			@ApiImplicitParam(name = "validstatus", value = "有效状态(0:有效,1:无效)", defaultValue = "1", required = true) })
 	public GenericResponse updateQual(HttpServletRequest request, String qId, String name, Integer validstatus) {
+		qId = CommonTools.getFinalStr(qId);
+		name = CommonTools.getFinalStr(name);
 		Integer status = 200;
 		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.UP_QUAL)) {
 			try {
@@ -82,21 +84,18 @@ public class QualificationController {
 				if (qual == null) {
 					status = 50001;
 				} else {
-					if (name.equals(qual.getName())) {
-						qual.setValidStatus(validstatus);
+					if (quaService.getQualByNameList(name).size() == 0) {
+						if (!name.equals("") && !name.equals(qual.getName())) {
+							qual.setName(name);
+						}
+						if (validstatus != null) {
+							qual.setValidStatus(validstatus);
+						}
 						qual.setAddTime(CurrentTime.getCurrentTime());
 						quaService.edit(qual);
 					} else {
-						if (quaService.getQualByNameList(name).size() == 0) {
-							qual.setName(name);
-							qual.setValidStatus(validstatus);
-							qual.setAddTime(CurrentTime.getCurrentTime());
-							quaService.edit(qual);
-						} else {
-							status = 50003;
-						}
+						status = 50003;
 					}
-
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -114,6 +113,7 @@ public class QualificationController {
 			@ApiResponse(code = 50001, message = "数据未找到") })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "进港资质编号") })
 	public GenericResponse queryQual(String id) {
+		id = CommonTools.getFinalStr(id);
 		Integer status = 200;
 		List<Qualification> qualList = new ArrayList<Qualification>();
 		try {
@@ -139,6 +139,7 @@ public class QualificationController {
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功") })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "qId", value = "进港资质编号", required = true) })
 	public GenericResponse delQualById(String qId) {
+		qId = CommonTools.getFinalStr(qId);
 		Integer status = 200;
 		try {
 			quaService.delete(qId);

@@ -45,7 +45,7 @@ public class TrucksPotPpController {
 			try {
 				if (tpppService.getTrucksPotPpByNameList(name).size() == 0) {
 					TrucksPotPp tppp = new TrucksPotPp();
-					tppp.setName(name);
+					tppp.setName(CommonTools.getFinalStr(name));
 					tpppId = tpppService.saveOrUpdate(tppp);
 				} else {
 					status = 50003;
@@ -70,6 +70,8 @@ public class TrucksPotPpController {
 			@ApiImplicitParam(name = "name", value = "槽车储罐品牌名称", defaultValue = "槽车储罐品牌测试", required = true) })
 	public GenericResponse updateTPotPp(HttpServletRequest request, String id, String name) {
 		Integer status = 200;
+		id = CommonTools.getFinalStr(id);
+		name=CommonTools.getFinalStr(name);
 		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.UP_TPPP)) {
 			try {
 				TrucksPotPp tppp = tpppService.findById(id);
@@ -77,7 +79,9 @@ public class TrucksPotPpController {
 					status = 50001;
 				} else {
 					if (tpppService.getTrucksPotPpByNameList(name).size() == 0) {
-						tppp.setName(name);
+						if(!name.equals("") && ! name.equals(tppp.getName())) {
+							tppp.setName(name);
+						}
 						tpppService.saveOrUpdate(tppp);
 					} else {
 						status = 50003;
@@ -99,6 +103,7 @@ public class TrucksPotPpController {
 			@ApiResponse(code = 50001, message = "数据未找到") })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "槽车储罐品牌编号") })
 	public GenericResponse queryTPotPp(String id) {
+		id = CommonTools.getFinalStr(id);
 		Integer status = 200;
 		List<TrucksPotPp> tpppList = new ArrayList<TrucksPotPp>();
 		try {

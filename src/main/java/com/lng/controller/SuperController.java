@@ -89,51 +89,59 @@ public class SuperController {
 	}
 	
 	@PutMapping("upUser")
-	@ApiOperation(value = "修改指定用户的信息",notes = "修改用户信息，为空时不修改--超级管理员用")
+	@ApiOperation(value = "修改指定用户的信息",notes = "修改用户信息，为空时不修改")
 	@ApiResponses({@ApiResponse(code = 1000, message = "服务器错误"),
 		@ApiResponse(code = 50001, message = "数据未找到"),
 		@ApiResponse(code = 70001, message = "无权限访问")
 	})
 	@ApiImplicitParams({
-		@ApiImplicitParam(name = "uId", value = "用户编号", required = true),
+		@ApiImplicitParam(name = "uId", value = "用户编号"),
 		@ApiImplicitParam(name = "realName", value = "用户姓名"),
 		@ApiImplicitParam(name = "password", value = "用户密码"),
 		@ApiImplicitParam(name = "mobile", value = "手机号"),
+		@ApiImplicitParam(name = "sex", value = "性别"),
 		@ApiImplicitParam(name = "accountStatus", value = "账号状态")
 	})
-	public GenericResponse upUser(HttpServletRequest request,String uId,String realName,String password,String mobile,Integer accountStatus) {
+	public GenericResponse upUser(HttpServletRequest request,String uId,String realName,String password,String mobile,String sex,Integer accountStatus) {
 		Integer status = 200;
 		String roleName = CommonTools.getLoginRoleName(request);
 		try {
-			if(roleName.equals("超级管理员")) {
-				SuperUser user  = ss.getEntityById(uId);
-				if(user != null) {
-					if(password == null || password == "") {
-						
-					}else {
-						user.setPassword(new MD5().calcMD5(password));
-					}
-					if(realName == null || realName == "") {
-						
-					}else {
-						user.setRealName(realName);
-					}
-					if(mobile == null || mobile.equals("")) {
-						
-					}else {
-						user.setMobile(mobile);
-					}
+			uId = CommonTools.getFinalStr(uId);
+			if(uId.equals("")) {//个人修改个人资料时
+				uId = CommonTools.getLoginUserId(request);
+			}
+			SuperUser user  = ss.getEntityById(uId);
+			if(user != null) {
+				if(password == null || password.equals("")) {
+					
+				}else {
+					user.setPassword(new MD5().calcMD5(password));
+				}
+				if(realName == null || realName.equals("")) {
+					
+				}else {
+					user.setRealName(realName);
+				}
+				if(mobile == null || mobile.equals("")) {
+					
+				}else {
+					user.setMobile(mobile);
+				}
+				if(sex == null || sex.equals("")) {
+					
+				}else {
+					user.setSex(sex);
+				}
+				if(roleName.equals("超级管理员")) {
 					if(accountStatus != null) {
 						if(accountStatus.equals(1) || accountStatus.equals(0)) {
 							user.setAccountStatus(accountStatus);
 						}
 					}
-					ss.addOrUpUser(user);
-				}else {
-					status = 50001;
 				}
+				ss.addOrUpUser(user);
 			}else {
-				status = 70001;
+				status = 50001;
 			}
 		} catch (Exception e) {
 			// TODO: handle exception
@@ -192,7 +200,9 @@ public class SuperController {
 		@ApiImplicitParam(name = "uId", value = "用户编号(空时不查询)"),
 		@ApiImplicitParam(name = "roleId", value = "用户身份编号(空时不查询)")
 	})
-	public GenericResponse queryUser(HttpServletRequest request,String uId,String roleId) {
+	public GenericResponse queryUser(HttpServletRequest request) {
+		String uId = CommonTools.getFinalStr("uId", request);
+		String roleId = CommonTools.getFinalStr("roleId", request);
 		Integer status = 200;
 		List<Object> list_d = new ArrayList<Object>();
 		List<SuperUser> suList = new ArrayList<SuperUser>();
@@ -263,5 +273,88 @@ public class SuperController {
 			status = 1000;
 		}
 		return ResponseFormat.retParam(status, list_d);
+	}
+	
+	@GetMapping("getUserDetail")
+	@ApiOperation(value = "获取用户的详细信息",notes = "修改个人资料和密码时使用")
+	@ApiResponses({@ApiResponse(code = 1000, message = "服务器错误"),@ApiResponse(code = 50001, message = "数据未找到")})
+	public GenericResponse getUserDetail(HttpServletRequest request) {
+		Integer status = 200;
+		List<Object> list_d = new ArrayList<Object>();
+		String loginUserId = CommonTools.getLoginUserId(request);
+		try {
+			if(!loginUserId.equals("")) {
+				SuperUser su = ss.getEntityById(loginUserId);
+				if(su != null) {
+					Map<String,Object> map_d = new HashMap<String,Object>();
+					map_d.put("userId", su.getId());
+					map_d.put("account", su.getAccount());
+					map_d.put("password", su.getPassword());
+					map_d.put("realName", su.getRealName());
+					map_d.put("sex", su.getSex());
+					map_d.put("mobile", su.getMobile());
+					map_d.put("lastLoginTime", su.getLastLoginTime());
+					map_d.put("accountStatus", su.getAccountStatus());
+					//获取当前人员角色
+					List<SuperDep> sdList = sds.listSpecInfoByUserId(su.getId());
+					List<Object> list_d1 = new ArrayList<Object>(); 
+					for(SuperDep sd : sdList) {
+						Map<String,Object> map_d1 = new HashMap<String,Object>();
+						Department dep = sd.getDepartment();
+						map_d1.put("roleId", dep.getId());
+						map_d1.put("roleName", dep.getDepName());
+						list_d1.add(map_d1);
+					}
+					map_d.put("roleList", list_d1);
+					list_d.add(map_d);
+				}
+			}else {
+				status = 50001;
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			status = 1000;
+		}
+		return ResponseFormat.retParam(status, list_d);
+	}
+	
+	@GetMapping("upPassword")
+	@ApiOperation(value = "用户修改密码",notes = "修改密码时使用")
+	@ApiResponses({@ApiResponse(code = 1000, message = "服务器错误"),
+		@ApiResponse(code = 50001, message = "数据未找到"),
+		@ApiResponse(code = 20007, message = "密码错误")
+	})
+	@ApiImplicitParams({
+		@ApiImplicitParam(name = "oldPass", value = "旧密码" , required = true),
+		@ApiImplicitParam(name = "newPass", value = "新密码" , required = true)
+	})
+	public GenericResponse upPassword(HttpServletRequest request,String oldPass,String newPass) {
+		Integer status = 50001;
+		String loginUserId = CommonTools.getLoginUserId(request);
+		newPass = CommonTools.getFinalStr(newPass);
+		oldPass = CommonTools.getFinalStr(oldPass);
+		try {
+			if(!loginUserId.equals("") && !newPass.equals("") && !oldPass.equals("")) {
+				SuperUser su = ss.getEntityById(loginUserId);
+				MD5 md5 = new MD5();
+				if(su != null) {
+					if(su.getPassword().equalsIgnoreCase(md5.calcMD5(oldPass))) {//旧密码和数据库密码一致
+						su.setPassword(md5.calcMD5(newPass));
+						ss.addOrUpUser(su);
+						status = 200;
+					}else {
+						status = 20007;
+					}
+				}
+			}else {
+				status = 50001;
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			status = 1000;
+		}
+		return ResponseFormat.retParam(status, "");
 	}
 }

@@ -75,6 +75,22 @@ public class Constants {
 	public static final String ADD_COMPANY = "add_company";//添加公司
 	public static final String UP_COMPANY = "up_company";//添加公司
 	
+	public static final String ADD_PSR = "add_psr";//添加公司司机押运人
+	public static final String UP_PSR = "up_psr";//添加公司司机押运人
+	
+	public static final String ADD_ZZ = "add_zz";//添加公司执照
+	public static final String UP_ZZ = "up_zz";//添加公司执照
+	
+	public static final String ADD_HEADCP = "add_headcp";//添加公司车头车牌
+	public static final String UP_HEADCP = "up_headcp";//添加公司车头车牌
+	
+	public static final String ADD_GCCP = "add_gccp";//添加公司挂车车牌
+	public static final String UP_GCCP = "up_gccp";//添加公司挂车车牌
+	
 	public static final String ADD_PROV = "add_prov";//添加省份
 	public static final String UP_PROV = "up_prov";//添加省份
+	
+	public static final String ADD_LNG_PRICE = "add_lng_price";//添加lng价格
+	public static final String UP_LNG_PRICE = "up_lng_price";//修改lng价格
 }
+

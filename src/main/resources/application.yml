@@ -31,7 +31,7 @@ spring:
       enabled: false
   resources:
           #实现前后端分离
-    static-locations: file:///d:/lngWeb/static/,file:///d:/lngWeb/templates/
+    static-locations: file:///d:/lngWeb/static/,file:///d:/lngWeb/templates/,file:///d:/lngWeb/resources/
   #配置发送邮件
   mail:
     host: smtp.163.com

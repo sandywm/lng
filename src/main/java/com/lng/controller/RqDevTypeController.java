@@ -37,7 +37,8 @@ public class RqDevTypeController {
 	@ApiOperation(value = "添加燃气设备类目", notes = "添加燃气设备类目信息")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
 			@ApiResponse(code = 50003, message = "数据已存在"), @ApiResponse(code = 70001, message = "无权限访问") })
-	@ApiImplicitParams({ @ApiImplicitParam(name = "name", value = "燃气设备类目名称", defaultValue = "燃气设备类目测试", required = true) })
+	@ApiImplicitParams({
+			@ApiImplicitParam(name = "name", value = "燃气设备类目名称", defaultValue = "燃气设备类目测试", required = true) })
 	public GenericResponse addRqDevType(HttpServletRequest request, String name) {
 		Integer status = 200;
 		String rqId = "";
@@ -45,7 +46,7 @@ public class RqDevTypeController {
 			try {
 				if (rqDevTypeService.getRqDevTypeByNameList(name).size() == 0) {
 					RqDevType rqDevType = new RqDevType();
-					rqDevType.setName(name);
+					rqDevType.setName(CommonTools.getFinalStr(name));
 					rqId = rqDevTypeService.saveOrUpdate(rqDevType);
 				} else {
 					status = 50003;
@@ -69,15 +70,19 @@ public class RqDevTypeController {
 	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "燃气设备类目编号", required = true),
 			@ApiImplicitParam(name = "name", value = "燃气设备类目名称", defaultValue = "燃气设备类目测试", required = true) })
 	public GenericResponse updateRqDevType(HttpServletRequest request, String id, String name) {
+		id = CommonTools.getFinalStr(id);
+		name = CommonTools.getFinalStr(name);
 		Integer status = 200;
 		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.UP_RQDEVTYPE)) {
 			try {
 				RqDevType rqdev = rqDevTypeService.findById(id);
-				if (rqdev== null) {
+				if (rqdev == null) {
 					status = 50001;
 				} else {
 					if (rqDevTypeService.getRqDevTypeByNameList(name).size() == 0) {
-						rqdev.setName(name);
+						if (!name.equals("") && !name.equals(rqdev.getName())) {
+							rqdev.setName(name);
+						}
 						rqDevTypeService.saveOrUpdate(rqdev);
 					} else {
 						status = 50003;
@@ -99,6 +104,7 @@ public class RqDevTypeController {
 			@ApiResponse(code = 50001, message = "数据未找到") })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "燃气设备类目编号") })
 	public GenericResponse queryRqDevType(String id) {
+		id = CommonTools.getFinalStr(id);
 		Integer status = 200;
 		List<RqDevType> rqList = new ArrayList<RqDevType>();
 		try {
