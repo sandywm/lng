@@ -62,7 +62,7 @@ public class Qualification implements java.io.Serializable {
 		this.name = name;
 	}
 
-	@Column(name = "valid_status", nullable = false, columnDefinition = "int(11) COMMENT '有效状态(0:有效,1:无效)'")
+	@Column(name = "valid_status", nullable = false, columnDefinition = "int(11) COMMENT '有效状态(-1:全部,0:有效,1:无效)'")
 	public int getValidStatus() {
 		return this.validStatus;
 	}

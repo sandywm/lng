@@ -42,7 +42,7 @@ public class PotZzjzTypeController {
 	public GenericResponse addPotZzjzType(HttpServletRequest request, String name) {
 		Integer status = 200;
 		String jzId = "";
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.ADD_ZZJZ)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.ZZJZ_ABILITY)) {
 			try {
 				if (potZzjztypeService.getPotZzjzTypeByNameList(name).size() == 0) {
 					PotZzjzType jzType = new PotZzjzType();
@@ -73,7 +73,7 @@ public class PotZzjzTypeController {
 		id = CommonTools.getFinalStr(id);
 		name = CommonTools.getFinalStr(name);
 		Integer status = 200;
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.UP_ZZJZ)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.ZZJZ_ABILITY)) {
 			try {
 				PotZzjzType jz = potZzjztypeService.findById(id);
 				if (jz == null) {

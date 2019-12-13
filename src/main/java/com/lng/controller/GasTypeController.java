@@ -1,6 +1,5 @@
 package com.lng.controller;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,7 +45,7 @@ public class GasTypeController {
 		String name = CommonTools.getFinalStr("name", request);
 		String yzImg = CommonTools.getFinalStr("yzImg", request);
 		String loginUserId = CommonTools.getLoginUserId(request);
-		if (CommonTools.checkAuthorization(loginUserId, Constants.ADD_GAST)) {
+		if (CommonTools.checkAuthorization(loginUserId, Constants.YZLX_ABILITY)) {
 			try {
 				if (gTypeService.getGasTypeByNameList(name).size() == 0) {
 					GasType gType = new GasType();
@@ -83,7 +82,7 @@ public class GasTypeController {
 		yzImg = CommonTools.getFinalStr(yzImg);
 		Integer status = 200;
 		String loginUserId = CommonTools.getLoginUserId(request);
-		if (CommonTools.checkAuthorization(loginUserId, Constants.UP_GAST)) {
+		if (CommonTools.checkAuthorization(loginUserId, Constants.YZLX_ABILITY)) {
 			try {
 				GasType gt = gTypeService.findById(id);
 				if (gt == null) {

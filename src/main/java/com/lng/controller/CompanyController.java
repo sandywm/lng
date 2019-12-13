@@ -221,6 +221,8 @@ public class CompanyController {
 			@ApiImplicitParam(name = "zzimg", value = "公司资质图片", defaultValue = "haha.img", required = true) })
 	public GenericResponse addCompanyZz(HttpServletRequest request, String compId, String zzimg) {
 		compId = CommonTools.getFinalStr(compId);
+		zzimg = CommonTools.getFinalStr(zzimg);
+		String loginUserId = CommonTools.getLoginUserId(request);
 		Integer status = 200;
 		String zzId = "";
 		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.ADD_ZZ)) {
@@ -228,7 +230,9 @@ public class CompanyController {
 				CompanyZz zz = new CompanyZz();
 				Company company = companyService.getEntityById(compId);
 				zz.setCompany(company);
-				zz.setCompanyZzImg(CommonTools.getFinalStr(zzimg));
+				if(!zzimg.equals("")) {//上传图
+					zz.setCompanyZzImg(CommonTools.dealUploadDetail(loginUserId, zzimg));
+				}
 				zzId = zzService.saveOrUpdate(zz);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -609,6 +613,7 @@ public class CompanyController {
 		Integer status = 200;
 		zzImg = CommonTools.getFinalStr(zzImg);
 		id = CommonTools.getFinalStr(id);
+		String loginUserId = CommonTools.getLoginUserId(request);
 		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.UP_ZZ)) {
 			try {
 				CompanyZz zz = zzService.getEntityById(id);
@@ -616,7 +621,7 @@ public class CompanyController {
 					status = 50001;
 				} else {
 					if (!zzImg.isEmpty() && !zzImg.equals(zz.getCompanyZzImg())) {
-						zz.setCompanyZzImg(zzImg);
+						zz.setCompanyZzImg(CommonTools.dealUploadDetail(loginUserId, zzImg));
 					}
 					zzService.saveOrUpdate(zz);
 				}

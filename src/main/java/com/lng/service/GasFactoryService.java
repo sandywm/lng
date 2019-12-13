@@ -69,5 +69,17 @@ public interface GasFactoryService {
 	Page<GasFactory> listPageInfoByOpt(String name,String namePy,String gasTypeId,String province,
 			String city,String county,Integer checkStatus,String owerUserId,Integer pageIndex,Integer pageSize);
 	
-	
+	/**
+	 * @description 根据条件获取所有液厂信息
+	 * @author wm
+	 * @Version : 版本
+	 * @ModifiedBy : 修改人
+	 * @date  2019年12月13日 上午10:49:15
+	 * @param provPy 省份拼音(""不查询)
+	 * @param gsId 液厂编号(""不查询)
+	 * @param gsNamePy 液厂拼音(""不查询)
+	 * @param checkStatus 审核状态（-1:全部,0:未审核,1:审核通过,2:审核未通过）
+	 * @return
+	 */
+	List<GasFactory> listInfoByOpt(String provPy,String gsId,String gsNamePy,Integer checkStatus);
 }

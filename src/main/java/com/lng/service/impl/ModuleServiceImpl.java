@@ -74,4 +74,20 @@ public class ModuleServiceImpl implements ModuleService{
 		return null;
 	}
 
+	@Override
+	public List<Module> listSysMod() {
+		// TODO Auto-generated method stub
+		Specification<Module> spec = new Specification<Module>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public Predicate toPredicate(Root<Module> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+				// TODO Auto-generated method stub
+				Predicate pre = cb.conjunction();
+				pre.getExpressions().add(cb.equal(root.get("modOrder"), 0));
+				return pre;
+		}};
+		return mDao.findAll(spec);
+	}
+
 }

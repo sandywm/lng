@@ -43,7 +43,7 @@ public class TrucksTypeController {
 	public GenericResponse addTrucksType(HttpServletRequest request, String name, int type) {
 		Integer status = 200;
 		String ttId = "";
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.ADD_TT)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.CCLX_ABILITY)) {
 			try {
 				if (ttService.getTrucksTypeByNameList(name).size() == 0) {
 					TrucksType tt = new TrucksType();
@@ -75,25 +75,33 @@ public class TrucksTypeController {
 	public GenericResponse updateTrucksType(HttpServletRequest request, String id, String name, Integer type) {
 		Integer status = 200;
 		id = CommonTools.getFinalStr(id);
-		name=CommonTools.getFinalStr(name);
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.UP_TT)) {
+		name = CommonTools.getFinalStr(name);
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.CCLX_ABILITY)) {
 			try {
 				TrucksType tt = ttService.findById(id);
 				if (tt == null) {
 					status = 50001;
 				} else {
-					if (ttService.getTrucksTypeByNameList(name).size() == 0) {
-						if (!name.equals("") && ! name.equals(tt.getName())) {
-							tt.setName(name);
-						}
+					if (name.equals(tt.getName())) {
 						if (type != null) {
 							tt.setType(type);
 						}
-						
 						ttService.saveOrUpdate(tt);
 					} else {
-						status = 50003;
+						if (ttService.getTrucksTypeByNameList(name).size() == 0) {
+							if (!name.equals("") && !name.equals(tt.getName())) {
+								tt.setName(name);
+							}
+							if (type != null) {
+								tt.setType(type);
+							}
+
+							ttService.saveOrUpdate(tt);
+						} else {
+							status = 50003;
+						}
 					}
+
 				}
 			} catch (Exception e) {
 				e.printStackTrace();

@@ -91,6 +91,7 @@ public class GasFactoryController {
 				if(CommonTools.checkAuthorization(userId, Constants.ADD_YC)) {
 					if(gfs.listInfoByOpt(name, "", "", "", "", "", -1).size() == 0) {
 						String namePy = CommonTools.getFirstSpell(name);
+						String provincePy = CommonTools.getFirstSpell(province);
 						List<GasFactory> gfList = gfs.listInfoByOpt("", "", "", province, "", "", -1);//指定省份下的液厂
 						//获取指定省份的排序
 						GasType gt = gts.findById(gasTypeId);
@@ -108,7 +109,7 @@ public class GasFactoryController {
 								}
 							}
 							Integer orderSubNo = gfList.size() + 1;
-							GasFactory gf = new GasFactory(gts.findById(gasTypeId), name, namePy, facImage, province, city,
+							GasFactory gf = new GasFactory(gts.findById(gasTypeId), name, namePy, facImage, province, provincePy,city,
 									county, address, lxName, lxTel, CurrentTime.getCurrentTime(), yzbgImg, 1,
 									CurrentTime.getCurrentTime(),userId,orderNo,orderSubNo,0);
 							uId = gfs.addOrUpGasFactory(gf);
@@ -223,6 +224,47 @@ public class GasFactoryController {
 							gf.setYzbgImg(yzbgImg);
 							uId = gfs.addOrUpGasFactory(gf);
 						}
+					}else {
+						status = 50001;
+					}
+				}else {
+					status = 70001;
+				}
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			status = 1000;
+		}
+		return ResponseFormat.retParam(status, uId);
+	}
+	
+	@PutMapping("checkGf")
+	@ApiOperation(value = "审核液厂",notes = "后台人员审核液厂信息时使用")
+	@ApiResponses({@ApiResponse(code = 1000, message = "服务器错误"),
+		@ApiResponse(code = 50001, message = "数据未找到"),
+		@ApiResponse(code = 10002, message = "参数为空"),
+		@ApiResponse(code = 70001, message = "无权限访问")
+	})
+	@ApiImplicitParams({
+		@ApiImplicitParam(name = "gfId", value = "液厂编号", required = true),
+		@ApiImplicitParam(name = "checkStatus", value = "审核状态（1：审核通过,2：审核未通过）")
+	})
+	public GenericResponse checkGs(HttpServletRequest request) {
+		Integer status = 200;
+		String uId = "";
+		String userId = CommonTools.getLoginUserId(request);
+		String gfId = CommonTools.getFinalStr("gfId", request);
+		Integer checkStatus = CommonTools.getFinalInteger("checkStatus", request);
+		try {
+			if(gfId.equals("") || checkStatus.equals(0)) {
+				status = 10002;
+			}else {
+				if(CommonTools.checkAuthorization(userId, Constants.UP_YC)) {
+					GasFactory gf = gfs.getEntityById(gfId);
+					if(gf != null) {
+						gf.setCheckStatus(checkStatus);
+						uId = gfs.addOrUpGasFactory(gf);
 					}else {
 						status = 50001;
 					}

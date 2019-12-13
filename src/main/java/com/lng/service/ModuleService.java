@@ -48,4 +48,14 @@ public interface ModuleService {
 	 * @return
 	 */
 	Module getEntityById(String modId);
+	
+	/**
+	 * @description 获取系统配置模块
+	 * @author wm
+	 * @Version : 版本
+	 * @ModifiedBy : 修改人
+	 * @date  2019年12月12日 上午8:11:36
+	 * @return
+	 */
+	List<Module> listSysMod();
 }

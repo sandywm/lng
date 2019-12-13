@@ -25,6 +25,8 @@ public class CommonProvinceOrder implements java.io.Serializable {
 	private Integer id;
 	@ApiModelProperty(value = "省份")
 	private String province;
+	@ApiModelProperty(value = "省份首字母")
+	private String provincePy;
 	@ApiModelProperty(value = "排序")
 	private Integer orderNo;
 	
@@ -32,8 +34,9 @@ public class CommonProvinceOrder implements java.io.Serializable {
 		
 	}
 	
-	public CommonProvinceOrder(String province, Integer orderNo) {
+	public CommonProvinceOrder(String province, String provincePy, Integer orderNo) {
 		this.province = province;
+		this.provincePy = provincePy;
 		this.orderNo = orderNo;
 	}
 	@Id
@@ -54,6 +57,15 @@ public class CommonProvinceOrder implements java.io.Serializable {
 		this.province = province;
 	}
 	
+	@Column(name = "provincePy", nullable = false, columnDefinition = "varchar(100) COMMENT '省份首字母'")
+	public String getProvincePy() {
+		return provincePy;
+	}
+
+	public void setProvincePy(String provincePy) {
+		this.provincePy = provincePy;
+	}
+
 	@Column(name = "order_no", nullable = false, columnDefinition = "int(11) COMMENT '点击率'")
 	public Integer getOrderNo() {
 		return orderNo;

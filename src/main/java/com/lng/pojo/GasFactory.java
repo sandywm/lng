@@ -39,6 +39,8 @@ public class GasFactory implements java.io.Serializable {
 	private String facImage;
 	@ApiModelProperty(value = "省")
 	private String province;
+	@ApiModelProperty(value = "省首字母")
+	private String provincePy;
 	@ApiModelProperty(value = "市")
 	private String city;
 	@ApiModelProperty(value = "县")
@@ -69,13 +71,14 @@ public class GasFactory implements java.io.Serializable {
 	public GasFactory() {
 	}
 
-	public GasFactory( GasType gasType, String name, String namePy, String facImage, String province, String city,
+	public GasFactory( GasType gasType, String name, String namePy, String facImage, String province, String provincePy,String city,
 			String county, String address, String lxName, String lxTel, String addTime, String yzbgImg, int checkStatus,
 			String checkTime,String owerUserId,Integer orderNo,Integer orderSubNo,Integer hot) {
 		this.gasType = gasType;
 		this.name = name;
 		this.namePy = namePy;
 		this.facImage = facImage;
+		this.provincePy = provincePy;
 		this.province = province;
 		this.city = city;
 		this.county = county;
@@ -264,6 +267,15 @@ public class GasFactory implements java.io.Serializable {
 
 	public void setHot(Integer hot) {
 		this.hot = hot;
+	}
+
+	@Column(name = "province_py", columnDefinition = "varchar(50) COMMENT '省份拼音码'")
+	public String getProvincePy() {
+		return provincePy;
+	}
+
+	public void setProvincePy(String provincePy) {
+		this.provincePy = provincePy;
 	}
 	
 }

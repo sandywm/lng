@@ -41,7 +41,7 @@ public class TrucksHeadPpController {
 	public GenericResponse addTHeadPp(HttpServletRequest request, String name) {
 		Integer status = 200;
 		String thppId = "";
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.ADD_THPP)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.CCCTPP_ABILITY)) {
 			try {
 				if (thppService.getTrucksHeadPpByNameList(name).size() == 0) {
 					TrucksHeadPp thpp = new TrucksHeadPp();
@@ -72,7 +72,7 @@ public class TrucksHeadPpController {
 		id = CommonTools.getFinalStr(id);
 		name=CommonTools.getFinalStr(name);
 		Integer status = 200;
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.UP_THPP)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.CCCTPP_ABILITY)) {
 			try {
 				TrucksHeadPp thpp = thppService.findById(id);
 				if (thpp== null) {

@@ -58,7 +58,7 @@ public class PotTrade implements java.io.Serializable {
 	@ApiModelProperty(value = "联系电话")
 	private String lxTel;
 	@ApiModelProperty(value = "审核状态")
-	private int checkStatus;
+	private int checkStatus; 
 	@ApiModelProperty(value = "审核时间")
 	private String checkTime;
 	@ApiModelProperty(value = "上/下架状态")

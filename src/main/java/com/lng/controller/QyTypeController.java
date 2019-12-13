@@ -42,7 +42,7 @@ public class QyTypeController {
 	public GenericResponse addQyType(HttpServletRequest request, String name) {
 		Integer status = 200;
 		String qyId = "";
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.ADD_QYT)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.QYLX_ABILITY)) {
 			try {
 				if (qytypeService.getQyTypeByNameList(name).size() == 0) {
 					QyType qyType = new QyType();
@@ -73,7 +73,7 @@ public class QyTypeController {
 		id = CommonTools.getFinalStr(id);
 		name = CommonTools.getFinalStr(name);
 		Integer status = 200;
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.UP_QYT)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.QYLX_ABILITY)) {
 			try {
 				QyType qy = qytypeService.findById(id);
 				if (qy == null) {

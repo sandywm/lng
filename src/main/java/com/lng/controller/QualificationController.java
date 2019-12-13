@@ -44,7 +44,7 @@ public class QualificationController {
 	public GenericResponse addQual(HttpServletRequest request, String name, Integer validStatus) {
 		Integer status = 200;
 		String qId = "";
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.ADD_QUAL)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.JGZZ_ABILITY)) {
 			try {
 				if (quaService.getQualByNameList(name).size() == 0) {
 					Qualification qua = new Qualification();
@@ -78,23 +78,31 @@ public class QualificationController {
 		qId = CommonTools.getFinalStr(qId);
 		name = CommonTools.getFinalStr(name);
 		Integer status = 200;
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.UP_QUAL)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.JGZZ_ABILITY)) {
 			try {
 				Qualification qual = quaService.findById(qId);
 				if (qual == null) {
 					status = 50001;
 				} else {
-					if (quaService.getQualByNameList(name).size() == 0) {
-						if (!name.equals("") && !name.equals(qual.getName())) {
-							qual.setName(name);
-						}
+					if(name.equals(qual.getName())) {
 						if (validstatus != null) {
 							qual.setValidStatus(validstatus);
 						}
 						qual.setAddTime(CurrentTime.getCurrentTime());
 						quaService.edit(qual);
-					} else {
-						status = 50003;
+					}else {
+						if (quaService.getQualByNameList(name).size() == 0) {
+							if (!name.equals("") && !name.equals(qual.getName())) {
+								qual.setName(name);
+							}
+							if (validstatus != null) {
+								qual.setValidStatus(validstatus);
+							}
+							qual.setAddTime(CurrentTime.getCurrentTime());
+							quaService.edit(qual);
+						} else {
+							status = 50003;
+						}
 					}
 				}
 			} catch (Exception e) {

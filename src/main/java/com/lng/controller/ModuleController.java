@@ -97,6 +97,29 @@ public class ModuleController {
 					return ResponseFormat.retParam(status, list_d);
 				}else {
 					//其他部门的人员根据子模块获取主模块列表
+					//系统配置模块所有人都能看
+					List<Module> sysModList = ms.listSysMod();
+					if(sysModList.size() > 0) {
+						Module mod = sysModList.get(0);
+						Map<String,Object> map_d = new HashMap<String,Object>();
+						map_d.put("modId", mod.getId());
+						map_d.put("modName", mod.getModName());
+						map_d.put("modUrl", mod.getModUrl());
+						map_d.put("modOrder", mod.getModOrder());
+						List<Object> list_d1 = new ArrayList<Object>();
+						List<ModuleAct> maList = mas.listInfoByModId(mod.getId());
+						if(maList.size() > 0) {
+							for(ModuleAct ma : maList) {
+								Map<String,Object> map_d1 = new HashMap<String,Object>();
+								map_d1.put("maId", ma.getId());
+								map_d1.put("maChi", ma.getActNameChi());
+								map_d1.put("maEng", ma.getActNameEng());
+								list_d1.add(map_d1);
+							}
+							map_d.put("modSubList", list_d1);
+						}
+						list_d.add(map_d);
+					}
 					List<ActSuper> asList = ass.listSpecInfoByUserId(superUserId, "");
 					if(asList.size() > 0) {
 						List<Module> list_m = new ArrayList<Module>();
@@ -104,26 +127,14 @@ public class ModuleController {
 							Module mod = as.getModuleAct().getModule();
 							Map<String,Object> map_d = new HashMap<String,Object>();
 							if(list_d.size() == 0) {//首次不判断
-								map_d.put("modId", mod.getId());
-								map_d.put("modName", mod.getModName());
-								map_d.put("modUrl", mod.getModUrl());
-								map_d.put("modOrder", mod.getModOrder());
-								if(mod.getModOrder() == 0) {//系统配置
-									List<Object> list_d1 = new ArrayList<Object>();
-									List<ModuleAct> maList = mas.listInfoByModId(mod.getId());
-									if(maList.size() > 0) {
-										for(ModuleAct ma : maList) {
-											Map<String,Object> map_d1 = new HashMap<String,Object>();
-											map_d1.put("maId", ma.getId());
-											map_d1.put("maChi", ma.getActNameChi());
-											map_d1.put("maEng", ma.getActNameEng());
-											list_d1.add(map_d1);
-										}
-										map_d.put("modSubList", list_d1);
-									}
+								if(mod.getModOrder() > 0) {//不加载系统配置模块
+									map_d.put("modId", mod.getId());
+									map_d.put("modName", mod.getModName());
+									map_d.put("modUrl", mod.getModUrl());
+									map_d.put("modOrder", mod.getModOrder());
+									list_d.add(map_d);
+									list_m.add(mod);
 								}
-								list_d.add(map_d);
-								list_m.add(mod);
 							}else {
 								//判断list_m中有无相同的modId
 								Integer exist_status = 1;
@@ -136,23 +147,11 @@ public class ModuleController {
 									}
 								}
 								if(exist_status.equals(1)){//不存在
-									map_d.put("modId", mod.getId());
-									map_d.put("modName", mod.getModName());
-									map_d.put("modUrl", mod.getModUrl());
-									map_d.put("modOrder", mod.getModOrder());
-									if(mod.getModOrder() == 0) {//系统配置
-										List<Object> list_d1 = new ArrayList<Object>();
-										List<ModuleAct> maList = mas.listInfoByModId(mod.getId());
-										if(maList.size() > 0) {
-											for(ModuleAct ma : maList) {
-												Map<String,Object> map_d1 = new HashMap<String,Object>();
-												map_d1.put("maId", ma.getId());
-												map_d1.put("maChi", ma.getActNameChi());
-												map_d1.put("maEng", ma.getActNameEng());
-												list_d1.add(map_d1);
-											}
-											map_d.put("modSubList", list_d1);
-										}
+									if(mod.getModOrder() > 0) {//不加载系统配置模块
+										map_d.put("modId", mod.getId());
+										map_d.put("modName", mod.getModName());
+										map_d.put("modUrl", mod.getModUrl());
+										map_d.put("modOrder", mod.getModOrder());
 									}
 									list_d.add(map_d);
 									list_m.add(mod);
@@ -314,26 +313,32 @@ public class ModuleController {
 		@ApiImplicitParam(name = "modName", value = "模块名称",  required = true),
 		@ApiImplicitParam(name = "modUrl", value = "模块URL",  required = true)
 	})
-	public GenericResponse addMod(HttpServletRequest request,String modName, String modUrl) {
+	public GenericResponse addMod(HttpServletRequest request) {
 		Integer status = 200;
 		String modId = "";
+		String modName = CommonTools.getFinalStr("modName", request);
+		String modUrl =  CommonTools.getFinalStr("modUrl", request);
 		try {
-			if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.ADD_MOD)) {
-				//查询名字不能相同
-				List<Module> mList = ms.listSpecInfoByName(modName);
-				if(mList.size() == 0) {
-					mList = ms.listAllInfo();
-					Integer modOrder = 1;
-					if(mList.size() > 0) {
-						modOrder = mList.get(mList.size() - 1).getModOrder() + 1;
+			if(!modName.equals("") && !modUrl.equals("")) {
+				if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.ADD_MOD)) {
+					//查询名字不能相同
+					List<Module> mList = ms.listSpecInfoByName(modName);
+					if(mList.size() == 0) {
+						mList = ms.listAllInfo();
+						Integer modOrder = 1;
+						if(mList.size() > 0) {
+							modOrder = mList.get(mList.size() - 1).getModOrder() + 1;
+						}
+						modId = ms.addOrUpMod(new Module(modName, modUrl, modOrder));
+						//默认
+					}else {
+						status = 50003;
 					}
-					modId = ms.addOrUpMod(new Module(modName, modUrl, modOrder));
-					//默认
 				}else {
-					status = 50003;
+					status = 70001;
 				}
 			}else {
-				status = 70001;
+				status = 1000;
 			}
 		} catch (Exception e) {
 			// TODO: handle exception

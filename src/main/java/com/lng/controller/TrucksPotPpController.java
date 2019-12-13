@@ -41,7 +41,7 @@ public class TrucksPotPpController {
 	public GenericResponse addTPotPp(HttpServletRequest request, String name) {
 		Integer status = 200;
 		String tpppId = "";
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.ADD_TPPP)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.CGPP_ABILITY)) {
 			try {
 				if (tpppService.getTrucksPotPpByNameList(name).size() == 0) {
 					TrucksPotPp tppp = new TrucksPotPp();
@@ -72,7 +72,7 @@ public class TrucksPotPpController {
 		Integer status = 200;
 		id = CommonTools.getFinalStr(id);
 		name=CommonTools.getFinalStr(name);
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.UP_TPPP)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.CGPP_ABILITY)) {
 			try {
 				TrucksPotPp tppp = tpppService.findById(id);
 				if (tppp== null) {

@@ -104,7 +104,7 @@ public class CommonController {
 						}
 					}
 					if(flag) {
-						id = cpos.saveOrUpdate(new CommonProvinceOrder(province,orderNo));
+						id = cpos.saveOrUpdate(new CommonProvinceOrder(province,CommonTools.getFirstSpell(province),orderNo));
 					}else {
 						status = 50003;
 					}
@@ -121,7 +121,7 @@ public class CommonController {
 						}
 					}
 					if(flag) {
-						id = hpos.saveOrUpdate(new HqProvinceOrder(province,orderNo));
+						id = hpos.saveOrUpdate(new HqProvinceOrder(province,CommonTools.getFirstSpell(province),orderNo));
 					}else {
 						status = 50003;
 					}
@@ -134,6 +134,63 @@ public class CommonController {
 			status = 1000;
 		}
 		return ResponseFormat.retParam(status, id);
+	}
+	
+	@PutMapping("/upProvName")
+	@ApiOperation(value = "修改省份名称", notes = "修改省份名称")
+	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), 
+		@ApiResponse(code = 200, message = "成功"),
+		@ApiResponse(code = 70001, message = "无权限访问"),
+		@ApiResponse(code = 10002, message = "参数为空"),
+		@ApiResponse(code = 50001, message = "数据未找到")
+	})
+	@ApiImplicitParams({ @ApiImplicitParam(name = "proId", value = "省份ID",required = true),
+		@ApiImplicitParam(name = "provName", value = "身份名称", required = true),
+		@ApiImplicitParam(name = "gsType", value = "液质类型(0:其他,1:海气)", dataType = "integer",required = true)
+		
+	})
+	public GenericResponse upProvName(HttpServletRequest request) {
+		Integer status = 200;
+		Integer provId = CommonTools.getFinalInteger("provId", request);
+		String provName = CommonTools.getFinalStr("provName", request);
+		Integer gsType = CommonTools.getFinalInteger("gsType", request);
+		try {
+			if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.ADD_YC)) {
+				if(provId.equals(0) || provName.equals("")) {
+					status = 10002;
+				}else {
+					if(gsType.equals(0)) {
+						CommonProvinceOrder cpo = cpos.getEntityByOpt(provId, "");
+						if(cpo != null) {
+							if(!provName.equals(cpo.getProvince())) {
+								cpo.setProvince(provName);
+								cpo.setProvincePy(CommonTools.getFirstSpell(provName));
+								cpos.saveOrUpdate(cpo);
+							}
+						}else {
+							status = 50001;
+						}
+					}else if(gsType.equals(1)) {
+						HqProvinceOrder hpo = hpos.getEntityByOpt(provId, "");
+						if(hpo != null) {
+							if(!provName.equals(hpo.getProvince())) {
+								hpo.setProvince(provName);
+								hpo.setProvincePy(CommonTools.getFirstSpell(provName));
+								hpos.saveOrUpdate(hpo);
+							}
+						}else {
+							status = 50001;
+						}
+					}
+				}
+			}else {
+				status = 70001;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			status = 1000;
+		}
+		return ResponseFormat.retParam(status, "");
 	}
 	
 	@PutMapping("/setProvOrder")

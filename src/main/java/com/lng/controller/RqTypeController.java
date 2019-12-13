@@ -43,7 +43,7 @@ public class RqTypeController {
 	public GenericResponse addRqType(HttpServletRequest request, String name) {
 		Integer status = 200;
 		String rqId = "";
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.ADD_RQTYPE)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.RQLX_ABILITY)) {
 			try {
 				if (rqTypeService.getRqDevType1ByNameList(name).size() == 0) {
 					RqDevType1 rqType = new RqDevType1();
@@ -74,7 +74,7 @@ public class RqTypeController {
 		id = CommonTools.getFinalStr(id);
 		name = CommonTools.getFinalStr(name);
 		Integer status = 200;
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.UP_RQTYPE)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.RQLX_ABILITY)) {
 			try {
 				RqDevType1 rq = rqTypeService.findById(id);
 				if (rq == null) {

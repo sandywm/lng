@@ -136,4 +136,29 @@ public class GasFactoryServiceImpl implements GasFactoryService{
 		}
 	}
 
+	@Override
+	public List<GasFactory> listInfoByOpt(String provPy, String gsId, String gsNamePy,Integer checkStatus) {
+		// TODO Auto-generated method stub
+		Specification<GasFactory> spec = new Specification<GasFactory>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public Predicate toPredicate(Root<GasFactory> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+				// TODO Auto-generated method stub
+				Predicate pre = cb.conjunction();
+				if(!provPy.isEmpty()) {
+					pre.getExpressions().add(cb.like(root.get("provincePy"), "%"+provPy+"%"));
+				}else if(!gsId.isEmpty()) {
+					pre.getExpressions().add(cb.equal(root.get("id"), gsId));
+				}else if(!gsNamePy.isEmpty()) {
+					pre.getExpressions().add(cb.like(root.get("namePy"), "%"+gsNamePy+"%"));
+				}else if(checkStatus >= 0) {
+					pre.getExpressions().add(cb.equal(root.get("checkStatus"), checkStatus));
+				}
+				return pre;
+		}};
+		Sort sort = Sort.by(Sort.Direction.ASC, "orderNo");//液厂升序排列
+		return gfDao.findAll(spec,sort);
+	}
+
 }

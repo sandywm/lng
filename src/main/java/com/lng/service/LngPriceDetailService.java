@@ -26,4 +26,32 @@ public interface LngPriceDetailService {
 	 * @param lpdList
 	 */
 	void saveBatch(List<LngPriceDetail> lpdList);
+	
+	/**
+	 * @description 获取指定液厂、指定价格、指定日期的记录列表（同一个液厂同一价格一天只能录入一次）
+	 * @author wm
+	 * @Version : 版本
+	 * @ModifiedBy : 修改人
+	 * @date  2019年12月12日 上午9:47:19
+	 * @param gfId 液厂
+	 * @param price 价格
+	 * @param priceDate 价格日期
+	 * @return
+	 */
+	List<LngPriceDetail> listInfoByOpt(String gfId,Integer price,String priceDate);
+	
+	/**
+	 * @description 根据条件获取最近三天的价格行情列表
+	 * @author wm
+	 * @Version : 版本
+	 * @ModifiedBy : 修改人
+	 * @date  2019年12月12日 上午11:55:47
+	 * @param provPy 省份拼音(""不查询)
+	 * @param gsId 液厂编号(""不查询)
+	 * @param gsNamePy 液厂拼音(""不查询)
+	 * @param sDate 开始时间
+	 * @param sDate 结束时间
+	 * @return
+	 */
+	List<LngPriceDetail> listInfoByOpt(String provPy,String gsId,String gsNamePy,String sDate,String eDate);
 }
