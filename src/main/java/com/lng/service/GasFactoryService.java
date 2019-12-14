@@ -40,13 +40,12 @@ public interface GasFactoryService {
 	 * @param namePy 液厂名称拼音码(""表示全部)
 	 * @param gasTypeId 液质类型编号(""表示全部)
 	 * @param province 省(""表示全部)
-	 * @param city 市(""表示全部)
-	 * @param county 县(""表示全部)
+	 * @param provincePy 市(""表示全部)
 	 * @param checkStatus 审核状态（-1:全部,0:未审核,1:审核通过,2:审核未通过）
 	 * @return
 	 */
 	List<GasFactory> listInfoByOpt(String name,String namePy,String gasTypeId,String province,
-			String city,String county,Integer checkStatus);
+			String provincePy,Integer checkStatus);
 	
 	/**
 	 * @description 根据条件分页获取液厂信息列表
@@ -58,8 +57,7 @@ public interface GasFactoryService {
 	 * @param namePy 液厂名称拼音码(""表示全部)
 	 * @param gasTypeId 液质类型编号(""表示全部)
 	 * @param province 省(""表示全部)
-	 * @param city 市(""表示全部)
-	 * @param county 县(""表示全部)
+	 * @param provincePy 市(""表示全部)
 	 * @param checkStatus 审核状态（-1:全部,0:未审核,1:审核通过,2:审核未通过）
 	 * @param owerUserId 液厂所属人编号
 	 * @param pageIndex 页码
@@ -67,7 +65,7 @@ public interface GasFactoryService {
 	 * @return
 	 */
 	Page<GasFactory> listPageInfoByOpt(String name,String namePy,String gasTypeId,String province,
-			String city,String county,Integer checkStatus,String owerUserId,Integer pageIndex,Integer pageSize);
+			String provincePy,Integer checkStatus,String owerUserId,Integer pageIndex,Integer pageSize);
 	
 	/**
 	 * @description 根据条件获取所有液厂信息
@@ -82,4 +80,17 @@ public interface GasFactoryService {
 	 * @return
 	 */
 	List<GasFactory> listInfoByOpt(String provPy,String gsId,String gsNamePy,Integer checkStatus);
+	
+	/**
+	 * @description 根据条件获取所有液厂信息(前台显示用)
+	 * @author wm
+	 * @Version : 版本
+	 * @ModifiedBy : 修改人
+	 * @date  2019年12月14日 上午10:49:15
+	 * @param provPy 省份拼音(""不查询)
+	 * @param gtId 液资编号(""不查询)
+	 * @param gsNamePy 液厂拼音(""不查询)
+	 * @return
+	 */
+	List<GasFactory> listInfoByOpt(String provPy,String gtId,String gsNamePy);
 }

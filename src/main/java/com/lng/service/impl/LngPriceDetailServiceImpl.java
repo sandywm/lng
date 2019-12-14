@@ -59,7 +59,7 @@ public class LngPriceDetailServiceImpl implements LngPriceDetailService{
 	}
 
 	@Override
-	public List<LngPriceDetail> listInfoByOpt(String provPy, String gsId, String gsNamePy, String sDate, String eDate) {
+	public List<LngPriceDetail> listInfoByOpt(String provPy, String gsId, String gsNamePy, String sDate, String eDate,String orderStr) {
 		// TODO Auto-generated method stub
 		Specification<LngPriceDetail> spec = new Specification<LngPriceDetail>() {
 			private static final long serialVersionUID = 1L;
@@ -80,7 +80,25 @@ public class LngPriceDetailServiceImpl implements LngPriceDetailService{
 				}
 				return pre;
 		}};
-		Sort sort = Sort.by(Sort.Direction.ASC, "priceTime");//同一天价格时间升序排列
-		return lpdDao.findAll(spec,sort);
+		if(orderStr.isEmpty()) {
+			return lpdDao.findAll(spec);
+		}else {
+			Sort sort = null;
+			if(orderStr.equals("asc")) {
+				sort = Sort.by(Sort.Direction.ASC, "priceTime");//同一天价格时间升序排列
+			}else if(orderStr.equals("desc")) {
+				sort = Sort.by(Sort.Direction.DESC, "priceTime");//同一天价格时间升序排列
+			}
+			return lpdDao.findAll(spec,sort);
+		}
+	}
+
+	@Override
+	public LngPriceDetail getEntityById(String lpdId) {
+		// TODO Auto-generated method stub
+		if(!lpdId.equals("")) {
+			return lpdDao.findById(lpdId).get();
+		}
+		return null;
 	}
 }

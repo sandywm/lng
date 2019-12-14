@@ -33,8 +33,8 @@ public class GasFactoryServiceImpl implements GasFactoryService{
 	}
 
 	@Override
-	public List<GasFactory> listInfoByOpt(String name, String namePy, String gasTypeId, String province, String city,
-			String county, Integer checkStatus) {
+	public List<GasFactory> listInfoByOpt(String name, String namePy, String gasTypeId, String province, String provincePy,
+			Integer checkStatus) {
 		// TODO Auto-generated method stub
 		Specification<GasFactory> spec = new Specification<GasFactory>() {
 			private static final long serialVersionUID = 1L;
@@ -55,11 +55,8 @@ public class GasFactoryServiceImpl implements GasFactoryService{
 				if(!province.isEmpty()) {
 					pre.getExpressions().add(cb.equal(root.get("province"), province));
 				}
-				if(!city.isEmpty()) {
-					pre.getExpressions().add(cb.equal(root.get("city"), city));
-				}
-				if(!county.isEmpty()) {
-					pre.getExpressions().add(cb.equal(root.get("county"), county));
+				if(!provincePy.isEmpty()) {
+					pre.getExpressions().add(cb.like(root.get("provincePy"), "%"+provincePy+"%"));
 				}
 				if(checkStatus == null || checkStatus == -1) {
 					
@@ -79,7 +76,7 @@ public class GasFactoryServiceImpl implements GasFactoryService{
 
 	@Override
 	public Page<GasFactory> listPageInfoByOpt(String name, String namePy, String gasTypeId, String province,
-			String city, String county, Integer checkStatus, String owerUserId,Integer pageIndex,Integer pageSize) {
+			String provincePy, Integer checkStatus, String owerUserId,Integer pageIndex,Integer pageSize) {
 		// TODO Auto-generated method stub
 		Specification<GasFactory> spec = new Specification<GasFactory>() {
 			private static final long serialVersionUID = 1L;
@@ -100,11 +97,8 @@ public class GasFactoryServiceImpl implements GasFactoryService{
 				if(!province.isEmpty()) {
 					pre.getExpressions().add(cb.equal(root.get("province"), province));
 				}
-				if(!city.isEmpty()) {
-					pre.getExpressions().add(cb.equal(root.get("city"), city));
-				}
-				if(!county.isEmpty()) {
-					pre.getExpressions().add(cb.equal(root.get("county"), county));
+				if(!provincePy.isEmpty()) {
+					pre.getExpressions().add(cb.like(root.get("provincePy"), "%"+provincePy+"%"));
 				}
 				if(checkStatus == null || checkStatus == -1) {
 					
@@ -148,16 +142,53 @@ public class GasFactoryServiceImpl implements GasFactoryService{
 				Predicate pre = cb.conjunction();
 				if(!provPy.isEmpty()) {
 					pre.getExpressions().add(cb.like(root.get("provincePy"), "%"+provPy+"%"));
-				}else if(!gsId.isEmpty()) {
+				}
+				if(!gsId.isEmpty()) {
 					pre.getExpressions().add(cb.equal(root.get("id"), gsId));
-				}else if(!gsNamePy.isEmpty()) {
+				}
+				if(!gsNamePy.isEmpty()) {
 					pre.getExpressions().add(cb.like(root.get("namePy"), "%"+gsNamePy+"%"));
-				}else if(checkStatus >= 0) {
+				}
+				if(checkStatus >= 0) {
 					pre.getExpressions().add(cb.equal(root.get("checkStatus"), checkStatus));
 				}
 				return pre;
 		}};
-		Sort sort = Sort.by(Sort.Direction.ASC, "orderNo");//液厂升序排列
+//		Sort sort = Sort.by(Sort.Direction.ASC, "orderNo");//液厂升序排列
+		Sort.Order sort1 = new Sort.Order(Sort.Direction.ASC, "orderNo");//升序排列
+		Sort.Order sort2 = new Sort.Order(Sort.Direction.ASC, "orderSubNo");//升序排列
+		List<Sort.Order> list = new ArrayList<Sort.Order>();
+		list.add(sort1);
+		list.add(sort2);
+		Sort sort = Sort.by(list);
+		return gfDao.findAll(spec,sort);
+	}
+
+	@Override
+	public List<GasFactory> listInfoByOpt(String provPy, String gtId, String gsNamePy) {
+		// TODO Auto-generated method stub
+		Specification<GasFactory> spec = new Specification<GasFactory>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public Predicate toPredicate(Root<GasFactory> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+				// TODO Auto-generated method stub
+				Predicate pre = cb.conjunction();
+				if(!provPy.isEmpty()) {
+					pre.getExpressions().add(cb.like(root.get("provincePy"), "%"+provPy+"%"));
+				}
+				if(!gtId.isEmpty()) {
+					pre.getExpressions().add(cb.equal(root.get("gasType").get("id"), gtId));
+				}
+				if(!gsNamePy.isEmpty()) {
+					pre.getExpressions().add(cb.like(root.get("namePy"), "%"+gsNamePy+"%"));
+				}
+				return pre;
+		}};
+		Sort.Order sort1 = new Sort.Order(Sort.Direction.DESC, "hot");//升序排列
+		List<Sort.Order> list = new ArrayList<Sort.Order>();
+		list.add(sort1);
+		Sort sort = Sort.by(list);
 		return gfDao.findAll(spec,sort);
 	}
 

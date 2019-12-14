@@ -89,10 +89,10 @@ public class GasFactoryController {
 			yzbgImg = CommonTools.getFinalStr(yzbgImg);
 			if(!name.equals("") && !province.equals("") && !gasTypeId.equals("")) {
 				if(CommonTools.checkAuthorization(userId, Constants.ADD_YC)) {
-					if(gfs.listInfoByOpt(name, "", "", "", "", "", -1).size() == 0) {
+					if(gfs.listInfoByOpt(name, "", "", "", "", -1).size() == 0) {
 						String namePy = CommonTools.getFirstSpell(name);
 						String provincePy = CommonTools.getFirstSpell(province);
-						List<GasFactory> gfList = gfs.listInfoByOpt("", "", "", province, "", "", -1);//指定省份下的液厂
+						List<GasFactory> gfList = gfs.listInfoByOpt("", "", "", province, "", -1);//指定省份下的液厂
 						//获取指定省份的排序
 						GasType gt = gts.findById(gasTypeId);
 						if(gt != null) {
@@ -185,7 +185,7 @@ public class GasFactoryController {
 						yzbgImg = CommonTools.getFinalStr(yzbgImg);
 						if(!name.equals(gf.getName())) {
 							//需要检查是否重复
-							if(gfs.listInfoByOpt(name, "", "", "", "", "", -1).size() == 0) {
+							if(gfs.listInfoByOpt(name, "", "", "", "", -1).size() == 0) {
 								gf.setName(name);
 								gf.setNamePy(CommonTools.getFirstSpell(name));
 							}else {
@@ -204,7 +204,7 @@ public class GasFactoryController {
 								GasType gt = gts.findById(gasTypeId);
 								if(gt != null) {
 									Integer orderNo = 0;
-									Integer orderSubNo = gfs.listInfoByOpt("", "", gasTypeId, province, "", "", -1).size() + 1;
+									Integer orderSubNo = gfs.listInfoByOpt("", "", gasTypeId, province, "", -1).size() + 1;
 									if(gt.getName().equals("海气")) {//变更为海气时需要修改
 										HqProvinceOrder prov = hpos.getEntityByOpt(0, province);
 										if(prov != null) {
@@ -335,13 +335,13 @@ public class GasFactoryController {
 		@ApiImplicitParam(name = "namePy", value = "液厂名称首字母"),
 		@ApiImplicitParam(name = "gasTypeId", value = "液质类型编号"),
 		@ApiImplicitParam(name = "province", value = "省"),
-		@ApiImplicitParam(name = "city", value = "市"),
+		@ApiImplicitParam(name = "provincePy", value = "省首字母"),
 		@ApiImplicitParam(name = "county", value = "县"),
 		@ApiImplicitParam(name = "checkStatus", value = "审核状态(-1:全部,0:未审核,1:审核通过,2:审核未通过)"),
 		@ApiImplicitParam(name = "owerUserId", value = "液厂拥有人")
 	})
 	public GenericResponse getGasFactoryData(HttpServletRequest request,String name,String namePy,String gasTypeId,
-			String province,String city,String county,Integer checkStatus,String owerUserId) {
+			String province,String provincePy,String county,Integer checkStatus,String owerUserId) {
 		Integer status = 200;
 		List<Object> list = new ArrayList<Object>();
 		try {
@@ -351,9 +351,8 @@ public class GasFactoryController {
 			name = CommonTools.getFinalStr(name);
 			province = CommonTools.getFinalStr(province);
 			gasTypeId = CommonTools.getFinalStr(gasTypeId);
-			city = CommonTools.getFinalStr(city);
 			county = CommonTools.getFinalStr(county);
-			List<GasFactory> gfList = gfs.listInfoByOpt(name, namePy, gasTypeId, province, city, county, checkStatus);
+			List<GasFactory> gfList = gfs.listInfoByOpt(name, namePy, gasTypeId, province, provincePy, checkStatus);
 			if(gfList.size() == 0) {
 				status = 50001;
 			}else {
@@ -386,15 +385,14 @@ public class GasFactoryController {
 		@ApiImplicitParam(name = "namePy", value = "液厂名称首字母"),
 		@ApiImplicitParam(name = "gasTypeId", value = "液质类型编号"),
 		@ApiImplicitParam(name = "province", value = "省"),
-		@ApiImplicitParam(name = "city", value = "市"),
-		@ApiImplicitParam(name = "county", value = "县"),
+		@ApiImplicitParam(name = "provincePy", value = "省首字母"),
 		@ApiImplicitParam(name = "checkStatus", value = "审核状态(-1:全部,0:未审核,1:审核通过,2:审核未通过)"),
 		@ApiImplicitParam(name = "owerUserId", value = "液厂拥有人"),
 		@ApiImplicitParam(name = "pageIndex", value = "页码"),
 		@ApiImplicitParam(name = "pageSize", value = "每页记录条数")
 	})
 	public PageResponse getPageGasFactoryData(HttpServletRequest request,String name,String namePy,String gasTypeId,
-			String province,String city,String county,Integer checkStatus,String owerUserId,Integer pageIndex,Integer pageSize ) {
+			String province,String provincePy,Integer checkStatus,String owerUserId,Integer pageIndex,Integer pageSize ) {
 		Integer status = 200;
 		long count = 0;
 		List<Object> list = new ArrayList<Object>();
@@ -411,9 +409,8 @@ public class GasFactoryController {
 			name = CommonTools.getFinalStr(name);
 			province = CommonTools.getFinalStr(province);
 			gasTypeId = CommonTools.getFinalStr(gasTypeId);
-			city = CommonTools.getFinalStr(city);
-			county = CommonTools.getFinalStr(county);
-			Page<GasFactory> page = gfs.listPageInfoByOpt(name, namePy, gasTypeId, province, city, county, 
+			provincePy = CommonTools.getFinalStr(provincePy);
+			Page<GasFactory> page = gfs.listPageInfoByOpt(name, namePy, gasTypeId, province, provincePy,
 					checkStatus, owerUserId, pageIndex, pageSize);
 			count = page.getTotalElements();
 			if(count == 0) {

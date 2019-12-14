@@ -49,9 +49,21 @@ public interface LngPriceDetailService {
 	 * @param provPy 省份拼音(""不查询)
 	 * @param gsId 液厂编号(""不查询)
 	 * @param gsNamePy 液厂拼音(""不查询)
+	 * @param orderStr 排序规则（asc,desc,""）
 	 * @param sDate 开始时间
 	 * @param sDate 结束时间
 	 * @return
 	 */
-	List<LngPriceDetail> listInfoByOpt(String provPy,String gsId,String gsNamePy,String sDate,String eDate);
+	List<LngPriceDetail> listInfoByOpt(String provPy,String gsId,String gsNamePy,String sDate,String eDate,String orderStr);
+	
+	/**
+	 * @description 根据主键获取价格行情详情
+	 * @author wm
+	 * @Version : 版本
+	 * @ModifiedBy : 修改人
+	 * @date  2019年12月14日 上午11:55:47
+	 * @param lpdId 价格行情编号
+	 * @return
+	 */
+	LngPriceDetail getEntityById(String lpdId);
 }
