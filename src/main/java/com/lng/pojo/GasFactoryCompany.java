@@ -35,14 +35,20 @@ public class GasFactoryCompany implements java.io.Serializable {
 	private GasFactory gasFactory;
 	@ApiModelProperty(value = "添加时间")
 	private String addTime;
+	@ApiModelProperty(value = "审核状态")
+	private int checkStatus;
+	@ApiModelProperty(value = "审核时间")
+	private String checkTime;
 
 	public GasFactoryCompany() {
 	}
 
-	public GasFactoryCompany(Company company, GasFactory gasFactory, String addTime) {
+	public GasFactoryCompany(Company company, GasFactory gasFactory, String addTime,int checkStatus,String checkTime) {
 		this.company = company;
 		this.gasFactory = gasFactory;
 		this.addTime = addTime;
+		this.checkStatus = checkStatus;
+		this.checkTime = checkTime;
 	}
 
 	@Id
@@ -85,4 +91,21 @@ public class GasFactoryCompany implements java.io.Serializable {
 		this.addTime = addTime;
 	}
 
+	@Column(name = "check_status", nullable = false, columnDefinition = "int(11) COMMENT '审核状态(0:未审核,1:审核通过,2:审核未通过)'")
+	public int getCheckStatus() {
+		return this.checkStatus;
+	}
+
+	public void setCheckStatus(int checkStatus) {
+		this.checkStatus = checkStatus;
+	}
+
+	@Column(name = "check_time", columnDefinition = "varchar(50) COMMENT '审核时间'")
+	public String getCheckTime() {
+		return this.checkTime;
+	}
+
+	public void setCheckTime(String checkTime) {
+		this.checkTime = checkTime;
+	}
 }

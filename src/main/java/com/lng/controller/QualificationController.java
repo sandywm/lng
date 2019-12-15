@@ -116,25 +116,19 @@ public class QualificationController {
 	}
 
 	@GetMapping("/queryQual")
-	@ApiOperation(value = "分页获取所有进港资质", notes = "分页获取所有进港资质信息")
-	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
-			@ApiResponse(code = 50001, message = "数据未找到") })
-	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "进港资质编号") })
-	public GenericResponse queryQual(String id) {
-		id = CommonTools.getFinalStr(id);
+	@ApiOperation(value = "获取进港资质", notes = "获取进港资质信息")
+	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功") })
+	@ApiImplicitParams({ 
+		@ApiImplicitParam(name = "validSta", value = "有效状态(-1:全部,0:有效,1:无效)") 
+	})
+	public GenericResponse queryQual(Integer validSta) {
 		Integer status = 200;
 		List<Qualification> qualList = new ArrayList<Qualification>();
 		try {
-			if (id.equals("")) {
-				qualList = quaService.getQualificationList();
-			} else {
-				Qualification qual = quaService.findById(id);
-				if (qual == null) {
-					status = 50001;
-				} else {
-					qualList.add(qual);
-				}
+			if(validSta== null) {
+				validSta = -1;
 			}
+			qualList = quaService.getQualificationList(validSta);
 		} catch (Exception e) {
 			e.printStackTrace();
 			status = 1000;

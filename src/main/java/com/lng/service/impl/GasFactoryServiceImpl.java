@@ -76,7 +76,7 @@ public class GasFactoryServiceImpl implements GasFactoryService{
 
 	@Override
 	public Page<GasFactory> listPageInfoByOpt(String name, String namePy, String gasTypeId, String province,
-			String provincePy, Integer checkStatus, String owerUserId,Integer pageIndex,Integer pageSize) {
+			String provincePy, Integer checkStatus, String owerUserId,Integer opt,Integer pageIndex,Integer pageSize) {
 		// TODO Auto-generated method stub
 		Specification<GasFactory> spec = new Specification<GasFactory>() {
 			private static final long serialVersionUID = 1L;
@@ -165,7 +165,7 @@ public class GasFactoryServiceImpl implements GasFactoryService{
 	}
 
 	@Override
-	public List<GasFactory> listInfoByOpt(String provPy, String gtId, String gsNamePy) {
+	public Page<GasFactory> listInfoByOpt(String provPy, String gtId, String gsNamePy,Integer pageIndex,Integer pageSize) {
 		// TODO Auto-generated method stub
 		Specification<GasFactory> spec = new Specification<GasFactory>() {
 			private static final long serialVersionUID = 1L;
@@ -185,11 +185,9 @@ public class GasFactoryServiceImpl implements GasFactoryService{
 				}
 				return pre;
 		}};
-		Sort.Order sort1 = new Sort.Order(Sort.Direction.DESC, "hot");//升序排列
-		List<Sort.Order> list = new ArrayList<Sort.Order>();
-		list.add(sort1);
-		Sort sort = Sort.by(list);
-		return gfDao.findAll(spec,sort);
+		Sort sort = Sort.by(Sort.Direction.DESC, "hot");//降序排列
+		Pageable pageable = PageRequest.of(pageIndex-1, pageSize, sort);
+		return gfDao.findAll(spec, pageable);
 	}
 
 }

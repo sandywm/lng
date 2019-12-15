@@ -1,14 +1,13 @@
 package com.lng.service.impl;
 
+import java.util.List;
+
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -39,8 +38,7 @@ public class CompanyPsrServiceImpl implements CompanyPsrService {
 
 	@SuppressWarnings("serial")
 	@Override
-	public Page<CompanyPsr> getCompanyPsrList(String compId, Integer pageNo, Integer pageSize) {
-		Pageable pageable = PageRequest.of(pageNo, pageSize);
+	public List<CompanyPsr> getCompanyPsrList(String compId) {
 		Specification<CompanyPsr> spec = new Specification<CompanyPsr>() {
 
 			@Override
@@ -53,7 +51,7 @@ public class CompanyPsrServiceImpl implements CompanyPsrService {
 			}
 		};
 
-		return comPsrDao.findAll(spec, pageable);
+		return comPsrDao.findAll(spec);
 	}
 
 }

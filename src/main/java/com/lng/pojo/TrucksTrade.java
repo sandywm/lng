@@ -45,6 +45,8 @@ public class TrucksTrade implements java.io.Serializable {
 	private String spYear;
 	@ApiModelProperty(value = "储罐容积")
 	private int potVolume;
+	@ApiModelProperty(value = "储罐上牌年月")
+	private String spYearPot;
 	@ApiModelProperty(value = "储罐品牌")
 	private String potPpId;
 	@ApiModelProperty(value = "购置年份")
@@ -77,39 +79,30 @@ public class TrucksTrade implements java.io.Serializable {
 	private String area;
 	@ApiModelProperty(value = "气源类型")
 	private String qyTypeId;
-
+	@ApiModelProperty(value = "尾气排放标准")
+	private WqPfbz wqPfbz;
+	@ApiModelProperty(value = "是否发生事故")
+	private int accidentFlag;
+	@ApiModelProperty(value = "车头行驶证")
+	private String trucksHeadxsz;
+	@ApiModelProperty(value = "罐车行驶证")
+	private String gcXsz;
+	@ApiModelProperty(value = "车辆运营证")
+	private String tructsYyz;
+	@ApiModelProperty(value = "储罐检验合格证")
+	private String potJyz;
+	@ApiModelProperty(value = "安全阀校验报告")
+	private String aqfBg;
+	
 	public TrucksTrade() {
 	}
 
 	public TrucksTrade(TrucksHeadPp trucksHeadPp, TrucksHeadType trucksHeadType, TrucksType trucksType,
-			String companyId, String mainImg, String trucksNo, String spYear, int potVolume, String potPpId,
-			int xsDistance, int checkStatus, int showStatus, String addUserId, String addTime, int userType, int hot,
-			int tradeType, String qyTypeId) {
-		this.trucksHeadPp = trucksHeadPp;
-		this.trucksHeadType = trucksHeadType;
-		this.trucksType = trucksType;
-		this.companyId = companyId;
-		this.mainImg = mainImg;
-		this.trucksNo = trucksNo;
-		this.spYear = spYear;
-		this.potVolume = potVolume;
-		this.potPpId = potPpId;
-		this.xsDistance = xsDistance;
-		this.checkStatus = checkStatus;
-		this.showStatus = showStatus;
-		this.addUserId = addUserId;
-		this.addTime = addTime;
-		this.userType = userType;
-		this.hot = hot;
-		this.tradeType = tradeType;
-		this.qyTypeId = qyTypeId;
-	}
-
-	public TrucksTrade(TrucksHeadPp trucksHeadPp, TrucksHeadType trucksHeadType, TrucksType trucksType,
-			String companyId, String mainImg, String trucksNo, String spYear, int potVolume, String potPpId,
-			String buyYear, int xsDistance, String remark, String lxName, String lxTel, int checkStatus,
+			String companyId, String mainImg, String trucksNo, String spYear, int potVolume, String spYearPot,
+			String potPpId, String buyYear, int xsDistance, String remark, String lxName, String lxTel, int checkStatus,
 			String checkTime, int showStatus, String addUserId, String addTime, int userType, int hot, int tradeType,
-			String area, String qyTypeId) {
+			String area, String qyTypeId, WqPfbz wqPfbz, int accidentFlag, String trucksHeadxsz, String gcXsz,
+			String tructsYyz, String potJyz, String aqfBg) {
 		this.trucksHeadPp = trucksHeadPp;
 		this.trucksHeadType = trucksHeadType;
 		this.trucksType = trucksType;
@@ -118,6 +111,7 @@ public class TrucksTrade implements java.io.Serializable {
 		this.trucksNo = trucksNo;
 		this.spYear = spYear;
 		this.potVolume = potVolume;
+		this.spYearPot = spYearPot;
 		this.potPpId = potPpId;
 		this.buyYear = buyYear;
 		this.xsDistance = xsDistance;
@@ -134,7 +128,19 @@ public class TrucksTrade implements java.io.Serializable {
 		this.tradeType = tradeType;
 		this.area = area;
 		this.qyTypeId = qyTypeId;
+		this.wqPfbz = wqPfbz;
+		this.accidentFlag = accidentFlag;
+		this.trucksHeadxsz = trucksHeadxsz;
+		this.gcXsz = gcXsz;
+		this.tructsYyz = tructsYyz;
+		this.potJyz = potJyz;
+		this.aqfBg = aqfBg;
 	}
+
+
+
+
+
 
 	@Id
 	@GeneratedValue(generator = "system-uuid")
@@ -221,6 +227,14 @@ public class TrucksTrade implements java.io.Serializable {
 	public void setPotVolume(int potVolume) {
 		this.potVolume = potVolume;
 	}
+	@Column(name = "sp_year_pot",columnDefinition = "varchar(100) COMMENT '储罐上牌年月'")
+	public String getSpYearPot() {
+		return spYearPot;
+	}
+
+	public void setSpYearPot(String spYearPot) {
+		this.spYearPot = spYearPot;
+	}
 
 	@Column(name = "pot_pp_id", nullable = false, columnDefinition = "varchar(100) COMMENT '储罐品牌")
 	public String getPotPpId() {
@@ -231,7 +245,7 @@ public class TrucksTrade implements java.io.Serializable {
 		this.potPpId = potPpId;
 	}
 
-	@Column(name = "buy_year",  columnDefinition = "varchar(50) COMMENT '购置年份")
+	@Column(name = "buy_year",  columnDefinition = "varchar(50) COMMENT '购置年份'")
 	public String getBuyYear() {
 		return this.buyYear;
 	}
@@ -365,4 +379,63 @@ public class TrucksTrade implements java.io.Serializable {
 	public void setQyTypeId(String qyTypeId) {
 		this.qyTypeId = qyTypeId;
 	}
+	@ManyToOne(fetch = FetchType.EAGER)//等同于lazy="false"
+	@JoinColumn(name = "wq_pfbz_id", nullable = false,columnDefinition = "varchar(100) COMMENT '尾气排放标准编号'")
+	public WqPfbz getWqPfbz() {
+		return wqPfbz;
+	}
+
+	public void setWqPfbz(WqPfbz wqPfbz) {
+		this.wqPfbz = wqPfbz;
+	}
+	@Column(name = "accident_flag",columnDefinition = "int(11) COMMENT'是否发生事故（1：是,2：否，0：不填）'")
+	public int getAccidentFlag() {
+		return accidentFlag;
+	}
+
+	public void setAccidentFlag(int accidentFlag) {
+		this.accidentFlag = accidentFlag;
+	}
+	@Column(name = "tructs_head_xsz",columnDefinition = "varchar(100) COMMENT'车头行驶证（危货）'")
+	public String getTrucksHeadxsz() {
+		return trucksHeadxsz;
+	}
+
+	public void setTrucksHeadxsz(String trucksHeadxsz) {
+		this.trucksHeadxsz = trucksHeadxsz;
+	}
+	@Column(name = "gc_xsz",columnDefinition = "varchar(100) COMMENT'罐车行驶证（危货）'")
+	public String getGcXsz() {
+		return gcXsz;
+	}
+
+	public void setGcXsz(String gcXsz) {
+		this.gcXsz = gcXsz;
+	}
+	@Column(name = "tructs_yyz",columnDefinition = "varchar(100) COMMENT'车辆运营证（危货）'")
+	public String getTructsYyz() {
+		return tructsYyz;
+	}
+
+	public void setTructsYyz(String tructsYyz) {
+		this.tructsYyz = tructsYyz;
+	}
+	@Column(name = "pot_jyz",columnDefinition = "varchar(100) COMMENT'储罐检验合格证（危货）'")
+	public String getPotJyz() {
+		return potJyz;
+	}
+
+	public void setPotJyz(String potJyz) {
+		this.potJyz = potJyz;
+	}
+	@Column(name = "aqf_bg",columnDefinition = "varchar(100) COMMENT'安全阀校验报告（危货）'")
+	public String getAqfBg() {
+		return aqfBg;
+	}
+
+	public void setAqfBg(String aqfBg) {
+		this.aqfBg = aqfBg;
+	}
+	
+	
 }

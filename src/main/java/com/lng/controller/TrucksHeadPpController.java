@@ -68,7 +68,7 @@ public class TrucksHeadPpController {
 			@ApiResponse(code = 70001, message = "无权限访问") })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "槽车车头品牌编号", required = true),
 			@ApiImplicitParam(name = "name", value = "槽车车头品牌名称", defaultValue = "槽车车头品牌测试", required = true) })
-	public GenericResponse updateRqType(HttpServletRequest request, String id, String name) {
+	public GenericResponse updateTHeadPp(HttpServletRequest request, String id, String name) {
 		id = CommonTools.getFinalStr(id);
 		name=CommonTools.getFinalStr(name);
 		Integer status = 200;

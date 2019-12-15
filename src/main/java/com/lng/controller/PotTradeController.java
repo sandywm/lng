@@ -50,8 +50,7 @@ public class PotTradeController {
 	@ApiOperation(value = "添加储罐租卖", notes = "添加储罐租卖")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
 			@ApiResponse(code = 70001, message = "无权限访问") })
-	@ApiImplicitParams({ 
-		    @ApiImplicitParam(name = "compId", value = "公司编号", required = true),
+	@ApiImplicitParams({ @ApiImplicitParam(name = "compId", value = "公司编号", required = true),
 			@ApiImplicitParam(name = "mainImg", value = "储罐主图", required = true),
 			@ApiImplicitParam(name = "potPpId", value = "储罐品牌编号", required = true),
 			@ApiImplicitParam(name = "potVol", value = "储罐容积", required = true),
@@ -96,7 +95,7 @@ public class PotTradeController {
 				PotTrade pt = new PotTrade();
 				Company company = companyService.getEntityById(compId);
 				pt.setCompany(company);
-				if(!mainImg.equals("")) {
+				if (!mainImg.equals("")) {
 					pt.setMainImg(CommonTools.dealUploadDetail(loginUserId, mainImg));
 				}
 				TrucksPotPp trucksPotPp = potPpService.findById(potPpId);
@@ -145,7 +144,8 @@ public class PotTradeController {
 	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "储罐租卖编号", required = true),
 			@ApiImplicitParam(name = "checkSta", value = "审核状态(0:未审核,1:审核通过,2:审核未通过)"),
 			@ApiImplicitParam(name = "showSta", value = "上/下架状态（0：上架，1：下架）") })
-	public GenericResponse updatePotTradeByStatus(HttpServletRequest request, String id, Integer checkSta,Integer showSta) {
+	public GenericResponse updatePotTradeByStatus(HttpServletRequest request, String id, Integer checkSta,
+			Integer showSta) {
 		id = CommonTools.getFinalStr(id);
 		Integer status = 200;
 		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.UP_PT)) {
@@ -158,7 +158,7 @@ public class PotTradeController {
 						pt.setCheckStatus(checkSta);
 						pt.setCheckTime(CurrentTime.getCurrentTime());
 					}
-					if(showSta != null && !showSta.equals(pt.getShowStatus())) {
+					if (showSta != null && !showSta.equals(pt.getShowStatus())) {
 						pt.setShowStatus(showSta);
 					}
 					potTradeService.saveOrUpdate(pt);
@@ -172,12 +172,13 @@ public class PotTradeController {
 		}
 		return ResponseFormat.retParam(status, "");
 	}
+
 	@PutMapping("/updatePotTradeByHot")
 	@ApiOperation(value = "更新储罐租卖热度", notes = "更新储罐租卖热度")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
-		@ApiResponse(code = 50001, message = "数据未找到"), @ApiResponse(code = 70001, message = "无权限访问") })
+			@ApiResponse(code = 50001, message = "数据未找到"), @ApiResponse(code = 70001, message = "无权限访问") })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "储罐租卖编号", required = true),
-		@ApiImplicitParam(name = "hot", value = "热度（默认为0）") })
+			@ApiImplicitParam(name = "hot", value = "热度（默认为0）") })
 	public GenericResponse updatePotTradeByHot(HttpServletRequest request, String id, Integer hot) {
 		id = CommonTools.getFinalStr(id);
 		Integer status = 200;
@@ -201,28 +202,27 @@ public class PotTradeController {
 		}
 		return ResponseFormat.retParam(status, "");
 	}
+
 	@PutMapping("/updatePotTrade")
 	@ApiOperation(value = "更新储罐租卖基本信息", notes = "更新储罐租卖基本信息")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
-		@ApiResponse(code = 50001, message = "数据未找到"), @ApiResponse(code = 70001, message = "无权限访问") })
-	@ApiImplicitParams({ 
-		@ApiImplicitParam(name = "id", value = "储罐租卖编号", required = true),
-		@ApiImplicitParam(name = "mainImg", value = "储罐主图" , required = true),
-		@ApiImplicitParam(name = "potPpId", value = "储罐品牌编号", required = true),
-		@ApiImplicitParam(name = "potVol", value = "储罐容积", required = true),
-		@ApiImplicitParam(name = "sxInfo", value = "有无手续(1：有，2：无)", defaultValue = "有", required = true),
-		@ApiImplicitParam(name = "buyYear", value = "购买年份", required = true),
-		@ApiImplicitParam(name = "zzjzTypeId", value = "装载介质类型编号", required = true),
-		@ApiImplicitParam(name = "province", value = "省", defaultValue = "河南", required = true),
-		@ApiImplicitParam(name = "city", value = "市", defaultValue = "濮阳", required = true),
-		@ApiImplicitParam(name = "leasePrice", value = "租赁价格", defaultValue = "3000", required = true),
-		@ApiImplicitParam(name = "sellPrice", value = "官方价格", defaultValue = "35000", required = true),
-		@ApiImplicitParam(name = "remark", value = "备注"),
-		@ApiImplicitParam(name = "lxName", value = "联系人", defaultValue = "小黑"),
-		@ApiImplicitParam(name = "lxTel", value = "联系电话", defaultValue = "13956487523"),
-		@ApiImplicitParam(name = "showStatus", value = "上/下架状态（0：上架，1：下架）", defaultValue = "0", required = true),
-		@ApiImplicitParam(name = "tradeStatus", value = "租卖类型(0:可租可卖,1:租,2:卖)", defaultValue = "0", required = true)
-	})
+			@ApiResponse(code = 50001, message = "数据未找到"), @ApiResponse(code = 70001, message = "无权限访问") })
+	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "储罐租卖编号", required = true),
+			@ApiImplicitParam(name = "mainImg", value = "储罐主图", required = true),
+			@ApiImplicitParam(name = "potPpId", value = "储罐品牌编号", required = true),
+			@ApiImplicitParam(name = "potVol", value = "储罐容积", required = true),
+			@ApiImplicitParam(name = "sxInfo", value = "有无手续(1：有，2：无)", defaultValue = "有", required = true),
+			@ApiImplicitParam(name = "buyYear", value = "购买年份", required = true),
+			@ApiImplicitParam(name = "zzjzTypeId", value = "装载介质类型编号", required = true),
+			@ApiImplicitParam(name = "province", value = "省", defaultValue = "河南", required = true),
+			@ApiImplicitParam(name = "city", value = "市", defaultValue = "濮阳", required = true),
+			@ApiImplicitParam(name = "leasePrice", value = "租赁价格", defaultValue = "3000", required = true),
+			@ApiImplicitParam(name = "sellPrice", value = "官方价格", defaultValue = "35000", required = true),
+			@ApiImplicitParam(name = "remark", value = "备注"),
+			@ApiImplicitParam(name = "lxName", value = "联系人", defaultValue = "小黑"),
+			@ApiImplicitParam(name = "lxTel", value = "联系电话", defaultValue = "13956487523"),
+			@ApiImplicitParam(name = "showStatus", value = "上/下架状态（0：上架，1：下架）", defaultValue = "0", required = true),
+			@ApiImplicitParam(name = "tradeStatus", value = "租卖类型(0:可租可卖,1:租,2:卖)", defaultValue = "0", required = true) })
 	public GenericResponse updatePotTrade(HttpServletRequest request) {
 		String id = CommonTools.getFinalStr("id", request);
 		String mainImg = CommonTools.getFinalStr("mainImg", request);
@@ -248,54 +248,54 @@ public class PotTradeController {
 				if (pt == null) {
 					status = 50001;
 				} else {
-					
-				    if(!mainImg.equals(pt.getMainImg())) {
-				    	pt.setMainImg(CommonTools.dealUploadDetail(loginUserId, mainImg));
-				    }
-				    if(!potPpId.equals(pt.getTrucksPotPp().getId())) {
-				    	TrucksPotPp trucksPotPp =potPpService.findById(potPpId);
+
+					if (!mainImg.isEmpty() && !mainImg.equals(pt.getMainImg())) {
+						pt.setMainImg(CommonTools.dealUploadDetail(loginUserId, mainImg));
+					}
+					if (!potPpId.isEmpty() && !potPpId.equals(pt.getTrucksPotPp().getId())) {
+						TrucksPotPp trucksPotPp = potPpService.findById(potPpId);
 						pt.setTrucksPotPp(trucksPotPp);
-				    }
-				    if(!zzjzTypeId.equals(pt.getPotZzjzType().getId())) {
-				    	PotZzjzType potZzjzType = zzjzTypeService.findById(zzjzTypeId);
-						pt.setPotZzjzType(potZzjzType );
-				    }
-				    if(!potVol.equals(pt.getPotVolume())) {
-				    	pt.setPotVolume(potVol);
-				    }
-				    if(!sxInfo.equals(pt.getSxInfo())) {
-				    	pt.setSxInfo(sxInfo);
-				    }
-				    if(!buyYear.equals(pt.getBuyYear())) {
-				    	pt.setBuyYear(buyYear);
-				    }
-				    if(!province.equals(pt.getProvince())) {
-				    	pt.setProvince(province);
-				    }
-				    if(!city.equals(pt.getCity())) {
-				    	pt.setCity(city);
-				    }
-				    if(!leasePrice.equals(pt.getLeasePrice())) {
-				    	pt.setLeasePrice(leasePrice);
-				    }
-				    if(!sellPrice.equals(pt.getSellPrice())) {
-				    	pt.setSellPrice(sellPrice);
-				    }
-				    if(!remark.equals(pt.getRemark())) {
-				    	pt.setRemark(remark);
-				    }
-				    if(!lxName.equals(pt.getLxName())) {
-				    	pt.setLxName(lxName);
-				    }
-				    if(!lxTel.equals(pt.getLxTel())) {
-				    	pt.setLxTel(lxTel);
-				    }
-				    if(!showStatus.equals(pt.getShowStatus())) {
-				    	pt.setShowStatus(showStatus);
-				    }
-				    if(!tradeStatus.equals(pt.getTradeStatus())) {
-				    	pt.setTradeStatus(tradeStatus);
-				    }
+					}
+					if (!zzjzTypeId.isEmpty() && !zzjzTypeId.equals(pt.getPotZzjzType().getId())) {
+						PotZzjzType potZzjzType = zzjzTypeService.findById(zzjzTypeId);
+						pt.setPotZzjzType(potZzjzType);
+					}
+					if (potVol!=null&&!potVol.equals(pt.getPotVolume())) {
+						pt.setPotVolume(potVol);
+					}
+					if (!sxInfo.isEmpty() && !sxInfo.equals(pt.getSxInfo())) {
+						pt.setSxInfo(sxInfo);
+					}
+					if (!buyYear.isEmpty() && !buyYear.equals(pt.getBuyYear())) {
+						pt.setBuyYear(buyYear);
+					}
+					if (!province.isEmpty() && !province.equals(pt.getProvince())) {
+						pt.setProvince(province);
+					}
+					if (!city.isEmpty() && !city.equals(pt.getCity())) {
+						pt.setCity(city);
+					}
+					if (leasePrice !=null && !leasePrice.equals(pt.getLeasePrice())) {
+						pt.setLeasePrice(leasePrice);
+					}
+					if (sellPrice!=null&&!sellPrice.equals(pt.getSellPrice())) {
+						pt.setSellPrice(sellPrice);
+					}
+					if (!remark.isEmpty() && !remark.equals(pt.getRemark())) {
+						pt.setRemark(remark);
+					}
+					if (!lxName.isEmpty() && !lxName.equals(pt.getLxName())) {
+						pt.setLxName(lxName);
+					}
+					if (!lxTel.isEmpty() && !lxTel.equals(pt.getLxTel())) {
+						pt.setLxTel(lxTel);
+					}
+					if (showStatus!=null && !showStatus.equals(pt.getShowStatus())) {
+						pt.setShowStatus(showStatus);
+					}
+					if (tradeStatus!=null && !tradeStatus.equals(pt.getTradeStatus())) {
+						pt.setTradeStatus(tradeStatus);
+					}
 					potTradeService.saveOrUpdate(pt);
 				}
 			} catch (Exception e) {
@@ -307,19 +307,19 @@ public class PotTradeController {
 		}
 		return ResponseFormat.retParam(status, "");
 	}
-	
+
 	@GetMapping("/queryPotTrade")
-	@ApiOperation(value = "储罐租卖", notes = "获取储罐租卖分页信息")
+	@ApiOperation(value = "获取储罐租卖", notes = "获取储罐租卖分页信息")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
 			@ApiResponse(code = 50001, message = "数据未找到") })
-	@ApiImplicitParams({ 
-		  @ApiImplicitParam(name = "potPpId", value = "储罐品牌编号"),
+	@ApiImplicitParams({ @ApiImplicitParam(name = "potPpId", value = "储罐品牌编号"),
 			@ApiImplicitParam(name = "potVol", value = "储罐容积"),
 			@ApiImplicitParam(name = "sxInfo", value = "有无手续(1：有，2：无)"),
 			@ApiImplicitParam(name = "zzjzTypeId", value = "装载介质类型编号"),
 			@ApiImplicitParam(name = "checkSta", value = "审核状态(0:未审核,1:审核通过,2:审核未通过)"),
 			@ApiImplicitParam(name = "pageNo", value = "第几页"), @ApiImplicitParam(name = "pageSize", value = "每页多少条") })
-	public PageResponse queryPotTrade(String potPpId, Integer  potVol,String sxInfo,String zzjzTypeId,  Integer checkSta, Integer pageNo, Integer pageSize) {
+	public PageResponse queryPotTrade(String potPpId, Integer potVol, String sxInfo, String zzjzTypeId,
+			Integer checkSta, Integer pageNo, Integer pageSize) {
 		Integer status = 200;
 		Page<PotTrade> pts = null;
 		try {
@@ -335,10 +335,11 @@ public class PotTradeController {
 			if (checkSta == null) {
 				checkSta = -1;
 			}
-			if(potVol == null) {
+			if (potVol == null) {
 				potVol = -1;
 			}
-			pts = potTradeService.getPotTradeByOption(potPpId, potVol, sxInfo, zzjzTypeId, checkSta, pageNo-1, pageSize);
+			pts = potTradeService.getPotTradeByOption(potPpId, potVol, sxInfo, zzjzTypeId, checkSta, pageNo - 1,
+					pageSize);
 			if (pts.getTotalElements() == 0) {
 				status = 50001;
 			}

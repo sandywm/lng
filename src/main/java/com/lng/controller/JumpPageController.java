@@ -93,4 +93,75 @@ public class JumpPageController {
 		return new ModelAndView("lqTypeManager/lqTypeList");
 	}
 	
+	@ApiOperation("进港资质管理")
+	@GetMapping("goJgZzPage")
+	public ModelAndView goJgZzPage(){
+		return new ModelAndView("jgzzManager/jgzzManager");
+	}
+	
+	@ApiOperation("槽车类型管理")
+	@GetMapping("goTrucksTypePage")
+	public ModelAndView goTrucksTypePage(){
+		return new ModelAndView("trucksTypeManager/trucksTypeList");
+	}
+	
+	@ApiOperation("槽车车头品牌管理")
+	@GetMapping("goTHeadBrandPage")
+	public ModelAndView goTHeadBrandPage(){
+		return new ModelAndView("trucksHeadBrand/trucksHeadList");
+	}
+	
+	@ApiOperation("槽车车头类型管理")
+	@GetMapping("goTHeadTypePage")
+	public ModelAndView goTHeadTypePage(){
+		return new ModelAndView("trucksHeadType/trucksHeadType");
+	}
+	
+	@ApiOperation("槽车储罐品牌管理")
+	@GetMapping("goTankBrandPage")
+	public ModelAndView goTankBrandPage(){
+		return new ModelAndView("storageTankBrand/tankBrandList");
+	}
+	
+	@ApiOperation("装载介质类型管理")
+	@GetMapping("goZzjzPage")
+	public ModelAndView goZzjzPage(){
+		return new ModelAndView("zzjzTypeManager/zzjzTypeList");
+	}
+	
+	@ApiOperation("燃气设备类型管理")
+	@GetMapping("goGasEquipTypePage")
+	public ModelAndView goGasEquipPage(){
+		return new ModelAndView("gasEquipmentType/gasEquipList");
+	}
+	
+	@ApiOperation("燃气设备类目管理")
+	@GetMapping("goGasEquipCategPage")
+	public ModelAndView goGasEquipCategPage(){
+		return new ModelAndView("gasEquipCategory/gasEquipCategList");
+	}
+	
+	@ApiOperation("尾气排放标准管理")
+	@GetMapping("goWqPfbzPage")
+	public ModelAndView goWqPfbzPage(){
+		return new ModelAndView("wqPfbz/wqPfbzList");
+	}
+	
+	@ApiOperation("公司类型管理")
+	@GetMapping("goCompTypePage")
+	public ModelAndView goCompTypePage(){
+		return new ModelAndView("compTypeManager/compTypeList");
+	}
+	
+	@ApiOperation("公司管理")
+	@GetMapping("gomCompPage")
+	public ModelAndView gomCompPage(){
+		return new ModelAndView("compManager/compManager");
+	}
+	
+	@ApiOperation("液厂管理")
+	@GetMapping("goLqFactoryPage")
+	public ModelAndView goLqFactoryPage(){
+		return new ModelAndView("lqFactoryManager/lqFactoryList");
+	}
 }

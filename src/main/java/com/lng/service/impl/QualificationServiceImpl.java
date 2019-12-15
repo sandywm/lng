@@ -22,7 +22,7 @@ public class QualificationServiceImpl implements QualificationService {
 	private QualificationDao qualificationDao;
 
 	@Override
-	public String  save(Qualification qualification) {
+	public String save(Qualification qualification) {
 		return qualificationDao.save(qualification).getId();
 
 	}
@@ -35,38 +35,50 @@ public class QualificationServiceImpl implements QualificationService {
 
 	@Override
 	public void delete(String id) {
-		if(!id.isEmpty()) {
+		if (!id.isEmpty()) {
 			qualificationDao.deleteById(id);
 		}
-		
+
 	}
 
 	@Override
 	public Qualification findById(String id) {
-		if(!id.isEmpty()) {
+		if (!id.isEmpty()) {
 			return qualificationDao.findById(id).get();
-		}else {
+		} else {
 			return null;
 		}
-		
+
 	}
 
+	@SuppressWarnings("serial")
 	@Override
-	public List<Qualification> getQualificationList() {
-		return qualificationDao.findAll();
+	public List<Qualification> getQualificationList(Integer validSta) {
+		Specification<Qualification> spec = new Specification<Qualification>() {
+			@Override
+			public Predicate toPredicate(Root<Qualification> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+				Predicate pre = cb.conjunction();
+				if (validSta != -1) {
+					pre.getExpressions().add(cb.equal(root.get("validStatus"), validSta));
+				}
+				return pre;
+			}
+		};
+		return qualificationDao.findAll(spec);
 	}
 
 	@SuppressWarnings("serial")
 	@Override
 	public List<Qualification> getQualByNameList(String name) {
-		if(!name.isEmpty()) {
+		if (!name.isEmpty()) {
 			Specification<Qualification> spec = new Specification<Qualification>() {
 				@Override
 				public Predicate toPredicate(Root<Qualification> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
 					Predicate pre = cb.conjunction();
 					pre.getExpressions().add(cb.equal(root.get("name"), name));
 					return pre;
-			}};
+				}
+			};
 			return qualificationDao.findAll(spec);
 		}
 		return null;

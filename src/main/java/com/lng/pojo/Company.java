@@ -59,6 +59,8 @@ public class Company implements java.io.Serializable {
 	private String bankNo;
 	@ApiModelProperty(value = "公司银行账户")
 	private String bankAccount;
+	@ApiModelProperty(value = "上传人员类型")
+	private int userType;
 
 	public Company() {
 	}
@@ -73,7 +75,7 @@ public class Company implements java.io.Serializable {
 
 	public Company(CompanyType companyType, String name, String addTime, String owerUserId, int checkStatus,
 			String checkTime, String province, String city, String county, String address, String lxName, String lxTel,
-			String bankName, String bankNo, String bankAccount) {
+			String bankName, String bankNo, String bankAccount,int userType) {
 		this.companyType = companyType;
 		this.name = name;
 		this.addTime = addTime;
@@ -89,6 +91,7 @@ public class Company implements java.io.Serializable {
 		this.bankName = bankName;
 		this.bankNo = bankNo;
 		this.bankAccount = bankAccount;
+		this.userType = userType;
 	}
 
 	@Id
@@ -236,6 +239,14 @@ public class Company implements java.io.Serializable {
 
 	public void setBankAccount(String bankAccount) {
 		this.bankAccount = bankAccount;
+	}
+	@Column(name = "user_type", nullable = false, columnDefinition = "int(11) COMMENT '上传人员类型（1：后台管理人员，2：普通用户）'")
+	public int getUserType() {
+		return this.userType;
+	}
+
+	public void setUserType(int userType) {
+		this.userType = userType;
 	}
 
 }

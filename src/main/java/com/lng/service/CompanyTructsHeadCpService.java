@@ -2,8 +2,6 @@ package com.lng.service;
 
 import java.util.List;
 
-import org.springframework.data.domain.Page;
-
 import com.lng.pojo.CompanyTructsHeadCp;
 
 public interface CompanyTructsHeadCpService {
@@ -39,11 +37,9 @@ public interface CompanyTructsHeadCpService {
 	 * @ModifiedBy : 
 	 * @date  2019年12月10日 上午9:38:00
 	 * @param compId 公司编号
-	 * @param pageNo 第几页
-	 * @param pageSize 每页多少条
 	 * @return
 	 */
-	Page<CompanyTructsHeadCp> getTructsHeadCpList(String compId,  Integer pageNo, Integer pageSize);
+	List<CompanyTructsHeadCp> getTructsHeadCpList(String compId);
 	/**
 	 * 
 	 * @description 根据车头车牌获取车头车牌信息

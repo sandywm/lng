@@ -1,5 +1,7 @@
 package com.lng.service;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 
 import com.lng.pojo.CompanyZz;
@@ -37,11 +39,9 @@ public interface CompanyZzService {
 	 * @ModifiedBy : 
 	 * @date  2019年12月10日 上午9:38:00
 	 * @param compId 公司编号
-	 * @param pageNo 第几页
-	 * @param pageSize 每页多少条
 	 * @return
 	 */
-	Page<CompanyZz> getCompanyZzList(String compId,  Integer pageNo, Integer pageSize);
+	List<CompanyZz> getCompanyZzList(String compId);
 	
 
 }

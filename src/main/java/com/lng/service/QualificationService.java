@@ -50,12 +50,13 @@ public interface QualificationService {
 	 * 
 	 * @description分页查看进港资质信息
 	 * @author zdf
+	 * @param validSta 有效状态
 	 * @Version : 1.0
 	 * @ModifiedBy : 
 	 * @date  2019年12月4日 上午10:30:44
 	 * @return 进港资质列表
 	 */
-	List<Qualification> getQualificationList();
+	List<Qualification> getQualificationList(Integer validSta);
 	/**
 	 * 
 	 * @description  根据进港资质名称查看信息

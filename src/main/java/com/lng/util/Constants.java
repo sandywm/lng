@@ -8,7 +8,7 @@ public class Constants {
 	public static final String LOGIN_ACCOUNT = "login_account";
 	public static final String LOGIN_REAL_NAME = "login_real_name";
 	public static final String LOGIN_USER_ROLE_NAME = "login_user_role_name";
-	public static final String SUPER_DEP_ABILITY = "超级管理员,项目经理";
+	public static final String SUPER_DEP_ABILITY = "超级管理员";
 	
 	public static final String UPLOAD_PATH = "D:/lngWeb/resources/";
 
@@ -147,6 +147,12 @@ public class Constants {
 	
 	public static final String ADD_PT = "add_pt";//添加储罐租卖
 	public static final String UP_PT = "up_pt";//修改储罐租卖
+	
+	public static final String ADD_RDT = "add_rdt";//添加燃气设备买卖
+	public static final String UP_RDT = "up_rdt";//修改燃气设备买卖
+	
+	public static final String ADD_TRTR = "add_trtr";//添加货车租卖
+	public static final String UP_TRTR = "up_trtr";//修改货车租卖
 	
 	public static final String ADD_LNG_PRICE = "add_lng_price";//添加lng价格
 	public static final String UP_LNG_PRICE = "up_lng_price";//修改lng价格

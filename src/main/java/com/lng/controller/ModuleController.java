@@ -153,8 +153,10 @@ public class ModuleController {
 										map_d.put("modUrl", mod.getModUrl());
 										map_d.put("modOrder", mod.getModOrder());
 									}
-									list_d.add(map_d);
-									list_m.add(mod);
+									if(!map_d.isEmpty()) {
+										list_d.add(map_d);
+										list_m.add(mod);
+									}
 								}
 							}
 						}

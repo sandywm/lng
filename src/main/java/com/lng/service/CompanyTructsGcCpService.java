@@ -2,8 +2,6 @@ package com.lng.service;
 
 import java.util.List;
 
-import org.springframework.data.domain.Page;
-
 import com.lng.pojo.CompanyTructsGcCp;
 
 public interface CompanyTructsGcCpService {
@@ -33,17 +31,15 @@ public interface CompanyTructsGcCpService {
 
 	/**
 	 * 
-	 * @description 通过公司名称分页查询挂车车牌信息
+	 * @description 通过公司名称查询挂车车牌信息
 	 * @author zdf
 	 * @Version : 1.0
 	 * @ModifiedBy : 
 	 * @date  2019年12月10日 上午9:38:00
 	 * @param compId 公司编号
-	 * @param pageNo 第几页
-	 * @param pageSize 每页多少条
 	 * @return
 	 */
-	Page<CompanyTructsGcCp> getTructsGcCpList(String compId,  Integer pageNo, Integer pageSize);
+	List<CompanyTructsGcCp> getTructsGcCpList(String compId);
 	/**
 	 * 
 	 * @description 根据车牌获取挂车车牌信息

@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 
 import com.lng.pojo.Company;
+import com.lng.pojo.GasFactoryCompany;
 
 public interface CompanyService {
 	/**
@@ -57,5 +58,17 @@ public interface CompanyService {
 	 * @return
 	 */
 	List<Company> getCompanyByName(String name);
+	
+	/**
+	 * @description 根据指定液厂的贸易商列表
+	 * @author wm
+	 * @Version : 版本
+	 * @ModifiedBy : 修改人
+	 * @date  2019年12月15日 下午1:43:23
+	 * @param gfId 液厂编号
+	 * @param checkStatus 审核状态(0:未审核,1:审核通过,2:审核未通过)
+	 * @return
+	 */
+	List<GasFactoryCompany> listCompanyByGfId(String gfId,Integer checkStatus);
 
 }

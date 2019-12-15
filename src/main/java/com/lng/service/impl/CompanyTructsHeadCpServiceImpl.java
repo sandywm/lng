@@ -8,9 +8,6 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -41,8 +38,7 @@ public class CompanyTructsHeadCpServiceImpl implements CompanyTructsHeadCpServic
 
 	@SuppressWarnings("serial")
 	@Override
-	public Page<CompanyTructsHeadCp> getTructsHeadCpList(String compId, Integer pageNo, Integer pageSize) {
-		Pageable pageable = PageRequest.of(pageNo, pageSize);
+	public List<CompanyTructsHeadCp> getTructsHeadCpList(String compId) {
 		Specification<CompanyTructsHeadCp> spec = new Specification<CompanyTructsHeadCp>() {
 
 			@Override
@@ -54,7 +50,7 @@ public class CompanyTructsHeadCpServiceImpl implements CompanyTructsHeadCpServic
 				return pre;
 			}
 		};
-		return tructsHeadCpDao.findAll(spec, pageable);
+		return tructsHeadCpDao.findAll(spec);
 	}
 
 	@SuppressWarnings("serial")

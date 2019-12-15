@@ -1,6 +1,8 @@
 package com.lng.controller;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,6 +10,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -22,6 +25,7 @@ import com.lng.tools.CommonTools;
 import com.lng.tools.CurrentTime;
 import com.lng.util.Constants;
 import com.lng.util.GenericResponse;
+import com.lng.util.PageResponse;
 import com.lng.util.ResponseFormat;
 
 import io.swagger.annotations.Api;
@@ -34,12 +38,30 @@ import io.swagger.annotations.ApiResponses;
 @RestController
 @Api(tags = "lng管理")
 @RequestMapping(value = "/lng")
+@SuppressWarnings("unchecked")
 public class LngController {
 
 	@Autowired
 	private LngPriceDetailService lpds;
 	@Autowired
 	private GasFactoryService gfs;
+	
+	/**
+	 * 按照价格降序排序
+	 * @author wm
+	 * @Version : 1.0
+	 * @ModifiedBy : 修改人
+	 * @date  2019年12月15日 上午8:33:39
+	 */
+	private class SortClass implements Comparator<Object> {
+		@Override
+	    public int compare(Object obj0, Object obj1) {
+	      Map<String, Integer> map0 = (Map<String, Integer>) obj0;
+	      Map<String, Integer> map1 = (Map<String, Integer>) obj1;
+	      int flag = map0.get("currPrice").compareTo(map1.get("currPrice"));
+	      return -flag; // 不取反，则按正序排列
+	    }
+	 }
 	
 	@PostMapping("addInitBatchData")
 	@ApiOperation(value = "初始批量增加记录",notes = "初始批量增加记录用--增加完省份(海气、普通)后使用，不在页面体现出来")
@@ -131,15 +153,16 @@ public class LngController {
 		@ApiResponse(code = 10002, message = "参数为空")
 	})
 	@ApiImplicitParams({
-		@ApiImplicitParam(name = "gfId", value = "液厂编号(多个逗号隔开)"),
-		@ApiImplicitParam(name = "price", value = "价格(多个逗号隔开)"),
-		@ApiImplicitParam(name = "priceDate", value = "价格时间(yyyy-mm-dd)")
+		@ApiImplicitParam(name = "gfId", value = "液厂编号(多个逗号隔开)" , required = true),
+		@ApiImplicitParam(name = "price", value = "价格(多个逗号隔开)", required = true),
+		@ApiImplicitParam(name = "priceDate", value = "价格时间(yyyy-mm-dd)", required = true),
+		@ApiImplicitParam(name = "remark", value = "备注")
 	})
 	public GenericResponse addBatchLngData(HttpServletRequest request) {
 		String gfId = CommonTools.getFinalStr("gfId", request);
 		String price = CommonTools.getFinalStr("price", request);
 		String priceDate = CommonTools.getFinalStr("priceDate", request);
-		String remark = CommonTools.getFinalStr("remark");
+		String remark = CommonTools.getFinalStr("remark",request);
 		Integer status = 200;
 		List<Object> list_final = new ArrayList<Object>();
 		List<Object> list_succ = new ArrayList<Object>();
@@ -305,25 +328,32 @@ public class LngController {
 					map_d.put("province", gf.getProvince());
 					map_d.put("gfType", gf.getGasType().getName());
 					//获取昨天，今天，明天的价格
+					Integer prePrice = 0;
+					Integer currPrice = 0;
+					Integer nextPrice = 0;
+					
 					List<LngPriceDetail> lpdList_pre = lpds.listInfoByOpt("", gf.getId(), "", preDate, preDate,"desc");
 					if(lpdList_pre.size() > 0) {
-						map_d.put("prePrice", lpdList_pre.get(0).getPrice());
+						prePrice = lpdList_pre.get(0).getPrice();
+						map_d.put("prePrice", prePrice);
 					}else {
-						map_d.put("prePrice", "");
+						map_d.put("prePrice", prePrice);
 					}
 					List<LngPriceDetail> lpdList_curr = lpds.listInfoByOpt("", gf.getId(), "", priceDate, priceDate,"desc");
 					if(lpdList_curr.size() > 0) {
-						LngPriceDetail lpd = lpdList_curr.get(0);
-						map_d.put("currPrice", lpd.getPrice());
-						remark = lpd.getRemark();
+						currPrice = lpdList_curr.get(0).getPrice();
+						map_d.put("currPrice", currPrice);
+						map_d.put("diffPrice_curr", currPrice - prePrice);
 					}else {
-						map_d.put("currPrice", "");
+						map_d.put("currPrice", currPrice);
 					}
 					List<LngPriceDetail> lpdList_next = lpds.listInfoByOpt("", gf.getId(), "", nextDate, nextDate,"desc");
 					if(lpdList_next.size() > 0) {
-						map_d.put("nextPrice", lpdList_next.get(0).getPrice());
+						nextPrice = lpdList_next.get(0).getPrice();
+						map_d.put("nextPrice", nextPrice);
+						map_d.put("diffPrice_next", nextPrice - currPrice);
 					}else {
-						map_d.put("nextPrice", "");
+						map_d.put("nextPrice", nextPrice);
 					}
 					map_d.put("remark", remark);
 					list_d.add(map_d);
@@ -339,9 +369,9 @@ public class LngController {
 		return ResponseFormat.retParam(status, list_d);
 	}
 	
-	@GetMapping("getLngPriceData_qd")
-	@ApiOperation(value = "根据省、液厂首字母、液质类型、时间获取LNG价格行情--后台录入时显示",
-	notes = "条件为空时表示全部。价格时间为最近三天（昨天、今天、明天），查询组合--1：液厂首字母，2：省份，3：液质类型编号，4：时间")
+	@GetMapping("getPageLngPriceData")
+	@ApiOperation(value = "根据省、液厂首字母、液质类型、时间获取LNG价格行情--前台显示用",
+	notes = "条件为空时表示全部。价格时间为最近三天（昨天、今天、明天），查询组合--1：液厂首字母，2：省份，3：液质类型编号，4：时间。先按照hot降序排列，再按照中间天的价格降序排列")
 	@ApiResponses({@ApiResponse(code = 1000, message = "服务器错误"),
 		@ApiResponse(code = 70001, message = "无权限访问"),
 		@ApiResponse(code = 50001, message = "数据未找到")
@@ -350,9 +380,11 @@ public class LngController {
 		@ApiImplicitParam(name = "provPy", value = "省份首字母（可单可组合）"),
 		@ApiImplicitParam(name = "gtId", value = "液质类型编号"),
 		@ApiImplicitParam(name = "gsNamePy", value = "液厂名称首字母"),
-		@ApiImplicitParam(name = "priceDate", value = "价格时间(yyyy-mm-dd)")
+		@ApiImplicitParam(name = "priceDate", value = "价格时间(yyyy-mm-dd)"),
+		@ApiImplicitParam(name = "pageIndex", value = "页码"),
+		@ApiImplicitParam(name = "pageSize", value = "每页记录条数")
 	})
-	public GenericResponse getLngPriceData_qd(HttpServletRequest request) {
+	public PageResponse getPageLngPriceData(HttpServletRequest request) {
 		Integer status = 200;
 		String provPy = CommonTools.getFinalStr("provPy", request);
 		String gtId = CommonTools.getFinalStr("gtId", request);
@@ -363,41 +395,54 @@ public class LngController {
 		}
 		String preDate = CurrentTime.getFinalDate(priceDate,-1);
 		String nextDate = CurrentTime.getFinalDate(priceDate,1);
+		Integer pageIndex = CommonTools.getFinalInteger("pageIndex", request);
+		Integer pageSize = CommonTools.getFinalInteger("pageSize", request);
+		if(pageIndex.equals(0)) {
+			pageIndex = 1;
+		}
+		if(pageSize.equals(0)) {
+			pageSize = 20;
+		}
+		long count = 0;
 		List<Object> list_d = new ArrayList<Object>();
 		try {
-			List<GasFactory> gfList = gfs.listInfoByOpt(provPy, "", gsNamePy, 1);
-			if(gfList.size() > 0) {
+			Page<GasFactory> gfList = gfs.listInfoByOpt(provPy, gtId, gsNamePy, pageIndex, pageSize);
+			count = gfList.getTotalElements();
+			if(count > 0) {
 				for(GasFactory gf : gfList) {
 					Map<String,Object> map_d = new HashMap<String,Object>();
-					String remark = "";
 					map_d.put("gfId", gf.getId());
 					map_d.put("gfName", gf.getName());
 					map_d.put("province", gf.getProvince());
 					map_d.put("gfType", gf.getGasType().getName());
 					//获取昨天，今天，明天的价格
+					Integer prePrice = 0;
+					Integer currPrice = 0;
+					Integer nextPrice = 0;
 					List<LngPriceDetail> lpdList_pre = lpds.listInfoByOpt("", gf.getId(), "", preDate, preDate,"desc");
 					if(lpdList_pre.size() > 0) {
-						map_d.put("prePrice", lpdList_pre.get(0).getPrice());
-					}else {
-						map_d.put("prePrice", "");
+						prePrice = lpdList_pre.get(0).getPrice();
 					}
+					map_d.put("prePrice", prePrice);
 					List<LngPriceDetail> lpdList_curr = lpds.listInfoByOpt("", gf.getId(), "", priceDate, priceDate,"desc");
 					if(lpdList_curr.size() > 0) {
-						LngPriceDetail lpd = lpdList_curr.get(0);
-						map_d.put("currPrice", lpd.getPrice());
-						remark = lpd.getRemark();
+						currPrice = lpdList_curr.get(0).getPrice();
+						map_d.put("diffPrice_curr", currPrice - prePrice);
+						map_d.put("priceTime", lpdList_curr.get(0).getPriceTime());
 					}else {
-						map_d.put("currPrice", "");
+						map_d.put("priceTime", "");
 					}
+					map_d.put("currPrice", currPrice);
 					List<LngPriceDetail> lpdList_next = lpds.listInfoByOpt("", gf.getId(), "", nextDate, nextDate,"desc");
 					if(lpdList_next.size() > 0) {
-						map_d.put("nextPrice", lpdList_next.get(0).getPrice());
-					}else {
-						map_d.put("nextPrice", "");
+						nextPrice = lpdList_next.get(0).getPrice();
+						map_d.put("diffPrice_next", nextPrice - currPrice);
 					}
-					map_d.put("remark", remark);
+					map_d.put("nextPrice", nextPrice);
 					list_d.add(map_d);
 				}
+				SortClass sort = new SortClass();
+				Collections.sort(list_d, sort);//list_d中currPrice降序排列
 			}else {
 				status = 50001;
 			}
@@ -406,6 +451,91 @@ public class LngController {
 			e.printStackTrace();
 			status = 1000;
 		}
-		return ResponseFormat.retParam(status, list_d);
+		return ResponseFormat.getPageJson(pageSize,pageIndex,count,status, list_d);
+	}
+	
+	@GetMapping("getPageLngMesasageData")
+	@ApiOperation(value = "获取lng行情留言",
+	notes = "条件为空时表示全部。价格时间为最近三天（昨天、今天、明天），查询组合--1：液厂首字母，2：省份，3：液质类型编号，4：时间。先按照hot降序排列，再按照中间天的价格降序排列")
+	@ApiResponses({@ApiResponse(code = 1000, message = "服务器错误"),
+		@ApiResponse(code = 70001, message = "无权限访问"),
+		@ApiResponse(code = 50001, message = "数据未找到")
+	})
+	@ApiImplicitParams({
+		@ApiImplicitParam(name = "provPy", value = "省份首字母（可单可组合）"),
+		@ApiImplicitParam(name = "gtId", value = "液质类型编号"),
+		@ApiImplicitParam(name = "gsNamePy", value = "液厂名称首字母"),
+		@ApiImplicitParam(name = "priceDate", value = "价格时间(yyyy-mm-dd)"),
+		@ApiImplicitParam(name = "pageIndex", value = "页码"),
+		@ApiImplicitParam(name = "pageSize", value = "每页记录条数")
+	})
+	public PageResponse getPageLngMesasageData(HttpServletRequest request) {
+		Integer status = 200;
+		String provPy = CommonTools.getFinalStr("provPy", request);
+		String gtId = CommonTools.getFinalStr("gtId", request);
+		String gsNamePy = CommonTools.getFinalStr("gsNamePy", request);
+		String priceDate = CommonTools.getFinalStr("priceDate", request);
+		if(priceDate.equals("")) {
+			priceDate = CurrentTime.getStringDate();//默认为当天
+		}
+		String preDate = CurrentTime.getFinalDate(priceDate,-1);
+		String nextDate = CurrentTime.getFinalDate(priceDate,1);
+		Integer pageIndex = CommonTools.getFinalInteger("pageIndex", request);
+		Integer pageSize = CommonTools.getFinalInteger("pageSize", request);
+		if(pageIndex.equals(0)) {
+			pageIndex = 1;
+		}
+		if(pageSize.equals(0)) {
+			pageSize = 20;
+		}
+		long count = 0;
+		List<Object> list_d = new ArrayList<Object>();
+		try {
+			Page<GasFactory> gfList = gfs.listInfoByOpt(provPy, gtId, gsNamePy, pageIndex, pageSize);
+			count = gfList.getTotalElements();
+			if(count > 0) {
+				for(GasFactory gf : gfList) {
+					Map<String,Object> map_d = new HashMap<String,Object>();
+					map_d.put("gfId", gf.getId());
+					map_d.put("gfName", gf.getName());
+					map_d.put("province", gf.getProvince());
+					map_d.put("gfType", gf.getGasType().getName());
+					//获取昨天，今天，明天的价格
+					Integer prePrice = 0;
+					Integer currPrice = 0;
+					Integer nextPrice = 0;
+					List<LngPriceDetail> lpdList_pre = lpds.listInfoByOpt("", gf.getId(), "", preDate, preDate,"desc");
+					if(lpdList_pre.size() > 0) {
+						prePrice = lpdList_pre.get(0).getPrice();
+					}
+					map_d.put("prePrice", prePrice);
+					List<LngPriceDetail> lpdList_curr = lpds.listInfoByOpt("", gf.getId(), "", priceDate, priceDate,"desc");
+					if(lpdList_curr.size() > 0) {
+						currPrice = lpdList_curr.get(0).getPrice();
+						map_d.put("diffPrice_curr", currPrice - prePrice);
+						map_d.put("priceTime", lpdList_curr.get(0).getPriceTime());
+					}else {
+						map_d.put("priceTime", "");
+					}
+					map_d.put("currPrice", currPrice);
+					List<LngPriceDetail> lpdList_next = lpds.listInfoByOpt("", gf.getId(), "", nextDate, nextDate,"desc");
+					if(lpdList_next.size() > 0) {
+						nextPrice = lpdList_next.get(0).getPrice();
+						map_d.put("diffPrice_next", nextPrice - currPrice);
+					}
+					map_d.put("nextPrice", nextPrice);
+					list_d.add(map_d);
+				}
+				SortClass sort = new SortClass();
+				Collections.sort(list_d, sort);//list_d中currPrice降序排列
+			}else {
+				status = 50001;
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			status = 1000;
+		}
+		return ResponseFormat.getPageJson(pageSize,pageIndex,count,status, list_d);
 	}
 }

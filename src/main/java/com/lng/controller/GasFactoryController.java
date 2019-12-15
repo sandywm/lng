@@ -325,6 +325,7 @@ public class GasFactoryController {
 		return ResponseFormat.retParam(status, list);
 	}
 	
+	
 	@GetMapping("getGasFactoryData")
 	@ApiOperation(value = "获取液厂信息列表",notes = "为空时不查询，审核状态为-1时不查询")
 	@ApiResponses({@ApiResponse(code = 1000, message = "服务器错误"),
@@ -388,11 +389,12 @@ public class GasFactoryController {
 		@ApiImplicitParam(name = "provincePy", value = "省首字母"),
 		@ApiImplicitParam(name = "checkStatus", value = "审核状态(-1:全部,0:未审核,1:审核通过,2:审核未通过)"),
 		@ApiImplicitParam(name = "owerUserId", value = "液厂拥有人"),
+		@ApiImplicitParam(name = "optowerUserId", value = "使用范围（0:后台，1：前台）"),
 		@ApiImplicitParam(name = "pageIndex", value = "页码"),
 		@ApiImplicitParam(name = "pageSize", value = "每页记录条数")
 	})
 	public PageResponse getPageGasFactoryData(HttpServletRequest request,String name,String namePy,String gasTypeId,
-			String province,String provincePy,Integer checkStatus,String owerUserId,Integer pageIndex,Integer pageSize ) {
+			String province,String provincePy,Integer checkStatus,String owerUserId,Integer opt,Integer pageIndex,Integer pageSize ) {
 		Integer status = 200;
 		long count = 0;
 		List<Object> list = new ArrayList<Object>();
@@ -411,7 +413,7 @@ public class GasFactoryController {
 			gasTypeId = CommonTools.getFinalStr(gasTypeId);
 			provincePy = CommonTools.getFinalStr(provincePy);
 			Page<GasFactory> page = gfs.listPageInfoByOpt(name, namePy, gasTypeId, province, provincePy,
-					checkStatus, owerUserId, pageIndex, pageSize);
+					checkStatus, owerUserId, 0,pageIndex, pageSize);
 			count = page.getTotalElements();
 			if(count == 0) {
 				status = 50001;

@@ -8,9 +8,6 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -40,8 +37,7 @@ public class CompanyTructsGcCpServiceImpl implements CompanyTructsGcCpService {
 
 	@SuppressWarnings("serial")
 	@Override
-	public Page<CompanyTructsGcCp> getTructsGcCpList(String compId, Integer pageNo, Integer pageSize) {
-		Pageable pageable = PageRequest.of(pageNo, pageSize);
+	public List<CompanyTructsGcCp> getTructsGcCpList(String compId) {
 
 		Specification<CompanyTructsGcCp> spec = new Specification<CompanyTructsGcCp>() {
 
@@ -54,7 +50,7 @@ public class CompanyTructsGcCpServiceImpl implements CompanyTructsGcCpService {
 				return pre;
 			}
 		};
-		return trucksGcCpDao.findAll(spec, pageable);
+		return trucksGcCpDao.findAll(spec);
 	}
 
 	@SuppressWarnings("serial")
@@ -66,7 +62,6 @@ public class CompanyTructsGcCpServiceImpl implements CompanyTructsGcCpService {
 				public Predicate toPredicate(Root<CompanyTructsGcCp> root, CriteriaQuery<?> query,
 						CriteriaBuilder cb) {
 					Predicate pre = cb.conjunction();
-
 					pre.getExpressions().add(cb.equal(root.get("trucksGch"), cp));
 					return pre;
 				}
