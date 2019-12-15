@@ -14,9 +14,10 @@ public interface ActSuperService {
 	 * @date  2019年12月5日 上午9:51:32
 	 * @param userId 后台用户编号
 	 * @param maId 动作模块编号（可为空）
+	 * @param opt 参数( ""时不查询，sys:获取系统配置模块，other:获取所有不是系统配置的模块)
 	 * @return
 	 */
-	List<ActSuper> listSpecInfoByUserId(String userId,String maId);
+	List<ActSuper> listSpecInfoByUserId(String userId,String maId,String opt);
 	
 	/**
 	 * @description 根据用户编号、指定动作模块获取模块动作列表

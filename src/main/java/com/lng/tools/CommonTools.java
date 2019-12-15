@@ -11,6 +11,8 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.alibaba.fastjson.JSONObject;
+import com.baidu.aip.contentcensor.AipContentCensor;
 import com.lng.pojo.SuperDep;
 import com.lng.pojo.SystemInfo;
 import com.lng.service.ActSuperService;
@@ -346,7 +348,16 @@ public class CommonTools {
 		return finalPath;
 	}
 	
+	public static Integer autoCheckMsg(String msg) {
+		AipContentCensor client = new AipContentCensor(Constants.APP_ID, Constants.APP_KEY, Constants.SECRET_KEY);
+		String content = "操你妈";
+		org.json.JSONObject response = client.antiSpam(content, null);
+	    System.out.println(response.toString());
+		return null;
+	}
+	
 	public static void main(String[] args) {
 		System.out.println(CommonTools.getFirstSpell("我们的家"));
+		CommonTools.autoCheckMsg("");
 	}
 }

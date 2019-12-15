@@ -29,7 +29,7 @@ public class ActSuperServiceImpl implements ActSuperService{
 	private SuperService ss;
 	
 	@Override
-	public List<ActSuper> listSpecInfoByUserId(String userId, String maId) {
+	public List<ActSuper> listSpecInfoByUserId(String userId, String maId,String opt) {
 		// TODO Auto-generated method stub
 		Specification<ActSuper> spec = new Specification<ActSuper>() {
 			private static final long serialVersionUID = 1L;
@@ -43,6 +43,11 @@ public class ActSuperServiceImpl implements ActSuperService{
 				}
 				if(!maId.isEmpty()) {
 					pre.getExpressions().add(cb.equal(root.get("moduleAct").get("id"), maId));
+				}
+				if(opt.equals("other")) {
+					pre.getExpressions().add(cb.notEqual(root.get("moduleAct").get("module").get("modOrder"), 0));
+				}else if(opt.equals("sys")) {
+					pre.getExpressions().add(cb.equal(root.get("moduleAct").get("module").get("modOrder"), 0));
 				}
 				return pre;
 		}};

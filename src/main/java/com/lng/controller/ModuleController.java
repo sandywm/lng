@@ -120,7 +120,7 @@ public class ModuleController {
 						}
 						list_d.add(map_d);
 					}
-					List<ActSuper> asList = ass.listSpecInfoByUserId(superUserId, "");
+					List<ActSuper> asList = ass.listSpecInfoByUserId(superUserId, "","other");//获取除系统配置以为的其他权限模块
 					if(asList.size() > 0) {
 						List<Module> list_m = new ArrayList<Module>();
 						for(ActSuper as : asList) {
@@ -265,7 +265,7 @@ public class ModuleController {
 									mainModCheckStatus *= 0;
 									map_d1.put("disabledFlag", false);
 								}else {
-									if(ass.listSpecInfoByUserId(specUserId, ma.getId()).size() > 0) {
+									if(ass.listSpecInfoByUserId(specUserId, ma.getId(),"").size() > 0) {
 										map_d1.put("selFlag", true);
 										mainModCheckStatus *= 1;
 										if(ma.getActNameEng().startsWith("list")) {
@@ -513,7 +513,7 @@ public class ModuleController {
 				if(sdList.size() > 0) {
 					if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.SET_ABILITY)) {
 						//查询当前人员所有模块动作
-						List<ActSuper> asList = ass.listSpecInfoByUserId(specUserId, "");
+						List<ActSuper> asList = ass.listSpecInfoByUserId(specUserId, "","");
 						if(asList.size() > 0) {
 							//删除之前已绑定的用户权限动作
 							ass.delBatchInfo(asList);

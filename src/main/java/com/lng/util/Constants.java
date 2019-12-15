@@ -10,6 +10,10 @@ public class Constants {
 	public static final String LOGIN_USER_ROLE_NAME = "login_user_role_name";
 	public static final String SUPER_DEP_ABILITY = "超级管理员";
 	
+	public static final String APP_ID = "18029109";
+	public static final String APP_KEY = "UlEHwsaCkkPWZl3Tf4VIwGbn";
+	public static final String SECRET_KEY = "pnE5G7xTGntfUSnpTdzVXM3I2f6mcOsL";
+	
 	public static final String UPLOAD_PATH = "D:/lngWeb/resources/";
 
 //	系统配置管理
