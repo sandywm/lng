@@ -1,6 +1,7 @@
 package com.lng.service.impl;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -31,7 +32,11 @@ public class PotZzjzTypeServiceImpl implements PotZzjzTypeService {
 	@Override
 	public PotZzjzType findById(String id) {
 		if(!id.isEmpty()) {
-			return potZzjzTypeDao.findById(id).get();
+			Optional<PotZzjzType>  pt = potZzjzTypeDao.findById(id);
+			if(pt.isPresent()) {
+				return pt.get();
+			}
+			return null;
 		}else {
 			return null;
 		}

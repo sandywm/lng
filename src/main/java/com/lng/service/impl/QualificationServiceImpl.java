@@ -1,6 +1,7 @@
 package com.lng.service.impl;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -44,7 +45,11 @@ public class QualificationServiceImpl implements QualificationService {
 	@Override
 	public Qualification findById(String id) {
 		if (!id.isEmpty()) {
-			return qualificationDao.findById(id).get();
+			Optional<Qualification> qual = qualificationDao.findById(id);
+			if(qual.isPresent()) {
+				return qual.get();
+			}
+			return null;
 		} else {
 			return null;
 		}

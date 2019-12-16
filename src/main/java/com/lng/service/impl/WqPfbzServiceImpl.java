@@ -1,6 +1,7 @@
 package com.lng.service.impl;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -28,7 +29,11 @@ public class WqPfbzServiceImpl implements WqPfbzService {
 	@Override
 	public WqPfbz findById(String id) {
 		if(!id.isEmpty()) {
-			return wqPfbzDao.findById(id).get();
+			Optional<WqPfbz> wqpf = wqPfbzDao.findById(id);
+			if(wqpf.isPresent()) {
+				return wqpf.get();
+			}
+			return null;
 		}else {
 			return null;
 		}

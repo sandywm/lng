@@ -37,6 +37,8 @@ public class DriverZp implements java.io.Serializable {
 	private String sjAgeRange;
 	@ApiModelProperty(value = "司机驾龄范围")
 	private String jlYearRange;
+	@ApiModelProperty(value = "薪资")
+	private int wage;
 	@ApiModelProperty(value = "省")
 	private String province;
 	@ApiModelProperty(value = "市")
@@ -67,13 +69,14 @@ public class DriverZp implements java.io.Serializable {
 	public DriverZp() {
 	}
 
-	public DriverZp(Company company, String jzType, String sjAgeRange, String jlYearRange, String province,
+	public DriverZp(Company company, String jzType, String sjAgeRange, String jlYearRange, int wage, String province,
 			String city, String address, String remark, int checkStatus, String checkTime, int showStatus,
 			String addTime, int userType, String addUserId, int hot, String lxName, String lxTel) {
 		this.company = company;
 		this.jzType = jzType;
 		this.sjAgeRange = sjAgeRange;
 		this.jlYearRange = jlYearRange;
+		this.wage = wage;
 		this.province = province;
 		this.city = city;
 		this.address = address;
@@ -100,7 +103,7 @@ public class DriverZp implements java.io.Serializable {
 		this.id = id;
 	}
 
-	@ManyToOne(fetch = FetchType.EAGER)//等同于lazy="false"
+	@ManyToOne(fetch = FetchType.EAGER) // 等同于lazy="false"
 	@JoinColumn(name = "company_id", nullable = false, columnDefinition = "varchar(100) COMMENT '公司编号'")
 	public Company getCompany() {
 		return this.company;
@@ -135,6 +138,15 @@ public class DriverZp implements java.io.Serializable {
 
 	public void setJlYearRange(String jlYearRange) {
 		this.jlYearRange = jlYearRange;
+	}
+
+	@Column(name = "wage", nullable = false, columnDefinition = "int(11) COMMENT '薪资'")
+	public int getWage() {
+		return this.wage;
+	}
+
+	public void setWage(int wage) {
+		this.wage = wage;
 	}
 
 	@Column(name = "province", nullable = false, columnDefinition = "varchar(50) COMMENT '省'")
@@ -182,7 +194,7 @@ public class DriverZp implements java.io.Serializable {
 		this.checkStatus = checkStatus;
 	}
 
-	@Column(name = "check_time",columnDefinition = "varchar(50) COMMENT '审核时间'")
+	@Column(name = "check_time", columnDefinition = "varchar(50) COMMENT '审核时间'")
 	public String getCheckTime() {
 		return this.checkTime;
 	}

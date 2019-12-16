@@ -1,5 +1,7 @@
 package com.lng.service.impl;
 
+import java.util.Optional;
+
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
@@ -29,7 +31,11 @@ public class PotTradeServiceImpl implements PotTradeService {
 	@Override
 	public PotTrade getEntityById(String id) {
 		if (!id.isEmpty()) {
-			return potTradeDao.findById(id).get();
+			Optional<PotTrade> pt = potTradeDao.findById(id);
+			if (pt.isPresent()) {
+				return pt.get();
+			}
+			return null;
 		} else {
 			return null;
 		}
@@ -47,16 +53,16 @@ public class PotTradeServiceImpl implements PotTradeService {
 				if (!potPpId.isEmpty()) {
 					pre.getExpressions().add(cb.equal(root.get("trucksPotPp").get("id"), potPpId));
 				}
-				if (potVol != -1) { 
+				if (potVol != -1) {
 					pre.getExpressions().add(cb.equal(root.get("potVolume"), potVol));
 				}
-				if (!sxInfo.isEmpty()) { 
+				if (!sxInfo.isEmpty()) {
 					pre.getExpressions().add(cb.equal(root.get("sxInfo"), sxInfo));
 				}
 				if (!zzjzTypeId.isEmpty()) {
 					pre.getExpressions().add(cb.equal(root.get("potZzjzType").get("id"), zzjzTypeId));
 				}
-				if (checkSta != -1) { 
+				if (checkSta != -1) {
 					pre.getExpressions().add(cb.equal(root.get("checkStatus"), checkSta));
 				}
 				return pre;

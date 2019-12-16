@@ -17,9 +17,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.lng.pojo.CommonProvinceOrder;
 import com.lng.pojo.GasFactory;
+import com.lng.pojo.GasFactoryCompany;
 import com.lng.pojo.GasType;
 import com.lng.pojo.HqProvinceOrder;
 import com.lng.service.CommonProvinceOrderService;
+import com.lng.service.GasFactoryCompanyService;
 import com.lng.service.GasFactoryService;
 import com.lng.service.GasTypeService;
 import com.lng.service.HqProvinceOrderService;
@@ -44,6 +46,8 @@ public class GasFactoryController {
 
 	@Autowired
 	private GasFactoryService gfs;
+	@Autowired
+	private GasFactoryCompanyService gfcs;
 	@Autowired
 	private GasTypeService gts;
 	@Autowired
@@ -170,7 +174,7 @@ public class GasFactoryController {
 			lxTel = CommonTools.getFinalStr(lxTel);
 			yzbgImg = CommonTools.getFinalStr(yzbgImg);
 			if(!name.equals("") && !province.equals("") && !gasTypeId.equals("")) {
-				if(CommonTools.checkAuthorization(userId, Constants.ADD_YC)) {
+				if(CommonTools.checkAuthorization(userId, Constants.UP_YC)) {
 					GasFactory gf = gfs.getEntityById(gfId);
 					if(gf != null) {
 						name = CommonTools.getFinalStr(name);
@@ -260,7 +264,7 @@ public class GasFactoryController {
 			if(gfId.equals("") || checkStatus.equals(0)) {
 				status = 10002;
 			}else {
-				if(CommonTools.checkAuthorization(userId, Constants.UP_YC)) {
+				if(CommonTools.checkAuthorization(userId, Constants.CHECK_GAS_FACTORY_PUB)) {
 					GasFactory gf = gfs.getEntityById(gfId);
 					if(gf != null) {
 						gf.setCheckStatus(checkStatus);
@@ -389,24 +393,29 @@ public class GasFactoryController {
 		@ApiImplicitParam(name = "provincePy", value = "省首字母"),
 		@ApiImplicitParam(name = "checkStatus", value = "审核状态(-1:全部,0:未审核,1:审核通过,2:审核未通过)"),
 		@ApiImplicitParam(name = "owerUserId", value = "液厂拥有人"),
-		@ApiImplicitParam(name = "optowerUserId", value = "使用范围（0:后台，1：前台）"),
+//		@ApiImplicitParam(name = "opt", value = "使用范围（0:后台，1：前台）"),
 		@ApiImplicitParam(name = "pageIndex", value = "页码"),
 		@ApiImplicitParam(name = "pageSize", value = "每页记录条数")
 	})
-	public PageResponse getPageGasFactoryData(HttpServletRequest request,String name,String namePy,String gasTypeId,
-			String province,String provincePy,Integer checkStatus,String owerUserId,Integer opt,Integer pageIndex,Integer pageSize ) {
+	public PageResponse getPageGasFactoryData(HttpServletRequest request ) {
+		String name = CommonTools.getFinalStr("name", request);
+		String namePy = CommonTools.getFinalStr("namePy", request);
+		String gasTypeId = CommonTools.getFinalStr("gasTypeId", request);
+		String province = CommonTools.getFinalStr("province", request);
+		String provincePy = CommonTools.getFinalStr("provincePy", request);
+		Integer checkStatus = CommonTools.getFinalInteger("checkStatus", request);
+		String owerUserId = CommonTools.getFinalStr("owerUserId", request);
+		Integer pageIndex =  CommonTools.getFinalInteger("pageIndex", request);
+		Integer pageSize =  CommonTools.getFinalInteger("pageSize", request);
 		Integer status = 200;
 		long count = 0;
 		List<Object> list = new ArrayList<Object>();
 		try {
-			if(pageIndex == null) {
+			if(pageIndex.equals(0)) {
 				pageIndex = 1;
 			}
-			if(pageSize == null) {
+			if(pageSize.equals(0)) {
 				pageSize = 10;
-			}
-			if(checkStatus == null) {
-				checkStatus = -1;
 			}
 			name = CommonTools.getFinalStr(name);
 			province = CommonTools.getFinalStr(province);
@@ -442,5 +451,48 @@ public class GasFactoryController {
 			status = 1000;
 		}
 		return ResponseFormat.getPageJson(pageSize,pageIndex,count,status, list);
+	}
+	
+	@PutMapping("checkGasCompany")
+	@ApiOperation(value = "审核申请贸易商",notes = "贸易商申请加入液厂时的申请")
+	@ApiResponses({@ApiResponse(code = 1000, message = "服务器错误"),
+		@ApiResponse(code = 50001, message = "数据未找到"),
+		@ApiResponse(code = 50003, message = "数据已存在"),
+		@ApiResponse(code = 70001, message = "无权限访问"),
+		@ApiResponse(code = 10002, message = "参数为空")
+	})
+	@ApiImplicitParams({
+		@ApiImplicitParam(name = "gfcId", value = "液厂贸易商编号", required = true),
+		@ApiImplicitParam(name = "checkStatus", value = "审核状态(-1:全部,0:未审核,1:审核通过,2:审核未通过)")
+	})
+	public GenericResponse checkGasCompany(HttpServletRequest request) {
+		String gfcId = CommonTools.getFinalStr("gfcId", request);
+		Integer checkStatus = CommonTools.getFinalInteger("checkStatus", request);
+		Integer status = 200;
+		String uId = "";
+		String userId = CommonTools.getLoginUserId(request);
+		try {
+			if(!userId.equals("") && !gfcId.equals("")) {
+				if(CommonTools.checkAuthorization(userId, Constants.CHECK_GAS_FCY_CPY_APPLY)) {
+					GasFactoryCompany gfc = gfcs.getEntityById(gfcId);
+					if(gfc == null) {
+						status = 50001;
+					}else {
+						gfc.setCheckStatus(checkStatus);
+						gfc.setCheckTime(CurrentTime.getCurrentTime());
+						uId = gfcs.saveOrUpdate(gfc);
+					}
+				}else {
+					status = 70001;
+				}
+			}else {
+				status = 10002;
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			status = 1000;
+		}
+		return ResponseFormat.retParam(status, uId);
 	}
 }

@@ -157,8 +157,27 @@ public class Constants {
 	
 	public static final String ADD_TRTR = "add_trtr";//添加货车租卖
 	public static final String UP_TRTR = "up_trtr";//修改货车租卖
+	public static final String ADD_QZ = "add_qz";//添加司机求职
+	public static final String UP_QZ = "up_qz";//修改司机求职
+	public static final String ADD_ZP = "add_zp";//添加司机招聘
+	public static final String UP_ZP = "up_zp";//修改司机招聘
 	
 	public static final String ADD_LNG_PRICE = "add_lng_price";//添加lng价格
 	public static final String UP_LNG_PRICE = "up_lng_price";//修改lng价格
+	
+	public static final String CHECK_GAS_FCY_CPY_APPLY = "checkGasFcyCpyApply";//审核贸易商加入液厂的申请
+	public static final String CHECK_USER_JOIN_CPY_APPLY = "checkUserJoinCpyApply";//审核用户加入公司的申请
+	public static final String CHECK_CPY_APPLY = "checkCpyApply";//审核公司信息
+	public static final String CHECK_TRUCK_PUB = "checkTruckPub";//审核货车租卖发布信息
+	public static final String CHECK_GAS_TRADE_PUB = "checkGasTradePub";//审核燃气买卖发布信息
+	public static final String CHECK_GAS_DEV_TRADE_PUB = "checkGasDevTradePub";//审核燃气设备买卖发布信息
+	public static final String CHECK_POT_TRADE_PUB = "checkPotTradePub";//审核储罐租卖发布信息
+	public static final String CHECK_DRIVER_QZ_PUB = "checkDriverQzPub";//审核司机求职发布信息
+	public static final String CHECK_DRIVER_ZP_PUB = "checkDriverZpPub";//审核司机招聘发布信息
+	public static final String CHECK_GAS_FACTORY_PUB = "checkGasFactotyPub";//审核液厂
+	
+	
+	
+	
 }
 

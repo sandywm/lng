@@ -1,6 +1,7 @@
 package com.lng.service.impl;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -30,7 +31,11 @@ public class QyTypeServiceImpl implements QyTypeService {
 	@Override
 	public QyType findById(String id) {
 		if(!id.isEmpty()) {
-			return qyTypeDao.findById(id).get();
+			Optional<QyType> qt =  qyTypeDao.findById(id);
+			if(qt.isPresent()) {
+				return qt.get();
+			}
+			return null;
 		}else {
 			return null;
 		}

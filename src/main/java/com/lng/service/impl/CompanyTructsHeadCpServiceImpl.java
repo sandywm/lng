@@ -1,6 +1,7 @@
 package com.lng.service.impl;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -28,12 +29,14 @@ public class CompanyTructsHeadCpServiceImpl implements CompanyTructsHeadCpServic
 
 	@Override
 	public CompanyTructsHeadCp getEntityById(String id) {
-		if (!id.isEmpty()) {
-			return tructsHeadCpDao.findById(id).get();
-		} else {
+		if(!id.isEmpty()) {
+			Optional<CompanyTructsHeadCp> cpy = tructsHeadCpDao.findById(id);
+			if(cpy.isPresent()) {
+				return cpy.get();
+			}
 			return null;
 		}
-
+		return null;
 	}
 
 	@SuppressWarnings("serial")

@@ -1,6 +1,7 @@
 package com.lng.service.impl;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -29,7 +30,11 @@ public class RqDevTypeServiceImpl implements RqDevTypeService {
 	@Override
 	public RqDevType findById(String id) {
 		if(!id.isEmpty()) {
-			return rqDevTypeDao.findById(id).get();
+			Optional<RqDevType> rt =  rqDevTypeDao.findById(id);
+			if(rt.isPresent()) {
+				return rt.get();
+			}
+			return null;
 		}else {
 			return null;
 		}

@@ -1,6 +1,7 @@
 package com.lng.service.impl;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -28,7 +29,11 @@ public class TrucksHeadTypeServiceImpl implements TrucksHeadTypeService {
 	@Override
 	public TrucksHeadType findById(String id) {
 		if(!id.isEmpty()) {
-			return trucksHeadTypeDao.findById(id).get();
+			Optional<TrucksHeadType> tht =  trucksHeadTypeDao.findById(id);
+			if(tht.isPresent()) {
+				return tht.get();
+			}
+			return null;
 		}else {
 			return null;
 		}

@@ -1,6 +1,7 @@
 package com.lng.service.impl;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -44,8 +45,12 @@ public class SuperServiceImpl implements SuperService{
 	@Override
 	public SuperUser getEntityById(String superId) {
 		// TODO Auto-generated method stub
-		if(!superId.equals("")) {
-			return sDao.findById(superId).get();
+		if(!superId.isEmpty()) {
+			Optional<SuperUser> cpy = sDao.findById(superId);
+			if(cpy.isPresent()) {
+				return cpy.get();
+			}
+			return null;
 		}
 		return null;
 	}

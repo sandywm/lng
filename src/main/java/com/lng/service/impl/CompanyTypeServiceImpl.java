@@ -1,6 +1,7 @@
 package com.lng.service.impl;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -28,7 +29,11 @@ public class CompanyTypeServiceImpl implements CompanyTypeService {
 	@Override
 	public CompanyType findById(String id) {
 		if(!id.isEmpty()) {
-			return cTypeDao.findById(id).get();
+			Optional<CompanyType> ct = cTypeDao.findById(id);
+			if(ct.isPresent()) {
+				return ct.get();
+			}
+			return null;
 		}else {
 			return null;
 		}

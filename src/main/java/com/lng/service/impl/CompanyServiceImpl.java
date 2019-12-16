@@ -92,25 +92,4 @@ public class CompanyServiceImpl implements CompanyService {
 		return null;
 	}
 
-	@SuppressWarnings("serial")
-	@Override
-	public List<GasFactoryCompany> listCompanyByGfId(String gfId, Integer checkStatus) {
-		// TODO Auto-generated method stub
-		Specification<GasFactoryCompany> spec = new Specification<GasFactoryCompany>() {
-
-			@Override
-			public Predicate toPredicate(Root<GasFactoryCompany> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-				Predicate pre = cb.conjunction();
-				if (!gfId.isEmpty()) {
-					pre.getExpressions().add(cb.equal(root.get("gasFactory").get("id"), gfId));
-				}
-				if (checkStatus != null && checkStatus > 0) {
-					pre.getExpressions().add(cb.equal(root.get("checkStatus"), checkStatus));
-				}
-				return pre;
-			}
-		};
-		return gfcDao.findAll(spec);
-	}
-
 }

@@ -19,9 +19,12 @@ import org.springframework.web.servlet.ModelAndView;
 import com.lng.pojo.Department;
 import com.lng.pojo.SuperDep;
 import com.lng.pojo.SuperUser;
+import com.lng.pojo.User;
 import com.lng.service.SuperDepService;
 import com.lng.service.SuperService;
+import com.lng.service.UserService;
 import com.lng.tools.AuthImg;
+import com.lng.tools.CommonTools;
 import com.lng.tools.CurrentTime;
 import com.lng.util.Constants;
 import com.lng.util.GenericResponse;
@@ -54,6 +57,9 @@ public class Login {
 	
 	@Autowired
 	public SuperDepService sds;
+	
+	@Autowired
+	public UserService us;
 	
 	@ApiOperation("后台用户登录首页")
 	@GetMapping("goLoginPage")
@@ -144,6 +150,57 @@ public class Login {
 				}
 			}else {
 				status = 20006;
+			}
+		}
+		return ResponseFormat.retParam(status, list_d);
+	}	
+	
+	@ApiOperation("前台用户登录动作接口")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name = "wxOpenId", value = "用户账号", defaultValue = "wmk", required = true)
+	})
+	@GetMapping("wxUserLogin")
+	@ApiResponses({@ApiResponse(code = 20002, message = "账号不存在错误"),
+				   @ApiResponse(code = 10002, message = "参数为空"),
+				   @ApiResponse(code = 40001, message = "系统繁忙，请稍后重试"),
+				   @ApiResponse(code = 20003, message = "账号已被禁用")
+	})
+	public GenericResponse wxUserLogin(HttpServletRequest request) {
+		Integer status = 40001;
+		String wxOpenId = CommonTools.getFinalStr("wxOpenId", request);
+		List<Object> list_d = new ArrayList<Object>();
+		if(wxOpenId.equals("")) {
+			status = 10002;
+		}else {
+				try {
+					
+				} catch (Exception e) {
+					// TODO: handle exception
+				}			
+			User user = us.getEntityByWxOpenId(wxOpenId);
+			if(user != null) {
+				if(user.getAccountStatus().equals(1)) {
+					//修改登录次数和最后登录时间
+					user.setLastLoginTime(CurrentTime.getCurrentTime());
+					Integer loginTimes = user.getLoginTimes();
+					if(loginTimes < 50) {
+						loginTimes++;
+					}else {
+						loginTimes = 0;
+					}
+					user.setLoginTimes(loginTimes);
+					us.saveAndUpdate(user);
+					Map<String,String> map = new HashMap<String,String>();
+					map.put("userId", user.getId());
+					map.put("wxOpenId", user.getAccount());
+					map.put("wxName", user.getWxName());
+					list_d.add(map);
+					status = 200;
+				}else{
+					status = 20003;
+				}
+			}else {
+				status = 20002;
 			}
 		}
 		return ResponseFormat.retParam(status, list_d);

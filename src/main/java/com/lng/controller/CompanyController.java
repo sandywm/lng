@@ -21,7 +21,6 @@ import com.lng.pojo.CompanyTructsGcCp;
 import com.lng.pojo.CompanyTructsHeadCp;
 import com.lng.pojo.CompanyType;
 import com.lng.pojo.CompanyZz;
-import com.lng.pojo.GasFactory;
 import com.lng.pojo.GasFactoryCompany;
 import com.lng.service.CompanyPsrService;
 import com.lng.service.CompanyService;
@@ -29,7 +28,7 @@ import com.lng.service.CompanyTructsGcCpService;
 import com.lng.service.CompanyTructsHeadCpService;
 import com.lng.service.CompanyTypeService;
 import com.lng.service.CompanyZzService;
-import com.lng.service.GasFactoryService;
+import com.lng.service.GasFactoryCompanyService;
 import com.lng.tools.CommonTools;
 import com.lng.tools.CurrentTime;
 import com.lng.util.Constants;
@@ -61,7 +60,7 @@ public class CompanyController {
 	@Autowired
 	private CompanyZzService zzService;
 	@Autowired
-	private GasFactoryService gfs;
+	private GasFactoryCompanyService gfcs;
 
 	@PostMapping("/addCompany")
 	@ApiOperation(value = "添加公司", notes = "添加公司")
@@ -702,7 +701,7 @@ public class CompanyController {
 			if(gfId.equals("")) {
 				status = 50001;
 			}else {
-				List<GasFactoryCompany>  gfcList = companyService.listCompanyByGfId(gfId, checkStatus);
+				List<GasFactoryCompany>  gfcList = gfcs.listCompanyByGfId(gfId, "", checkStatus);
 				if(gfcList.size() > 0) {
 					for(GasFactoryCompany gfCpy : gfcList) {
 						Company cpy = gfCpy.getCompany();

@@ -1,6 +1,7 @@
 package com.lng.service.impl;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -96,8 +97,12 @@ public class LngPriceDetailServiceImpl implements LngPriceDetailService{
 	@Override
 	public LngPriceDetail getEntityById(String lpdId) {
 		// TODO Auto-generated method stub
-		if(!lpdId.equals("")) {
-			return lpdDao.findById(lpdId).get();
+		if(!lpdId.isEmpty()) {
+			Optional<LngPriceDetail> cpy = lpdDao.findById(lpdId);
+			if(cpy.isPresent()) {
+				return cpy.get();
+			}
+			return null;
 		}
 		return null;
 	}

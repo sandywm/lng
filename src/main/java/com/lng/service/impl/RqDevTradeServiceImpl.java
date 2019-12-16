@@ -1,5 +1,7 @@
 package com.lng.service.impl;
 
+import java.util.Optional;
+
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
@@ -30,7 +32,11 @@ public class RqDevTradeServiceImpl implements RqDevTradeService {
 	@Override
 	public RqDevTrade getEntityById(String id) {
 		if (!id.isEmpty()) {
-			return rqDevTradeDao.findById(id).get();
+			Optional<RqDevTrade> rt = rqDevTradeDao.findById(id);
+			if(rt.isPresent()) {
+				return rt.get();
+			}
+			return null;
 		} else {
 			return null;
 		}

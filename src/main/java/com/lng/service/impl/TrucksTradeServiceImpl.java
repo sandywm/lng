@@ -1,5 +1,7 @@
 package com.lng.service.impl;
 
+import java.util.Optional;
+
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
@@ -30,7 +32,11 @@ public class TrucksTradeServiceImpl implements TrucksTradeService {
 	@Override
 	public TrucksTrade getEntityById(String id) {
 		if (!id.isEmpty()) {
-			return trucksTradeDao.findById(id).get();
+			Optional<TrucksTrade> tt = trucksTradeDao.findById(id);
+			if(tt.isPresent()) {
+				return tt.get();
+			}
+			return null;
 		} else {
 			return null;
 		}

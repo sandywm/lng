@@ -1,6 +1,7 @@
 package com.lng.service.impl;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -28,11 +29,13 @@ public class CompanyTructsGcCpServiceImpl implements CompanyTructsGcCpService {
 	@Override
 	public CompanyTructsGcCp getEntityById(String id) {
 		if(!id.isEmpty()) {
-			return trucksGcCpDao.findById(id).get();
-		}else {
+			Optional<CompanyTructsGcCp> cpy = trucksGcCpDao.findById(id);
+			if(cpy.isPresent()) {
+				return cpy.get();
+			}
 			return null;
 		}
-		
+		return null;
 	}
 
 	@SuppressWarnings("serial")

@@ -14,10 +14,9 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.lng.dao.LngDao;
-import com.lng.pojo.ActSuper;
 import com.lng.pojo.LngInfo;
 import com.lng.service.LngService;
-import com.lng.tools.CurrentTime;
+//import com.lng.tools.CurrentTime;
 
 @Service
 public class LngServiceImpl implements LngService{
@@ -48,8 +47,8 @@ public class LngServiceImpl implements LngService{
 					pre.getExpressions().add(cb.like(root.get("gasFactory").get("namePy"), "%"+gsNamePy+"%"));
 				}
 				if(!specDate.isEmpty()) {
-					String prevDate = CurrentTime.getFinalDate(-1);
-					String nextDate = CurrentTime.getFinalDate(1);
+//					String prevDate = CurrentTime.getFinalDate(-1);
+//					String nextDate = CurrentTime.getFinalDate(1);
 				}
 				return pre;
 		}};

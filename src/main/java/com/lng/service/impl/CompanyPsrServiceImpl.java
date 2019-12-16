@@ -1,6 +1,7 @@
 package com.lng.service.impl;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -30,10 +31,13 @@ public class CompanyPsrServiceImpl implements CompanyPsrService {
 	@Override
 	public CompanyPsr getEntityById(String id) {
 		if(!id.isEmpty()) {
-			return comPsrDao.findById(id).get();
-		}else {
+			Optional<CompanyPsr> cpy = comPsrDao.findById(id);
+			if(cpy.isPresent()) {
+				return cpy.get();
+			}
 			return null;
 		}
+		return null;
 	}
 
 	@SuppressWarnings("serial")

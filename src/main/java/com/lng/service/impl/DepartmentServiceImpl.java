@@ -1,6 +1,7 @@
 package com.lng.service.impl;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -24,7 +25,11 @@ public class DepartmentServiceImpl implements DepartmentService{
 	public Department getEntityById(String depId) {
 		// TODO Auto-generated method stub
 		if(!depId.isEmpty()) {
-			return dDao.findById(depId).get();
+			Optional<Department> cpy = dDao.findById(depId);
+			if(cpy.isPresent()) {
+				return cpy.get();
+			}
+			return null;
 		}
 		return null;
 	}

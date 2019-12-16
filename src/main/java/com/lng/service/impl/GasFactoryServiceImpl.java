@@ -2,6 +2,7 @@ package com.lng.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -58,9 +59,7 @@ public class GasFactoryServiceImpl implements GasFactoryService{
 				if(!provincePy.isEmpty()) {
 					pre.getExpressions().add(cb.like(root.get("provincePy"), "%"+provincePy+"%"));
 				}
-				if(checkStatus == null || checkStatus == -1) {
-					
-				}else {
+				if(checkStatus > -1) {
 					pre.getExpressions().add(cb.equal(root.get("checkStatus"), checkStatus));
 				}
 				return pre;
@@ -100,9 +99,7 @@ public class GasFactoryServiceImpl implements GasFactoryService{
 				if(!provincePy.isEmpty()) {
 					pre.getExpressions().add(cb.like(root.get("provincePy"), "%"+provincePy+"%"));
 				}
-				if(checkStatus == null || checkStatus == -1) {
-					
-				}else {
+				if(checkStatus > -1) {
 					pre.getExpressions().add(cb.equal(root.get("checkStatus"), checkStatus));
 				}
 				if(!owerUserId.isEmpty()) {
@@ -124,10 +121,13 @@ public class GasFactoryServiceImpl implements GasFactoryService{
 	public GasFactory getEntityById(String gfId) {
 		// TODO Auto-generated method stub
 		if(!gfId.isEmpty()) {
-			return gfDao.findById(gfId).get();
-		}else {
+			Optional<GasFactory> cpy = gfDao.findById(gfId);
+			if(cpy.isPresent()) {
+				return cpy.get();
+			}
 			return null;
 		}
+		return null;
 	}
 
 	@Override
