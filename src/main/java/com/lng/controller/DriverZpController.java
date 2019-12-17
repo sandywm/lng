@@ -76,14 +76,14 @@ public class DriverZpController {
 		String loginUserId = CommonTools.getLoginUserId(request);
 		Integer status = 200;
 		String qzId = "";
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.ADD_QZ)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),CommonTools.getLoginRoleName(request), Constants.ADD_QZ)) {
 			try {
 				DriverQz qz = new DriverQz();
 				qz.setUserId(userId);
 				qz.setUserName(userName);
 				qz.setUserMobile(userMobile);
 				if (!userHead.equals("")) {
-					qz.setUserHead(CommonTools.dealUploadDetail(loginUserId, userHead));
+					qz.setUserHead(CommonTools.dealUploadDetail(loginUserId,"", userHead));
 				}
 				// qz.setUserHead(userHead);
 				qz.setJzYear(jzYear);
@@ -125,7 +125,7 @@ public class DriverZpController {
 	public GenericResponse updateQzByStatus(HttpServletRequest request, String id, Integer checkSta, Integer showSta) {
 		id = CommonTools.getFinalStr(id);
 		Integer status = 200;
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.UP_QZ)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.UP_QZ)) {
 			try {
 				DriverQz qz = qzService.getEntityById(id);
 				if (qz == null) {
@@ -159,7 +159,7 @@ public class DriverZpController {
 	public GenericResponse updateQzByHot(HttpServletRequest request, String id, Integer hot) {
 		id = CommonTools.getFinalStr(id);
 		Integer status = 200;
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.UP_QZ)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),CommonTools.getLoginRoleName(request), Constants.UP_QZ)) {
 			try {
 				DriverQz qz = qzService.getEntityById(id);
 				if (qz == null) {
@@ -208,7 +208,7 @@ public class DriverZpController {
 		String remark = CommonTools.getFinalStr("remark", request);
 		Integer userType = CommonTools.getFinalInteger("userType", request);
 		Integer status = 200;
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.UP_QZ)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),CommonTools.getLoginRoleName(request), Constants.UP_QZ)) {
 			try {
 				DriverQz qz = qzService.getEntityById(id);
 				if (qz == null) {
@@ -341,7 +341,7 @@ public class DriverZpController {
 
 		Integer status = 200;
 		String zpId = "";
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.ADD_ZP)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),CommonTools.getLoginRoleName(request), Constants.ADD_ZP)) {
 			try {
 				DriverZp zp = new DriverZp();
 				Company company = cpService.getEntityById(compId);
@@ -389,7 +389,7 @@ public class DriverZpController {
 	public GenericResponse updateZpByStatus(HttpServletRequest request, String id, Integer checkSta, Integer showSta) {
 		id = CommonTools.getFinalStr(id);
 		Integer status = 200;
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.UP_ZP)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),CommonTools.getLoginRoleName(request), Constants.UP_ZP)) {
 			try {
 				DriverZp zp = zpService.getEntityById(id);
 				if (zp == null) {
@@ -423,7 +423,7 @@ public class DriverZpController {
 	public GenericResponse updateZpByHot(HttpServletRequest request, String id, Integer hot) {
 		id = CommonTools.getFinalStr(id);
 		Integer status = 200;
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.UP_ZP)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),CommonTools.getLoginRoleName(request), Constants.UP_ZP)) {
 			try {
 				DriverZp zp = zpService.getEntityById(id);
 				if (zp == null) {
@@ -479,7 +479,7 @@ public class DriverZpController {
 
 		Integer status = 200;
 		String zpId = "";
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.UP_ZP)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.UP_ZP)) {
 			try {
 				DriverZp zp = zpService.getEntityById(id);
 				if (zp == null) {

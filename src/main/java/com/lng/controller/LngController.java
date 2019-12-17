@@ -71,7 +71,7 @@ public class LngController {
 	public GenericResponse addInitBatchData(HttpServletRequest request) {
 		Integer status = 200;
 		try {
-			if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.ADD_LNG_PRICE)) {
+			if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.ADD_LNG_PRICE)) {
 				String crrentTime = CurrentTime.getCurrentTime();
 				List<GasFactory> gfList = gfs.listInfoByOpt("", "", "", "", "", 1);
 				List<LngPriceDetail> list = new ArrayList<LngPriceDetail>();
@@ -106,7 +106,7 @@ public class LngController {
 		String preDate = CurrentTime.getFinalDate(priceDate, -1);
 		List<Object> list_add = new ArrayList<Object>();
 		try {
-			if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.ADD_LNG_PRICE)) {
+			if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.ADD_LNG_PRICE)) {
 				//获取全部气厂的记录(审核通过)
 				List<GasFactory> gfList = gfs.listInfoByOpt("", "", "", "", "", 1);
 				List<LngPriceDetail> list = new ArrayList<LngPriceDetail>();
@@ -169,7 +169,7 @@ public class LngController {
 		List<Object> list_exist = new ArrayList<Object>();
 		Map<String,Object> map = new HashMap<String,Object>();
 		try {
-			if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.ADD_LNG_PRICE)) {
+			if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.ADD_LNG_PRICE)) {
 				if(!gfId.equals("") && !price.equals("")) {
 					String[] gfIdArr = gfId.split(",");
 					String[] priceArr = price.split(",");
@@ -269,7 +269,7 @@ public class LngController {
 		Integer status = 200;
 		try {
 			if(!lpdId.equals("") && price >= 0) {
-				if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.UP_LNG_PRICE)) {
+				if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.UP_LNG_PRICE)) {
 					LngPriceDetail lpd = lpds.getEntityById(lpdId);
 					if(lpd != null) {
 						lpd.setPrice(price);

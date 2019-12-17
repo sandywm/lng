@@ -43,7 +43,7 @@ public class TrucksTypeController {
 	public GenericResponse addTrucksType(HttpServletRequest request, String name, int type) {
 		Integer status = 200;
 		String ttId = "";
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.CCLX_ABILITY)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.CCLX_ABILITY)) {
 			try {
 				if (ttService.getTrucksTypeByNameList(name).size() == 0) {
 					TrucksType tt = new TrucksType();
@@ -76,7 +76,7 @@ public class TrucksTypeController {
 		Integer status = 200;
 		id = CommonTools.getFinalStr(id);
 		name = CommonTools.getFinalStr(name);
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.CCLX_ABILITY)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.CCLX_ABILITY)) {
 			try {
 				TrucksType tt = ttService.findById(id);
 				if (tt == null) {

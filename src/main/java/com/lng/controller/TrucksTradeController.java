@@ -113,13 +113,13 @@ public class TrucksTradeController {
 		String loginUserId = CommonTools.getLoginUserId(request);
 		Integer status = 200;
 		String ttId = "";
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.ADD_TRTR)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.ADD_TRTR)) {
 			try {
 				TrucksTrade trtr = new TrucksTrade();
 
 				trtr.setCompanyId(compId);
 				if (!mainImg.equals("")) {
-					trtr.setMainImg(CommonTools.dealUploadDetail(loginUserId, mainImg));
+					trtr.setMainImg(CommonTools.dealUploadDetail(loginUserId,  "",  mainImg));
 				}
 				trtr.setTrucksNo(trucksNo);
 				trtr.setSpYear(spYear);
@@ -184,7 +184,7 @@ public class TrucksTradeController {
 			Integer showSta) {
 		id = CommonTools.getFinalStr(id);
 		Integer status = 200;
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.UP_TRTR)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.UP_TRTR)) {
 			try {
 				TrucksTrade tt = trucksTradeService.getEntityById(id);
 				if (tt == null) {
@@ -218,7 +218,7 @@ public class TrucksTradeController {
 	public GenericResponse updateTrTrByHot(HttpServletRequest request, String id, Integer hot) {
 		id = CommonTools.getFinalStr(id);
 		Integer status = 200;
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.UP_TRTR)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),CommonTools.getLoginRoleName(request), Constants.UP_TRTR)) {
 			try {
 				TrucksTrade tt = trucksTradeService.getEntityById(id);
 				if (tt == null) {
@@ -304,7 +304,7 @@ public class TrucksTradeController {
 
 		String loginUserId = CommonTools.getLoginUserId(request);
 		Integer status = 200;
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.UP_TRTR)) {
+		if (CommonTools.checkAuthorization(loginUserId, CommonTools.getLoginRoleName(request),Constants.UP_TRTR)) {
 			try {
 
 				TrucksTrade trtr = trucksTradeService.getEntityById(id);
@@ -316,7 +316,7 @@ public class TrucksTradeController {
 					}
 
 					if (!mainImg.equals("") && !compId.equals(trtr.getMainImg())) {
-						trtr.setMainImg(CommonTools.dealUploadDetail(loginUserId, mainImg));
+						trtr.setMainImg(CommonTools.dealUploadDetail(loginUserId, trtr.getMainImg(), mainImg));
 					}
 					if (!trucksNo.isEmpty() && !trucksNo.equals(trtr.getTrucksNo())) {
 						trtr.setTrucksNo(trucksNo);

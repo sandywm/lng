@@ -44,7 +44,7 @@ public class QualificationController {
 	public GenericResponse addQual(HttpServletRequest request, String name, Integer validStatus) {
 		Integer status = 200;
 		String qId = "";
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.JGZZ_ABILITY)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.JGZZ_ABILITY)) {
 			try {
 				if (quaService.getQualByNameList(name).size() == 0) {
 					Qualification qua = new Qualification();
@@ -78,7 +78,7 @@ public class QualificationController {
 		qId = CommonTools.getFinalStr(qId);
 		name = CommonTools.getFinalStr(name);
 		Integer status = 200;
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.JGZZ_ABILITY)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.JGZZ_ABILITY)) {
 			try {
 				Qualification qual = quaService.findById(qId);
 				if (qual == null) {

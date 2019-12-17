@@ -75,24 +75,23 @@ public class GasFactoryController {
 		@ApiImplicitParam(name = "lxTel", value = "联系电话"),
 		@ApiImplicitParam(name = "yzbgImg", value = "液质报告图")
 	})
-	public GenericResponse addGasFactory(HttpServletRequest request,String name,String facImage,String gasTypeId,
-			String province,String city,String county,String address,String lxName,String lxTel,String yzbgImg) {
+	public GenericResponse addGasFactory(HttpServletRequest request) {
 		Integer status = 200;
 		String uId = "";
 		String userId = CommonTools.getLoginUserId(request);
 		try {
-			name = CommonTools.getFinalStr(name);
-			province = CommonTools.getFinalStr(province);
-			gasTypeId = CommonTools.getFinalStr(gasTypeId);
-			facImage = CommonTools.getFinalStr(facImage);
-			city = CommonTools.getFinalStr(city);
-			county = CommonTools.getFinalStr(county);
-			address = CommonTools.getFinalStr(address);
-			lxName = CommonTools.getFinalStr(lxName);
-			lxTel = CommonTools.getFinalStr(lxTel);
-			yzbgImg = CommonTools.getFinalStr(yzbgImg);
+			String name = CommonTools.getFinalStr("name", request);
+			String province = CommonTools.getFinalStr("province", request);
+			String gasTypeId = CommonTools.getFinalStr("gasTypeId", request);
+			String facImage = CommonTools.getFinalStr("facImage", request);
+			String city = CommonTools.getFinalStr("city", request);
+			String county = CommonTools.getFinalStr("county", request);
+			String address = CommonTools.getFinalStr("address", request);
+			String lxName = CommonTools.getFinalStr("lxName", request);
+			String lxTel = CommonTools.getFinalStr("lxTel", request);
+			String yzbgImg = CommonTools.getFinalStr("yzbgImg", request);
 			if(!name.equals("") && !province.equals("") && !gasTypeId.equals("")) {
-				if(CommonTools.checkAuthorization(userId, Constants.ADD_YC)) {
+				if(CommonTools.checkAuthorization(userId,CommonTools.getLoginRoleName(request), Constants.ADD_YC)) {
 					if(gfs.listInfoByOpt(name, "", "", "", "", -1).size() == 0) {
 						String namePy = CommonTools.getFirstSpell(name);
 						String provincePy = CommonTools.getFirstSpell(province);
@@ -113,8 +112,8 @@ public class GasFactoryController {
 								}
 							}
 							Integer orderSubNo = gfList.size() + 1;
-							GasFactory gf = new GasFactory(gts.findById(gasTypeId), name, namePy, facImage, province, provincePy,city,
-									county, address, lxName, lxTel, CurrentTime.getCurrentTime(), yzbgImg, 1,
+							GasFactory gf = new GasFactory(gts.findById(gasTypeId), name, namePy, CommonTools.dealUploadDetail(userId,"", facImage), province, provincePy,city,
+									county, address, lxName, lxTel, CurrentTime.getCurrentTime(), CommonTools.dealUploadDetail(userId,"", yzbgImg), 1,
 									CurrentTime.getCurrentTime(),userId,orderNo,orderSubNo,0);
 							uId = gfs.addOrUpGasFactory(gf);
 						}else {
@@ -150,43 +149,33 @@ public class GasFactoryController {
 		@ApiImplicitParam(name = "facImage", value = "液厂图片", required = true),
 		@ApiImplicitParam(name = "gasTypeId", value = "液质类型编号", required = true),
 		@ApiImplicitParam(name = "province", value = "省", required = true),
-		@ApiImplicitParam(name = "city", value = "市", required = true),
-		@ApiImplicitParam(name = "county", value = "县", required = true),
+		@ApiImplicitParam(name = "city", value = "市"),
+		@ApiImplicitParam(name = "county", value = "县"),
 		@ApiImplicitParam(name = "address", value = "详细地址", required = true),
 		@ApiImplicitParam(name = "lxName", value = "联系人", required = true),
 		@ApiImplicitParam(name = "lxTel", value = "联系电话", required = true),
 		@ApiImplicitParam(name = "yzbgImg", value = "液质报告图")
 	})
-	public GenericResponse upGasFactory(HttpServletRequest request,String gfId,String name,String facImage,String gasTypeId,
-			String province,String city,String county,String address,String lxName,String lxTel,String yzbgImg) {
+	public GenericResponse upGasFactory(HttpServletRequest request) {
 		Integer status = 200;
 		String uId = "";
 		String userId = CommonTools.getLoginUserId(request);
 		try {
-			name = CommonTools.getFinalStr(name);
-			province = CommonTools.getFinalStr(province);
-			gasTypeId = CommonTools.getFinalStr(gasTypeId);
-			facImage = CommonTools.getFinalStr(facImage);
-			city = CommonTools.getFinalStr(city);
-			county = CommonTools.getFinalStr(county);
-			address = CommonTools.getFinalStr(address);
-			lxName = CommonTools.getFinalStr(lxName);
-			lxTel = CommonTools.getFinalStr(lxTel);
-			yzbgImg = CommonTools.getFinalStr(yzbgImg);
+			String gfId = CommonTools.getFinalStr("gfId", request);
+			String name = CommonTools.getFinalStr("name", request);
+			String province = CommonTools.getFinalStr("province", request);
+			String gasTypeId = CommonTools.getFinalStr("gasTypeId", request);
+			String facImage = CommonTools.getFinalStr("facImage", request);
+			String city = CommonTools.getFinalStr("city", request);
+			String county = CommonTools.getFinalStr("county", request);
+			String address = CommonTools.getFinalStr("address", request);
+			String lxName = CommonTools.getFinalStr("lxName", request);
+			String lxTel = CommonTools.getFinalStr("lxTel", request);
+			String yzbgImg = CommonTools.getFinalStr("yzbgImg", request);
 			if(!name.equals("") && !province.equals("") && !gasTypeId.equals("")) {
-				if(CommonTools.checkAuthorization(userId, Constants.UP_YC)) {
+				if(CommonTools.checkAuthorization(userId,CommonTools.getLoginRoleName(request),Constants.UP_YC)) {
 					GasFactory gf = gfs.getEntityById(gfId);
 					if(gf != null) {
-						name = CommonTools.getFinalStr(name);
-						facImage = CommonTools.getFinalStr(facImage);
-						gasTypeId = CommonTools.getFinalStr(gasTypeId);
-						province = CommonTools.getFinalStr(province);
-						city = CommonTools.getFinalStr(city);
-						county = CommonTools.getFinalStr(county);
-						address = CommonTools.getFinalStr(address);
-						lxName = CommonTools.getFinalStr(lxName);
-						lxTel = CommonTools.getFinalStr(lxTel);
-						yzbgImg = CommonTools.getFinalStr(yzbgImg);
 						if(!name.equals(gf.getName())) {
 							//需要检查是否重复
 							if(gfs.listInfoByOpt(name, "", "", "", "", -1).size() == 0) {
@@ -200,7 +189,7 @@ public class GasFactoryController {
 							gf.setNamePy(CommonTools.getFirstSpell(name));
 						}
 						if(status.equals(200)) {
-							gf.setFacImage(facImage);
+							gf.setFacImage(CommonTools.dealUploadDetail(userId, gf.getFacImage(),facImage));
 							gf.setGasType(gts.findById(gasTypeId));
 							if(!gasTypeId.equals(gf.getGasType().getId())) {//液质类型变更
 								//需要修改液厂的排序
@@ -225,7 +214,7 @@ public class GasFactoryController {
 							gf.setAddress(address);
 							gf.setLxName(lxName);
 							gf.setLxTel(lxTel);
-							gf.setYzbgImg(yzbgImg);
+							gf.setYzbgImg(CommonTools.dealUploadDetail(userId, gf.getYzbgImg(),yzbgImg));
 							uId = gfs.addOrUpGasFactory(gf);
 						}
 					}else {
@@ -264,7 +253,7 @@ public class GasFactoryController {
 			if(gfId.equals("") || checkStatus.equals(0)) {
 				status = 10002;
 			}else {
-				if(CommonTools.checkAuthorization(userId, Constants.CHECK_GAS_FACTORY_PUB)) {
+				if(CommonTools.checkAuthorization(userId,CommonTools.getLoginRoleName(request), Constants.CHECK_GAS_FACTORY_PUB)) {
 					GasFactory gf = gfs.getEntityById(gfId);
 					if(gf != null) {
 						gf.setCheckStatus(checkStatus);
@@ -307,15 +296,19 @@ public class GasFactoryController {
 					map.put("name", gf.getName());
 					map.put("namePy", gf.getNamePy());
 					map.put("facImage", gf.getFacImage());
+					map.put("gasTypeId", gf.getGasType().getId());
 					map.put("gasTypeName", gf.getGasType().getName());
 					map.put("province", gf.getProvince());
 					map.put("city", gf.getCity());
 					map.put("county", gf.getCounty());
 					map.put("address", gf.getAddress());
 					map.put("lxName", gf.getLxName());
+					map.put("lxTel", gf.getLxTel());
 					map.put("addTime", gf.getAddTime());
 					map.put("yzbg", gf.getYzbgImg());
 					map.put("checkStatus", gf.getCheckStatus());
+					//获取该液厂所有的贸易商列表
+//					1122
 					list.add(map);
 				}else {
 					status = 50001;
@@ -473,7 +466,7 @@ public class GasFactoryController {
 		String userId = CommonTools.getLoginUserId(request);
 		try {
 			if(!userId.equals("") && !gfcId.equals("")) {
-				if(CommonTools.checkAuthorization(userId, Constants.CHECK_GAS_FCY_CPY_APPLY)) {
+				if(CommonTools.checkAuthorization(userId, CommonTools.getLoginRoleName(request),Constants.CHECK_GAS_FCY_CPY_APPLY)) {
 					GasFactoryCompany gfc = gfcs.getEntityById(gfcId);
 					if(gfc == null) {
 						status = 50001;

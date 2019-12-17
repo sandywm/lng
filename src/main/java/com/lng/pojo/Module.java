@@ -32,14 +32,17 @@ public class Module implements java.io.Serializable {
 	private String modUrl;
 	@ApiModelProperty(value = "模块排序")
 	private int modOrder;
+	@ApiModelProperty(value = "模块类型")
+	private int modType;
 
 	public Module() {
 	}
 
-	public Module(String modName, String modUrl, int modOrder) {
+	public Module(String modName, String modUrl, Integer modOrder,Integer modType) {
 		this.modName = modName;
 		this.modUrl = modUrl;
 		this.modOrder = modOrder;
+		this.modType = modType;
 	}
 
 	@Id
@@ -79,4 +82,14 @@ public class Module implements java.io.Serializable {
 	public void setModOrder(int modOrder) {
 		this.modOrder = modOrder;
 	}
+
+	@Column(name = "mod_type", nullable = false, columnDefinition = "int(11) COMMENT '模块类型(0:无子模块,1:有子模块)'")
+	public int getModType() {
+		return modType;
+	}
+
+	public void setModType(int modType) {
+		this.modType = modType;
+	}
+	
 }

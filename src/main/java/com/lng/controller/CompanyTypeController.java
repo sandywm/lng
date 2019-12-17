@@ -42,7 +42,7 @@ public class CompanyTypeController {
 	public GenericResponse addComType(HttpServletRequest request, String name) {
 		Integer status = 200;
 		String ctId = "";
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.GSLX_ABILITY)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.GSLX_ABILITY)) {
 			try {
 				if (cTypeService.getCompanyTypeByNameList(name).size() == 0) {
 					CompanyType cType = new CompanyType();
@@ -74,7 +74,7 @@ public class CompanyTypeController {
 		id = CommonTools.getFinalStr(id);
 		name = CommonTools.getFinalStr(name);
 		Integer status = 200;
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.GSLX_ABILITY)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.GSLX_ABILITY)) {
 			try {
 				CompanyType ct = cTypeService.findById(id);
 				if (ct == null) {

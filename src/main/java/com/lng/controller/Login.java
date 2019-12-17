@@ -133,12 +133,21 @@ public class Login {
 						//获取该用户所有身份列表
 						List<SuperDep> sdList = sds.listSpecInfoByUserId(su.getId());
 						if(sdList.size() > 0) {
+							Integer i = 0;
 							for(SuperDep sd : sdList) {
 								Department role = sd.getDepartment();
 								Map<String,Object> map_d = new HashMap<String,Object>();
 								map_d.put("roleId", role.getId());
-								map_d.put("roleName", role.getDepName());
-								list_d.add(map_d);
+								if(!role.getDepName().equals("超级管理员")) {
+									if(i.equals(0)) {
+										map_d.put("roleName", "平台管理员");
+										list_d.add(map_d);
+									}
+									i++;
+								}else {
+									map_d.put("roleName", role.getDepName());
+									list_d.add(map_d);
+								}
 							}
 						}
 						status = 200;

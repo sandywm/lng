@@ -84,7 +84,7 @@ public class ModuleServiceImpl implements ModuleService{
 			public Predicate toPredicate(Root<Module> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
 				// TODO Auto-generated method stub
 				Predicate pre = cb.conjunction();
-				pre.getExpressions().add(cb.equal(root.get("modOrder"), 0));
+				pre.getExpressions().add(cb.equal(root.get("modType"), 1));
 				return pre;
 		}};
 		return mDao.findAll(spec);

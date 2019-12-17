@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -53,12 +54,13 @@ public class UserServiceImpl implements UserService{
 			public Predicate toPredicate(Root<User> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
 				Predicate pre = cb.conjunction();
 				if (!wxName.isEmpty()) {
-					pre.getExpressions().add(cb.equal(root.get("wxName"), "%"+wxName+"%"));
+					pre.getExpressions().add(cb.like(root.get("wxName"), "%"+wxName+"%"));
 				}
 				return pre;
 			}
 		};
-		Pageable pageable = PageRequest.of(pageNo-1, pageSize);
+		Sort sort = Sort.by(Sort.Direction.DESC, "signDate");// 降序排列
+		Pageable pageable = PageRequest.of(pageNo-1, pageSize,sort);
 		return uDao.findAll(spec, pageable);
 	}
 

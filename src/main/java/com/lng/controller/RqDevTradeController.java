@@ -82,13 +82,13 @@ public class RqDevTradeController {
 		String loginUserId = CommonTools.getLoginUserId(request);
 		Integer status = 200;
 		String rdtId = "";
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.ADD_RDT)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.ADD_RDT)) {
 			try {
 				RqDevTrade rdt = new RqDevTrade();
 				Company company = companyService.getEntityById(compId);
 				rdt.setCompany(company);
 				if (!mainImg.equals("")) {
-					rdt.setMainImg(CommonTools.dealUploadDetail(loginUserId, mainImg));
+					rdt.setMainImg(CommonTools.dealUploadDetail(loginUserId, "", mainImg));
 				}
 				rdt.setDevName(devName);
 				rdt.setDevNo(devNo);
@@ -136,7 +136,7 @@ public class RqDevTradeController {
 			Integer showSta) {
 		id = CommonTools.getFinalStr(id);
 		Integer status = 200;
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.UP_RDT)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.UP_RDT)) {
 			try {
 				RqDevTrade rdt = rdtService.getEntityById(id);
 				if (rdt == null) {
@@ -170,7 +170,7 @@ public class RqDevTradeController {
 	public GenericResponse updateRqDevTradeByHot(HttpServletRequest request, String id, Integer hot) {
 		id = CommonTools.getFinalStr(id);
 		Integer status = 200;
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.UP_RDT)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.UP_RDT)) {
 			try {
 				RqDevTrade rdt = rdtService.getEntityById(id);
 				if (rdt == null) {
@@ -225,11 +225,11 @@ public class RqDevTradeController {
 
 		String loginUserId = CommonTools.getLoginUserId(request);
 		Integer status = 200;
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.UP_RDT)) {
+		if (CommonTools.checkAuthorization(loginUserId, CommonTools.getLoginRoleName(request),Constants.UP_RDT)) {
 			try {
 				RqDevTrade rdt = rdtService.getEntityById(id);
 				if (!mainImg.equals(rdt.getMainImg())) {
-					rdt.setMainImg(CommonTools.dealUploadDetail(loginUserId, mainImg));
+					rdt.setMainImg(CommonTools.dealUploadDetail(loginUserId, rdt.getMainImg(), mainImg));
 				}
 				if (!devName.equals(rdt.getDevName())) {
 					rdt.setDevName(devName);

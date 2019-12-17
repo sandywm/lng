@@ -229,12 +229,11 @@ public class CommonTools {
 	 * @param actNameEng
 	 * @return
 	 */
-	public static boolean checkAuthorization(String userId,String actNameEng) {
+	public static boolean checkAuthorization(String userId,String roleName,String actNameEng) {
 		//获取用户所在部门
 		boolean abilityFlag = false;
 		List<SuperDep> sdList = ct.sds.listSpecInfoByUserId(userId);
 		if(sdList.size() > 0) {
-			String roleName = sdList.get(0).getDepartment().getDepName();
 			if(Constants.SUPER_DEP_ABILITY.contains(roleName)) {//拥有全部权限
 				abilityFlag = true;
 			}else if(ct.ass.listSpecInfoByOpt(userId, actNameEng).size() > 0){
@@ -306,16 +305,18 @@ public class CommonTools {
 		return df.format(inputD);
 	}
 	
+	
 	/**
-	 * @description 保存时处理之前上传的图片
+	 * @description 保存时处理之前上传的图片(0.5压缩率)
 	 * @author wm
 	 * @Version : 版本
 	 * @ModifiedBy : 修改人
 	 * @date  2019年12月11日 下午2:46:22
-	 * @param upFileStr
+	 * @param upFileStr 上传的图片地址
+	 * @param upFileDb 已存数据库的地址(增加时为空，修改时为数据库字段信息)
 	 * @throws Exception 
 	 */
-	public static String dealUploadDetail(String loingUserId,String upFileStr) throws Exception {
+	public static String dealUploadDetail(String loingUserId,String upFileDb,String upFileStr) throws Exception {
 		String finalPath = "";
 		if(!upFileStr.equals("") && !loingUserId.equals("")) {
 			String[] upFileArr = upFileStr.split(",");
@@ -324,21 +325,48 @@ public class CommonTools {
 			if(!filePath.exists()) {
 				filePath.mkdirs();
 			}
-			for(int i = 0 ; i < upFileArr.length ; i++) {
-				//复制原图
-				FileOpration.copyFile(Constants.UPLOAD_PATH+"temp/"+upFileArr[i], imagePath+"/"+upFileArr[i]);
-				Integer lastIndex = upFileArr[i].lastIndexOf(".");
-				String suffix = upFileArr[i].substring(lastIndex+1);
-				String newFileNamePre = upFileArr[i].substring(0, lastIndex);
-				String formatName = FileOpration.getImageFormat(suffix);
-				if(!formatName.equals("")) {
-					String newFileName = newFileNamePre+"_small."+suffix;
-					String newUrl = imagePath+"/"+newFileName;
-					FileOpration.makeImage(imagePath+"/"+upFileArr[i], 0.5, newUrl, formatName);
-					finalPath += loingUserId + "/" + newFileName + ",";
+			if(upFileDb.equals("")) {//新增时上传
+				for(int i = 0 ; i < upFileArr.length ; i++) {
+					//复制原图
+					FileOpration.copyFile(Constants.UPLOAD_PATH+"temp/"+upFileArr[i], imagePath+"/"+upFileArr[i]);
+					Integer lastIndex = upFileArr[i].lastIndexOf(".");
+					String suffix = upFileArr[i].substring(lastIndex+1);
+					String newFileNamePre = upFileArr[i].substring(0, lastIndex);
+					String formatName = FileOpration.getImageFormat(suffix);
+					if(!formatName.equals("")) {
+						String newFileName = newFileNamePre+"_small."+suffix;
+						String newUrl = imagePath+"/"+newFileName;
+						FileOpration.makeImage(imagePath+"/"+upFileArr[i], 0.5, newUrl, formatName);
+						finalPath += loingUserId + "/" + newFileName + ",";
+					}
+					//删除临时文件夹图片
+					FileOpration.deleteFile(Constants.UPLOAD_PATH+"temp/"+upFileArr[i]);
 				}
-				//删除临时文件夹图片
-				FileOpration.deleteFile(Constants.UPLOAD_PATH+"temp/"+upFileArr[i]);
+			}else {//编辑时上传
+				for(int i = 0 ; i < upFileArr.length ; i++) {
+					//复制原图
+					upFileDb = upFileDb.replaceAll("_small", "");
+					if(upFileDb.contains(upFileArr[i])) {//旧图
+						Integer lastIndex = upFileArr[i].lastIndexOf(".");
+						String suffix = upFileArr[i].substring(lastIndex+1);
+						String newFileNamePre = upFileArr[i].substring(0, lastIndex);
+						finalPath += newFileNamePre+"_small."+suffix + ",";
+					}else {//新增加的图
+						FileOpration.copyFile(Constants.UPLOAD_PATH+"temp/"+upFileArr[i], imagePath+"/"+upFileArr[i]);
+						Integer lastIndex = upFileArr[i].lastIndexOf(".");
+						String suffix = upFileArr[i].substring(lastIndex+1);
+						String newFileNamePre = upFileArr[i].substring(0, lastIndex);
+						String formatName = FileOpration.getImageFormat(suffix);
+						if(!formatName.equals("")) {
+							String newFileName = newFileNamePre+"_small."+suffix;
+							String newUrl = imagePath+"/"+newFileName;
+							FileOpration.makeImage(imagePath+"/"+upFileArr[i], 0.5, newUrl, formatName);
+							finalPath += loingUserId + "/" + newFileName + ",";
+						}
+						//删除临时文件夹图片
+						FileOpration.deleteFile(Constants.UPLOAD_PATH+"temp/"+upFileArr[i]);
+					}
+				}
 			}
 			if(!finalPath.equals("")) {
 				finalPath = finalPath.substring(0, finalPath.length() - 1);

@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -46,7 +47,8 @@ public class TrucksTradeServiceImpl implements TrucksTradeService {
 	@Override
 	public Page<TrucksTrade> getTrucksTradeByOption(Integer checkSta, String addUserId, Integer tradeType,
 			Integer pageNo, Integer pageSize) {
-		Pageable pageable = PageRequest.of(pageNo, pageSize);
+		Sort sort = Sort.by(Sort.Direction.DESC, "addTime");// 降序排列
+		Pageable pageable = PageRequest.of(pageNo, pageSize,sort);
 		Specification<TrucksTrade> spec = new Specification<TrucksTrade>() {
 			@Override
 			public Predicate toPredicate(Root<TrucksTrade> root, CriteriaQuery<?> query, CriteriaBuilder cb) {

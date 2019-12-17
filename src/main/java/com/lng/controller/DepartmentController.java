@@ -51,7 +51,7 @@ public class DepartmentController {
 	public GenericResponse addRole(HttpServletRequest request,String roleName,String description) {
 		Integer status = 200;
 		String uId = "";
-		if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.ADD_ROLE)) {
+		if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.ADD_ROLE)) {
 			try {
 				roleName = CommonTools.getFinalStr(roleName);
 				description = CommonTools.getFinalStr(description);
@@ -90,7 +90,7 @@ public class DepartmentController {
 	})
 	public GenericResponse upRole(HttpServletRequest request,String roleId,String roleName,String description) {
 		Integer status = 200;
-		if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.UP_ROLE)) {
+		if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.UP_ROLE)) {
 			try {
 				roleId = CommonTools.getFinalStr(roleId);
 				if(roleId.equals("")) {
@@ -167,7 +167,7 @@ public class DepartmentController {
 	})
 	public GenericResponse delRole(HttpServletRequest request,String roleId) {
 		Integer status = 200;
-		if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.UP_ROLE)) {
+		if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),CommonTools.getLoginRoleName(request), Constants.UP_ROLE)) {
 			try {
 				roleId = CommonTools.getFinalStr(roleId);
 				if(roleId.equals("")) {

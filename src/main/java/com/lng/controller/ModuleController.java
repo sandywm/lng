@@ -1,7 +1,6 @@
 package com.lng.controller;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,7 +22,6 @@ import com.lng.service.ModuleActService;
 import com.lng.service.ModuleService;
 import com.lng.service.SuperDepService;
 import com.lng.tools.CommonTools;
-import com.lng.tools.Sort;
 import com.lng.util.Constants;
 import com.lng.util.GenericResponse;
 import com.lng.util.ResponseFormat;
@@ -56,7 +54,6 @@ public class ModuleController {
 	@Autowired
 	private ActSuperService ass;
 	
-	@SuppressWarnings("unchecked")
 	@GetMapping("getModuleData")
 	@ApiOperation(value = "获取平台模块--所有人",notes = "超管和后台管理人员通用，当时超管时获取全平台所有模块，当是其他管理人员时，只显示分配的权限模块")
 	@ApiResponses({@ApiResponse(code = 1000, message = "服务器错误"),@ApiResponse(code = 50001, message = "数据未找到")})
@@ -68,7 +65,7 @@ public class ModuleController {
 			//获取用户所在部门
 			List<SuperDep> sdList = sds.listSpecInfoByUserId(superUserId);
 			if(sdList.size() > 0) {
-				String roleName = sdList.get(0).getDepartment().getDepName();
+				String roleName = CommonTools.getLoginRoleName(request);
 				if(Constants.SUPER_DEP_ABILITY.contains(roleName)) {//拥有全部权限
 					//获取所有模块
 					List<Module> mList  = ms.listAllInfo();
@@ -89,7 +86,7 @@ public class ModuleController {
 									map_d1.put("maEng", ma.getActNameEng());
 									list_d1.add(map_d1);
 								}
-								map_d.put("modSubList", list_d1);
+								map_d.put("subModList", list_d1);
 							}
 						}
 						list_d.add(map_d);
@@ -99,42 +96,38 @@ public class ModuleController {
 					//其他部门的人员根据子模块获取主模块列表
 					//系统配置模块所有人都能看
 					List<Module> sysModList = ms.listSysMod();
-					if(sysModList.size() > 0) {
-						Module mod = sysModList.get(0);
+					for(Module mod : sysModList) {
 						Map<String,Object> map_d = new HashMap<String,Object>();
 						map_d.put("modId", mod.getId());
 						map_d.put("modName", mod.getModName());
 						map_d.put("modUrl", mod.getModUrl());
-						map_d.put("modOrder", mod.getModOrder());
 						List<Object> list_d1 = new ArrayList<Object>();
-						List<ModuleAct> maList = mas.listInfoByModId(mod.getId());
-						if(maList.size() > 0) {
-							for(ModuleAct ma : maList) {
+						List<ActSuper> asList = ass.listSpecConfigInfoByOpt(superUserId, mod.getId());
+						if(asList.size() > 0) {
+							for(ActSuper as : asList) {
 								Map<String,Object> map_d1 = new HashMap<String,Object>();
-								map_d1.put("maId", ma.getId());
-								map_d1.put("maChi", ma.getActNameChi());
-								map_d1.put("maEng", ma.getActNameEng());
+								map_d1.put("subModName", as.getModuleAct().getActNameChi());
+								map_d1.put("subModEng", as.getModuleAct().getActNameEng());
 								list_d1.add(map_d1);
 							}
-							map_d.put("modSubList", list_d1);
+							map_d.put("subModList", list_d1);
+							list_d.add(map_d);
 						}
-						list_d.add(map_d);
 					}
-					List<ActSuper> asList = ass.listSpecInfoByUserId(superUserId, "","other");//获取除系统配置以为的其他权限模块
+					List<ActSuper> asList = ass.listSpecInfoByUserId(superUserId, "",0);//获取除系统配置以为的其他权限模块
 					if(asList.size() > 0) {
 						List<Module> list_m = new ArrayList<Module>();
 						for(ActSuper as : asList) {
 							Module mod = as.getModuleAct().getModule();
 							Map<String,Object> map_d = new HashMap<String,Object>();
 							if(list_d.size() == 0) {//首次不判断
-								if(mod.getModOrder() > 0) {//不加载系统配置模块
-									map_d.put("modId", mod.getId());
-									map_d.put("modName", mod.getModName());
-									map_d.put("modUrl", mod.getModUrl());
-									map_d.put("modOrder", mod.getModOrder());
-									list_d.add(map_d);
-									list_m.add(mod);
-								}
+								map_d.put("modId", mod.getId());
+								map_d.put("modName", mod.getModName());
+								map_d.put("modUrl", mod.getModUrl());
+								map_d.put("modOrder", mod.getModOrder());
+								map_d.put("subModList", new ArrayList<Object>());
+								list_d.add(map_d);
+								list_m.add(mod);
 							}else {
 								//判断list_m中有无相同的modId
 								Integer exist_status = 1;
@@ -152,6 +145,7 @@ public class ModuleController {
 										map_d.put("modName", mod.getModName());
 										map_d.put("modUrl", mod.getModUrl());
 										map_d.put("modOrder", mod.getModOrder());
+										map_d.put("subModList", new ArrayList<Object>());
 									}
 									if(!map_d.isEmpty()) {
 										list_d.add(map_d);
@@ -160,8 +154,8 @@ public class ModuleController {
 								}
 							}
 						}
-						Sort sort = new Sort();
-						Collections.sort(list_d, sort);//list_d升序排列
+//						Sort sort = new Sort();
+//						Collections.sort(list_d, sort);//list_d升序排列
 					}else {
 						status = 50001;
 					}
@@ -239,7 +233,7 @@ public class ModuleController {
 		Integer status = 200;
 		List<Object> modList = new ArrayList<Object>();
 		try {
-			if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.SET_ABILITY)) {
+			if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.SET_ABILITY)) {
 				//获取所有模块
 				List<Module> mList = ms.listAllInfo();
 				Integer i = 1;
@@ -265,11 +259,11 @@ public class ModuleController {
 									mainModCheckStatus *= 0;
 									map_d1.put("disabledFlag", false);
 								}else {
-									if(ass.listSpecInfoByUserId(specUserId, ma.getId(),"").size() > 0) {
+									if(ass.listSpecInfoByUserId(specUserId, ma.getId(),-1).size() > 0) {
 										map_d1.put("selFlag", true);
 										mainModCheckStatus *= 1;
 										if(ma.getActNameEng().startsWith("list")) {
-											if(ass.listSpecInfoByOpt1(specUserId, mod.getId()).size() >= 2) {//拥有两个或者两个以上的权限(包括list)
+											if(ass.listSpecConfigInfoByOpt(specUserId, mod.getId()).size() >= 2) {//拥有两个或者两个以上的权限(包括list)
 												map_d1.put("disabledFlag", true);
 											}else {
 												map_d1.put("disabledFlag", false);
@@ -307,22 +301,24 @@ public class ModuleController {
 	}
 	
 	@PostMapping("addMod")
-	@ApiOperation(value = "增加模块",notes = "增加模块")
+	@ApiOperation(value = "增加模块",notes = "增加模块(系统配置，审核管理时模块类型为1)")
 	@ApiResponses({@ApiResponse(code = 1000, message = "服务器错误"),
 		@ApiResponse(code = 50003, message = "数据已存在"),
 		@ApiResponse(code = 70001, message = "无权限访问")})
 	@ApiImplicitParams({
 		@ApiImplicitParam(name = "modName", value = "模块名称",  required = true),
-		@ApiImplicitParam(name = "modUrl", value = "模块URL",  required = true)
+		@ApiImplicitParam(name = "modUrl", value = "模块URL",  required = true),
+		@ApiImplicitParam(name = "modType", value = "模块类型(0:无子模块,1:有子模块)",  required = true)
 	})
 	public GenericResponse addMod(HttpServletRequest request) {
 		Integer status = 200;
 		String modId = "";
 		String modName = CommonTools.getFinalStr("modName", request);
 		String modUrl =  CommonTools.getFinalStr("modUrl", request);
+		Integer modType = CommonTools.getFinalInteger("modType", request);
 		try {
 			if(!modName.equals("") && !modUrl.equals("")) {
-				if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.ADD_MOD)) {
+				if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.ADD_MOD)) {
 					//查询名字不能相同
 					List<Module> mList = ms.listSpecInfoByName(modName);
 					if(mList.size() == 0) {
@@ -331,7 +327,7 @@ public class ModuleController {
 						if(mList.size() > 0) {
 							modOrder = mList.get(mList.size() - 1).getModOrder() + 1;
 						}
-						modId = ms.addOrUpMod(new Module(modName, modUrl, modOrder));
+						modId = ms.addOrUpMod(new Module(modName, modUrl, modOrder,modType));
 						//默认
 					}else {
 						status = 50003;
@@ -351,7 +347,7 @@ public class ModuleController {
 	}
 	
 	@PostMapping("upMod")
-	@ApiOperation(value = "修改主模块",notes = "修改主模块")
+	@ApiOperation(value = "修改主模块",notes = "修改主模块(系统配置，审核管理时模块类型为1)")
 	@ApiResponses({@ApiResponse(code = 1000, message = "服务器错误"),
 		@ApiResponse(code = 50003, message = "数据已存在"),
 		@ApiResponse(code = 70001, message = "无权限访问"),
@@ -360,12 +356,17 @@ public class ModuleController {
 	@ApiImplicitParams({
 		@ApiImplicitParam(name = "modId", value = "模块编号",  required = true),
 		@ApiImplicitParam(name = "modName", value = "模块名称",  required = true),
-		@ApiImplicitParam(name = "modUrl", value = "模块URL",  required = true)
+		@ApiImplicitParam(name = "modUrl", value = "模块URL",  required = true),
+		@ApiImplicitParam(name = "modType", value = "模块类型(0:无子模块,1:有子模块)",  required = true)
 	})
-	public GenericResponse upMod(HttpServletRequest request,String modId,String modName, String modUrl) {
+	public GenericResponse upMod(HttpServletRequest request) {
 		Integer status = 200;
+		String modId = CommonTools.getFinalStr("modId", request);
+		String modName = CommonTools.getFinalStr("modName", request);
+		String modUrl =  CommonTools.getFinalStr("modUrl", request);
+		Integer modType = CommonTools.getFinalInteger("modType", request);
 		try {
-			if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.UP_MOD)) {
+			if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),CommonTools.getLoginRoleName(request), Constants.UP_MOD)) {
 				//查询名字不能相同
 				Module mod = ms.getEntityById(modId);
 				if(mod != null) {
@@ -376,11 +377,13 @@ public class ModuleController {
 						}else {
 							mod.setModName(modName);
 							mod.setModUrl(modUrl);
+							mod.setModType(modType);
 							ms.addOrUpMod(mod);
 						}
 					}else {
 						mod.setModName(modName);
 						mod.setModUrl(modUrl);
+						mod.setModType(modType);
 						ms.addOrUpMod(mod);
 					}
 				}else {
@@ -415,7 +418,7 @@ public class ModuleController {
 			//获取用户所在部门
 			List<SuperDep> sdList = sds.listSpecInfoByUserId(superUserId);
 			if(sdList.size() > 0) {
-				if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.ADD_MOD)) {
+				if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),CommonTools.getLoginRoleName(request), Constants.ADD_MOD)) {
 					//查询名字不能相同
 					List<ModuleAct> maList = mas.listInfoByOpt(actNameChi,"");
 					List<ModuleAct> maList_1 = mas.listInfoByOpt("",actNameEng);
@@ -456,7 +459,7 @@ public class ModuleController {
 	public GenericResponse upModAct(HttpServletRequest request,String maId,String actNameChi, String actNameEng) {
 		Integer status = 200;
 		try {
-			if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.UP_MOD)) {
+			if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.UP_MOD)) {
 				//查询名字不能相同
 				ModuleAct mc = mas.getEntityById(maId);
 				if(mc != null) {
@@ -511,9 +514,9 @@ public class ModuleController {
 				//获取用户所在部门
 				List<SuperDep> sdList = sds.listSpecInfoByUserId(superUserId);
 				if(sdList.size() > 0) {
-					if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.SET_ABILITY)) {
+					if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.SET_ABILITY)) {
 						//查询当前人员所有模块动作
-						List<ActSuper> asList = ass.listSpecInfoByUserId(specUserId, "","");
+						List<ActSuper> asList = ass.listSpecInfoByUserId(specUserId, "",-1);
 						if(asList.size() > 0) {
 							//删除之前已绑定的用户权限动作
 							ass.delBatchInfo(asList);

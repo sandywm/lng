@@ -197,7 +197,7 @@ public class GasFactory implements java.io.Serializable {
 		this.addTime = addTime;
 	}
 
-	@Column(name = "yzbg_img", columnDefinition = "varchar(100) COMMENT '液质报告'")
+	@Column(name = "yzbg_img", columnDefinition = "varchar(200) COMMENT '液质报告'")
 	public String getYzbgImg() {
 		return this.yzbgImg;
 	}

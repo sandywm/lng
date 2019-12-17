@@ -45,13 +45,13 @@ public class GasTypeController {
 		String name = CommonTools.getFinalStr("name", request);
 		String yzImg = CommonTools.getFinalStr("yzImg", request);
 		String loginUserId = CommonTools.getLoginUserId(request);
-		if (CommonTools.checkAuthorization(loginUserId, Constants.YZLX_ABILITY)) {
+		if (CommonTools.checkAuthorization(loginUserId, CommonTools.getLoginRoleName(request),Constants.YZLX_ABILITY)) {
 			try {
 				if (gTypeService.getGasTypeByNameList(name).size() == 0) {
 					GasType gType = new GasType();
 					gType.setName(name);
 					if(!yzImg.equals("")) {//上传图
-						gType.setYz_img(CommonTools.dealUploadDetail(loginUserId, yzImg));
+						gType.setYzImg(CommonTools.dealUploadDetail(loginUserId,"", yzImg));
 					}
 					gtId = gTypeService.saveOrUpdate(gType);
 				} else {
@@ -82,15 +82,15 @@ public class GasTypeController {
 		yzImg = CommonTools.getFinalStr(yzImg);
 		Integer status = 200;
 		String loginUserId = CommonTools.getLoginUserId(request);
-		if (CommonTools.checkAuthorization(loginUserId, Constants.YZLX_ABILITY)) {
+		if (CommonTools.checkAuthorization(loginUserId, CommonTools.getLoginRoleName(request),Constants.YZLX_ABILITY)) {
 			try {
 				GasType gt = gTypeService.findById(id);
 				if (gt == null) {
 					status = 50001;
 				} else {
 					if(gt.getName().equals(name)) {
-						if (!yzImg.equals("") && !yzImg.equals(gt.getYz_img())) {
-							gt.setYz_img(CommonTools.dealUploadDetail(loginUserId, yzImg));
+						if (!yzImg.equals("") && !yzImg.equals(gt.getYzImg())) {
+							gt.setYzImg(CommonTools.dealUploadDetail(loginUserId, gt.getYzImg(), yzImg));
 							gTypeService.saveOrUpdate(gt);
 						}
 					}else {
@@ -98,8 +98,8 @@ public class GasTypeController {
 							if (!name.equals("") && !name.equals(gt.getName())) {
 								gt.setName(name);
 							}
-							if (!yzImg.equals("") && !yzImg.equals(gt.getYz_img())) {
-								gt.setYz_img(CommonTools.dealUploadDetail(loginUserId, yzImg));
+							if (!yzImg.equals("") && !yzImg.equals(gt.getYzImg())) {
+								gt.setYzImg(CommonTools.dealUploadDetail(loginUserId, gt.getYzImg(), yzImg));
 							}
 							gTypeService.saveOrUpdate(gt);
 						} else {

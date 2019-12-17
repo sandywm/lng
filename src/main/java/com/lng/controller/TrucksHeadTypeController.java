@@ -41,7 +41,7 @@ public class TrucksHeadTypeController {
 	public GenericResponse addTHeadType(HttpServletRequest request, String name) {
 		Integer status = 200;
 		String thtId = "";
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.CCCTLX_ABILITY)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.CCCTLX_ABILITY)) {
 			try {
 				if (thtService.getTrucksHeadTypeByNameList(name).size() == 0) {
 					TrucksHeadType tht = new TrucksHeadType();
@@ -72,7 +72,7 @@ public class TrucksHeadTypeController {
 		id = CommonTools.getFinalStr(id);
 		name=CommonTools.getFinalStr(name);
 		Integer status = 200;
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.CCCTLX_ABILITY)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.CCCTLX_ABILITY)) {
 			try {
 				TrucksHeadType tht = thtService.findById(id);
 				if (tht== null) {

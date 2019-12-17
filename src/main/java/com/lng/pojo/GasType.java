@@ -29,7 +29,7 @@ public class GasType implements java.io.Serializable {
 	@ApiModelProperty(value = "液质名称")
 	private String name;
 	@ApiModelProperty(value = "液质图")
-	private String yz_img;
+	private String yzImg;
 	public GasType() {
 	}
 
@@ -58,11 +58,11 @@ public class GasType implements java.io.Serializable {
 	}
 
 	@Column(name = "yz_img", nullable = false, columnDefinition = "varchar(100) COMMENT '液质图'")
-	public String getYz_img() {
-		return yz_img;
+	public String getYzImg() {
+		return yzImg;
 	}
 
-	public void setYz_img(String yz_img) {
-		this.yz_img = yz_img;
+	public void setYzImg(String yzImg) {
+		this.yzImg = yzImg;
 	}
 }

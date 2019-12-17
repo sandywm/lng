@@ -14,10 +14,22 @@ public interface ActSuperService {
 	 * @date  2019年12月5日 上午9:51:32
 	 * @param userId 后台用户编号
 	 * @param maId 动作模块编号（可为空）
-	 * @param opt 参数( ""时不查询，sys:获取系统配置模块，other:获取所有不是系统配置的模块)
+	 * @param modType 模块类型（0:无子模块,1:有子模块）
 	 * @return
 	 */
-	List<ActSuper> listSpecInfoByUserId(String userId,String maId,String opt);
+	List<ActSuper> listSpecInfoByUserId(String userId,String maId,Integer modType);
+	
+	/**
+	 * @description 获取指定用户、指定模块下的模块动作列表（用于2级菜单）
+	 * @author wm
+	 * @Version : 版本
+	 * @ModifiedBy : 修改人
+	 * @date  2019年12月17日 下午2:52:36
+	 * @param userId 后台用户编号
+	 * @param modId 模块编号
+	 * @return
+	 */
+	List<ActSuper> listSpecConfigInfoByOpt(String userId,String modId);
 	
 	/**
 	 * @description 根据用户编号、指定动作模块获取模块动作列表
@@ -50,16 +62,4 @@ public interface ActSuperService {
 	 * @param selMaIdStr 权限动作（多个逗号隔开）
 	 */
 	void addBatchInfo(String userId,String selMaIdStr);
-	
-	/**
-	 * @description 获取指定人员、指定模块下已拥有的权限
-	 * @author wm
-	 * @Version : 版本
-	 * @ModifiedBy : 修改人
-	 * @date  2019年12月9日 下午1:01:38
-	 * @param userId 后台用户编号
-	 * @param modId 模块编号
-	 * @return
-	 */
-	List<ActSuper> listSpecInfoByOpt1(String userId,String modId);
 }

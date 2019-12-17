@@ -41,7 +41,7 @@ public class WqPfbzController {
 	public GenericResponse addWqPfbz(HttpServletRequest request, String name) {
 		Integer status = 200;
 		String pfbzId = "";
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.WQPP_ABILITY)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.WQPP_ABILITY)) {
 			try {
 				if (pfbzService.getWqPfbzByNameList(name).size() == 0) {
 					WqPfbz pfbz = new WqPfbz();
@@ -72,7 +72,7 @@ public class WqPfbzController {
 		Integer status = 200;
 		name=CommonTools.getFinalStr(name);
 		
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.WQPP_ABILITY)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.WQPP_ABILITY)) {
 			try {
 				WqPfbz pfbz = pfbzService.findById(CommonTools.getFinalStr(id));
 				if (pfbz== null) {

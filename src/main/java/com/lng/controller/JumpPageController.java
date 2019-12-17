@@ -33,12 +33,23 @@ public class JumpPageController {
 		if(!roleId.equals("")) {
 			List<SuperDep> spList = sds.listInfoByOpt(CommonTools.getLoginUserId(request), roleId);
 			if(spList.size() > 0) {
-				String roleName = spList.get(0).getDepartment().getDepName();
-				request.getSession(false).setAttribute(Constants.LOGIN_USER_ROLE_NAME, roleName);
-				if(roleName.equals("超级管理员")) {
-					return new ModelAndView("welcome_spu");
-				}else {
-					return new ModelAndView("welcome");
+				String roleName = "";
+				for(SuperDep sd : spList) {
+					if(sd.getDepartment().getId().equals(roleId)) {
+						roleName = sd.getDepartment().getDepName();
+						if(!roleName.equals("超级管理员")) {
+							roleName = "平台管理员";
+						}
+						break;
+					}
+				}
+				if(!roleName.equals("")) {
+					request.getSession(false).setAttribute(Constants.LOGIN_USER_ROLE_NAME, roleName);
+					if(roleName.equals("超级管理员")) {
+						return new ModelAndView("welcome_spu");
+					}else {
+						return new ModelAndView("welcome");
+					}
 				}
 			}
 		}
@@ -164,4 +175,17 @@ public class JumpPageController {
 	public ModelAndView goLqFactoryPage(){
 		return new ModelAndView("lqFactoryManager/lqFactoryList");
 	}
+	
+	@ApiOperation("省份管理")
+	@GetMapping("goProvManagerPage")
+	public ModelAndView goProvManagerPage(){
+		return new ModelAndView("provManager/provList");
+	}
+	
+	@ApiOperation("贸易商审核管理")
+	@GetMapping("goCpyJoinFcyCheckPage")
+	public ModelAndView goCpyJoinFcyCheckPage(){
+		return new ModelAndView("applyManager/tradeApply");
+	}
+	
 }

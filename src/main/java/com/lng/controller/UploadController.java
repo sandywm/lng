@@ -25,8 +25,6 @@ import com.lng.util.GenericResponse;
 import com.lng.util.ResponseFormat;
 
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -75,9 +73,6 @@ public class UploadController {
 	@ApiOperation("多个图片上传接口")
 	@PostMapping("uploadMuti")
 	@ApiResponses({@ApiResponse(code = 1000, message = "服务器错误")})
-	@ApiImplicitParams({
-		@ApiImplicitParam(name = "rate", value = "图片压缩率(0-1)", required = true)
-	})
 	public GenericResponse uploadMuti(HttpServletRequest request) throws Exception {
 		Integer status = 200;
 		List<String> list_d = new ArrayList<String>();

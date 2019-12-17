@@ -90,13 +90,13 @@ public class PotTradeController {
 		String loginUserId = CommonTools.getLoginUserId(request);
 		Integer status = 200;
 		String ptId = "";
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.ADD_PT)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),CommonTools.getLoginRoleName(request), Constants.ADD_PT)) {
 			try {
 				PotTrade pt = new PotTrade();
 				Company company = companyService.getEntityById(compId);
 				pt.setCompany(company);
 				if (!mainImg.equals("")) {
-					pt.setMainImg(CommonTools.dealUploadDetail(loginUserId, mainImg));
+					pt.setMainImg(CommonTools.dealUploadDetail(loginUserId, "", mainImg));
 				}
 				TrucksPotPp trucksPotPp = potPpService.findById(potPpId);
 				pt.setTrucksPotPp(trucksPotPp);
@@ -148,7 +148,7 @@ public class PotTradeController {
 			Integer showSta) {
 		id = CommonTools.getFinalStr(id);
 		Integer status = 200;
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.UP_PT)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),CommonTools.getLoginRoleName(request), Constants.UP_PT)) {
 			try {
 				PotTrade pt = potTradeService.getEntityById(id);
 				if (pt == null) {
@@ -182,7 +182,7 @@ public class PotTradeController {
 	public GenericResponse updatePotTradeByHot(HttpServletRequest request, String id, Integer hot) {
 		id = CommonTools.getFinalStr(id);
 		Integer status = 200;
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.UP_PT)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.UP_PT)) {
 			try {
 				PotTrade pt = potTradeService.getEntityById(id);
 				if (pt == null) {
@@ -242,7 +242,7 @@ public class PotTradeController {
 		Integer tradeStatus = CommonTools.getFinalInteger("tradeStatus", request);
 		String loginUserId = CommonTools.getLoginUserId(request);
 		Integer status = 200;
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.UP_PT)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),CommonTools.getLoginRoleName(request), Constants.UP_PT)) {
 			try {
 				PotTrade pt = potTradeService.getEntityById(id);
 				if (pt == null) {
@@ -250,7 +250,7 @@ public class PotTradeController {
 				} else {
 
 					if (!mainImg.isEmpty() && !mainImg.equals(pt.getMainImg())) {
-						pt.setMainImg(CommonTools.dealUploadDetail(loginUserId, mainImg));
+						pt.setMainImg(CommonTools.dealUploadDetail(loginUserId, pt.getMainImg(), mainImg));
 					}
 					if (!potPpId.isEmpty() && !potPpId.equals(pt.getTrucksPotPp().getId())) {
 						TrucksPotPp trucksPotPp = potPpService.findById(potPpId);

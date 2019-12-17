@@ -80,9 +80,12 @@ public class GasTradeServiceImpl implements GasTradeService{
 					pre.getExpressions().add(cb.greaterThanOrEqualTo(root.get("gasPrice"), sPrice.doubleValue()));
 					pre.getExpressions().add(cb.lessThanOrEqualTo(root.get("gasPrice"), ePrice.doubleValue()));
 				}
-				if(!psArea.isEmpty()) {
-					pre.getExpressions().add(cb.like(root.get("psArea"), "%"+psArea+"%"));
-				}
+//				if(!psArea.isEmpty()) {
+//					String[] psAreaArr = psArea.split(",");
+//					List predicateList = new ArrayList();
+//					Predicate [] p = new Predicate[bottomLevelDataPermission.size()];
+//					pre.getExpressions().add(cb.like(root.get("psArea"), "%"+psArea+"%"));
+//				}
 				return pre;
 		}};
 		Sort.Order sort2 = new Sort.Order(Sort.Direction.DESC, "hot");//升序排列

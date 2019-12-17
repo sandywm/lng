@@ -9,6 +9,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -84,7 +85,8 @@ public class QualificationServiceImpl implements QualificationService {
 					return pre;
 				}
 			};
-			return qualificationDao.findAll(spec);
+			Sort sort = Sort.by(Sort.Direction.DESC, "addTime");// 降序排列
+			return qualificationDao.findAll(spec,sort);
 		}
 		return null;
 	}

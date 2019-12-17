@@ -81,13 +81,13 @@ public class Constants {
 	public static final String LIST_RQSB = "listRqsb";// 燃气设备
 	public static final String CHECK_RQSB = "checkRqsb";
 
-	public static final String SET_ABILITY = "set_ability";// 设置权限
+	public static final String SET_ABILITY = "setAbility";// 设置权限
 
-	public static final String ADD_MOD = "add_mod";// 增加模块
-	public static final String UP_MOD = "up_mod";// 修改模块
+	public static final String ADD_MOD = "addMod";// 增加模块
+	public static final String UP_MOD = "upMod";// 修改模块
 
-	public static final String ADD_USER = "add_user";// 用户
-	public static final String UP_USER = "up_user";
+	public static final String ADD_USER = "addUser";// 用户
+	public static final String UP_USER = "upUser";
 
 //	public static final String ADD_COMT = "add_comt";// 添加公司类型
 //	public static final String UP_COMT = "up_comt"; // 修改公司类型
@@ -125,56 +125,59 @@ public class Constants {
 //	public static final String ADD_TT = "add_tt";// 添加槽车类型
 //	public static final String UP_TT = "up_tt"; // 修改槽车类型
 	
-	public static final String ADD_USER_ROLE = "add_user_role";//用户角色
-	public static final String UP_USER_ROLE = "up_user_role";
+	public static final String ADD_USER_ROLE = "addUserRole";//用户角色
+	public static final String UP_USER_ROLE = "UPUserRole";
 	
-	public static final String ADD_YC = "add_yc";//添加液厂
-	public static final String UP_YC = "up_yc";//修改液厂
+	public static final String ADD_YC = "addYc";//添加液厂
+	public static final String UP_YC = "upyc";//修改液厂
 	
-	public static final String ADD_COMPANY = "add_company";//添加公司
-	public static final String UP_COMPANY = "up_company";//修改公司
+	public static final String ADD_COMPANY = "addCompany";//添加公司
+	public static final String UP_COMPANY = "upCompany";//修改公司
 	
-	public static final String ADD_PSR = "add_psr";//添加公司司机押运人
-	public static final String UP_PSR = "up_psr";//修改公司司机押运人
+	public static final String ADD_PSR = "addPsr";//添加公司司机押运人
+	public static final String UP_PSR = "upPsr";//修改公司司机押运人
 	
-	public static final String ADD_ZZ = "add_zz";//添加公司执照
-	public static final String UP_ZZ = "up_zz";//修改公司执照
+	public static final String ADD_ZZ = "addZz";//添加公司执照
+	public static final String UP_ZZ = "upZz";//修改公司执照
 	
-	public static final String ADD_HEADCP = "add_headcp";//添加公司车头车牌
-	public static final String UP_HEADCP = "up_headcp";//修改公司车头车牌
+	public static final String ADD_HEADCP = "addHeadcp";//添加公司车头车牌
+	public static final String UP_HEADCP = "upHeadcp";//修改公司车头车牌
 	
-	public static final String ADD_GCCP = "add_gccp";//添加公司挂车车牌
-	public static final String UP_GCCP = "up_gccp";//修改公司挂车车牌
+	public static final String ADD_GCCP = "addGccp";//添加公司挂车车牌
+	public static final String UP_GCCP = "upGccp";//修改公司挂车车牌
 	
-	public static final String ADD_PROV = "add_prov";//添加省份
-	public static final String UP_PROV = "up_prov";//修改省份
+	public static final String ADD_PROV = "addProv";//添加省份
+	public static final String UP_PROV = "upProv";//修改省份
 	
-	public static final String ADD_PT = "add_pt";//添加储罐租卖
-	public static final String UP_PT = "up_pt";//修改储罐租卖
+	public static final String ADD_PT = "addPt";//添加储罐租卖
+	public static final String UP_PT = "upPt";//修改储罐租卖
 	
-	public static final String ADD_RDT = "add_rdt";//添加燃气设备买卖
-	public static final String UP_RDT = "up_rdt";//修改燃气设备买卖
+	public static final String ADD_RDT = "addRdt";//添加燃气设备买卖
+	public static final String UP_RDT = "upRdt";//修改燃气设备买卖
 	
-	public static final String ADD_TRTR = "add_trtr";//添加货车租卖
-	public static final String UP_TRTR = "up_trtr";//修改货车租卖
-	public static final String ADD_QZ = "add_qz";//添加司机求职
-	public static final String UP_QZ = "up_qz";//修改司机求职
-	public static final String ADD_ZP = "add_zp";//添加司机招聘
-	public static final String UP_ZP = "up_zp";//修改司机招聘
+	public static final String ADD_TRTR = "addTrtr";//添加货车租卖
+	public static final String UP_TRTR = "upTrtr";//修改货车租卖
+	public static final String ADD_QZ = "addQz";//添加司机求职
+	public static final String UP_QZ = "upQz";//修改司机求职
+	public static final String ADD_ZP = "addZp";//添加司机招聘
+	public static final String UP_ZP = "upZp";//修改司机招聘
 	
-	public static final String ADD_LNG_PRICE = "add_lng_price";//添加lng价格
-	public static final String UP_LNG_PRICE = "up_lng_price";//修改lng价格
+	public static final String ADD_LNG_PRICE = "addLngPrice";//添加lng价格
+	public static final String UP_LNG_PRICE = "upLngPrice";//修改lng价格
 	
-	public static final String CHECK_GAS_FCY_CPY_APPLY = "checkGasFcyCpyApply";//审核贸易商加入液厂的申请
-	public static final String CHECK_USER_JOIN_CPY_APPLY = "checkUserJoinCpyApply";//审核用户加入公司的申请
-	public static final String CHECK_CPY_APPLY = "checkCpyApply";//审核公司信息
-	public static final String CHECK_TRUCK_PUB = "checkTruckPub";//审核货车租卖发布信息
-	public static final String CHECK_GAS_TRADE_PUB = "checkGasTradePub";//审核燃气买卖发布信息
-	public static final String CHECK_GAS_DEV_TRADE_PUB = "checkGasDevTradePub";//审核燃气设备买卖发布信息
-	public static final String CHECK_POT_TRADE_PUB = "checkPotTradePub";//审核储罐租卖发布信息
-	public static final String CHECK_DRIVER_QZ_PUB = "checkDriverQzPub";//审核司机求职发布信息
-	public static final String CHECK_DRIVER_ZP_PUB = "checkDriverZpPub";//审核司机招聘发布信息
-	public static final String CHECK_GAS_FACTORY_PUB = "checkGasFactotyPub";//审核液厂
+	public static final String ADD_GAS_TRADE = "addGasTrade";//添加燃气买卖
+	public static final String UP_GAS_TRADE = "upGasTrade";//修改燃气买卖
+	
+	public static final String CHECK_GAS_FCY_CPY_APPLY = "goCpyJoinFcyCheckPage";//贸易商加入液厂的申请审核
+	public static final String CHECK_USER_JOIN_CPY_APPLY = "goUserJoinCpyCheckPage";//用户加入公司的申请审核
+	public static final String CHECK_CPY_APPLY = "goCpyCheckPage";//审核公司信息
+	public static final String CHECK_TRUCK_PUB = "goTruckCheckPage";//审核货车租卖发布信息
+	public static final String CHECK_GAS_TRADE_PUB = "goGasTradeCheckPage";//审核燃气买卖发布信息
+	public static final String CHECK_GAS_DEV_TRADE_PUB = "goGasDevTradePage";//审核燃气设备买卖发布信息
+	public static final String CHECK_POT_TRADE_PUB = "goPotTradePage";//审核储罐租卖发布信息
+	public static final String CHECK_DRIVER_QZ_PUB = "goDriverQzPage";//审核司机求职发布信息
+	public static final String CHECK_DRIVER_ZP_PUB = "goDriverZpPage";//审核司机招聘发布信息
+	public static final String CHECK_GAS_FACTORY_PUB = "goGasFactotyPage";//审核液厂
 	
 	
 	

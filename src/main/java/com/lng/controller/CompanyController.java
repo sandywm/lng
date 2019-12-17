@@ -85,7 +85,7 @@ public class CompanyController {
 			String bankNo, String bankAcc,Integer userType) {
 		Integer status = 200;
 		String comId = "";
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.ADD_COMPANY)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),CommonTools.getLoginRoleName(request), Constants.ADD_COMPANY)) {
 			try {
 				if (companyService.getCompanyByName(name).size() == 0) {
 					Company comp = new Company();
@@ -140,7 +140,7 @@ public class CompanyController {
 		compId = CommonTools.getFinalStr(compId);
 		Integer status = 200;
 		String psrId = "";
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.ADD_PSR)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),CommonTools.getLoginRoleName(request), Constants.ADD_PSR)) {
 			try {
 
 				CompanyPsr psr = new CompanyPsr();
@@ -170,7 +170,7 @@ public class CompanyController {
 		compId = CommonTools.getFinalStr(compId);
 		Integer status = 200;
 		String gcId = "";
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.ADD_GCCP)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),CommonTools.getLoginRoleName(request), Constants.ADD_GCCP)) {
 			try {
 				gch = CommonTools.getFinalStr(gch);
 				if (tructsGcCpService.getGcCpByName(gch.toUpperCase()).size() == 0) {
@@ -206,7 +206,7 @@ public class CompanyController {
 		compId = CommonTools.getFinalStr(compId);
 		Integer status = 200;
 		String cId = "";
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.ADD_HEADCP)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),CommonTools.getLoginRoleName(request), Constants.ADD_HEADCP)) {
 			try {
 				cp = CommonTools.getFinalStr(cp);
 				if (tructsHeadCpService.getHeadCpList(cp.toUpperCase()).size() == 0) {
@@ -244,13 +244,13 @@ public class CompanyController {
 		String loginUserId = CommonTools.getLoginUserId(request);
 		Integer status = 200;
 		String zzId = "";
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.ADD_ZZ)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),CommonTools.getLoginRoleName(request), Constants.ADD_ZZ)) {
 			try {
 				CompanyZz zz = new CompanyZz();
 				Company company = companyService.getEntityById(compId);
 				zz.setCompany(company);
 				if(!zzimg.equals("")) {//上传图
-					zz.setCompanyZzImg(CommonTools.dealUploadDetail(loginUserId, zzimg));
+					zz.setCompanyZzImg(CommonTools.dealUploadDetail(loginUserId, "",zzimg));
 				}
 				zzId = zzService.saveOrUpdate(zz);
 			} catch (Exception e) {
@@ -389,7 +389,7 @@ public class CompanyController {
 	public GenericResponse updateCompByStatus(HttpServletRequest request, String id, Integer checkSta) {
 		id = CommonTools.getFinalStr(id);
 		Integer status = 200;
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.UP_COMPANY)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),CommonTools.getLoginRoleName(request), Constants.UP_COMPANY)) {
 			try {
 				Company comp = companyService.getEntityById(id);
 				if (comp == null) {
@@ -440,7 +440,7 @@ public class CompanyController {
 		bankNo = CommonTools.getFinalStr(bankNo);
 		bankAcc = CommonTools.getFinalStr(bankAcc);
 		Integer status = 200;
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.UP_COMPANY)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.UP_COMPANY)) {
 			try {
 				Company comp = companyService.getEntityById(id);
 				if (comp == null) {
@@ -502,7 +502,7 @@ public class CompanyController {
 		name = CommonTools.getFinalStr(name);
 		sex = CommonTools.getFinalStr(sex);
 		mobile = CommonTools.getFinalStr(mobile);
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.UP_PSR)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.UP_PSR)) {
 			try {
 				CompanyPsr psr = psrService.getEntityById(id);
 				if (psr == null) {
@@ -542,7 +542,7 @@ public class CompanyController {
 		Integer status = 200;
 		gch = CommonTools.getFinalStr(gch);
 		id = CommonTools.getFinalStr(id);
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.UP_GCCP)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.UP_GCCP)) {
 			try {
 				CompanyTructsGcCp gccp = tructsGcCpService.getEntityById(id);
 				if (gccp == null) {
@@ -575,7 +575,7 @@ public class CompanyController {
 		Integer status = 200;
 		cp = CommonTools.getFinalStr(cp);
 		id = CommonTools.getFinalStr(id);
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.UP_HEADCP)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.UP_HEADCP)) {
 			try {
 				CompanyTructsHeadCp headCp = tructsHeadCpService.getEntityById(id);
 				if (headCp == null) {
@@ -609,14 +609,14 @@ public class CompanyController {
 		zzImg = CommonTools.getFinalStr(zzImg);
 		id = CommonTools.getFinalStr(id);
 		String loginUserId = CommonTools.getLoginUserId(request);
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.UP_ZZ)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.UP_ZZ)) {
 			try {
 				CompanyZz zz = zzService.getEntityById(id);
 				if (zz == null) {
 					status = 50001;
 				} else {
 					if (!zzImg.isEmpty() && !zzImg.equals(zz.getCompanyZzImg())) {
-						zz.setCompanyZzImg(CommonTools.dealUploadDetail(loginUserId, zzImg));
+						zz.setCompanyZzImg(CommonTools.dealUploadDetail(loginUserId, zz.getCompanyZzImg(), zzImg));
 					}
 					zzService.saveOrUpdate(zz);
 				}

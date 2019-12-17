@@ -20,6 +20,17 @@ public interface LngMessageService {
 	 * @return
 	 */
 	String addOrUpdateLngMsg(LngMessage lm);
+	/**
+	 * 
+	 * @description 根据主键获取LNG行情留言
+	 * @author zdf
+	 * @Version : 1.0
+	 * @ModifiedBy : 
+	 * @date  2019年12月16日 下午1:46:55
+	 * @param id 主键
+	 * @return
+	 */
+	LngMessage getEntityById(String id);
 	
 	/**
 	 * @description 根据条件分页获取lng行情留言

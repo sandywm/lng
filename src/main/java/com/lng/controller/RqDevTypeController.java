@@ -42,7 +42,7 @@ public class RqDevTypeController {
 	public GenericResponse addRqDevType(HttpServletRequest request, String name) {
 		Integer status = 200;
 		String rqId = "";
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.RQSBLM_ABILITY)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.RQSBLM_ABILITY)) {
 			try {
 				if (rqDevTypeService.getRqDevTypeByNameList(name).size() == 0) {
 					RqDevType rqDevType = new RqDevType();
@@ -73,7 +73,7 @@ public class RqDevTypeController {
 		id = CommonTools.getFinalStr(id);
 		name = CommonTools.getFinalStr(name);
 		Integer status = 200;
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), Constants.RQSBLM_ABILITY)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.RQSBLM_ABILITY)) {
 			try {
 				RqDevType rqdev = rqDevTypeService.findById(id);
 				if (rqdev == null) {
