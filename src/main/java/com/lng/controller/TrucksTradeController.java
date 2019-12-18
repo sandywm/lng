@@ -111,15 +111,26 @@ public class TrucksTradeController {
 		String aqfbg = CommonTools.getFinalStr("aqfbg", request);
 
 		String loginUserId = CommonTools.getLoginUserId(request);
+		String cilentInfo = CommonTools.getCilentInfo_new(request);
 		Integer status = 200;
 		String ttId = "";
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.ADD_TRTR)) {
-			try {
+
+		try {
+			if (CommonTools.checkAuthorization(loginUserId, CommonTools.getLoginRoleName(request),
+					Constants.ADD_TRTR)) {
+
+			} else if (cilentInfo.equals("wxApp")) {
+				loginUserId = CommonTools.getFinalStr("userId", request);
+			} else {
+				status = 70001;
+			}
+
+			if (status.equals(200)) {
 				TrucksTrade trtr = new TrucksTrade();
 
 				trtr.setCompanyId(compId);
 				if (!mainImg.equals("")) {
-					trtr.setMainImg(CommonTools.dealUploadDetail(loginUserId,  "",  mainImg));
+					trtr.setMainImg(CommonTools.dealUploadDetail(addUserId, "", mainImg));
 				}
 				trtr.setTrucksNo(trucksNo);
 				trtr.setSpYear(spYear);
@@ -162,14 +173,12 @@ public class TrucksTradeController {
 				trtr.setPotJyz(potJyz);
 				trtr.setAqfBg(aqfbg);
 				ttId = trucksTradeService.saveOrUpdate(trtr);
-
-			} catch (Exception e) {
-				e.printStackTrace();
-				status = 1000;
 			}
-		} else {
-			status = 70001;
+		} catch (Exception e) {
+			e.printStackTrace();
+			status = 1000;
 		}
+
 		return ResponseFormat.retParam(status, ttId);
 	}
 
@@ -183,9 +192,19 @@ public class TrucksTradeController {
 	public GenericResponse updateTrTrByStatus(HttpServletRequest request, String id, Integer checkSta,
 			Integer showSta) {
 		id = CommonTools.getFinalStr(id);
+		String cilentInfo = CommonTools.getCilentInfo_new(request);
 		Integer status = 200;
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.UP_TRTR)) {
-			try {
+
+		try {
+			if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),
+					CommonTools.getLoginRoleName(request), Constants.UP_TRTR)) {
+
+			} else if (cilentInfo.equals("wxApp")) {
+
+			} else {
+				status = 70001;
+			}
+			if (status.equals(200)) {
 				TrucksTrade tt = trucksTradeService.getEntityById(id);
 				if (tt == null) {
 					status = 50001;
@@ -199,13 +218,13 @@ public class TrucksTradeController {
 					}
 					trucksTradeService.saveOrUpdate(tt);
 				}
-			} catch (Exception e) {
-				e.printStackTrace();
-				status = 1000;
 			}
-		} else {
-			status = 70001;
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			status = 1000;
 		}
+
 		return ResponseFormat.retParam(status, "");
 	}
 
@@ -217,9 +236,19 @@ public class TrucksTradeController {
 			@ApiImplicitParam(name = "hot", value = "热度（默认为0）") })
 	public GenericResponse updateTrTrByHot(HttpServletRequest request, String id, Integer hot) {
 		id = CommonTools.getFinalStr(id);
+		String cilentInfo = CommonTools.getCilentInfo_new(request);
 		Integer status = 200;
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),CommonTools.getLoginRoleName(request), Constants.UP_TRTR)) {
-			try {
+
+		try {
+			if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),
+					CommonTools.getLoginRoleName(request), Constants.UP_TRTR)) {
+
+			} else if (cilentInfo.equals("wxApp")) {
+
+			} else {
+				status = 70001;
+			}
+			if (status.equals(200)) {
 				TrucksTrade tt = trucksTradeService.getEntityById(id);
 				if (tt == null) {
 					status = 50001;
@@ -229,12 +258,10 @@ public class TrucksTradeController {
 					}
 					trucksTradeService.saveOrUpdate(tt);
 				}
-			} catch (Exception e) {
-				e.printStackTrace();
-				status = 1000;
 			}
-		} else {
-			status = 70001;
+		} catch (Exception e) {
+			e.printStackTrace();
+			status = 1000;
 		}
 		return ResponseFormat.retParam(status, "");
 	}
@@ -301,12 +328,20 @@ public class TrucksTradeController {
 		String tructsYyz = CommonTools.getFinalStr("tructsYyz", request);
 		String potJyz = CommonTools.getFinalStr("potJyz", request);
 		String aqfbg = CommonTools.getFinalStr("aqfbg", request);
-
+		String cilentInfo = CommonTools.getCilentInfo_new(request);
 		String loginUserId = CommonTools.getLoginUserId(request);
 		Integer status = 200;
-		if (CommonTools.checkAuthorization(loginUserId, CommonTools.getLoginRoleName(request),Constants.UP_TRTR)) {
-			try {
 
+		try {
+			if (CommonTools.checkAuthorization(loginUserId, CommonTools.getLoginRoleName(request), Constants.UP_TRTR)) {
+
+			} else if (cilentInfo.equals("wxApp")) {
+
+			} else {
+				status = 70001;
+			}
+
+			if (status.equals("")) {
 				TrucksTrade trtr = trucksTradeService.getEntityById(id);
 				if (trtr == null) {
 					status = 50001;
@@ -316,7 +351,7 @@ public class TrucksTradeController {
 					}
 
 					if (!mainImg.equals("") && !compId.equals(trtr.getMainImg())) {
-						trtr.setMainImg(CommonTools.dealUploadDetail(loginUserId, trtr.getMainImg(), mainImg));
+						trtr.setMainImg(CommonTools.dealUploadDetail(addUserId, trtr.getMainImg(), mainImg));
 					}
 					if (!trucksNo.isEmpty() && !trucksNo.equals(trtr.getTrucksNo())) {
 						trtr.setTrucksNo(trucksNo);
@@ -381,55 +416,54 @@ public class TrucksTradeController {
 					if (!qyTypeId.isEmpty() && !qyTypeId.equals(trtr.getQyTypeId())) {
 						trtr.setQyTypeId(qyTypeId);
 					}
-					if(!wqpfbzId.isEmpty()&& !wqpfbzId.equals(trtr.getWqPfbz().getId())) {
+					if (!wqpfbzId.isEmpty() && !wqpfbzId.equals(trtr.getWqPfbz().getId())) {
 						WqPfbz wqPfbz = wqPfBzService.findById(wqpfbzId);
 						trtr.setWqPfbz(wqPfbz);
 					}
-					if(accidentFlag!=null&& !accidentFlag.equals(trtr.getAccidentFlag())) {
+					if (accidentFlag != null && !accidentFlag.equals(trtr.getAccidentFlag())) {
 						trtr.setAccidentFlag(accidentFlag);
 					}
-					if(!tructsHeadxsz.isEmpty()&& !tructsHeadxsz.equals(trtr.getTrucksHeadxsz())) {
+					if (!tructsHeadxsz.isEmpty() && !tructsHeadxsz.equals(trtr.getTrucksHeadxsz())) {
 						trtr.setTrucksHeadxsz(tructsHeadxsz);
 					}
-					if(!gcXsz.isEmpty() && ! gcXsz.equals(trtr.getGcXsz())) {
+					if (!gcXsz.isEmpty() && !gcXsz.equals(trtr.getGcXsz())) {
 						trtr.setGcXsz(gcXsz);
 					}
-					if(!tructsYyz.isEmpty() && ! tructsYyz.equals(trtr.getTructsYyz())) {
+					if (!tructsYyz.isEmpty() && !tructsYyz.equals(trtr.getTructsYyz())) {
 						trtr.setTructsYyz(tructsYyz);
 					}
-					if(!potJyz.isEmpty()&&!potJyz.equals(trtr.getPotJyz())) {
+					if (!potJyz.isEmpty() && !potJyz.equals(trtr.getPotJyz())) {
 						trtr.setPotJyz(potJyz);
 					}
-					if(!aqfbg.isEmpty()&&!aqfbg.equals(trtr.getAqfBg())) {
+					if (!aqfbg.isEmpty() && !aqfbg.equals(trtr.getAqfBg())) {
 						trtr.setAqfBg(aqfbg);
 					}
 					trucksTradeService.saveOrUpdate(trtr);
 				}
-			} catch (Exception e) {
-				e.printStackTrace();
-				status = 1000;
 			}
-		} else {
-			status = 70001;
+		} catch (Exception e) {
+			e.printStackTrace();
+			status = 1000;
 		}
+
 		return ResponseFormat.retParam(status, "");
 	}
-	
+
 	@GetMapping("/queryTrucksTrade")
 	@ApiOperation(value = "获取货车租卖", notes = "获取货车租卖分页信息")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
 			@ApiResponse(code = 50001, message = "数据未找到") })
-	@ApiImplicitParams({ 
-		    @ApiImplicitParam(name = "checkSta", value = "审核状态(0:未审核,1:审核通过,2:审核未通过)"),
+	@ApiImplicitParams({ @ApiImplicitParam(name = "checkSta", value = "审核状态(0:未审核,1:审核通过,2:审核未通过)"),
 			@ApiImplicitParam(name = "addUserId", value = "上传人员"),
 			@ApiImplicitParam(name = "tradeType", value = "贸易类型（1：租赁，2：买卖）"),
 			@ApiImplicitParam(name = "pageNo", value = "第几页"), @ApiImplicitParam(name = "pageSize", value = "每页多少条") })
-	public PageResponse queryTrucksTrade(Integer checkSta,String addUserId, Integer tradeType, Integer pageNo, Integer pageSize) {
+	public PageResponse queryTrucksTrade(Integer checkSta, String addUserId, Integer tradeType, Integer pageNo,
+			Integer pageSize) {
 		Integer status = 200;
 		Page<TrucksTrade> tts = null;
 		try {
 			addUserId = CommonTools.getFinalStr(addUserId);
-	
+
 			if (pageNo == null) {
 				pageNo = 1;
 			}

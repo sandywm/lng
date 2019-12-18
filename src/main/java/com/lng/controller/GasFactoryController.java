@@ -450,7 +450,6 @@ public class GasFactoryController {
 	@ApiOperation(value = "审核申请贸易商",notes = "贸易商申请加入液厂时的申请")
 	@ApiResponses({@ApiResponse(code = 1000, message = "服务器错误"),
 		@ApiResponse(code = 50001, message = "数据未找到"),
-		@ApiResponse(code = 50003, message = "数据已存在"),
 		@ApiResponse(code = 70001, message = "无权限访问"),
 		@ApiResponse(code = 10002, message = "参数为空")
 	})

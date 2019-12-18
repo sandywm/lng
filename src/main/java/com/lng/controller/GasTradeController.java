@@ -57,7 +57,6 @@ public class GasTradeController {
 		@ApiImplicitParam(name = "jsyMobile", value = "驾驶员电话"),
 		@ApiImplicitParam(name = "yyrName", value = "押运员姓名"),
 		@ApiImplicitParam(name = "yyrMobile", value = "押运员电话"),
-		
 		@ApiImplicitParam(name = "qfTxt1", value = "铅封文字信息一"),
 		@ApiImplicitParam(name = "qfTxt2", value = "铅封文字信息二"),
 		@ApiImplicitParam(name = "qfTxt3", value = "铅封文字信息三"),
@@ -65,8 +64,11 @@ public class GasTradeController {
 		@ApiImplicitParam(name = "qfImg2", value = "铅封图片信息二"),
 		@ApiImplicitParam(name = "qfImg3", value = "铅封图片信息三"),
 		@ApiImplicitParam(name = "remark", value = "备注"),
-		@ApiImplicitParam(name = "gpsInfo", value = "gps信息")
-		
+		@ApiImplicitParam(name = "gpsInfo", value = "gps信息"),
+		@ApiImplicitParam(name = "bdImg", value = "磅单图片"),
+		@ApiImplicitParam(name = "whpImg", value = "危化品许可证"),
+		@ApiImplicitParam(name = "tructsImg", value = "车辆照片"),
+		@ApiImplicitParam(name = "tradeOrderId", value = "确认订单编号")
 	})
 	public GenericResponse addGasTrade(HttpServletRequest request) {
 		Integer status = 200;

@@ -24,6 +24,7 @@ public class CompanyZzServiceImpl implements CompanyZzService {
 
 	@Override
 	public String saveOrUpdate(CompanyZz compZz) {
+		
 		return companyZzDao.save(compZz).getId();
 	}
 
@@ -55,5 +56,16 @@ public class CompanyZzServiceImpl implements CompanyZzService {
 		};
 		
 		return companyZzDao.findAll(spec);
+	}
+
+	@Override
+	public void saveOrUpdateBatch(List<CompanyZz> zzList) {
+		companyZzDao.saveAll(zzList);
+	}
+
+	@Override
+	public void deleteBatch(List<CompanyZz> zzList) {
+		
+		companyZzDao.deleteInBatch(zzList);
 	}
 }

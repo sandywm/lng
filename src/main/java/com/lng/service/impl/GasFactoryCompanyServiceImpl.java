@@ -9,11 +9,14 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.lng.dao.GasFactoryCompanyDao;
-import com.lng.pojo.CompanyPsr;
 import com.lng.pojo.GasFactoryCompany;
 import com.lng.service.GasFactoryCompanyService;
 
@@ -38,7 +41,7 @@ public class GasFactoryCompanyServiceImpl implements GasFactoryCompanyService{
 				if (!cpyId.isEmpty()) {
 					pre.getExpressions().add(cb.equal(root.get("company").get("id"), cpyId));
 				}
-				if (checkStatus != null && checkStatus > 0) {
+				if (checkStatus != null && checkStatus >= 0) {
 					pre.getExpressions().add(cb.equal(root.get("checkStatus"), checkStatus));
 				}
 				return pre;
@@ -64,5 +67,31 @@ public class GasFactoryCompanyServiceImpl implements GasFactoryCompanyService{
 			return null;
 		}
 		return null;
+	}
+
+	@SuppressWarnings("serial")
+	@Override
+	public Page<GasFactoryCompany> listPageCompanyByOpt(String gfName, String gfNamePy, Integer checkStatus,Integer pageNo,Integer pageSize) {
+		// TODO Auto-generated method stub
+		Specification<GasFactoryCompany> spec = new Specification<GasFactoryCompany>() {
+
+			@Override
+			public Predicate toPredicate(Root<GasFactoryCompany> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+				Predicate pre = cb.conjunction();
+				if (!gfName.isEmpty()) {
+					pre.getExpressions().add(cb.like(root.get("gasFactory").get("name"), "%"+gfName+"%"));
+				}
+				if (!gfNamePy.isEmpty()) {
+					pre.getExpressions().add(cb.like(root.get("gasFactory").get("namePy"), "%"+gfNamePy+"%"));
+				}
+				if (checkStatus >= 0) {
+					pre.getExpressions().add(cb.equal(root.get("checkStatus"), checkStatus));
+				}
+				return pre;
+			}
+		};
+		Sort sort = Sort.by(Sort.Direction.DESC, "addTime");
+		Pageable pageable = PageRequest.of(pageNo-1, pageSize, sort);
+		return gfcDao.findAll(spec, pageable);
 	}
 }

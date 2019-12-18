@@ -117,6 +117,8 @@ public class LngController {
 					if(lpds.listInfoByOpt(gf.getId(), null, priceDate).size() == 0) {//不存在记录
 						//获取指定日期前一天的记录
 						List<LngPriceDetail> lpdList = lpds.listInfoByOpt("", gf.getId(), "", preDate, preDate, "desc");
+						map_add.put("prov", gf.getProvince());
+						map_add.put("gasTypeName", gf.getGasType().getName());
 						map_add.put("gfName", gf.getName());
 						map_add.put("priceTime", priceDate+timeStr);
 						if(lpdList.size() > 0) {//存在昨天记录

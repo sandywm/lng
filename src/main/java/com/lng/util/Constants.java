@@ -15,6 +15,9 @@ public class Constants {
 	public static final String SECRET_KEY = "pnE5G7xTGntfUSnpTdzVXM3I2f6mcOsL";
 	
 	public static final String UPLOAD_PATH = "D:/lngWeb/resources/";
+	
+	/*--------------------------hql语句---------------------------------------------------------*/
+	public static final String GAS_TRADE_HQL = "gas_trade_hql";
 
 //	系统配置管理
 	/**

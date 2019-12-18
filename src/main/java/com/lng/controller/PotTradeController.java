@@ -64,6 +64,7 @@ public class PotTradeController {
 			@ApiImplicitParam(name = "remark", value = "备注"),
 			@ApiImplicitParam(name = "lxName", value = "联系人", defaultValue = "小黑"),
 			@ApiImplicitParam(name = "lxTel", value = "联系电话", defaultValue = "13956487523"),
+			@ApiImplicitParam(name = "userId", value = "用户编号(微信)"),
 			@ApiImplicitParam(name = "showStatus", value = "上/下架状态（0：上架，1：下架）", required = true, defaultValue = "0"),
 			@ApiImplicitParam(name = "addUserId", value = "上传人员", required = true),
 			@ApiImplicitParam(name = "userType", value = "上传人员类型（1：后台管理人员，2：普通用户）", required = true),
@@ -88,10 +89,19 @@ public class PotTradeController {
 		Integer userType = CommonTools.getFinalInteger("userType", request);
 		Integer tradeStatus = CommonTools.getFinalInteger("tradeStatus", request);
 		String loginUserId = CommonTools.getLoginUserId(request);
+		String cilentInfo = CommonTools.getCilentInfo_new(request);
 		Integer status = 200;
 		String ptId = "";
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),CommonTools.getLoginRoleName(request), Constants.ADD_PT)) {
-			try {
+
+		try {
+			if (CommonTools.checkAuthorization(loginUserId, CommonTools.getLoginRoleName(request), Constants.ADD_PT)) {
+
+			} else if (cilentInfo.equals("wxApp")) {
+				loginUserId = CommonTools.getFinalStr("userId", request);
+			} else {
+				status = 70001;
+			}
+			if (status.equals(200)) {
 				PotTrade pt = new PotTrade();
 				Company company = companyService.getEntityById(compId);
 				pt.setCompany(company);
@@ -126,13 +136,11 @@ public class PotTradeController {
 				pt.setHot(0);
 				pt.setTradeStatus(tradeStatus);
 				ptId = potTradeService.saveOrUpdate(pt);
-
-			} catch (Exception e) {
-				e.printStackTrace();
-				status = 1000;
 			}
-		} else {
-			status = 70001;
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			status = 1000;
 		}
 		return ResponseFormat.retParam(status, ptId);
 	}
@@ -147,9 +155,20 @@ public class PotTradeController {
 	public GenericResponse updatePotTradeByStatus(HttpServletRequest request, String id, Integer checkSta,
 			Integer showSta) {
 		id = CommonTools.getFinalStr(id);
+		String cilentInfo = CommonTools.getCilentInfo_new(request);
 		Integer status = 200;
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),CommonTools.getLoginRoleName(request), Constants.UP_PT)) {
-			try {
+
+		try {
+			if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),
+					CommonTools.getLoginRoleName(request), Constants.UP_PT)) {
+
+			} else if (cilentInfo.equals("wxApp")) {
+
+			} else {
+				status = 70001;
+			}
+
+			if (status.equals(200)) {
 				PotTrade pt = potTradeService.getEntityById(id);
 				if (pt == null) {
 					status = 50001;
@@ -163,12 +182,10 @@ public class PotTradeController {
 					}
 					potTradeService.saveOrUpdate(pt);
 				}
-			} catch (Exception e) {
-				e.printStackTrace();
-				status = 1000;
 			}
-		} else {
-			status = 70001;
+		} catch (Exception e) {
+			e.printStackTrace();
+			status = 1000;
 		}
 		return ResponseFormat.retParam(status, "");
 	}
@@ -181,9 +198,19 @@ public class PotTradeController {
 			@ApiImplicitParam(name = "hot", value = "热度（默认为0）") })
 	public GenericResponse updatePotTradeByHot(HttpServletRequest request, String id, Integer hot) {
 		id = CommonTools.getFinalStr(id);
+		String cilentInfo = CommonTools.getCilentInfo_new(request);
 		Integer status = 200;
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.UP_PT)) {
-			try {
+
+		try {
+			if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),
+					CommonTools.getLoginRoleName(request), Constants.UP_PT)) {
+
+			} else if (cilentInfo.equals("wxApp")) {
+
+			} else {
+				status = 70001;
+			}
+			if (status.equals(200)) {
 				PotTrade pt = potTradeService.getEntityById(id);
 				if (pt == null) {
 					status = 50001;
@@ -193,12 +220,10 @@ public class PotTradeController {
 					}
 					potTradeService.saveOrUpdate(pt);
 				}
-			} catch (Exception e) {
-				e.printStackTrace();
-				status = 1000;
 			}
-		} else {
-			status = 70001;
+		} catch (Exception e) {
+			e.printStackTrace();
+			status = 1000;
 		}
 		return ResponseFormat.retParam(status, "");
 	}
@@ -221,6 +246,7 @@ public class PotTradeController {
 			@ApiImplicitParam(name = "remark", value = "备注"),
 			@ApiImplicitParam(name = "lxName", value = "联系人", defaultValue = "小黑"),
 			@ApiImplicitParam(name = "lxTel", value = "联系电话", defaultValue = "13956487523"),
+			@ApiImplicitParam(name = "userId", value = "用户编号(WX)"),
 			@ApiImplicitParam(name = "showStatus", value = "上/下架状态（0：上架，1：下架）", defaultValue = "0", required = true),
 			@ApiImplicitParam(name = "tradeStatus", value = "租卖类型(0:可租可卖,1:租,2:卖)", defaultValue = "0", required = true) })
 	public GenericResponse updatePotTrade(HttpServletRequest request) {
@@ -241,70 +267,79 @@ public class PotTradeController {
 		Integer showStatus = CommonTools.getFinalInteger("showStatus", request);
 		Integer tradeStatus = CommonTools.getFinalInteger("tradeStatus", request);
 		String loginUserId = CommonTools.getLoginUserId(request);
+		String cilentInfo = CommonTools.getCilentInfo_new(request);
 		Integer status = 200;
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),CommonTools.getLoginRoleName(request), Constants.UP_PT)) {
+		
 			try {
-				PotTrade pt = potTradeService.getEntityById(id);
-				if (pt == null) {
-					status = 50001;
-				} else {
-
-					if (!mainImg.isEmpty() && !mainImg.equals(pt.getMainImg())) {
-						pt.setMainImg(CommonTools.dealUploadDetail(loginUserId, pt.getMainImg(), mainImg));
-					}
-					if (!potPpId.isEmpty() && !potPpId.equals(pt.getTrucksPotPp().getId())) {
-						TrucksPotPp trucksPotPp = potPpService.findById(potPpId);
-						pt.setTrucksPotPp(trucksPotPp);
-					}
-					if (!zzjzTypeId.isEmpty() && !zzjzTypeId.equals(pt.getPotZzjzType().getId())) {
-						PotZzjzType potZzjzType = zzjzTypeService.findById(zzjzTypeId);
-						pt.setPotZzjzType(potZzjzType);
-					}
-					if (potVol!=null&&!potVol.equals(pt.getPotVolume())) {
-						pt.setPotVolume(potVol);
-					}
-					if (!sxInfo.isEmpty() && !sxInfo.equals(pt.getSxInfo())) {
-						pt.setSxInfo(sxInfo);
-					}
-					if (!buyYear.isEmpty() && !buyYear.equals(pt.getBuyYear())) {
-						pt.setBuyYear(buyYear);
-					}
-					if (!province.isEmpty() && !province.equals(pt.getProvince())) {
-						pt.setProvince(province);
-					}
-					if (!city.isEmpty() && !city.equals(pt.getCity())) {
-						pt.setCity(city);
-					}
-					if (leasePrice !=null && !leasePrice.equals(pt.getLeasePrice())) {
-						pt.setLeasePrice(leasePrice);
-					}
-					if (sellPrice!=null&&!sellPrice.equals(pt.getSellPrice())) {
-						pt.setSellPrice(sellPrice);
-					}
-					if (!remark.isEmpty() && !remark.equals(pt.getRemark())) {
-						pt.setRemark(remark);
-					}
-					if (!lxName.isEmpty() && !lxName.equals(pt.getLxName())) {
-						pt.setLxName(lxName);
-					}
-					if (!lxTel.isEmpty() && !lxTel.equals(pt.getLxTel())) {
-						pt.setLxTel(lxTel);
-					}
-					if (showStatus!=null && !showStatus.equals(pt.getShowStatus())) {
-						pt.setShowStatus(showStatus);
-					}
-					if (tradeStatus!=null && !tradeStatus.equals(pt.getTradeStatus())) {
-						pt.setTradeStatus(tradeStatus);
-					}
-					potTradeService.saveOrUpdate(pt);
+				if (CommonTools.checkAuthorization(loginUserId, CommonTools.getLoginRoleName(request),
+						Constants.UP_PT)) {
+					
+				}else if(cilentInfo.equals("wxApp")) {
+					loginUserId = CommonTools.getFinalStr("userId", request);
+				}else {
+					
 				}
+				if(status.equals(200)) {
+					PotTrade pt = potTradeService.getEntityById(id);
+					if (pt == null) {
+						status = 50001;
+					} else {
+
+						if (!mainImg.isEmpty() && !mainImg.equals(pt.getMainImg())) {
+							pt.setMainImg(CommonTools.dealUploadDetail(loginUserId, pt.getMainImg(), mainImg));
+						}
+						if (!potPpId.isEmpty() && !potPpId.equals(pt.getTrucksPotPp().getId())) {
+							TrucksPotPp trucksPotPp = potPpService.findById(potPpId);
+							pt.setTrucksPotPp(trucksPotPp);
+						}
+						if (!zzjzTypeId.isEmpty() && !zzjzTypeId.equals(pt.getPotZzjzType().getId())) {
+							PotZzjzType potZzjzType = zzjzTypeService.findById(zzjzTypeId);
+							pt.setPotZzjzType(potZzjzType);
+						}
+						if (potVol != null && !potVol.equals(pt.getPotVolume())) {
+							pt.setPotVolume(potVol);
+						}
+						if (!sxInfo.isEmpty() && !sxInfo.equals(pt.getSxInfo())) {
+							pt.setSxInfo(sxInfo);
+						}
+						if (!buyYear.isEmpty() && !buyYear.equals(pt.getBuyYear())) {
+							pt.setBuyYear(buyYear);
+						}
+						if (!province.isEmpty() && !province.equals(pt.getProvince())) {
+							pt.setProvince(province);
+						}
+						if (!city.isEmpty() && !city.equals(pt.getCity())) {
+							pt.setCity(city);
+						}
+						if (leasePrice != null && !leasePrice.equals(pt.getLeasePrice())) {
+							pt.setLeasePrice(leasePrice);
+						}
+						if (sellPrice != null && !sellPrice.equals(pt.getSellPrice())) {
+							pt.setSellPrice(sellPrice);
+						}
+						if (!remark.isEmpty() && !remark.equals(pt.getRemark())) {
+							pt.setRemark(remark);
+						}
+						if (!lxName.isEmpty() && !lxName.equals(pt.getLxName())) {
+							pt.setLxName(lxName);
+						}
+						if (!lxTel.isEmpty() && !lxTel.equals(pt.getLxTel())) {
+							pt.setLxTel(lxTel);
+						}
+						if (showStatus != null && !showStatus.equals(pt.getShowStatus())) {
+							pt.setShowStatus(showStatus);
+						}
+						if (tradeStatus != null && !tradeStatus.equals(pt.getTradeStatus())) {
+							pt.setTradeStatus(tradeStatus);
+						}
+						potTradeService.saveOrUpdate(pt);
+					}
+				}
+				
 			} catch (Exception e) {
 				e.printStackTrace();
 				status = 1000;
 			}
-		} else {
-			status = 70001;
-		}
 		return ResponseFormat.retParam(status, "");
 	}
 

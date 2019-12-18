@@ -2,6 +2,8 @@ package com.lng.service;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+
 import com.lng.pojo.GasFactoryCompany;
 
 public interface GasFactoryCompanyService {
@@ -40,4 +42,19 @@ public interface GasFactoryCompanyService {
 	 * @return
 	 */
 	GasFactoryCompany getEntityById(String id);
+	
+	/**
+	 * @description 根据条件分页获取液厂贸易商关联信息列表
+	 * @author wm
+	 * @Version : 版本
+	 * @ModifiedBy : 修改人
+	 * @date  2019年12月18日 上午10:10:40
+	 * @param gfName 液厂名称
+	 * @param gfNamePy 液厂名称首字母
+	 * @param checkStatus 审核状态(0:未审核,1:审核通过,2:审核未通过)
+	 * @param pageNo
+	 * @param pageSize
+	 * @return
+	 */
+	Page<GasFactoryCompany> listPageCompanyByOpt(String gfName,String gfNamePy, Integer checkStatus,Integer pageNo,Integer pageSize);
 }

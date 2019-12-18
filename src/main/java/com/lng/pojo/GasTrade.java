@@ -43,8 +43,6 @@ public class GasTrade implements java.io.Serializable {
 	private double gasPrice;
 	@ApiModelProperty(value = "装车日期")
 	private String zcDate;
-	@ApiModelProperty(value = "配送区域")
-	private String psArea;
 	@ApiModelProperty(value = "联系人")
 	private String lxName;
 	@ApiModelProperty(value = "联系电话")
@@ -102,7 +100,7 @@ public class GasTrade implements java.io.Serializable {
 	}
 
 	public GasTrade(Company company, GasFactory gasFactory, GasType gasType, String headImg, int gasVolume,
-			double gasPrice, String zcDate, String psArea, String lxName, String lxTel, int checkStatus,
+			double gasPrice, String zcDate, String lxName, String lxTel, int checkStatus,
 			String checkTime, int showStatus, String addUserId, String addTime, int userType, int hot, String cpNo,
 			String jsyName, String jsyMobile, String yyrName, String yyrMobile, String qfText1, String qfText2,
 			String qfText3, String qfImg1, String qfImg2, String qfImg3, String remark, String gpsInfo, String bdImg,
@@ -114,7 +112,6 @@ public class GasTrade implements java.io.Serializable {
 		this.gasVolume = gasVolume;
 		this.gasPrice = gasPrice;
 		this.zcDate = zcDate;
-		this.psArea = psArea;
 		this.lxName = lxName;
 		this.lxTel = lxTel;
 		this.checkStatus = checkStatus;
@@ -218,15 +215,6 @@ public class GasTrade implements java.io.Serializable {
 
 	public void setZcDate(String zcDate) {
 		this.zcDate = zcDate;
-	}
-
-	@Column(name = "ps_area", columnDefinition = "varchar(100) COMMENT '配送区域'")
-	public String getPsArea() {
-		return this.psArea;
-	}
-
-	public void setPsArea(String psArea) {
-		this.psArea = psArea;
 	}
 
 	@Column(name = "lx_name", columnDefinition = "varchar(30) COMMENT '联系人'")

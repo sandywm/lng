@@ -21,6 +21,7 @@ import com.lng.pojo.CompanyTructsGcCp;
 import com.lng.pojo.CompanyTructsHeadCp;
 import com.lng.pojo.CompanyType;
 import com.lng.pojo.CompanyZz;
+import com.lng.pojo.GasFactory;
 import com.lng.pojo.GasFactoryCompany;
 import com.lng.service.CompanyPsrService;
 import com.lng.service.CompanyService;
@@ -29,6 +30,7 @@ import com.lng.service.CompanyTructsHeadCpService;
 import com.lng.service.CompanyTypeService;
 import com.lng.service.CompanyZzService;
 import com.lng.service.GasFactoryCompanyService;
+import com.lng.service.GasFactoryService;
 import com.lng.tools.CommonTools;
 import com.lng.tools.CurrentTime;
 import com.lng.util.Constants;
@@ -61,6 +63,8 @@ public class CompanyController {
 	private CompanyZzService zzService;
 	@Autowired
 	private GasFactoryCompanyService gfcs;
+	@Autowired
+	private GasFactoryService gfs;
 
 	@PostMapping("/addCompany")
 	@ApiOperation(value = "添加公司", notes = "添加公司")
@@ -68,25 +72,38 @@ public class CompanyController {
 			@ApiResponse(code = 50003, message = "数据已存在"), @ApiResponse(code = 70001, message = "无权限访问") })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "name", value = "公司名称", defaultValue = "公司名称测试", required = true),
 			@ApiImplicitParam(name = "typeId", value = "公司类型编号", defaultValue = "97ce2488-1027-4bfe-9eef-335cb1391d6", required = true),
-//			@ApiImplicitParam(name = "owerUserId", value = "公司所属人编号", defaultValue = "公司所属人编号", required = true),
+			@ApiImplicitParam(name = "owerUserId", value = "公司所属人编号", defaultValue = "公司所属人编号", required = true),
 			@ApiImplicitParam(name = "province", value = "省", defaultValue = "河南"),
 			@ApiImplicitParam(name = "city", value = "市", defaultValue = "濮阳"),
 			@ApiImplicitParam(name = "county", value = "县", defaultValue = "华龙区"),
 			@ApiImplicitParam(name = "address", value = "地址", defaultValue = "大庆路110号"),
 			@ApiImplicitParam(name = "lxname", value = "联系人", defaultValue = "小哈"),
 			@ApiImplicitParam(name = "lxtel", value = "联系电话", defaultValue = "18795121221"),
+			@ApiImplicitParam(name = "yyzzImg", value = "营业执照"),
 			@ApiImplicitParam(name = "bankName", value = "公司银行名称", defaultValue = "华龙区银行"),
 			@ApiImplicitParam(name = "bankNo", value = "公司银行卡号", defaultValue = "4565445445452218997"),
 			@ApiImplicitParam(name = "bankAcc", value = "公司银行账户", defaultValue = "4565445445452218"),
 			@ApiImplicitParam(name = "userType", value = "上传人员类型（1：后台管理人员，2：普通用户）"),
-			})
+			@ApiImplicitParam(name = "zzImg", value = "公司资质图片") })
 	public GenericResponse addCompany(HttpServletRequest request, String name, String typeId, String owerUserId,
-			String province, String city, String county, String address, String lxname, String lxtel, String bankName,
-			String bankNo, String bankAcc,Integer userType) {
+			String province, String city, String county, String address, String lxname, String lxtel, String yyzzImg,
+			String bankName, String bankNo, String bankAcc, Integer userType, String zzImg) {
 		Integer status = 200;
+		String loginUserId = CommonTools.getLoginUserId(request);
+		String cilentInfo = CommonTools.getCilentInfo_new(request);
+		zzImg = CommonTools.getFinalStr(zzImg);
 		String comId = "";
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),CommonTools.getLoginRoleName(request), Constants.ADD_COMPANY)) {
-			try {
+
+		try {
+			if (CommonTools.checkAuthorization(loginUserId, CommonTools.getLoginRoleName(request),
+					Constants.ADD_COMPANY)) {
+
+			} else if (cilentInfo.equals("wxApp")) {
+				loginUserId = CommonTools.getFinalStr("owerUserId", request);
+			} else {
+				status = 70001;
+			}
+			if (status.equals(200)) {
 				if (companyService.getCompanyByName(name).size() == 0) {
 					Company comp = new Company();
 					comp.setName(CommonTools.getFinalStr(name));
@@ -101,6 +118,9 @@ public class CompanyController {
 					comp.setAddress(CommonTools.getFinalStr(address));
 					comp.setLxName(CommonTools.getFinalStr(lxname));
 					comp.setLxTel(CommonTools.getFinalStr(lxtel));
+					if (!yyzzImg.equals("")) {
+						comp.setYyzzImg(CommonTools.dealUploadDetail(loginUserId, "", yyzzImg));
+					}
 					comp.setBankName(CommonTools.getFinalStr(bankName));
 					comp.setBankNo(CommonTools.getFinalStr(bankNo));
 					comp.setBankAccount(CommonTools.getFinalStr(bankAcc));
@@ -113,17 +133,29 @@ public class CompanyController {
 						comp.setCheckTime("");
 					}
 					comId = companyService.saveOrUpdate(comp);
+					if (!zzImg.equals("")) {
+						String zzImgPath = CommonTools.dealUploadDetail(loginUserId, "", zzImg);
+						String[] pathLen = zzImgPath.split(",");
+						List<CompanyZz> zzList = new ArrayList<>();
+						for (int i = 0; i < pathLen.length; i++) {
+							CompanyZz zz = new CompanyZz();
+							zz.setCompany(comp);
+							String zzi = pathLen[i];
+							zz.setCompanyZzImg(zzi);
+							zzList.add(zz);
+						}
+						zzService.saveOrUpdateBatch(zzList);
+					}
 				} else {
 					status = 50003;
 				}
 
-			} catch (Exception e) {
-				e.printStackTrace();
-				status = 1000;
 			}
-		} else {
-			status = 70001;
+		} catch (Exception e) {
+			e.printStackTrace();
+			status = 1000;
 		}
+
 		return ResponseFormat.retParam(status, comId);
 	}
 
@@ -140,7 +172,8 @@ public class CompanyController {
 		compId = CommonTools.getFinalStr(compId);
 		Integer status = 200;
 		String psrId = "";
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),CommonTools.getLoginRoleName(request), Constants.ADD_PSR)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),
+				Constants.ADD_PSR)) {
 			try {
 
 				CompanyPsr psr = new CompanyPsr();
@@ -170,7 +203,8 @@ public class CompanyController {
 		compId = CommonTools.getFinalStr(compId);
 		Integer status = 200;
 		String gcId = "";
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),CommonTools.getLoginRoleName(request), Constants.ADD_GCCP)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),
+				Constants.ADD_GCCP)) {
 			try {
 				gch = CommonTools.getFinalStr(gch);
 				if (tructsGcCpService.getGcCpByName(gch.toUpperCase()).size() == 0) {
@@ -206,7 +240,8 @@ public class CompanyController {
 		compId = CommonTools.getFinalStr(compId);
 		Integer status = 200;
 		String cId = "";
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),CommonTools.getLoginRoleName(request), Constants.ADD_HEADCP)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),
+				Constants.ADD_HEADCP)) {
 			try {
 				cp = CommonTools.getFinalStr(cp);
 				if (tructsHeadCpService.getHeadCpList(cp.toUpperCase()).size() == 0) {
@@ -232,34 +267,55 @@ public class CompanyController {
 		return ResponseFormat.retParam(status, cId);
 	}
 
-	@PostMapping("/addCompanyZz")
-	@ApiOperation(value = "添加公司执照", notes = "添加公司执照")
+	@PostMapping("/addOrUpdateCompanyZz")
+	@ApiOperation(value = "添加公司资质", notes = "添加公司资质")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
 			@ApiResponse(code = 70001, message = "无权限访问") })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "compId", value = "公司编号", required = true),
-			@ApiImplicitParam(name = "zzimg", value = "公司资质图片", defaultValue = "haha.img", required = true) })
-	public GenericResponse addCompanyZz(HttpServletRequest request, String compId, String zzimg) {
+			@ApiImplicitParam(name = "zzimg", value = "公司资质图片(多张图片逗号分隔)", defaultValue = "haha.img,tt.img,", required = true) })
+	public GenericResponse addOrUpdateCompanyZz(HttpServletRequest request, String compId, String zzimg) {
 		compId = CommonTools.getFinalStr(compId);
 		zzimg = CommonTools.getFinalStr(zzimg);
 		String loginUserId = CommonTools.getLoginUserId(request);
+		String cilentInfo = CommonTools.getCilentInfo_new(request);
 		Integer status = 200;
 		String zzId = "";
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),CommonTools.getLoginRoleName(request), Constants.ADD_ZZ)) {
-			try {
-				CompanyZz zz = new CompanyZz();
-				Company company = companyService.getEntityById(compId);
-				zz.setCompany(company);
-				if(!zzimg.equals("")) {//上传图
-					zz.setCompanyZzImg(CommonTools.dealUploadDetail(loginUserId, "",zzimg));
-				}
-				zzId = zzService.saveOrUpdate(zz);
-			} catch (Exception e) {
-				e.printStackTrace();
-				status = 1000;
+		String zzImgPath = "";
+
+		try {
+			if (CommonTools.checkAuthorization(loginUserId, CommonTools.getLoginRoleName(request),
+					Constants.ADD_COMPANY)) {
+
+			} else if (cilentInfo.equals("wxApp")) {
+
+			} else {
+				status = 70001;
 			}
-		} else {
-			status = 70001;
+			if (status.equals(200)) {
+				List<CompanyZz> zzs = zzService.getCompanyZzList(compId);
+				if (zzs != null) {
+					zzService.deleteBatch(zzs);
+				}
+				Company company = companyService.getEntityById(compId);
+				if (!zzimg.equals("")) {
+					zzImgPath = CommonTools.dealUploadDetail(loginUserId, "", zzimg);
+					String[] pathLen = zzImgPath.split(",");
+					List<CompanyZz> zzList = new ArrayList<>();
+					for (int i = 0; i < pathLen.length; i++) {
+						CompanyZz zz = new CompanyZz();
+						zz.setCompany(company);
+						String zzi = pathLen[i];
+						zz.setCompanyZzImg(zzi);
+						zzList.add(zz);
+					}
+					zzService.saveOrUpdateBatch(zzList);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			status = 1000;
 		}
+
 		return ResponseFormat.retParam(status, zzId);
 	}
 
@@ -300,7 +356,7 @@ public class CompanyController {
 	@ApiOperation(value = "获取公司押运人", notes = "获取公司押运人信息")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
 			@ApiResponse(code = 50001, message = "数据未找到") })
-	@ApiImplicitParams({ @ApiImplicitParam(name = "compId", value = "公司编号")})
+	@ApiImplicitParams({ @ApiImplicitParam(name = "compId", value = "公司编号") })
 	public GenericResponse queryCompanyPsr(HttpServletRequest request) {
 		Integer status = 200;
 		String compId = CommonTools.getFinalStr("compId", request);
@@ -309,9 +365,9 @@ public class CompanyController {
 			List<CompanyPsr> psrList = psrService.getCompanyPsrList(compId);
 			if (psrList.size() == 0) {
 				status = 50001;
-			}else {
-				for(CompanyPsr psr : psrList) {
-					Map<String,String> map_d = new HashMap<String,String>();
+			} else {
+				for (CompanyPsr psr : psrList) {
+					Map<String, String> map_d = new HashMap<String, String>();
 					map_d.put("psrId", psr.getId());
 					map_d.put("psrName", psr.getName());
 					map_d.put("psrSex", psr.getSex());
@@ -330,7 +386,7 @@ public class CompanyController {
 	@ApiOperation(value = "获取公司挂车车牌", notes = "获取公司挂车车牌信息")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
 			@ApiResponse(code = 50001, message = "数据未找到") })
-	@ApiImplicitParams({ @ApiImplicitParam(name = "compId", value = "公司编号")})
+	@ApiImplicitParams({ @ApiImplicitParam(name = "compId", value = "公司编号") })
 	public GenericResponse queryCompanyGcCP(HttpServletRequest request) {
 		Integer status = 200;
 		String compId = CommonTools.getFinalStr("compId", request);
@@ -339,9 +395,9 @@ public class CompanyController {
 			List<CompanyTructsGcCp> cpyGccpList = tructsGcCpService.getTructsGcCpList(compId);
 			if (cpyGccpList.size() == 0) {
 				status = 50001;
-			}else {
-				for(CompanyTructsGcCp cp : cpyGccpList) {
-					Map<String,String> map_d = new HashMap<String,String>();
+			} else {
+				for (CompanyTructsGcCp cp : cpyGccpList) {
+					Map<String, String> map_d = new HashMap<String, String>();
 					map_d.put("cph", cp.getTrucksGch());
 					list.add(map_d);
 				}
@@ -357,7 +413,7 @@ public class CompanyController {
 	@ApiOperation(value = "获取公司车头车牌", notes = "获取公司车头车牌信息")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
 			@ApiResponse(code = 50001, message = "数据未找到") })
-	@ApiImplicitParams({ @ApiImplicitParam(name = "compId", value = "公司编号")})
+	@ApiImplicitParams({ @ApiImplicitParam(name = "compId", value = "公司编号") })
 	public GenericResponse queryHeadCP(HttpServletRequest request) {
 		Integer status = 200;
 		String compId = CommonTools.getFinalStr("compId", request);
@@ -366,9 +422,9 @@ public class CompanyController {
 			List<CompanyTructsHeadCp> headCpList = tructsHeadCpService.getTructsHeadCpList(compId);
 			if (headCpList.size() == 0) {
 				status = 50001;
-			}else {
-				for(CompanyTructsHeadCp cp : headCpList) {
-					Map<String,String> map_d = new HashMap<String,String>();
+			} else {
+				for (CompanyTructsHeadCp cp : headCpList) {
+					Map<String, String> map_d = new HashMap<String, String>();
 					map_d.put("cph", cp.getTrucksCp());
 					list.add(map_d);
 				}
@@ -389,13 +445,14 @@ public class CompanyController {
 	public GenericResponse updateCompByStatus(HttpServletRequest request, String id, Integer checkSta) {
 		id = CommonTools.getFinalStr(id);
 		Integer status = 200;
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),CommonTools.getLoginRoleName(request), Constants.UP_COMPANY)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),
+				Constants.UP_COMPANY)) {
 			try {
 				Company comp = companyService.getEntityById(id);
 				if (comp == null) {
 					status = 50001;
 				} else {
-					if(checkSta!= null && !checkSta.equals(comp.getCheckStatus())) {
+					if (checkSta != null && !checkSta.equals(comp.getCheckStatus())) {
 						comp.setCheckStatus(checkSta);
 						comp.setCheckTime(CurrentTime.getCurrentTime());
 					}
@@ -423,12 +480,13 @@ public class CompanyController {
 			@ApiImplicitParam(name = "address", value = "地址", defaultValue = "大庆路110号"),
 			@ApiImplicitParam(name = "lxname", value = "联系人", defaultValue = "小哈"),
 			@ApiImplicitParam(name = "lxtel", value = "联系电话", defaultValue = "18795121221"),
+			@ApiImplicitParam(name = "yyzzImg", value = "营业执照图"),
 			@ApiImplicitParam(name = "bankName", value = "公司银行名称", defaultValue = "华龙区银行"),
 			@ApiImplicitParam(name = "bankNo", value = "公司银行卡号", defaultValue = "4565445445452218997"),
 			@ApiImplicitParam(name = "bankAcc", value = "公司银行账户", defaultValue = "4565445445452218"), })
 	public GenericResponse updateCompany(HttpServletRequest request, String id, String typeId, String province,
-			String city, String county, String address, String lxname, String lxtel, String bankName, String bankNo,
-			String bankAcc) {
+			String city, String county, String address, String lxname, String lxtel, String yyzzImg, String bankName,
+			String bankNo, String bankAcc) {
 		id = CommonTools.getFinalStr(id);
 		province = CommonTools.getFinalStr(province);
 		city = CommonTools.getFinalStr(city);
@@ -439,9 +497,19 @@ public class CompanyController {
 		bankName = CommonTools.getFinalStr(bankName);
 		bankNo = CommonTools.getFinalStr(bankNo);
 		bankAcc = CommonTools.getFinalStr(bankAcc);
+		String loginUserId = CommonTools.getLoginUserId(request);
+		String cilentInfo = CommonTools.getCilentInfo_new(request);
 		Integer status = 200;
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.UP_COMPANY)) {
-			try {
+
+		try {
+			if (CommonTools.checkAuthorization(loginUserId, CommonTools.getLoginRoleName(request),
+					Constants.UP_COMPANY)) {
+			} else if (cilentInfo.equals("wxApp")) {
+
+			} else {
+				status = 70001;
+			}
+			if (status.equals(200)) {
 				Company comp = companyService.getEntityById(id);
 				if (comp == null) {
 					status = 50001;
@@ -466,6 +534,9 @@ public class CompanyController {
 					if (!lxtel.equals("") && !lxtel.equals(comp.getLxTel())) {
 						comp.setLxTel(lxtel);
 					}
+					if (!yyzzImg.isEmpty() && !yyzzImg.equals(comp.getYyzzImg()) && comp.getCheckStatus() == 1) {
+						comp.setYyzzImg(CommonTools.dealUploadDetail(loginUserId, "", yyzzImg));
+					}
 					if (!bankName.equals("") && !bankName.equals(comp.getBankName())) {
 						comp.setBankName(bankName);
 					}
@@ -477,13 +548,12 @@ public class CompanyController {
 					}
 					companyService.saveOrUpdate(comp);
 				}
-			} catch (Exception e) {
-				e.printStackTrace();
-				status = 1000;
 			}
-		} else {
-			status = 70001;
+		} catch (Exception e) {
+			e.printStackTrace();
+			status = 1000;
 		}
+
 		return ResponseFormat.retParam(status, "");
 	}
 
@@ -502,7 +572,8 @@ public class CompanyController {
 		name = CommonTools.getFinalStr(name);
 		sex = CommonTools.getFinalStr(sex);
 		mobile = CommonTools.getFinalStr(mobile);
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.UP_PSR)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),
+				Constants.UP_PSR)) {
 			try {
 				CompanyPsr psr = psrService.getEntityById(id);
 				if (psr == null) {
@@ -517,7 +588,6 @@ public class CompanyController {
 					if (mobile.isEmpty() && !mobile.equals(psr.getMobile())) {
 						psr.setMobile(mobile);
 					}
-
 					psrService.saveOrUpdate(psr);
 				}
 			} catch (Exception e) {
@@ -542,7 +612,8 @@ public class CompanyController {
 		Integer status = 200;
 		gch = CommonTools.getFinalStr(gch);
 		id = CommonTools.getFinalStr(id);
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.UP_GCCP)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),
+				Constants.UP_GCCP)) {
 			try {
 				CompanyTructsGcCp gccp = tructsGcCpService.getEntityById(id);
 				if (gccp == null) {
@@ -575,7 +646,8 @@ public class CompanyController {
 		Integer status = 200;
 		cp = CommonTools.getFinalStr(cp);
 		id = CommonTools.getFinalStr(id);
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.UP_HEADCP)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),
+				Constants.UP_HEADCP)) {
 			try {
 				CompanyTructsHeadCp headCp = tructsHeadCpService.getEntityById(id);
 				if (headCp == null) {
@@ -601,7 +673,7 @@ public class CompanyController {
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
 			@ApiResponse(code = 50001, message = "数据未找到"), @ApiResponse(code = 70001, message = "无权限访问") })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "公司执照主键"),
-			@ApiImplicitParam(name = "zzImg", value = "公司资质图片", defaultValue = "demo.img"),
+			@ApiImplicitParam(name = "zzImg", value = "公司资质图片(多张图片逗号分隔)", defaultValue = "demo.img"),
 
 	})
 	public GenericResponse updateCompanyZz(HttpServletRequest request, String id, String zzImg) {
@@ -609,7 +681,8 @@ public class CompanyController {
 		zzImg = CommonTools.getFinalStr(zzImg);
 		id = CommonTools.getFinalStr(id);
 		String loginUserId = CommonTools.getLoginUserId(request);
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.UP_ZZ)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),
+				Constants.UP_ZZ)) {
 			try {
 				CompanyZz zz = zzService.getEntityById(id);
 				if (zz == null) {
@@ -632,23 +705,22 @@ public class CompanyController {
 
 	@GetMapping("/getSpecCompanyDetail")
 	@ApiOperation(value = "获取指定公司基本信息", notes = "获取指定公司基本信息")
-	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), 
-			@ApiResponse(code = 200, message = "成功"),
+	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
 			@ApiResponse(code = 50001, message = "数据未找到") })
-	@ApiImplicitParams({ @ApiImplicitParam(name = "compId", value = "公司编号", required = true)})
+	@ApiImplicitParams({ @ApiImplicitParam(name = "compId", value = "公司编号", required = true) })
 	public GenericResponse getSpecCompanyDetail(HttpServletRequest request) {
 		Integer status = 200;
 		String compId = CommonTools.getFinalStr("compId", request);
 		List<Object> list = new ArrayList<Object>();
-		if(compId.equals("")) {
+		if (compId.equals("")) {
 			status = 50001;
-		}else {
+		} else {
 			try {
 				Company cpy = companyService.getEntityById(compId);
-				if(cpy == null) {
+				if (cpy == null) {
 					status = 50001;
-				}else {
-					Map<String,Object> map_d = new HashMap<String,Object>();
+				} else {
+					Map<String, Object> map_d = new HashMap<String, Object>();
 					map_d.put("compId", cpy.getId());
 					map_d.put("cpyName", cpy.getName());
 					map_d.put("cptTypeName", cpy.getCompanyType().getName());
@@ -661,12 +733,13 @@ public class CompanyController {
 					map_d.put("bankName", cpy.getBankName());
 					map_d.put("bankNo", cpy.getBankNo());
 					map_d.put("bankAccount", cpy.getBankAccount());
-					//获取公司执照
+					map_d.put("yyzzImg", cpy.getYyzzImg());
+					// 获取公司执照
 					List<CompanyZz> czList = zzService.getCompanyZzList(compId);
 					List<Object> list_d1 = new ArrayList<Object>();
-					if(czList.size() > 0) {
-						for(CompanyZz cz : czList) {
-							Map<String,Object> map_d1 = new HashMap<String,Object>();
+					if (czList.size() > 0) {
+						for (CompanyZz cz : czList) {
+							Map<String, Object> map_d1 = new HashMap<String, Object>();
 							map_d1.put("czId", cz.getId());
 							map_d1.put("czImage", cz.getCompanyZzImg());
 							list_d1.add(map_d1);
@@ -682,30 +755,24 @@ public class CompanyController {
 		}
 		return ResponseFormat.retParam(status, list);
 	}
-	
-	
+
 	@GetMapping("getSpecGasFactoryCpy")
-	@ApiOperation(value = "获取指定主键的液厂的贸易商信息",notes = "获取指定主键的液厂详细信息")
-	@ApiResponses({@ApiResponse(code = 1000, message = "服务器错误"),
-		@ApiResponse(code = 50001, message = "数据未找到")
-	})
-	@ApiImplicitParams({
-		@ApiImplicitParam(name = "gfId", value = "液厂编号", required = false)
-	})
+	@ApiOperation(value = "获取指定主键的液厂的贸易商信息", notes = "获取指定主键的液厂详细信息(审核通过的)")
+	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 50001, message = "数据未找到") })
+	@ApiImplicitParams({ @ApiImplicitParam(name = "gfId", value = "液厂编号", required = true) })
 	public GenericResponse getSpecGasFactoryCpy(HttpServletRequest request) {
 		Integer status = 200;
 		String gfId = CommonTools.getFinalStr("gfId", request);
-		Integer checkStatus = CommonTools.getFinalInteger("checkStatus", request);
 		List<Object> list = new ArrayList<Object>();
 		try {
-			if(gfId.equals("")) {
+			if (gfId.equals("")) {
 				status = 50001;
-			}else {
-				List<GasFactoryCompany>  gfcList = gfcs.listCompanyByGfId(gfId, "", checkStatus);
-				if(gfcList.size() > 0) {
-					for(GasFactoryCompany gfCpy : gfcList) {
+			} else {
+				List<GasFactoryCompany> gfcList = gfcs.listCompanyByGfId(gfId, "", 1);
+				if (gfcList.size() > 0) {
+					for (GasFactoryCompany gfCpy : gfcList) {
 						Company cpy = gfCpy.getCompany();
-						Map<String,Object> map_d = new HashMap<String,Object>();
+						Map<String, Object> map_d = new HashMap<String, Object>();
 						map_d.put("compId", cpy.getId());
 						map_d.put("cpyName", cpy.getName());
 						map_d.put("cptTypeName", cpy.getCompanyType().getName());
@@ -719,21 +786,21 @@ public class CompanyController {
 						map_d.put("bankNo", cpy.getBankNo());
 						map_d.put("bankAccount", cpy.getBankAccount());
 						map_d.put("checkStatus", gfCpy.getCheckStatus());
-						//获取公司执照
-						List<CompanyZz> czList = zzService.getCompanyZzList(cpy.getId());
-						List<Object> list_d1 = new ArrayList<Object>();
-						if(czList.size() > 0) {
-							for(CompanyZz cz : czList) {
-								Map<String,Object> map_d1 = new HashMap<String,Object>();
-								map_d1.put("czId", cz.getId());
-								map_d1.put("czImage", cz.getCompanyZzImg());
-								list_d1.add(map_d1);
-							}
-						}
-						map_d.put("zzImageList", list_d1);
+						// 获取公司执照
+//						List<CompanyZz> czList = zzService.getCompanyZzList(cpy.getId());
+//						List<Object> list_d1 = new ArrayList<Object>();
+//						if (czList.size() > 0) {
+//							for (CompanyZz cz : czList) {
+//								Map<String, Object> map_d1 = new HashMap<String, Object>();
+//								map_d1.put("czId", cz.getId());
+//								map_d1.put("czImage", cz.getCompanyZzImg());
+//								list_d1.add(map_d1);
+//							}
+//						}
+//						map_d.put("zzImageList", list_d1);
 						list.add(map_d);
 					}
-				}else {
+				} else {
 					status = 50001;
 				}
 			}
@@ -743,5 +810,97 @@ public class CompanyController {
 			status = 1000;
 		}
 		return ResponseFormat.retParam(status, list);
+	}
+
+	@GetMapping("getPageFactoryCpy")
+	@ApiOperation(value = "获取液厂的贸易商关联信息--审核用", notes = "获取液厂的贸易商关联信息--审核用")
+	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 50001, message = "数据未找到") })
+	@ApiImplicitParams({ @ApiImplicitParam(name = "gfName", value = "液厂名称"),
+			@ApiImplicitParam(name = "gfNamePy", value = "液厂名称首字母"),
+			@ApiImplicitParam(name = "checkStatus", value = "审核状态(0:未审核,1:审核通过,2:审核未通过)"), })
+	public PageResponse getPageFactoryCpy(HttpServletRequest request) {
+		Integer status = 200;
+		String gfName = CommonTools.getFinalStr("gfName", request);
+		String gfNamePy = CommonTools.getFinalStr("gfNamePy", request);
+		Integer checkStatus = CommonTools.getFinalInteger("checkStatus", request);
+		Integer pageNo = CommonTools.getFinalInteger("pageNo", request);
+		Integer pageSize = CommonTools.getFinalInteger("pageSize", request);
+		if (pageNo.equals(0)) {
+			pageNo = 1;
+		}
+		if (pageSize.equals(0)) {
+			pageSize = 10;
+		}
+		long count = 0;
+		List<Object> list = new ArrayList<Object>();
+		try {
+			Page<GasFactoryCompany> gfcList = gfcs.listPageCompanyByOpt(gfName, gfNamePy, checkStatus, pageNo,
+					pageSize);
+			count = gfcList.getTotalElements();
+			if (count > 0) {
+				for (GasFactoryCompany gfCpy : gfcList) {
+					Company cpy = gfCpy.getCompany();
+					Map<String, Object> map_d = new HashMap<String, Object>();
+					map_d.put("gfcId", gfCpy.getId());
+					map_d.put("cpyId", cpy.getId());
+					map_d.put("cpyName", cpy.getName());
+					map_d.put("gasFactoryName", gfCpy.getGasFactory().getName());
+					map_d.put("applyTime", gfCpy.getAddTime());
+					map_d.put("checkStatus", gfCpy.getCheckStatus());
+					map_d.put("checkTime", gfCpy.getCheckTime());
+					list.add(map_d);
+				}
+			} else {
+				status = 50001;
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			status = 1000;
+		}
+		return ResponseFormat.getPageJson(pageSize, pageNo, count, status, list);
+	}
+	
+	@PostMapping("/joinGasFactorApply")
+	@ApiOperation(value = "贸易公司申请加入液厂贸易商", notes = "贸易公司申请加入液厂贸易商(必须是审核通过的贸易商和液厂才能进行申请)")
+	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), 
+			@ApiResponse(code = 200, message = "成功"),
+			@ApiResponse(code = 50001, message = "数据未找到"),
+			@ApiResponse(code = 10002, message = "参数为空"),
+			@ApiResponse(code = 50003, message = "数据已存在")
+	})
+	@ApiImplicitParams({ @ApiImplicitParam(name = "compId", value = "公司编号", required = true),
+			@ApiImplicitParam(name = "gfId", value = "液厂编号", required = true)
+	})
+	public GenericResponse joinGasFactorApply(HttpServletRequest request) {
+		Integer status = 200;
+		String gfcId = "";
+		String compId = CommonTools.getFinalStr("compId", request);
+		String gfId = CommonTools.getFinalStr("gfId", request);
+		if(compId.equals("") || gfId.equals("")) {
+			status = 10002;
+		}else {
+			try {
+				if(gfcs.listCompanyByGfId(gfId, compId, 1).size() == 0) {
+					Company c = companyService.getEntityById(compId);
+					GasFactory gf = gfs.getEntityById(gfId);
+					if(c != null || gf != null) {
+						if(c.getCheckStatus() == 1 && gf.getCheckStatus() == 1) {
+							gfcId = gfcs.saveOrUpdate(new GasFactoryCompany(c, gf, CurrentTime.getCurrentTime(),0,""));
+						}else {
+							status = 50001;
+						}
+					}else {
+						status = 50001;
+					}
+				}else {//已存在审核通过的申请，不能再进行申请
+					status = 50003;
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				status = 1000;
+			}
+		}
+		return ResponseFormat.retParam(status, gfcId);
 	}
 }

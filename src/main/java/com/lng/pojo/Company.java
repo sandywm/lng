@@ -53,6 +53,8 @@ public class Company implements java.io.Serializable {
 	private String lxName;
 	@ApiModelProperty(value = "联系电话")
 	private String lxTel;
+	@ApiModelProperty(value = "营业执照")
+	private String yyzzImg;
 	@ApiModelProperty(value = "公司银行名称")
 	private String bankName;
 	@ApiModelProperty(value = "公司银行卡号")
@@ -75,7 +77,7 @@ public class Company implements java.io.Serializable {
 
 	public Company(CompanyType companyType, String name, String addTime, String owerUserId, int checkStatus,
 			String checkTime, String province, String city, String county, String address, String lxName, String lxTel,
-			String bankName, String bankNo, String bankAccount,int userType) {
+			String yyzzImg, String bankName, String bankNo, String bankAccount, int userType) {
 		this.companyType = companyType;
 		this.name = name;
 		this.addTime = addTime;
@@ -88,6 +90,7 @@ public class Company implements java.io.Serializable {
 		this.address = address;
 		this.lxName = lxName;
 		this.lxTel = lxTel;
+		this.yyzzImg = yyzzImg;
 		this.bankName = bankName;
 		this.bankNo = bankNo;
 		this.bankAccount = bankAccount;
@@ -105,7 +108,7 @@ public class Company implements java.io.Serializable {
 		this.id = id;
 	}
 
-	@ManyToOne(fetch = FetchType.EAGER)//等同于lazy="false"
+	@ManyToOne(fetch = FetchType.EAGER) // 等同于lazy="false"
 	@JoinColumn(name = "type_id", nullable = false, columnDefinition = "varchar(100) COMMENT '公司类型编号'")
 	public CompanyType getCompanyType() {
 		return this.companyType;
@@ -214,6 +217,15 @@ public class Company implements java.io.Serializable {
 		this.lxTel = lxTel;
 	}
 
+	@Column(name = "yyzz_img", columnDefinition = "varchar(100) COMMENT '营业执照'")
+	public String getYyzzImg() {
+		return yyzzImg;
+	}
+
+	public void setYyzzImg(String yyzzImg) {
+		this.yyzzImg = yyzzImg;
+	}
+
 	@Column(name = "bank_name", columnDefinition = "varchar(30) COMMENT '公司银行名称'")
 	public String getBankName() {
 		return this.bankName;
@@ -240,6 +252,7 @@ public class Company implements java.io.Serializable {
 	public void setBankAccount(String bankAccount) {
 		this.bankAccount = bankAccount;
 	}
+
 	@Column(name = "user_type", nullable = false, columnDefinition = "int(11) COMMENT '上传人员类型（1：后台管理人员，2：普通用户）'")
 	public int getUserType() {
 		return this.userType;
