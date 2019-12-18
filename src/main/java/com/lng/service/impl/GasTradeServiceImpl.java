@@ -144,4 +144,12 @@ public class GasTradeServiceImpl implements GasTradeService{
 		gtiDao.saveAll(gtiList);
 	}
 
+	@Override
+	public Page<GasTrade> listPageInfoByOpt(String cpyId, String addUserId, String gtId, String gfId,
+			Integer checkStatus, Integer pageNo, Integer pageSize) {
+		// TODO Auto-generated method stub
+		Pageable pageable = PageRequest.of(pageNo-1, pageSize);
+		return gtDao.findPageInfoByOpt(cpyId, addUserId, gtId, gfId, checkStatus, pageable);
+	}
+
 }

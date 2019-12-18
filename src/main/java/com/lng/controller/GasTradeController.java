@@ -6,11 +6,14 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.lng.pojo.GasFactory;
+import com.lng.pojo.GasTrade;
 import com.lng.pojo.LngPriceDetail;
 import com.lng.service.GasTradeService;
 import com.lng.tools.CommonTools;
@@ -89,6 +92,45 @@ public class GasTradeController {
 			if(status.equals(200)) {
 				
 			}
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			status = 1000;
+		}
+		return ResponseFormat.retParam(status, "");
+	}
+	
+	@GetMapping("getPageGasTradeList")
+	@ApiOperation(value = "根据条件分页获取燃气买卖记录",notes = "根据条件分页获取燃气买卖记录")
+	@ApiResponses({@ApiResponse(code = 1000, message = "服务器错误"),
+		@ApiResponse(code = 70001, message = "无权限访问"),
+		@ApiResponse(code = 10002, message = "参数为空")
+	})
+	@ApiImplicitParams({
+		@ApiImplicitParam(name = "cpyId", value = "公司编号)"),
+		@ApiImplicitParam(name = "addUserId", value = "添加人员"),
+		@ApiImplicitParam(name = "gasTypeId", value = "液质编号"),
+		@ApiImplicitParam(name = "gfId", value = "液厂编号"),
+		@ApiImplicitParam(name = "checkStatus", value = "审核状态(-1:全部,0:未审核,1:审核通过,2:审核未通过)",dataType = "integer"),
+		@ApiImplicitParam(name = "pageNo", value = "页码",dataType = "integer"),
+		@ApiImplicitParam(name = "pageSize", value = "每页记录条数",dataType = "integer"),
+	})
+	public GenericResponse getPageGasTradeList(HttpServletRequest request) {
+		Integer status = 200;
+		String cilentInfo = CommonTools.getCilentInfo_new(request);
+		Integer userType = 1;
+		String currTime = CurrentTime.getCurrentTime();
+		String cpyId = CommonTools.getFinalStr("cpyId", request);
+		String addUserId = CommonTools.getFinalStr("addUserId", request);//有可能是海气，也可能是其他气
+		String gasTypeId = CommonTools.getFinalStr("gasTypeId", request);
+		String gfId = CommonTools.getFinalStr("gfId", request);
+		Integer checkStatus = CommonTools.getFinalInteger("checkStatus", request);
+		Integer pageNo = CommonTools.getFinalInteger("pageNo", request);
+		Integer pageSize = CommonTools.getFinalInteger("pageSize", request);
+		long count = 0;
+		try {
+			Page<GasTrade> gtList = gts.listPageInfoByOpt(cpyId, addUserId, gasTypeId, gfId, checkStatus, pageNo, pageSize);
+			count = gtList.getTotalElements();
 		} catch (Exception e) {
 			// TODO: handle exception
 			e.printStackTrace();
