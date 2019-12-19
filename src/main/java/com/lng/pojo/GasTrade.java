@@ -47,6 +47,8 @@ public class GasTrade implements java.io.Serializable {
 	private String lxName;
 	@ApiModelProperty(value = "联系电话")
 	private String lxTel;
+	@ApiModelProperty(value = "配送省份")
+	private String psArea;
 	@ApiModelProperty(value = "审核状态")
 	private int checkStatus;
 	@ApiModelProperty(value = "审核时间")
@@ -100,7 +102,7 @@ public class GasTrade implements java.io.Serializable {
 	}
 
 	public GasTrade(Company company, GasFactory gasFactory, GasType gasType, String headImg, int gasVolume,
-			double gasPrice, String zcDate, String lxName, String lxTel, int checkStatus,
+			double gasPrice, String zcDate, String lxName, String lxTel, String psArea,int checkStatus,
 			String checkTime, int showStatus, String addUserId, String addTime, int userType, int hot, String cpNo,
 			String jsyName, String jsyMobile, String yyrName, String yyrMobile, String qfText1, String qfText2,
 			String qfText3, String qfImg1, String qfImg2, String qfImg3, String remark, String gpsInfo, String bdImg,
@@ -114,6 +116,7 @@ public class GasTrade implements java.io.Serializable {
 		this.zcDate = zcDate;
 		this.lxName = lxName;
 		this.lxTel = lxTel;
+		this.psArea = psArea;
 		this.checkStatus = checkStatus;
 		this.checkTime = checkTime;
 		this.showStatus = showStatus;
@@ -235,6 +238,15 @@ public class GasTrade implements java.io.Serializable {
 		this.lxTel = lxTel;
 	}
 
+	@Column(name = "ps_area", columnDefinition = "varchar(200) COMMENT '配送省份（多个逗号隔开）'")
+	public String getPsArea() {
+		return psArea;
+	}
+
+	public void setPsArea(String psArea) {
+		this.psArea = psArea;
+	}
+	
 	@Column(name = "check_status", nullable = false, columnDefinition = "int(11) COMMENT '审核状态(0:未审核,1:审核通过,2:审核未通过)'")
 	public int getCheckStatus() {
 		return this.checkStatus;

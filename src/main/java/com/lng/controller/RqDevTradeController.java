@@ -62,7 +62,11 @@ public class RqDevTradeController {
 			@ApiImplicitParam(name = "lxTel", value = "联系电话", defaultValue = "13956487523"),
 			@ApiImplicitParam(name = "showStatus", value = "上/下架状态（0：上架，1：下架）", required = true, defaultValue = "0"),
 			@ApiImplicitParam(name = "addUserId", value = "上传人员", required = true),
-			@ApiImplicitParam(name = "userType", value = "上传人员类型（1：后台管理人员，2：普通用户）", required = true) })
+			/*
+			 * @ApiImplicitParam(name = "userType", value = "上传人员类型（1：后台管理人员，2：普通用户）",
+			 * required = true)
+			 */ 
+			})
 	public GenericResponse addRqDevTrade(HttpServletRequest request) {
 		String compId = CommonTools.getFinalStr("compId", request);
 		String mainImg = CommonTools.getFinalStr("mainImg", request);
@@ -77,7 +81,8 @@ public class RqDevTradeController {
 		String lxTel = CommonTools.getFinalStr("lxTel", request);
 		Integer showStatus = CommonTools.getFinalInteger("showStatus", request);
 		String addUserId = CommonTools.getFinalStr("addUserId", request);
-		Integer userType = CommonTools.getFinalInteger("userType", request);
+		//Integer userType = CommonTools.getFinalInteger("userType", request);
+		Integer userType =1;
 		String cilentInfo = CommonTools.getCilentInfo_new(request);
 		String loginUserId = CommonTools.getLoginUserId(request);
 		Integer status = 200;
@@ -87,7 +92,7 @@ public class RqDevTradeController {
 			if (CommonTools.checkAuthorization(loginUserId, CommonTools.getLoginRoleName(request), Constants.ADD_RDT)) {
 
 			} else if (cilentInfo.equals("wxApp")) {
-
+				userType =2;
 			} else {
 				status = 70001;
 			}

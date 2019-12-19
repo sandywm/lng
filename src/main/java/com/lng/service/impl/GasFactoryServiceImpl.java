@@ -131,7 +131,7 @@ public class GasFactoryServiceImpl implements GasFactoryService{
 	}
 
 	@Override
-	public List<GasFactory> listInfoByOpt(String provPy, String gsId, String gsNamePy,Integer checkStatus) {
+	public List<GasFactory> listInfoByOpt(String provPy, String gsId, String gasTypeId,String gsNamePy,Integer checkStatus) {
 		// TODO Auto-generated method stub
 		Specification<GasFactory> spec = new Specification<GasFactory>() {
 			private static final long serialVersionUID = 1L;
@@ -145,6 +145,9 @@ public class GasFactoryServiceImpl implements GasFactoryService{
 				}
 				if(!gsId.isEmpty()) {
 					pre.getExpressions().add(cb.equal(root.get("id"), gsId));
+				}
+				if(!gasTypeId.isEmpty()) {
+					pre.getExpressions().add(cb.equal(root.get("gasType").get("id"), gasTypeId));
 				}
 				if(!gsNamePy.isEmpty()) {
 					pre.getExpressions().add(cb.like(root.get("namePy"), "%"+gsNamePy+"%"));

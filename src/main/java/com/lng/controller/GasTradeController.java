@@ -1,7 +1,9 @@
 package com.lng.controller;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -15,7 +17,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.lng.pojo.GasFactory;
 import com.lng.pojo.GasTrade;
 import com.lng.pojo.LngPriceDetail;
+import com.lng.pojo.User;
 import com.lng.service.GasTradeService;
+import com.lng.service.UserService;
 import com.lng.tools.CommonTools;
 import com.lng.tools.CurrentTime;
 import com.lng.util.Constants;
@@ -36,6 +40,9 @@ public class GasTradeController {
 
 	@Autowired
 	private GasTradeService gts;
+	
+	@Autowired
+	private UserService us;
 	
 	@PostMapping("addGasTrade")
 	@ApiOperation(value = "增加燃气买卖记录",notes = "发布燃气买卖记录")
@@ -112,25 +119,60 @@ public class GasTradeController {
 		@ApiImplicitParam(name = "gasTypeId", value = "液质编号"),
 		@ApiImplicitParam(name = "gfId", value = "液厂编号"),
 		@ApiImplicitParam(name = "checkStatus", value = "审核状态(-1:全部,0:未审核,1:审核通过,2:审核未通过)",dataType = "integer"),
+		@ApiImplicitParam(name = "showStatus", value = "上/下架状态（0：上架，1：下架)",dataType = "integer"),
+		@ApiImplicitParam(name = "sPrice", value = "价格一",dataType = "integer"),
+		@ApiImplicitParam(name = "ePrice", value = "价格二",dataType = "integer"),
+		@ApiImplicitParam(name = "psArea", value = "配送区域"),
 		@ApiImplicitParam(name = "pageNo", value = "页码",dataType = "integer"),
-		@ApiImplicitParam(name = "pageSize", value = "每页记录条数",dataType = "integer"),
+		@ApiImplicitParam(name = "pageSize", value = "每页记录条数",dataType = "integer")
 	})
 	public GenericResponse getPageGasTradeList(HttpServletRequest request) {
 		Integer status = 200;
 		String cilentInfo = CommonTools.getCilentInfo_new(request);
-		Integer userType = 1;
 		String currTime = CurrentTime.getCurrentTime();
 		String cpyId = CommonTools.getFinalStr("cpyId", request);
 		String addUserId = CommonTools.getFinalStr("addUserId", request);//有可能是海气，也可能是其他气
 		String gasTypeId = CommonTools.getFinalStr("gasTypeId", request);
 		String gfId = CommonTools.getFinalStr("gfId", request);
 		Integer checkStatus = CommonTools.getFinalInteger("checkStatus", request);
+		Integer showStatus = CommonTools.getFinalInteger("showStatus", request);
+		Integer sPrice = CommonTools.getFinalInteger("sPrice", request);
+		Integer ePrice = CommonTools.getFinalInteger("ePrice", request);
+		String psArea = CommonTools.getFinalStr("psArea", request);
 		Integer pageNo = CommonTools.getFinalInteger("pageNo", request);
 		Integer pageSize = CommonTools.getFinalInteger("pageSize", request);
 		long count = 0;
 		try {
-			Page<GasTrade> gtList = gts.listPageInfoByOpt(cpyId, addUserId, gasTypeId, gfId, checkStatus, pageNo, pageSize);
+			
+			Page<GasTrade> gtList = gts.listPageInfoByOpt(cpyId, addUserId, gasTypeId, gfId, checkStatus, showStatus, sPrice, ePrice, psArea, pageNo, pageSize);
 			count = gtList.getTotalElements();
+			if(count > 0) {
+				for(GasTrade gt : gtList) {
+					Map<String,Object> map_d = new HashMap<String,Object>();
+					map_d.put("id", gt.getId());
+					map_d.put("cpyName", gt.getCompany().getId());
+					map_d.put("headImg", gt.getHeadImg());
+					map_d.put("gasTypeName", gt.getGasType().getName());
+					String pubUserId = gt.getAddUserId();
+					Integer userType = gt.getUserType();
+					if(userType.equals(2)) {
+						User user = us.getEntityById(pubUserId);
+						if(user != null) {
+							map_d.put("pubUserName", user.getRealName());
+						}
+					}
+					map_d.put("", gt);
+					map_d.put("", gt);
+					map_d.put("", gt);
+					map_d.put("", gt);
+					map_d.put("", gt);
+					map_d.put("", gt);
+					map_d.put("", gt);
+					map_d.put("", gt);
+					map_d.put("", gt);
+					map_d.put("", gt);
+				}
+			}
 		} catch (Exception e) {
 			// TODO: handle exception
 			e.printStackTrace();

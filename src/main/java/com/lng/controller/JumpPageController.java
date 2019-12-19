@@ -170,6 +170,12 @@ public class JumpPageController {
 		return new ModelAndView("compManager/compManager");
 	}
 	
+	@ApiOperation("公司列表")
+	@GetMapping("gomCompListPage")
+	public ModelAndView gomCompListPage(){
+		return new ModelAndView("compManager/companyList");
+	}
+	
 	@ApiOperation("液厂管理")
 	@GetMapping("goLqFactoryPage")
 	public ModelAndView goLqFactoryPage(){
@@ -186,6 +192,12 @@ public class JumpPageController {
 	@GetMapping("goCpyJoinFcyCheckPage")
 	public ModelAndView goCpyJoinFcyCheckPage(){
 		return new ModelAndView("applyManager/tradeApply");
+	}
+	
+	@ApiOperation("LNG行情管理")
+	@GetMapping("goLngPage") 
+	public ModelAndView goLngPage(){
+		return new ModelAndView("LngManager/lngManager");
 	}
 	
 }

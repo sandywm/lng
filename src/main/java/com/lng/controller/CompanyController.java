@@ -83,22 +83,23 @@ public class CompanyController {
 			@ApiImplicitParam(name = "bankName", value = "公司银行名称", defaultValue = "华龙区银行"),
 			@ApiImplicitParam(name = "bankNo", value = "公司银行卡号", defaultValue = "4565445445452218997"),
 			@ApiImplicitParam(name = "bankAcc", value = "公司银行账户", defaultValue = "4565445445452218"),
-			@ApiImplicitParam(name = "userType", value = "上传人员类型（1：后台管理人员，2：普通用户）"),
+			//@ApiImplicitParam(name = "userType", value = "上传人员类型（1：后台管理人员，2：普通用户）"),
 			@ApiImplicitParam(name = "zzImg", value = "公司资质图片") })
 	public GenericResponse addCompany(HttpServletRequest request, String name, String typeId, String owerUserId,
 			String province, String city, String county, String address, String lxname, String lxtel, String yyzzImg,
-			String bankName, String bankNo, String bankAcc, Integer userType, String zzImg) {
+			String bankName, String bankNo, String bankAcc, /* Integer userType, */ String zzImg) {
 		Integer status = 200;
 		String loginUserId = CommonTools.getLoginUserId(request);
 		String cilentInfo = CommonTools.getCilentInfo_new(request);
 		zzImg = CommonTools.getFinalStr(zzImg);
 		String comId = "";
-
+		Integer userType =1;
 		try {
 			if (CommonTools.checkAuthorization(loginUserId, CommonTools.getLoginRoleName(request),
 					Constants.ADD_COMPANY)) {
 
 			} else if (cilentInfo.equals("wxApp")) {
+				userType =2;
 				loginUserId = CommonTools.getFinalStr("owerUserId", request);
 			} else {
 				status = 70001;
@@ -124,6 +125,7 @@ public class CompanyController {
 					comp.setBankName(CommonTools.getFinalStr(bankName));
 					comp.setBankNo(CommonTools.getFinalStr(bankNo));
 					comp.setBankAccount(CommonTools.getFinalStr(bankAcc));
+				
 					comp.setUserType(userType);
 					if (userType.equals(1)) {
 						comp.setCheckStatus(1);

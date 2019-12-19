@@ -80,7 +80,7 @@ public interface GasFactoryService {
 	 * @param checkStatus 审核状态（-1:全部,0:未审核,1:审核通过,2:审核未通过）
 	 * @return
 	 */
-	List<GasFactory> listInfoByOpt(String provPy,String gsId,String gsNamePy,Integer checkStatus);
+	List<GasFactory> listInfoByOpt(String provPy,String gsId,String gasTypeId,String gsNamePy,Integer checkStatus);
 	
 	/**
 	 * @description 根据条件分页获取所有液厂信息(前台显示用)--按照hot降序排列

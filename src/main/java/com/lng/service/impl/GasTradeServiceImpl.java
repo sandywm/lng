@@ -51,6 +51,7 @@ public class GasTradeServiceImpl implements GasTradeService{
 	public Page<GasTrade> listPageInfoByOpt(String cpyId, String addUserId,String gtId, String gfId, Integer checkStatus,
 			Integer showStatus, Integer sPrice, Integer ePrice, String psArea, Integer pageNo, Integer pageSize) {
 		// TODO Auto-generated method stub
+
 		Specification<GasTrade> spec = new Specification<GasTrade>() {
 			private static final long serialVersionUID = 1L;
 
@@ -65,7 +66,7 @@ public class GasTradeServiceImpl implements GasTradeService{
 					pre.getExpressions().add(cb.equal(root.get("addUserId"), addUserId));
 				}
 				if(!gtId.isEmpty()) {
-					pre.getExpressions().add(cb.equal(root.get("gasType"), gtId));
+					pre.getExpressions().add(cb.equal(root.get("gasType").get("id"), gtId));
 				}
 				if(!gfId.isEmpty()) {
 					pre.getExpressions().add(cb.equal(root.get("gasFactory").get("id"), gfId));
@@ -74,22 +75,26 @@ public class GasTradeServiceImpl implements GasTradeService{
 					pre.getExpressions().add(cb.equal(root.get("checkStatus"), checkStatus));
 				}
 				if(showStatus.equals(0) || showStatus.equals(1)) {
-					pre.getExpressions().add(cb.equal(root.get("provincePy"), showStatus));
+					pre.getExpressions().add(cb.equal(root.get("showStatus"), showStatus));
 				}
 				if(sPrice >= 0 && ePrice > 0 && sPrice <= ePrice) {
 					pre.getExpressions().add(cb.greaterThanOrEqualTo(root.get("gasPrice"), sPrice.doubleValue()));
 					pre.getExpressions().add(cb.lessThanOrEqualTo(root.get("gasPrice"), ePrice.doubleValue()));
 				}
-				if(!psArea.isEmpty()) {
-//					String[] psAreaArr = psArea.split(",");
-//					List predicateList = new ArrayList();
-//					Predicate [] p = new Predicate[bottomLevelDataPermission.size()];
-					pre.getExpressions().add(cb.like(root.get("psArea"), "%"+psArea+"%"));
+				if(!psArea.equals("")) {
+					String[] psAreaArr = psArea.split(",");
+					List<Predicate> predicateList = new ArrayList<Predicate>();
+					Predicate [] p = new Predicate[psAreaArr.length];
+					for(int i = 0 ; i < psAreaArr.length ; i++) {
+						predicateList.add(cb.like(root.get("psArea"), "%"+psAreaArr[i]+"%"));
+					}
+					predicateList.toArray(p);
+					pre.getExpressions().add(cb.or(p));
 				}
 				return pre;
 		}};
-		Sort.Order sort2 = new Sort.Order(Sort.Direction.DESC, "hot");//升序排列
 		Sort.Order sort1 = new Sort.Order(Sort.Direction.DESC, "addTime");//升序排列
+		Sort.Order sort2 = new Sort.Order(Sort.Direction.DESC, "hot");//升序排列
 		List<Sort.Order> list = new ArrayList<Sort.Order>();
 		list.add(sort1);
 		list.add(sort2);
@@ -142,14 +147,6 @@ public class GasTradeServiceImpl implements GasTradeService{
 	public void addBatchInfo(List<GasTradeImg> gtiList) {
 		// TODO Auto-generated method stub
 		gtiDao.saveAll(gtiList);
-	}
-
-	@Override
-	public Page<GasTrade> listPageInfoByOpt(String cpyId, String addUserId, String gtId, String gfId,
-			Integer checkStatus, Integer pageNo, Integer pageSize) {
-		// TODO Auto-generated method stub
-		Pageable pageable = PageRequest.of(pageNo-1, pageSize);
-		return gtDao.findPageInfoByOpt(cpyId, addUserId, gtId, gfId, checkStatus, pageable);
 	}
 
 }

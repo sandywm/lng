@@ -262,7 +262,8 @@ public class LngController {
 	@ApiImplicitParams({
 		@ApiImplicitParam(name = "lpdId", value = "lng行情编号"),
 		@ApiImplicitParam(name = "price", value = "价格(多个逗号隔开)"),
-		@ApiImplicitParam(name = "priceDate", value = "价格时间(yyyy-mm-dd)")
+		@ApiImplicitParam(name = "priceDate", value = "价格时间(yyyy-mm-dd)"),
+		@ApiImplicitParam(name = "remark", value = "备注")
 	})
 	public GenericResponse upSpecLngData(HttpServletRequest request) {
 		String lpdId = CommonTools.getFinalStr("lpdId", request);
@@ -305,12 +306,14 @@ public class LngController {
 		@ApiImplicitParam(name = "provPy", value = "省份首字母"),
 		@ApiImplicitParam(name = "gsId", value = "液厂编号"),
 		@ApiImplicitParam(name = "gsNamePy", value = "液厂名称首字母"),
+		@ApiImplicitParam(name = "gasTypeId", value = "液质类型编号"),
 		@ApiImplicitParam(name = "priceDate", value = "价格时间(yyyy-mm-dd)")
 	})
 	public GenericResponse getLngPriceData(HttpServletRequest request) {
 		Integer status = 200;
 		String provPy = CommonTools.getFinalStr("provPy", request);//有可能是海气，也可能是其他气
 		String gsId = CommonTools.getFinalStr("gsId", request);
+		String gasTypeId = CommonTools.getFinalStr("gasTypeId", request);
 		String gsNamePy = CommonTools.getFinalStr("gsNamePy", request);
 		String priceDate = CommonTools.getFinalStr("priceDate", request);
 		if(priceDate.equals("")) {
@@ -320,7 +323,7 @@ public class LngController {
 		String nextDate = CurrentTime.getFinalDate(priceDate,1);
 		List<Object> list_d = new ArrayList<Object>();
 		try {
-			List<GasFactory> gfList = gfs.listInfoByOpt(provPy, gsId, gsNamePy, 1);
+			List<GasFactory> gfList = gfs.listInfoByOpt(provPy, gsId, gasTypeId,gsNamePy, 1);
 			if(gfList.size() > 0) {
 				for(GasFactory gf : gfList) {
 					Map<String,Object> map_d = new HashMap<String,Object>();
@@ -341,6 +344,7 @@ public class LngController {
 					}else {
 						map_d.put("prePrice", prePrice);
 					}
+					map_d.put("preDate", preDate);
 					List<LngPriceDetail> lpdList_curr = lpds.listInfoByOpt("", gf.getId(), "", priceDate, priceDate,"desc");
 					if(lpdList_curr.size() > 0) {
 						currPrice = lpdList_curr.get(0).getPrice();
@@ -349,6 +353,7 @@ public class LngController {
 					}else {
 						map_d.put("currPrice", currPrice);
 					}
+					map_d.put("currDate", priceDate);
 					List<LngPriceDetail> lpdList_next = lpds.listInfoByOpt("", gf.getId(), "", nextDate, nextDate,"desc");
 					if(lpdList_next.size() > 0) {
 						nextPrice = lpdList_next.get(0).getPrice();
@@ -357,6 +362,7 @@ public class LngController {
 					}else {
 						map_d.put("nextPrice", nextPrice);
 					}
+					map_d.put("nextDate", nextDate);
 					map_d.put("remark", remark);
 					list_d.add(map_d);
 				}

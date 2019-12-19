@@ -90,7 +90,7 @@ public class CommonController {
 		List<CommonProvinceOrder> cpList = new ArrayList<CommonProvinceOrder>();
 		List<HqProvinceOrder> hpList = new ArrayList<HqProvinceOrder>();
 		try {
-			if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.ADD_YC)) {
+			if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.ADD_PROV)) {
 				if(gsType.equals(0)) {
 					cpList = cpos.listAllInfo("asc");
 					boolean flag = false;
@@ -155,7 +155,7 @@ public class CommonController {
 		String provName = CommonTools.getFinalStr("provName", request);
 		Integer gsType = CommonTools.getFinalInteger("gsType", request);
 		try {
-			if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),CommonTools.getLoginRoleName(request), Constants.ADD_YC)) {
+			if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),CommonTools.getLoginRoleName(request), Constants.ADD_PROV)) {
 				if(provId.equals(0) || provName.equals("")) {
 					status = 10002;
 				}else {
@@ -206,7 +206,7 @@ public class CommonController {
 	public GenericResponse setProvOrder(HttpServletRequest request,String proIdStr,Integer gsType) {
 		Integer status = 200;
 		try {
-			if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),CommonTools.getLoginRoleName(request), Constants.ADD_YC)) {
+			if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),CommonTools.getLoginRoleName(request), Constants.UP_YC)) {
 				if(proIdStr == null || proIdStr == "") {
 					status = 10002;
 				}else {

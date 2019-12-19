@@ -70,7 +70,7 @@ public class TrucksTradeController {
 			@ApiImplicitParam(name = "lxTel", value = "联系电话", defaultValue = "13956487523"),
 			@ApiImplicitParam(name = "showStatus", value = "上/下架状态（0：上架，1：下架）", required = true, defaultValue = "0"),
 			@ApiImplicitParam(name = "addUserId", value = "上传人员", required = true),
-			@ApiImplicitParam(name = "userType", value = "上传人员类型（1：后台管理人员，2：普通用户）", required = true),
+			//@ApiImplicitParam(name = "userType", value = "上传人员类型（1：后台管理人员，2：普通用户）", required = true),
 			@ApiImplicitParam(name = "tradeType", value = "贸易类型（1：租赁，2：买卖）", required = true, defaultValue = "0"),
 			@ApiImplicitParam(name = "area", value = "运输范围（租赁）"), @ApiImplicitParam(name = "qyTypeId", value = "气源类型"),
 			@ApiImplicitParam(name = "wqpfbzId", value = "尾气排放标准编号", required = true),
@@ -98,7 +98,8 @@ public class TrucksTradeController {
 		String lxTel = CommonTools.getFinalStr("lxTel", request);
 		Integer showStatus = CommonTools.getFinalInteger("showStatus", request);
 		String addUserId = CommonTools.getFinalStr("addUserId", request);
-		Integer userType = CommonTools.getFinalInteger("userType", request);
+		//Integer userType = CommonTools.getFinalInteger("userType", request);
+		Integer userType = 1;
 		Integer tradeType = CommonTools.getFinalInteger("tradeType", request);
 		String area = CommonTools.getFinalStr("area", request);
 		String qyTypeId = CommonTools.getFinalStr("qyTypeId", request);
@@ -120,6 +121,7 @@ public class TrucksTradeController {
 					Constants.ADD_TRTR)) {
 
 			} else if (cilentInfo.equals("wxApp")) {
+				userType =2;
 				loginUserId = CommonTools.getFinalStr("userId", request);
 			} else {
 				status = 70001;

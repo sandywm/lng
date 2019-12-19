@@ -53,8 +53,6 @@ public interface GasTradeService {
 	Page<GasTrade> listPageInfoByOpt(String cpyId,String addUserId,String gtId,String gfId,Integer checkStatus,
 			Integer showStatus,Integer sPrice,Integer ePrice,String psArea,Integer pageNo,Integer pageSize);
 	
-	Page<GasTrade> listPageInfoByOpt(String cpyId,String addUserId,String gtId,String gfId,Integer checkStatus,Integer pageNo,Integer pageSize);
-	
 	/**
 	 * @description 增加或修改燃气买卖其他详图
 	 * @author wm

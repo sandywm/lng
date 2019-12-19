@@ -67,7 +67,7 @@ public class PotTradeController {
 			@ApiImplicitParam(name = "userId", value = "用户编号(微信)"),
 			@ApiImplicitParam(name = "showStatus", value = "上/下架状态（0：上架，1：下架）", required = true, defaultValue = "0"),
 			@ApiImplicitParam(name = "addUserId", value = "上传人员", required = true),
-			@ApiImplicitParam(name = "userType", value = "上传人员类型（1：后台管理人员，2：普通用户）", required = true),
+			//@ApiImplicitParam(name = "userType", value = "上传人员类型（1：后台管理人员，2：普通用户）", required = true),
 			@ApiImplicitParam(name = "tradeStatus", value = "租卖类型(0:可租可卖,1:租,2:卖)", required = true, defaultValue = "0") })
 	public GenericResponse addPotTrade(HttpServletRequest request) {
 		String compId = CommonTools.getFinalStr("compId", request);
@@ -86,7 +86,8 @@ public class PotTradeController {
 		String lxTel = CommonTools.getFinalStr("lxTel", request);
 		Integer showStatus = CommonTools.getFinalInteger("showStatus", request);
 		String addUserId = CommonTools.getFinalStr("addUserId", request);
-		Integer userType = CommonTools.getFinalInteger("userType", request);
+		//Integer userType = CommonTools.getFinalInteger("userType", request);
+		Integer userType = 1;
 		Integer tradeStatus = CommonTools.getFinalInteger("tradeStatus", request);
 		String loginUserId = CommonTools.getLoginUserId(request);
 		String cilentInfo = CommonTools.getCilentInfo_new(request);
@@ -97,6 +98,7 @@ public class PotTradeController {
 			if (CommonTools.checkAuthorization(loginUserId, CommonTools.getLoginRoleName(request), Constants.ADD_PT)) {
 
 			} else if (cilentInfo.equals("wxApp")) {
+				userType = 2;
 				loginUserId = CommonTools.getFinalStr("userId", request);
 			} else {
 				status = 70001;
