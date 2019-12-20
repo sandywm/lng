@@ -478,19 +478,29 @@ public class LngController {
 						LngPriceDetail lpd = lpdList_curr.get(0);
 						currPrice = lpd.getPrice();
 						map_d.put("currPrice", currPrice);
-						map_d.put("diffPrice_curr", currPrice - prePrice);
+						if(currPrice > 0) {
+							map_d.put("diffPrice_curr", currPrice - prePrice);
+						}else {
+							map_d.put("diffPrice_curr", 0);
+						}
 						remark = lpd.getRemark();
 					}else {
 						map_d.put("currPrice", currPrice);
+						map_d.put("diffPrice_curr", 0);
 					}
 					map_d.put("currDate", priceDate);
 					List<LngPriceDetail> lpdList_next = lpds.listInfoByOpt("", gf.getId(), "", nextDate, nextDate,"desc");
 					if(lpdList_next.size() > 0) {
 						nextPrice = lpdList_next.get(0).getPrice();
 						map_d.put("nextPrice", nextPrice);
-						map_d.put("diffPrice_next", nextPrice - currPrice);
+						if(nextPrice > 0) {
+							map_d.put("diffPrice_next", nextPrice - currPrice);
+						}else {
+							map_d.put("diffPrice_next", 0);
+						}
 					}else {
 						map_d.put("nextPrice", nextPrice);
+						map_d.put("diffPrice_next", 0);
 					}
 					map_d.put("nextDate", nextDate);
 					map_d.put("remark", remark);
