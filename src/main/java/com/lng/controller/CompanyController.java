@@ -472,7 +472,7 @@ public class CompanyController {
 
 	@PutMapping("/updateCompany")
 	@ApiOperation(value = "更新公司", notes = "更新公司信息")
-	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
+	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),@ApiResponse(code = 80001, message = "审核通过不能修改"),
 			@ApiResponse(code = 50001, message = "数据未找到"), @ApiResponse(code = 70001, message = "无权限访问") })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "公司编号", required = true),
 			@ApiImplicitParam(name = "typeId", value = "公司类型编号", required = true),
@@ -515,7 +515,9 @@ public class CompanyController {
 				Company comp = companyService.getEntityById(id);
 				if (comp == null) {
 					status = 50001;
-				} else {
+				} else if(comp.getCheckStatus()==1){
+					status = 80001;
+				}else {
 					CompanyType ct = ctService.findById(CommonTools.getFinalStr(typeId));
 					comp.setCompanyType(ct);
 					if (!province.equals("") && !province.equals(comp.getProvince())) {

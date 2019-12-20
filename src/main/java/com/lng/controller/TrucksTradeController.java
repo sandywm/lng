@@ -270,7 +270,7 @@ public class TrucksTradeController {
 
 	@PutMapping("/updateTrucksTrade")
 	@ApiOperation(value = "修改货车租卖", notes = "修改货车租卖基本信息")
-	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
+	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),@ApiResponse(code = 80001, message = "审核通过不能修改"),
 			@ApiResponse(code = 50001, message = "数据未找到"), @ApiResponse(code = 70001, message = "无权限访问") })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "货车租卖主键", required = true),
 			@ApiImplicitParam(name = "compId", value = "公司编号"),
@@ -343,11 +343,13 @@ public class TrucksTradeController {
 				status = 70001;
 			}
 
-			if (status.equals("")) {
+			if (status.equals(200)) {
 				TrucksTrade trtr = trucksTradeService.getEntityById(id);
 				if (trtr == null) {
 					status = 50001;
-				} else {
+				} else if(trtr.getCheckStatus()==1) {
+					status = 80001;
+				}else {
 					if (!compId.isEmpty() && !compId.equals(trtr.getCompanyId())) {
 						trtr.setCompanyId(compId);
 					}

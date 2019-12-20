@@ -57,6 +57,9 @@ public class ResponseFormat {
 
         /* 权限错误：70001-79999 */
         messageMap.put(70001, "无权限访问");
+        
+        /* 修改错误：80001-89999 */
+        messageMap.put(80001, "审核通过不能修改");
     }
     
     public static String getMessage(Integer code) {

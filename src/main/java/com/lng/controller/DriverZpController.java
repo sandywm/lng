@@ -170,7 +170,7 @@ public class DriverZpController {
 	@PutMapping("/updateDriverQz")
 	@ApiOperation(value = "更新司机求职", notes = "更新司机求职基本信息")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
-			@ApiResponse(code = 50001, message = "数据未找到") })
+			@ApiResponse(code = 80001, message = "审核通过不能修改"), @ApiResponse(code = 50001, message = "数据未找到") })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "司机求职主键", required = true),
 			@ApiImplicitParam(name = "userName", value = "用户姓名", required = true),
 			@ApiImplicitParam(name = "userMobile", value = "联系电话", required = true),
@@ -200,6 +200,8 @@ public class DriverZpController {
 			DriverQz qz = qzService.getEntityById(id);
 			if (qz == null) {
 				status = 50001;
+			} else if (qz.getCheckStatus() == 1) {
+				status = 80001;
 			} else {
 				if (!userName.isEmpty() && !userName.equals(qz.getUserName())) {
 					qz.setUserName(userName);
@@ -419,7 +421,7 @@ public class DriverZpController {
 	@PutMapping("/updateDriverZp")
 	@ApiOperation(value = "更新司机招聘", notes = "更新司机招聘")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
-			@ApiResponse(code = 50001, message = "数据未找到") })
+			@ApiResponse(code = 80001, message = "审核通过不能修改"), @ApiResponse(code = 50001, message = "数据未找到") })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "司机招聘主键", required = true),
 			@ApiImplicitParam(name = "jzType", value = "驾照类型（C2,C1,B...）", required = true, defaultValue = "C1"),
 			@ApiImplicitParam(name = "wage", value = "薪资范围", required = true, defaultValue = "1000-2000"),
@@ -450,53 +452,55 @@ public class DriverZpController {
 
 		Integer status = 200;
 		String zpId = "";
-			try {
-				DriverZp zp = zpService.getEntityById(id);
-				if (zp == null) {
-					status = 50001;
-				} else {
-					if (!jzType.isEmpty() && jzType.equals(zp.getJzType())) {
-						zp.setJzType(jzType);
-					}
-					if (wage != null && !wage.equals(zp.getWage())) {
-						zp.setWage(wage);
-					}
-					if (!sjAgeRange.isEmpty() && !sjAgeRange.equals(zp.getSjAgeRange())) {
-						zp.setSjAgeRange(sjAgeRange);
-					}
-					if (!jlYearRange.isEmpty() && !jlYearRange.equals(zp.getJlYearRange())) {
-						zp.setJlYearRange(jlYearRange);
-					}
-					if (!province.isEmpty() && !province.equals(zp.getProvince())) {
-						zp.setProvince(province);
-					}
-					if (!city.isEmpty() && !city.equals(zp.getCity())) {
-						zp.setCity(city);
-					}
-					if (!address.isEmpty() && !address.equals(zp.getAddress())) {
-						zp.setAddress(address);
-					}
-					if (!remark.isEmpty() && !remark.equals(zp.getRemark())) {
-						zp.setRemark(remark);
-					}
-					if (userType != null && !userType.equals(zp.getUserType())) {
-						zp.setUserType(userType);
-					}
-					if (!addUserId.isEmpty() && !addUserId.equals(zp.getAddUserId())) {
-						zp.setAddUserId(addUserId);
-					}
-					if (!lxName.isEmpty() && !lxName.equals(zp.getLxName())) {
-						zp.setLxName(lxName);
-					}
-					if (!lxTel.isEmpty() && !lxTel.equals(zp.getLxTel())) {
-						zp.setLxTel(lxTel);
-					}
-					zpId = zpService.saveOrUpdate(zp);
+		try {
+			DriverZp zp = zpService.getEntityById(id);
+			if (zp == null) {
+				status = 50001;
+			} else if(zp.getCheckStatus()==1){
+				status = 80001;
+			}else {
+				if (!jzType.isEmpty() && jzType.equals(zp.getJzType())) {
+					zp.setJzType(jzType);
 				}
-			} catch (Exception e) {
-				e.printStackTrace();
-				status = 1000;
+				if (wage != null && !wage.equals(zp.getWage())) {
+					zp.setWage(wage);
+				}
+				if (!sjAgeRange.isEmpty() && !sjAgeRange.equals(zp.getSjAgeRange())) {
+					zp.setSjAgeRange(sjAgeRange);
+				}
+				if (!jlYearRange.isEmpty() && !jlYearRange.equals(zp.getJlYearRange())) {
+					zp.setJlYearRange(jlYearRange);
+				}
+				if (!province.isEmpty() && !province.equals(zp.getProvince())) {
+					zp.setProvince(province);
+				}
+				if (!city.isEmpty() && !city.equals(zp.getCity())) {
+					zp.setCity(city);
+				}
+				if (!address.isEmpty() && !address.equals(zp.getAddress())) {
+					zp.setAddress(address);
+				}
+				if (!remark.isEmpty() && !remark.equals(zp.getRemark())) {
+					zp.setRemark(remark);
+				}
+				if (userType != null && !userType.equals(zp.getUserType())) {
+					zp.setUserType(userType);
+				}
+				if (!addUserId.isEmpty() && !addUserId.equals(zp.getAddUserId())) {
+					zp.setAddUserId(addUserId);
+				}
+				if (!lxName.isEmpty() && !lxName.equals(zp.getLxName())) {
+					zp.setLxName(lxName);
+				}
+				if (!lxTel.isEmpty() && !lxTel.equals(zp.getLxTel())) {
+					zp.setLxTel(lxTel);
+				}
+				zpId = zpService.saveOrUpdate(zp);
 			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			status = 1000;
+		}
 		return ResponseFormat.retParam(status, zpId);
 	}
 

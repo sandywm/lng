@@ -57,5 +57,16 @@ public interface GasTradeOrderService {
 	 */
 	List<GasTradeOrder> getInfoBygtId(String gtId);
 	
+	/**
+	 * @description 根据卖气人所在公司获取所有已评价完成的燃气交易订单
+	 * @author wm
+	 * @Version : 1.0
+	 * @ModifiedBy : 修改人
+	 * @date  2019年12月20日 上午9:49:38
+	 * @param cpyId 卖气人所在公司编号
+	 * @return
+	 */
+	List<GasTradeOrder> listComInfoByCpyId(String cpyId);
+	
 
 }

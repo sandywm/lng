@@ -65,8 +65,8 @@ public class RqDevTradeController {
 			/*
 			 * @ApiImplicitParam(name = "userType", value = "上传人员类型（1：后台管理人员，2：普通用户）",
 			 * required = true)
-			 */ 
-			})
+			 */
+	})
 	public GenericResponse addRqDevTrade(HttpServletRequest request) {
 		String compId = CommonTools.getFinalStr("compId", request);
 		String mainImg = CommonTools.getFinalStr("mainImg", request);
@@ -81,8 +81,8 @@ public class RqDevTradeController {
 		String lxTel = CommonTools.getFinalStr("lxTel", request);
 		Integer showStatus = CommonTools.getFinalInteger("showStatus", request);
 		String addUserId = CommonTools.getFinalStr("addUserId", request);
-		//Integer userType = CommonTools.getFinalInteger("userType", request);
-		Integer userType =1;
+		// Integer userType = CommonTools.getFinalInteger("userType", request);
+		Integer userType = 1;
 		String cilentInfo = CommonTools.getCilentInfo_new(request);
 		String loginUserId = CommonTools.getLoginUserId(request);
 		Integer status = 200;
@@ -92,7 +92,7 @@ public class RqDevTradeController {
 			if (CommonTools.checkAuthorization(loginUserId, CommonTools.getLoginRoleName(request), Constants.ADD_RDT)) {
 
 			} else if (cilentInfo.equals("wxApp")) {
-				userType =2;
+				userType = 2;
 			} else {
 				status = 70001;
 			}
@@ -220,6 +220,7 @@ public class RqDevTradeController {
 	@PutMapping("/updateRqDevTrade")
 	@ApiOperation(value = "更新燃气设备买卖", notes = "更新燃气设备买卖信息")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
+			@ApiResponse(code = 80001, message = "审核通过不能修改"), @ApiResponse(code = 50001, message = "数据未找到"),
 			@ApiResponse(code = 70001, message = "无权限访问") })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "燃气设备买卖主键", required = true),
 			@ApiImplicitParam(name = "mainImg", value = "燃气设备主图", required = true, defaultValue = "燃气设备图.img"),
@@ -251,16 +252,21 @@ public class RqDevTradeController {
 		String loginUserId = CommonTools.getLoginUserId(request);
 		Integer status = 200;
 		String cilentInfo = CommonTools.getCilentInfo_new(request);
-			try {
-				if (CommonTools.checkAuthorization(loginUserId, CommonTools.getLoginRoleName(request), Constants.UP_RDT)) {
-					
-				}else if(cilentInfo.equals("wxApp")) {
-					
+		try {
+			if (CommonTools.checkAuthorization(loginUserId, CommonTools.getLoginRoleName(request), Constants.UP_RDT)) {
+
+			} else if (cilentInfo.equals("wxApp")) {
+
+			} else {
+				status = 70001;
+			}
+			if (status.equals(200)) {
+				RqDevTrade rdt = rdtService.getEntityById(id);
+				if (rdt == null) {
+					status = 50001;
+				} else if (rdt.getCheckStatus() == 1) {
+					status = 80001;
 				} else {
-					status = 70001;
-				}
-				if(status.equals(200)) {
-					RqDevTrade rdt = rdtService.getEntityById(id);
 					if (!mainImg.equals(rdt.getMainImg())) {
 						rdt.setMainImg(CommonTools.dealUploadDetail(loginUserId, rdt.getMainImg(), mainImg));
 					}
@@ -298,10 +304,11 @@ public class RqDevTradeController {
 					}
 					rdtService.saveOrUpdate(rdt);
 				}
-			} catch (Exception e) {
-				e.printStackTrace();
-				status = 1000;
 			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			status = 1000;
+		}
 		return ResponseFormat.retParam(status, "");
 	}
 

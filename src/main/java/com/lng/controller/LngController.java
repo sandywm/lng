@@ -91,6 +91,41 @@ public class LngController {
 		return ResponseFormat.retParam(status, "");
 	}
 	
+	
+	@PostMapping("checkRemainFlag")
+	@ApiOperation(value = "判断指定日期余下未变动lng行情的记录",notes = "判断指定日期余下未变动lng行情的记录。true表示可以批量增加，false表示已有记录，不能批量")
+	@ApiResponses({@ApiResponse(code = 1000, message = "服务器错误"),
+		@ApiResponse(code = 70001, message = "无权限访问")
+	})
+	@ApiImplicitParams({
+		@ApiImplicitParam(name = "priceDate", value = "价格时间(yyyy-mm-dd)")
+	})
+	public GenericResponse checkRemainFlag(HttpServletRequest request) {
+		Integer status = 200;
+		String priceDate = CommonTools.getFinalStr("priceDate", request);
+		boolean existFlag = false;
+		try {
+			if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.ADD_LNG_PRICE)) {
+				//获取全部气厂的记录(审核通过)
+				List<GasFactory> gfList = gfs.listInfoByOpt("", "", "", "", "", 1);
+				for(GasFactory gf : gfList) {
+					//获取该气厂指定日期有无价格记录
+					if(lpds.listInfoByOpt(gf.getId(), null, priceDate).size() == 0) {//不存在记录
+						existFlag = true;
+						break;
+					}
+				}
+			}else {
+				status = 70001;
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			status = 1000;
+		}
+		return ResponseFormat.retParam(status, existFlag);
+	}
+	
 	@PostMapping("addRemainBatchData")
 	@ApiOperation(value = "批量增加指定日期余下未变动lng行情的记录",notes = "当增加完已变动的价格行情后，点击批量生成未变动的数据")
 	@ApiResponses({@ApiResponse(code = 1000, message = "服务器错误"),
@@ -217,6 +252,99 @@ public class LngController {
 		map.put("existList", list_exist);
 		list_final.add(map);
 		return ResponseFormat.retParam(status, list_final);
+	}
+	
+	@GetMapping("getSpecLngPriceDetail")
+	@ApiOperation(value = "获取指定液厂指定日期的价格明细",notes = "修改记录用")
+	@ApiResponses({@ApiResponse(code = 1000, message = "服务器错误"),
+		@ApiResponse(code = 50001, message = "数据未找到")
+	})
+	@ApiImplicitParams({
+		@ApiImplicitParam(name = "gfId", value = "液厂编号",required = true),
+		@ApiImplicitParam(name = "specDate", value = "指定日期",required = true)
+	})
+	
+	public GenericResponse getSpecLngPriceDetail(HttpServletRequest request) {
+		Integer status = 200;
+		String gfId = CommonTools.getFinalStr("gfId", request);
+		String specDate = CommonTools.getFinalStr("specDate", request);
+		String preDate = CurrentTime.getFinalDate(specDate, -1);
+		Map<String,Object> map = new HashMap<String,Object>();
+		Integer ckPrice = 0;
+		String ckDate = "";
+		String gfName = "";
+		try {
+			if(!gfId.equals("") && !specDate.equals("")) {
+				List<LngPriceDetail> lpdList = lpds.listInfoByOpt(gfId, null, specDate);
+				Integer count = lpdList.size();
+				if(count > 0) {//指定日期有价格
+					LngPriceDetail lpd = lpdList.get(count - 1);//获取指定日期最后一条记录
+					gfName = lpd.getGf().getName();
+					Integer currPrice = lpd.getPrice();
+					if(currPrice > 0) {//当前指定日期有价格
+						ckPrice = currPrice;
+						ckDate = specDate;
+//						if(count > 1) {//当天存在多个价格变动，获取上一次的价格为参考
+//							LngPriceDetail lpdCk = lpdList.get(count - 2);
+//							ckPrice = lpdCk.getPrice();
+//							ckDate = lpdCk.getPriceTime().substring(0, 10);
+//						}else {//当前只存在一个价格
+//							//按照昨天最后一次的价格为主
+//							ckDate = preDate;
+//							List<LngPriceDetail> lpdPreList = lpds.listInfoByOpt(gfId, null, ckDate);
+//							if(lpdPreList.size() > 0) {//存在记录
+//								ckPrice = lpdPreList.get(lpdPreList.size() - 1).getPrice();
+//							}else {
+//								ckPrice = 0;
+//							}
+//						}
+					}else {//无价格,获取昨天的价格
+						ckDate = preDate;
+						List<LngPriceDetail> lpdPreList = lpds.listInfoByOpt(gfId, null, ckDate);
+						if(lpdPreList.size() > 0) {//存在记录
+							LngPriceDetail lpdCk = lpdPreList.get(lpdPreList.size() - 1);
+							ckPrice = lpdCk.getPrice();
+							gfName = lpdCk.getGf().getName();
+						}else {
+							GasFactory gf = gfs.getEntityById(gfId);
+							if(gf != null) {
+								gfName = gf.getName();
+								ckPrice = 0;
+							}else {
+								status = 50001;
+							}
+						}
+					}
+				}else {//指定日期没价格
+					ckDate = preDate;
+					List<LngPriceDetail> lpdPreList = lpds.listInfoByOpt(gfId, null, preDate);
+					if(lpdPreList.size() > 0) {//存在记录
+						LngPriceDetail lpdCk = lpdPreList.get(lpdPreList.size() - 1);
+						ckPrice = lpdCk.getPrice();
+						gfName = lpdCk.getGf().getName();
+					}else {
+						GasFactory gf = gfs.getEntityById(gfId);
+						if(gf != null) {
+							gfName = gf.getName();
+							ckPrice = 0;
+						}else {
+							status = 50001;
+						}
+					}
+				}
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			status = 1000;
+		}
+		map.put("ckDate", ckDate);
+		map.put("ckPrice", ckPrice);
+		map.put("gfName", gfName);
+		map.put("specDate", specDate);
+		List<Object> list = new ArrayList<Object>();
+		list.add(map);
+		return ResponseFormat.retParam(status, list);
 	}
 	
 	@GetMapping("getLngPriceDetail")
@@ -347,9 +475,11 @@ public class LngController {
 					map_d.put("preDate", preDate);
 					List<LngPriceDetail> lpdList_curr = lpds.listInfoByOpt("", gf.getId(), "", priceDate, priceDate,"desc");
 					if(lpdList_curr.size() > 0) {
-						currPrice = lpdList_curr.get(0).getPrice();
+						LngPriceDetail lpd = lpdList_curr.get(0);
+						currPrice = lpd.getPrice();
 						map_d.put("currPrice", currPrice);
 						map_d.put("diffPrice_curr", currPrice - prePrice);
+						remark = lpd.getRemark();
 					}else {
 						map_d.put("currPrice", currPrice);
 					}

@@ -193,11 +193,16 @@ public class CommonTools {
 	 * @return
 	 */
 	public static String getLoginUserId(HttpServletRequest request){
+		String cilentInfo = CommonTools.getCilentInfo_new(request);
 		String userId = "";
-		userId = (String)request.getSession(false).getAttribute(Constants.LOGIN_USER_ID);
-        if(userId == null){
-        	return "";
-        }
+		if(cilentInfo.equals("pc")) {
+			userId = (String)request.getSession(false).getAttribute(Constants.LOGIN_USER_ID);
+	        if(userId == null){
+	        	return "";
+	        }
+		}else if(cilentInfo.equals("wxApp")) {
+			userId = CommonTools.getFinalStr("userId", request);
+		}
         return userId;
 	}
 	

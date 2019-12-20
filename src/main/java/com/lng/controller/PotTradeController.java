@@ -67,7 +67,8 @@ public class PotTradeController {
 			@ApiImplicitParam(name = "userId", value = "用户编号(微信)"),
 			@ApiImplicitParam(name = "showStatus", value = "上/下架状态（0：上架，1：下架）", required = true, defaultValue = "0"),
 			@ApiImplicitParam(name = "addUserId", value = "上传人员", required = true),
-			//@ApiImplicitParam(name = "userType", value = "上传人员类型（1：后台管理人员，2：普通用户）", required = true),
+			// @ApiImplicitParam(name = "userType", value = "上传人员类型（1：后台管理人员，2：普通用户）",
+			// required = true),
 			@ApiImplicitParam(name = "tradeStatus", value = "租卖类型(0:可租可卖,1:租,2:卖)", required = true, defaultValue = "0") })
 	public GenericResponse addPotTrade(HttpServletRequest request) {
 		String compId = CommonTools.getFinalStr("compId", request);
@@ -86,7 +87,7 @@ public class PotTradeController {
 		String lxTel = CommonTools.getFinalStr("lxTel", request);
 		Integer showStatus = CommonTools.getFinalInteger("showStatus", request);
 		String addUserId = CommonTools.getFinalStr("addUserId", request);
-		//Integer userType = CommonTools.getFinalInteger("userType", request);
+		// Integer userType = CommonTools.getFinalInteger("userType", request);
 		Integer userType = 1;
 		Integer tradeStatus = CommonTools.getFinalInteger("tradeStatus", request);
 		String loginUserId = CommonTools.getLoginUserId(request);
@@ -233,7 +234,8 @@ public class PotTradeController {
 	@PutMapping("/updatePotTrade")
 	@ApiOperation(value = "更新储罐租卖基本信息", notes = "更新储罐租卖基本信息")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
-			@ApiResponse(code = 50001, message = "数据未找到"), @ApiResponse(code = 70001, message = "无权限访问") })
+			@ApiResponse(code = 80001, message = "审核通过不能修改"), @ApiResponse(code = 50001, message = "数据未找到"),
+			@ApiResponse(code = 70001, message = "无权限访问") })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "储罐租卖编号", required = true),
 			@ApiImplicitParam(name = "mainImg", value = "储罐主图", required = true),
 			@ApiImplicitParam(name = "potPpId", value = "储罐品牌编号", required = true),
@@ -271,77 +273,78 @@ public class PotTradeController {
 		String loginUserId = CommonTools.getLoginUserId(request);
 		String cilentInfo = CommonTools.getCilentInfo_new(request);
 		Integer status = 200;
-		
-			try {
-				if (CommonTools.checkAuthorization(loginUserId, CommonTools.getLoginRoleName(request),
-						Constants.UP_PT)) {
-					
-				}else if(cilentInfo.equals("wxApp")) {
-					loginUserId = CommonTools.getFinalStr("userId", request);
-				}else {
-					
-				}
-				if(status.equals(200)) {
-					PotTrade pt = potTradeService.getEntityById(id);
-					if (pt == null) {
-						status = 50001;
-					} else {
 
-						if (!mainImg.isEmpty() && !mainImg.equals(pt.getMainImg())) {
-							pt.setMainImg(CommonTools.dealUploadDetail(loginUserId, pt.getMainImg(), mainImg));
-						}
-						if (!potPpId.isEmpty() && !potPpId.equals(pt.getTrucksPotPp().getId())) {
-							TrucksPotPp trucksPotPp = potPpService.findById(potPpId);
-							pt.setTrucksPotPp(trucksPotPp);
-						}
-						if (!zzjzTypeId.isEmpty() && !zzjzTypeId.equals(pt.getPotZzjzType().getId())) {
-							PotZzjzType potZzjzType = zzjzTypeService.findById(zzjzTypeId);
-							pt.setPotZzjzType(potZzjzType);
-						}
-						if (potVol != null && !potVol.equals(pt.getPotVolume())) {
-							pt.setPotVolume(potVol);
-						}
-						if (!sxInfo.isEmpty() && !sxInfo.equals(pt.getSxInfo())) {
-							pt.setSxInfo(sxInfo);
-						}
-						if (!buyYear.isEmpty() && !buyYear.equals(pt.getBuyYear())) {
-							pt.setBuyYear(buyYear);
-						}
-						if (!province.isEmpty() && !province.equals(pt.getProvince())) {
-							pt.setProvince(province);
-						}
-						if (!city.isEmpty() && !city.equals(pt.getCity())) {
-							pt.setCity(city);
-						}
-						if (leasePrice != null && !leasePrice.equals(pt.getLeasePrice())) {
-							pt.setLeasePrice(leasePrice);
-						}
-						if (sellPrice != null && !sellPrice.equals(pt.getSellPrice())) {
-							pt.setSellPrice(sellPrice);
-						}
-						if (!remark.isEmpty() && !remark.equals(pt.getRemark())) {
-							pt.setRemark(remark);
-						}
-						if (!lxName.isEmpty() && !lxName.equals(pt.getLxName())) {
-							pt.setLxName(lxName);
-						}
-						if (!lxTel.isEmpty() && !lxTel.equals(pt.getLxTel())) {
-							pt.setLxTel(lxTel);
-						}
-						if (showStatus != null && !showStatus.equals(pt.getShowStatus())) {
-							pt.setShowStatus(showStatus);
-						}
-						if (tradeStatus != null && !tradeStatus.equals(pt.getTradeStatus())) {
-							pt.setTradeStatus(tradeStatus);
-						}
-						potTradeService.saveOrUpdate(pt);
-					}
-				}
-				
-			} catch (Exception e) {
-				e.printStackTrace();
-				status = 1000;
+		try {
+			if (CommonTools.checkAuthorization(loginUserId, CommonTools.getLoginRoleName(request), Constants.UP_PT)) {
+
+			} else if (cilentInfo.equals("wxApp")) {
+				loginUserId = CommonTools.getFinalStr("userId", request);
+			} else {
+
 			}
+			if (status.equals(200)) {
+				PotTrade pt = potTradeService.getEntityById(id);
+				if (pt == null) {
+					status = 50001;
+				} else if (pt.getCheckStatus() == 1) {
+					status = 80001;
+				} else {
+
+					if (!mainImg.isEmpty() && !mainImg.equals(pt.getMainImg())) {
+						pt.setMainImg(CommonTools.dealUploadDetail(loginUserId, pt.getMainImg(), mainImg));
+					}
+					if (!potPpId.isEmpty() && !potPpId.equals(pt.getTrucksPotPp().getId())) {
+						TrucksPotPp trucksPotPp = potPpService.findById(potPpId);
+						pt.setTrucksPotPp(trucksPotPp);
+					}
+					if (!zzjzTypeId.isEmpty() && !zzjzTypeId.equals(pt.getPotZzjzType().getId())) {
+						PotZzjzType potZzjzType = zzjzTypeService.findById(zzjzTypeId);
+						pt.setPotZzjzType(potZzjzType);
+					}
+					if (potVol != null && !potVol.equals(pt.getPotVolume())) {
+						pt.setPotVolume(potVol);
+					}
+					if (!sxInfo.isEmpty() && !sxInfo.equals(pt.getSxInfo())) {
+						pt.setSxInfo(sxInfo);
+					}
+					if (!buyYear.isEmpty() && !buyYear.equals(pt.getBuyYear())) {
+						pt.setBuyYear(buyYear);
+					}
+					if (!province.isEmpty() && !province.equals(pt.getProvince())) {
+						pt.setProvince(province);
+					}
+					if (!city.isEmpty() && !city.equals(pt.getCity())) {
+						pt.setCity(city);
+					}
+					if (leasePrice != null && !leasePrice.equals(pt.getLeasePrice())) {
+						pt.setLeasePrice(leasePrice);
+					}
+					if (sellPrice != null && !sellPrice.equals(pt.getSellPrice())) {
+						pt.setSellPrice(sellPrice);
+					}
+					if (!remark.isEmpty() && !remark.equals(pt.getRemark())) {
+						pt.setRemark(remark);
+					}
+					if (!lxName.isEmpty() && !lxName.equals(pt.getLxName())) {
+						pt.setLxName(lxName);
+					}
+					if (!lxTel.isEmpty() && !lxTel.equals(pt.getLxTel())) {
+						pt.setLxTel(lxTel);
+					}
+					if (showStatus != null && !showStatus.equals(pt.getShowStatus())) {
+						pt.setShowStatus(showStatus);
+					}
+					if (tradeStatus != null && !tradeStatus.equals(pt.getTradeStatus())) {
+						pt.setTradeStatus(tradeStatus);
+					}
+					potTradeService.saveOrUpdate(pt);
+				}
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			status = 1000;
+		}
 		return ResponseFormat.retParam(status, "");
 	}
 

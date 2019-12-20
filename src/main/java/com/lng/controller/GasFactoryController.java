@@ -322,6 +322,43 @@ public class GasFactoryController {
 		return ResponseFormat.retParam(status, list);
 	}
 	
+	@GetMapping("getGasFactoryList")
+	@ApiOperation(value = "获取指定贸易商公司的液厂列表",notes = "获取指定贸易商公司的液厂列表")
+	@ApiResponses({@ApiResponse(code = 1000, message = "服务器错误"),
+		@ApiResponse(code = 10002, message = "参数为空"),
+		@ApiResponse(code = 50001, message = "数据未找到")
+	})
+	@ApiImplicitParams({
+		@ApiImplicitParam(name = "cpyId", value = "液厂名称",required = true)
+	})
+	public GenericResponse getGasFactoryList(HttpServletRequest request) {
+		Integer status = 200;
+		String cpyId = CommonTools.getFinalStr("cpyId", request);
+		List<Object> list = new ArrayList<Object>();
+		try {
+			if(cpyId.equals("")) {
+				status = 10002;
+			}else {
+				List<GasFactoryCompany> gfcList = gfcs.listCompanyByGfId("", cpyId, 1);
+				if(gfcList.size() > 0) {
+					for(GasFactoryCompany gfc:gfcList) {
+						Map<String,Object> map = new HashMap<String,Object>();
+						map.put("id", gfc.getId());
+						map.put("gfName", gfc.getGasFactory().getName());
+						map.put("gfId", gfc.getGasFactory().getId());
+						list.add(map);
+					}
+				}else {
+					status = 50001;
+				}
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			status = 1000;
+		}
+		return ResponseFormat.retParam(status, list);
+	}
 	
 	@GetMapping("getGasFactoryData")
 	@ApiOperation(value = "获取液厂信息列表",notes = "为空时不查询，审核状态为-1时不查询")

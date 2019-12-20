@@ -86,4 +86,22 @@ public class GasTradeOrderServiceImpl implements GasTradeOrderService {
 		return gtoDao.findAll(spec);
 	}
 
+	@SuppressWarnings("serial")
+	@Override
+	public List<GasTradeOrder> listComInfoByCpyId(String cpyId) {
+		// TODO Auto-generated method stub
+		Specification<GasTradeOrder> spec = new Specification<GasTradeOrder>() {
+			@Override
+			public Predicate toPredicate(Root<GasTradeOrder> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+				Predicate pre = cb.conjunction();
+				if (!cpyId.isEmpty()) {
+					pre.getExpressions().add(cb.equal(root.get("gasTrade").get("company").get("id"), cpyId));
+				}
+				pre.getExpressions().add(cb.greaterThan(root.get("orderPjNumber"), 0));
+				return pre;
+			}
+		};
+		return gtoDao.findAll(spec);
+	}
+
 }

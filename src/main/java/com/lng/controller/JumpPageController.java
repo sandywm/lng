@@ -200,4 +200,10 @@ public class JumpPageController {
 		return new ModelAndView("LngManager/lngManager");
 	}
 	
+	@ApiOperation("槽车租卖管理")
+	@GetMapping("goTrucksTradePage") 
+	public ModelAndView goTrucksTradePage(){
+		return new ModelAndView("trucksTrade/trucksTradeList");
+	}
+	
 }

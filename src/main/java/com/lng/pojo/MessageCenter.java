@@ -31,33 +31,39 @@ public class MessageCenter implements java.io.Serializable {
 	private String addTime;
 	@ApiModelProperty(value = "消息类型")
 	private int messageType;
-	@ApiModelProperty(value = "申请人编号")
-	private String applyUserId;
+	@ApiModelProperty(value = "各种消息对应的主键")
+	private String primaryId;
+	@ApiModelProperty(value = "主键类型")
+	private String primaryType;
+	@ApiModelProperty(value = "发布人编号")
+	private String addUserId;
 	@ApiModelProperty(value = "接收人编号")
-	private String acceptUserId;
-	@ApiModelProperty(value = "燃气买卖编号")
-	private String gasTradeId;
-	@ApiModelProperty(value = "燃气买卖订单号")
-	private String gradeTradeOrder;
-	@ApiModelProperty(value = "审核状态")
-	private int checkStatus;
+	private String toUserId;
+	@ApiModelProperty(value = "已读状态（0：未读，1：已读）")
+	private int readStatus;
 
 	public MessageCenter() {
 	}
 
-	public MessageCenter(String id, String title, String content, int showStatus, String addTime, int messageType,
-			String applyUserId, String acceptUserId, String gasTradeId, int checkStatus,String gradeTradeOrder) {
+	
+	
+
+	public MessageCenter(String title, String content, int showStatus, String addTime, int messageType,
+			String primaryId, String primaryType, String addUserId, String toUserId, int readStatus) {
 		this.title = title;
 		this.content = content;
 		this.showStatus = showStatus;
 		this.addTime = addTime;
 		this.messageType = messageType;
-		this.applyUserId = applyUserId;
-		this.acceptUserId = acceptUserId;
-		this.gasTradeId = gasTradeId;
-		this.checkStatus = checkStatus;
-		this.gradeTradeOrder = gradeTradeOrder;
+		this.primaryId = primaryId;
+		this.primaryType = primaryType;
+		this.addUserId = addUserId;
+		this.toUserId = toUserId;
+		this.readStatus = readStatus;
 	}
+
+
+
 
 	@Id
 	@GeneratedValue(generator = "system-uuid")
@@ -115,49 +121,65 @@ public class MessageCenter implements java.io.Serializable {
 		this.messageType = messageType;
 	}
 
-	@Column(name = "apply_user_id", columnDefinition = "varchar(100) COMMENT '申请人编号（类型4时存在'")
-	public String getApplyUserId() {
-		return this.applyUserId;
+
+	@Column(name = "primary_id", columnDefinition = "varchar(100) COMMENT '各种消息对应的主键'")
+	public String getPrimaryId() {
+		return primaryId;
 	}
 
-	public void setApplyUserId(String applyUserId) {
-		this.applyUserId = applyUserId;
+
+
+	public void setPrimaryId(String primaryId) {
+		this.primaryId = primaryId;
 	}
 
-	@Column(name = "accept_user_id", columnDefinition = "varchar(100) COMMENT '接收人编号（类型为4时存在）'")
-	public String getAcceptUserId() {
-		return this.acceptUserId;
+
+	@Column(name = "primary_type", columnDefinition = "varchar(100) COMMENT '主键类型'")
+	public String getPrimaryType() {
+		return primaryType;
 	}
 
-	public void setAcceptUserId(String acceptUserId) {
-		this.acceptUserId = acceptUserId;
+
+
+	public void setPrimaryType(String primaryType) {
+		this.primaryType = primaryType;
 	}
 
-	@Column(name = "gas_trade_id", columnDefinition = "varchar(100) COMMENT '燃气买卖编号（类型为5时存在）'")
-	public String getGasTradeId() {
-		return this.gasTradeId;
+
+	@Column(name = "add_user_id", columnDefinition = "varchar(100) COMMENT '发布人编号'")
+	public String getAddUserId() {
+		return addUserId;
 	}
 
-	public void setGasTradeId(String gasTradeId) {
-		this.gasTradeId = gasTradeId;
+
+
+	public void setAddUserId(String addUserId) {
+		this.addUserId = addUserId;
 	}
 
-	@Column(name = "check_status", nullable = false, columnDefinition = "int(11) COMMENT '审核状态'")
-	public int getCheckStatus() {
-		return this.checkStatus;
+
+	@Column(name = "to_user_id", columnDefinition = "varchar(100) COMMENT '接收人编号'")
+	public String getToUserId() {
+		return toUserId;
 	}
 
-	public void setCheckStatus(int checkStatus) {
-		this.checkStatus = checkStatus;
+
+
+	public void setToUserId(String toUserId) {
+		this.toUserId = toUserId;
 	}
 
-	@Column(name = "grade_trade_order_id", columnDefinition = "varchar(100) COMMENT '燃气买卖订单号（类型为5时存在）'")
-	public String getGradeTradeOrder() {
-		return gradeTradeOrder;
+
+	@Column(name = "read_status", nullable = false, columnDefinition = "int(11) COMMENT '已读状态（0：未读，1：已读）'")
+	public int getReadStatus() {
+		return readStatus;
 	}
 
-	public void setGradeTradeOrder(String gradeTradeOrder) {
-		this.gradeTradeOrder = gradeTradeOrder;
+
+
+	public void setReadStatus(int readStatus) {
+		this.readStatus = readStatus;
 	}
 
+	
 }

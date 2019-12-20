@@ -81,7 +81,7 @@ public class GasTradeServiceImpl implements GasTradeService{
 					pre.getExpressions().add(cb.greaterThanOrEqualTo(root.get("gasPrice"), sPrice.doubleValue()));
 					pre.getExpressions().add(cb.lessThanOrEqualTo(root.get("gasPrice"), ePrice.doubleValue()));
 				}
-				if(!psArea.equals("")) {
+				if(!psArea.equals("") && !psArea.equals("全国")) {
 					String[] psAreaArr = psArea.split(",");
 					List<Predicate> predicateList = new ArrayList<Predicate>();
 					Predicate [] p = new Predicate[psAreaArr.length];
