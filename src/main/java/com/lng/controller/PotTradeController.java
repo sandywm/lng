@@ -357,20 +357,20 @@ public class PotTradeController {
 			@ApiImplicitParam(name = "sxInfo", value = "有无手续(1：有，2：无)"),
 			@ApiImplicitParam(name = "zzjzTypeId", value = "装载介质类型编号"),
 			@ApiImplicitParam(name = "checkSta", value = "审核状态(0:未审核,1:审核通过,2:审核未通过)"),
-			@ApiImplicitParam(name = "pageNo", value = "第几页"), @ApiImplicitParam(name = "pageSize", value = "每页多少条") })
+			@ApiImplicitParam(name = "page", value = "第几页"), @ApiImplicitParam(name = "limit", value = "每页多少条") })
 	public PageResponse queryPotTrade(String potPpId, Integer potVol, String sxInfo, String zzjzTypeId,
-			Integer checkSta, Integer pageNo, Integer pageSize) {
+			Integer checkSta, Integer page, Integer limit) {
 		Integer status = 200;
 		Page<PotTrade> pts = null;
 		try {
 			potPpId = CommonTools.getFinalStr(potPpId);
 			sxInfo = CommonTools.getFinalStr(sxInfo);
 			zzjzTypeId = CommonTools.getFinalStr(zzjzTypeId);
-			if (pageNo == null) {
-				pageNo = 1;
+			if (page == null) {
+				page = 1;
 			}
-			if (pageSize == null) {
-				pageSize = 10;
+			if (limit == null) {
+				limit = 10;
 			}
 			if (checkSta == null) {
 				checkSta = -1;
@@ -378,8 +378,8 @@ public class PotTradeController {
 			if (potVol == null) {
 				potVol = -1;
 			}
-			pts = potTradeService.getPotTradeByOption(potPpId, potVol, sxInfo, zzjzTypeId, checkSta, pageNo - 1,
-					pageSize);
+			pts = potTradeService.getPotTradeByOption(potPpId, potVol, sxInfo, zzjzTypeId, checkSta, page - 1,
+					limit);
 			if (pts.getTotalElements() == 0) {
 				status = 50001;
 			}
@@ -387,7 +387,7 @@ public class PotTradeController {
 			e.printStackTrace();
 			status = 1000;
 		}
-		return ResponseFormat.getPageJson(pageSize, pageNo, pts.getTotalElements(), status, pts.getContent());
+		return ResponseFormat.getPageJson(limit, page, pts.getTotalElements(), status, pts.getContent());
 	}
 
 }

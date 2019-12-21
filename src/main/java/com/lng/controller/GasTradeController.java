@@ -140,36 +140,46 @@ public class GasTradeController {
 		String currentTime = CurrentTime.getCurrentTime();
 		String gasTradeId = "";
 		try {
-			if(CommonTools.checkAuthorization(userId, CommonTools.getLoginRoleName(request),Constants.ADD_GAS_TRADE)) {
-				checkStatus = 1;
-			}else if(cilentInfo.equals("wxApp")){
-				userType = 2;
+			if(cpyId.equals("") || gasTypeId.equals("") || gasFactotyId.equals("") || gasVolume.equals(0)) {
+				status = 10002;
 			}else {
-				status = 70001;
-			}
-			if(status.equals(200)) {
-				if(!headImg.equals("")) {//没上传图时用默认图片
-
+				if(CommonTools.checkAuthorization(userId, CommonTools.getLoginRoleName(request),Constants.ADD_GAS_TRADE)) {
+					checkStatus = 1;
+				}else if(cilentInfo.equals("wxApp")){
+					userType = 2;
+				}else {
+					status = 70001;
 				}
-				GasTrade gt = new GasTrade(cs.getEntityById(cpyId), gfs.getEntityById(gasFactotyId), gtypes.findById(gasTypeId), 
-						CommonTools.dealUploadDetail(userId, "", headImg), gasVolume,
-						Double.parseDouble(gasPrice), zcDate,lxName, lxTel, psArea,checkStatus,
-						currentTime, 0, userId, currentTime, userType, 0, cpNo,
-						jsyName, jsyMobile, yyrName, yyrMobile, qfTxt1, qfTxt2,
-						qfTxt3, CommonTools.dealUploadDetail(userId, "", qfImg1), CommonTools.dealUploadDetail(userId, "", qfImg2)
-						, CommonTools.dealUploadDetail(userId, "", qfImg3), remark, gpsInfo, CommonTools.dealUploadDetail(userId, "", bdImg),
-						CommonTools.dealUploadDetail(userId, "", whpImg), CommonTools.dealUploadDetail(userId, "", tructsImg), "");
-				gasTradeId = gts.saveOrUpdate(gt);
-				if(!gasTradeId.equals("")) {
-					if(!otherImg.equals("")) {
-						String[] otherImg_new = CommonTools.dealUploadDetail(userId, "", otherImg).split(",");
-						//删除原来数据
-						List<GasTradeImg> gtiList_new = new ArrayList<GasTradeImg>();
-						for(int i = 0 ; i < otherImg_new.length ; i++) {
-							GasTradeImg gti = new GasTradeImg(gt, otherImg_new[i]);
-							gtiList_new.add(gti);
+				if(status.equals(200)) {
+					GasType gasType = gtypes.findById(gasTypeId);
+					Company cpy = cs.getEntityById(cpyId);
+					GasFactory gf = gfs.getEntityById(gasFactotyId);
+					if(gasType != null && cpy != null && gf != null) {
+						if(headImg.equals("")) {//没上传图时用默认图片
+							headImg = gasType.getYzImg();
 						}
-						gts.addBatchInfo(gtiList_new);
+						GasTrade gt = new GasTrade(cpy, gf, gasType, 
+								CommonTools.dealUploadDetail(userId, "", headImg), gasVolume,
+								Double.parseDouble(gasPrice), zcDate,lxName, lxTel, psArea,checkStatus,
+								currentTime, 0, userId, currentTime, userType, 0, cpNo,
+								jsyName, jsyMobile, yyrName, yyrMobile, qfTxt1, qfTxt2,
+								qfTxt3, CommonTools.dealUploadDetail(userId, "", qfImg1), CommonTools.dealUploadDetail(userId, "", qfImg2)
+								, CommonTools.dealUploadDetail(userId, "", qfImg3), remark, gpsInfo, CommonTools.dealUploadDetail(userId, "", bdImg),
+								CommonTools.dealUploadDetail(userId, "", whpImg), CommonTools.dealUploadDetail(userId, "", tructsImg), "");
+						gasTradeId = gts.saveOrUpdate(gt);
+						if(!gasTradeId.equals("")) {
+							if(!otherImg.equals("")) {//有其他详图
+								String[] otherImg_new = CommonTools.dealUploadDetail(userId, "", otherImg).split(",");
+								List<GasTradeImg> gtiList_new = new ArrayList<GasTradeImg>();
+								for(int i = 0 ; i < otherImg_new.length ; i++) {
+									GasTradeImg gti = new GasTradeImg(gt, otherImg_new[i]);
+									gtiList_new.add(gti);
+								}
+								gts.addBatchInfo(gtiList_new);
+							}
+						}
+					}else {
+						status = 10002;
 					}
 				}
 			}
@@ -198,8 +208,8 @@ public class GasTradeController {
 		@ApiImplicitParam(name = "sPrice", value = "价格一",dataType = "integer"),
 		@ApiImplicitParam(name = "ePrice", value = "价格二",dataType = "integer"),
 		@ApiImplicitParam(name = "psArea", value = "配送区域"),
-		@ApiImplicitParam(name = "pageNo", value = "页码",dataType = "integer"),
-		@ApiImplicitParam(name = "pageSize", value = "每页记录条数",dataType = "integer")
+		@ApiImplicitParam(name = "page", value = "页码",dataType = "integer"),
+		@ApiImplicitParam(name = "limit", value = "每页记录条数",dataType = "integer")
 	})
 	public PageResponse getPageGasTradeList(HttpServletRequest request) {
 		Integer status = 200;
@@ -212,8 +222,8 @@ public class GasTradeController {
 		Integer sPrice = CommonTools.getFinalInteger("sPrice", request);
 		Integer ePrice = CommonTools.getFinalInteger("ePrice", request);
 		String psArea = CommonTools.getFinalStr("psArea", request);
-		Integer pageNo = CommonTools.getFinalInteger("pageNo", request);
-		Integer pageSize = CommonTools.getFinalInteger("pageSize", request);
+		Integer pageNo = CommonTools.getFinalInteger("page", request);
+		Integer pageSize = CommonTools.getFinalInteger("limit", request);
 		long count = 0;
 		List<Object> list = new ArrayList<Object>();
 		try {

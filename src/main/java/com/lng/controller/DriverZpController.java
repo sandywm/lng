@@ -252,9 +252,9 @@ public class DriverZpController {
 			@ApiImplicitParam(name = "wage", value = "薪资"),
 			@ApiImplicitParam(name = "checkSta", value = "审核状态(0:未审核,1:审核通过,2:审核未通过)"),
 			@ApiImplicitParam(name = "showSta", value = "上/下架状态（0：上架，1：下架）"),
-			@ApiImplicitParam(name = "pageNo", value = "第几页"), @ApiImplicitParam(name = "pageSize", value = "每页多少条") })
+			@ApiImplicitParam(name = "page", value = "第几页"), @ApiImplicitParam(name = "limit", value = "每页多少条") })
 	public PageResponse queryDriverQz(String userId, Integer jzYear, String jzType, String wage, Integer checkSta,
-			Integer showSta, Integer pageNo, Integer pageSize) {
+			Integer showSta, Integer page, Integer limit) {
 		Integer status = 200;
 		Page<DriverQz> qzs = null;
 		try {
@@ -262,11 +262,11 @@ public class DriverZpController {
 			jzType = CommonTools.getFinalStr(jzType);
 			wage = CommonTools.getFinalStr(wage);
 
-			if (pageNo == null) {
-				pageNo = 1;
+			if (page == null) {
+				page = 1;
 			}
-			if (pageSize == null) {
-				pageSize = 10;
+			if (limit == null) {
+				limit = 10;
 			}
 			if (checkSta == null) {
 				checkSta = -1;
@@ -277,7 +277,7 @@ public class DriverZpController {
 			if (jzYear == null) {
 				jzYear = -1;
 			}
-			qzs = qzService.getDriverQzByOption(userId, jzYear, jzType, wage, checkSta, showSta, pageNo, pageSize);
+			qzs = qzService.getDriverQzByOption(userId, jzYear, jzType, wage, checkSta, showSta, page-1, limit);
 			if (qzs.getTotalElements() == 0) {
 				status = 50001;
 			}
@@ -285,7 +285,7 @@ public class DriverZpController {
 			e.printStackTrace();
 			status = 1000;
 		}
-		return ResponseFormat.getPageJson(pageSize, pageNo, qzs.getTotalElements(), status, qzs.getContent());
+		return ResponseFormat.getPageJson(limit, page, qzs.getTotalElements(), status, qzs.getContent());
 	}
 
 	@PostMapping("/addDriverZp")
@@ -513,9 +513,9 @@ public class DriverZpController {
 			@ApiImplicitParam(name = "wage", value = "薪资"),
 			@ApiImplicitParam(name = "checkSta", value = "审核状态(0:未审核,1:审核通过,2:审核未通过)"),
 			@ApiImplicitParam(name = "showSta", value = "上/下架状态（0：上架，1：下架）"),
-			@ApiImplicitParam(name = "pageNo", value = "第几页"), @ApiImplicitParam(name = "pageSize", value = "每页多少条") })
+			@ApiImplicitParam(name = "page", value = "第几页"), @ApiImplicitParam(name = "limit", value = "每页多少条") })
 	public PageResponse queryDriverZp(String compId, String jzType, String wage, Integer checkSta, Integer showSta,
-			Integer pageNo, Integer pageSize) {
+			Integer page, Integer limit) {
 		Integer status = 200;
 		Page<DriverZp> zps = null;
 		try {
@@ -523,11 +523,11 @@ public class DriverZpController {
 			jzType = CommonTools.getFinalStr(jzType);
 			wage = CommonTools.getFinalStr(wage);
 
-			if (pageNo == null) {
-				pageNo = 1;
+			if (page == null) {
+				page= 1;
 			}
-			if (pageSize == null) {
-				pageSize = 10;
+			if (limit == null) {
+				limit = 10;
 			}
 			if (checkSta == null) {
 				checkSta = -1;
@@ -535,7 +535,7 @@ public class DriverZpController {
 			if (showSta == null) {
 				showSta = -1;
 			}
-			zps = zpService.getDriverQzByOption(compId, jzType, checkSta, showSta, wage, pageNo, pageSize);
+			zps = zpService.getDriverQzByOption(compId, jzType, checkSta, showSta, wage, page-1, limit);
 			if (zps.getTotalElements() == 0) {
 				status = 50001;
 			}
@@ -543,7 +543,7 @@ public class DriverZpController {
 			e.printStackTrace();
 			status = 1000;
 		}
-		return ResponseFormat.getPageJson(pageSize, pageNo, zps.getTotalElements(), status, zps.getContent());
+		return ResponseFormat.getPageJson(limit, page, zps.getTotalElements(), status, zps.getContent());
 	}
 
 }

@@ -328,22 +328,22 @@ public class CompanyController {
 	@ApiImplicitParams({ @ApiImplicitParam(name = "typeId", value = "公司类型编号"),
 			@ApiImplicitParam(name = "name", value = "公司名称"),
 			@ApiImplicitParam(name = "checkSta", value = "审核状态(-1 全部,0:未审核,1:审核通过,2:审核未通过)"),
-			@ApiImplicitParam(name = "pageNo", value = "第几页"), @ApiImplicitParam(name = "pageSize", value = "每页多少条") })
-	public PageResponse queryCompany(String typeId, String name, Integer checkSta, Integer pageNo, Integer pageSize) {
+			@ApiImplicitParam(name = "page", value = "第几页"), @ApiImplicitParam(name = "limit", value = "每页多少条") })
+	public PageResponse queryCompany(String typeId, String name, Integer checkSta, Integer page, Integer limit) {
 		Integer status = 200;
 		Page<Company> coms = null;
 		try {
-			if (pageNo == null) {
-				pageNo = 1;
+			if (page == null) {
+				page = 1;
 			}
-			if (pageSize == null) {
-				pageSize = 10;
+			if (limit == null) {
+				limit = 10;
 			}
 			if (checkSta == null) {
 				checkSta = -1;
 			}
 			coms = companyService.getCompanyList(CommonTools.getFinalStr(name), CommonTools.getFinalStr(typeId),
-					checkSta, pageNo - 1, pageSize);
+					checkSta, page - 1, limit);
 			if (coms.getTotalElements() == 0) {
 				status = 50001;
 			}
@@ -351,7 +351,7 @@ public class CompanyController {
 			e.printStackTrace();
 			status = 1000;
 		}
-		return ResponseFormat.getPageJson(pageSize, pageNo, coms.getTotalElements(), status, coms.getContent());
+		return ResponseFormat.getPageJson(limit, page, coms.getTotalElements(), status, coms.getContent());
 	}
 
 	@GetMapping("/queryCompanyPsr")

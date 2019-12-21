@@ -51,12 +51,12 @@ public class LngMessageController {
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), 
 			@ApiResponse(code = 200, message = "成功"),
 			@ApiResponse(code = 50001, message = "数据未找到") })
-	@ApiImplicitParams({ @ApiImplicitParam(name = "pageNo", value = "页码", dataType = "integer"),
-		@ApiImplicitParam(name = "pageSize", value = "每页记录条数",  dataType = "integer")
+	@ApiImplicitParams({ @ApiImplicitParam(name = "page", value = "页码", dataType = "integer"),
+		@ApiImplicitParam(name = "limit", value = "每页记录条数",  dataType = "integer")
 	})
 	public PageResponse getLngMsgPageList(HttpServletRequest request) {
-		Integer pageNo = CommonTools.getFinalInteger("pageNo", request);
-		Integer pageSize = CommonTools.getFinalInteger("pageSize", request);
+		Integer pageNo = CommonTools.getFinalInteger("page", request);
+		Integer pageSize = CommonTools.getFinalInteger("limit", request);
 		List<Object> list = new ArrayList<Object>();
 		Integer status = 200;
 		long count = 0;
@@ -144,7 +144,7 @@ public class LngMessageController {
 		return ResponseFormat.retParam(status, id);
 	}
 	
-	@GetMapping("/getLngMsgRepPageList")
+	@GetMapping("/getLngMsgRep")
 	@ApiOperation(value = "分页获取lng留言回复列表", notes = "分页获取lng留言回复列表")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), 
 			@ApiResponse(code = 200, message = "成功"),
@@ -154,7 +154,7 @@ public class LngMessageController {
 		@ApiImplicitParam(name = "checkStatus", value = "审核状态(0:未审核,1:审核通过,2:审核未通过)"),
 		@ApiImplicitParam(name = "showStatus", value = "显示状态（0：显示，1：隐藏）")
 	})
-	public GenericResponse getLngMsgRepPageList(HttpServletRequest request) {
+	public GenericResponse getLngMsgRep(HttpServletRequest request) {
 		String msgId = CommonTools.getFinalStr("msgId", request);
 		Integer checkStatus = CommonTools.getFinalInteger("checkStatus", request);
 		Integer showStatus = CommonTools.getFinalInteger("showStatus", request);

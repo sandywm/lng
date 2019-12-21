@@ -16,6 +16,7 @@ public class ErrorPageConfig {
 		return (factory -> {
 			ErrorPage[] errorPages = new ErrorPage[]{
 					new ErrorPage(HttpStatus.NOT_FOUND, "/404.html"),
+					new ErrorPage(HttpStatus.METHOD_NOT_ALLOWED, "/405.html"),
 					new ErrorPage(HttpStatus.INTERNAL_SERVER_ERROR, "/5xx.html"),
 					new ErrorPage(Throwable.class, "/5xx.html"),
 			};

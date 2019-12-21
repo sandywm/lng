@@ -88,19 +88,19 @@ public class UserController {
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
 			@ApiResponse(code = 50001, message = "数据未找到") })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "wxName", value = "微信名称"),
-			@ApiImplicitParam(name = "pageNo", value = "第几页"), @ApiImplicitParam(name = "pageSize", value = "每页多少条") })
-	public PageResponse queryUserByWxName(String wxName, Integer pageNo, Integer pageSize) {
+			@ApiImplicitParam(name = "page", value = "第几页"), @ApiImplicitParam(name = "limit", value = "每页多少条") })
+	public PageResponse queryUserByWxName(String wxName, Integer page, Integer limit) {
 		Integer status = 200;
 		Page<User> users = null;
 		try {
 			wxName = CommonTools.getFinalStr(wxName);
-			if (pageNo == null) {
-				pageNo = 1;
+			if (page == null) {
+				page = 1;
 			}
-			if (pageSize == null) {
-				pageSize = 10;
+			if (limit == null) {
+				limit = 10;
 			}
-			users = userService.listPageInfoByWxName(wxName, pageNo, pageSize);
+			users = userService.listPageInfoByWxName(wxName, page, limit);
 			if (users.getTotalElements() == 0) {
 				status = 50001;
 			}
@@ -108,7 +108,7 @@ public class UserController {
 			e.printStackTrace();
 			status = 1000;
 		}
-		return ResponseFormat.getPageJson(pageSize, pageNo, users.getTotalElements(), status, users.getContent());
+		return ResponseFormat.getPageJson(limit, page, users.getTotalElements(), status, users.getContent());
 	}
 	
 	@PutMapping("/updateUser")

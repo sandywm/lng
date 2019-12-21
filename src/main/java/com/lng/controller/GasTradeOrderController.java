@@ -250,27 +250,27 @@ public class GasTradeOrderController {
 			@ApiResponse(code = 50001, message = "数据未找到") })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "userId", value = "用户编号"),
 			@ApiImplicitParam(name = "cpyId", value = "公司编号"), @ApiImplicitParam(name = "addtime", value = "添加时间"),
-			@ApiImplicitParam(name = "orderSta", value = "订单状态"), @ApiImplicitParam(name = "pageNo", value = "第几页"),
-			@ApiImplicitParam(name = "pageSize", value = "每页多少条") })
-	public PageResponse queryGtOrder(String userId, String cpyId, String addtime, Integer orderSta, Integer pageNo,
-			Integer pageSize) {
+			@ApiImplicitParam(name = "orderSta", value = "订单状态"), @ApiImplicitParam(name = "page", value = "第几页"),
+			@ApiImplicitParam(name = "limit", value = "每页多少条") })
+	public PageResponse queryGtOrder(String userId, String cpyId, String addtime, Integer orderSta, Integer page,
+			Integer limit) {
 		Integer status = 200;
 		Page<GasTradeOrder> gto = null;
 		try {
 			userId = CommonTools.getFinalStr(userId);
 			cpyId = CommonTools.getFinalStr(cpyId);
 			addtime = CommonTools.getFinalStr(addtime);
-			if (pageNo == null) {
-				pageNo = 1;
+			if (page == null) {
+				page = 1;
 			}
-			if (pageSize == null) {
-				pageSize = 10;
+			if (limit == null) {
+				limit = 10;
 			}
 			if (orderSta == null) {
 				orderSta = -1;
 			}
 
-			gto = gtoSeriver.listPageInfoByOpt(userId, cpyId, addtime, orderSta, pageNo - 1, pageSize);
+			gto = gtoSeriver.listPageInfoByOpt(userId, cpyId, addtime, orderSta, page - 1, limit);
 			if (gto.getTotalElements() == 0) {
 				status = 50001;
 			}
@@ -278,7 +278,7 @@ public class GasTradeOrderController {
 			e.printStackTrace();
 			status = 1000;
 		}
-		return ResponseFormat.getPageJson(pageSize, pageNo, gto.getTotalElements(), status, gto.getContent());
+		return ResponseFormat.getPageJson(limit, page, gto.getTotalElements(), status, gto.getContent());
 	}
 
 	@GetMapping("/queryGtOrderByGtId")

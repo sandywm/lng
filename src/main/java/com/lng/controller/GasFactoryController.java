@@ -424,8 +424,8 @@ public class GasFactoryController {
 		@ApiImplicitParam(name = "checkStatus", value = "审核状态(-1:全部,0:未审核,1:审核通过,2:审核未通过)"),
 		@ApiImplicitParam(name = "owerUserId", value = "液厂拥有人"),
 //		@ApiImplicitParam(name = "opt", value = "使用范围（0:后台，1：前台）"),
-		@ApiImplicitParam(name = "pageIndex", value = "页码"),
-		@ApiImplicitParam(name = "pageSize", value = "每页记录条数")
+		@ApiImplicitParam(name = "page", value = "页码",dataType = "integer"),
+		@ApiImplicitParam(name = "limit", value = "每页记录条数",dataType = "integer")
 	})
 	public PageResponse getPageGasFactoryData(HttpServletRequest request ) {
 		String name = CommonTools.getFinalStr("name", request);
@@ -435,8 +435,8 @@ public class GasFactoryController {
 		String provincePy = CommonTools.getFinalStr("provincePy", request);
 		Integer checkStatus = CommonTools.getFinalInteger("checkStatus", request);
 		String owerUserId = CommonTools.getFinalStr("owerUserId", request);
-		Integer pageIndex =  CommonTools.getFinalInteger("pageIndex", request);
-		Integer pageSize =  CommonTools.getFinalInteger("pageSize", request);
+		Integer pageIndex =  CommonTools.getFinalInteger("page", request);
+		Integer pageSize =  CommonTools.getFinalInteger("limit", request);
 		Integer status = 200;
 		long count = 0;
 		List<Object> list = new ArrayList<Object>();

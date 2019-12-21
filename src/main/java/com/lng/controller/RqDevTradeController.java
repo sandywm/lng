@@ -320,10 +320,10 @@ public class RqDevTradeController {
 			@ApiImplicitParam(name = "lmId", value = "设备类目主键"), @ApiImplicitParam(name = "zlId", value = "设备种类主键"),
 			@ApiImplicitParam(name = "checkSta", value = "审核状态(0:未审核,1:审核通过,2:审核未通过)"),
 			@ApiImplicitParam(name = "showSta", value = "上/下架状态（0：上架，1：下架）"),
-			@ApiImplicitParam(name = "addUserId", value = "上传人员"), @ApiImplicitParam(name = "pageNo", value = "第几页"),
-			@ApiImplicitParam(name = "pageSize", value = "每页多少条") })
+			@ApiImplicitParam(name = "addUserId", value = "上传人员"), @ApiImplicitParam(name = "page", value = "第几页"),
+			@ApiImplicitParam(name = "limit", value = "每页多少条") })
 	public PageResponse queryRqDevTrade(String compId, String lmId, String zlId, Integer checkSta, Integer showSta,
-			String addUserId, Integer pageNo, Integer pageSize) {
+			String addUserId, Integer page, Integer limit) {
 		Integer status = 200;
 		Page<RqDevTrade> rdt = null;
 		try {
@@ -331,11 +331,11 @@ public class RqDevTradeController {
 			lmId = CommonTools.getFinalStr(lmId);
 			zlId = CommonTools.getFinalStr(zlId);
 			addUserId = CommonTools.getFinalStr(addUserId);
-			if (pageNo == null) {
-				pageNo = 1;
+			if (page == null) {
+				page = 1;
 			}
-			if (pageSize == null) {
-				pageSize = 10;
+			if (limit == null) {
+				limit = 10;
 			}
 			if (checkSta == null) {
 				checkSta = -1;
@@ -343,7 +343,7 @@ public class RqDevTradeController {
 			if (showSta == null) {
 				showSta = -1;
 			}
-			rdt = rdtService.getRqDevTradeList(compId, lmId, zlId, checkSta, showSta, addUserId, pageNo, pageSize);
+			rdt = rdtService.getRqDevTradeList(compId, lmId, zlId, checkSta, showSta, addUserId, page, limit);
 			if (rdt.getTotalElements() == 0) {
 				status = 50001;
 			}
@@ -351,7 +351,7 @@ public class RqDevTradeController {
 			e.printStackTrace();
 			status = 1000;
 		}
-		return ResponseFormat.getPageJson(pageSize, pageNo, rdt.getTotalElements(), status, rdt.getContent());
+		return ResponseFormat.getPageJson(limit, page, rdt.getTotalElements(), status, rdt.getContent());
 	}
 
 }

@@ -92,15 +92,16 @@ public class CommonController {
 		try {
 			if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.ADD_PROV)) {
 				if(gsType.equals(0)) {
-					cpList = cpos.listAllInfo("asc");
+					cpList = cpos.listAllInfo("desc");
 					boolean flag = false;
-					Integer orderNo = cpList.size() + 1;
+					Integer orderNo = 0;
 					if(cpList.size() == 0) {
 						flag = true;
 					}else {
 						//先判断有无重复
 						if(cpos.getEntityByOpt(0, province) == null) {
 							flag = true;
+							orderNo = cpList.get(0).getOrderNo() + 1;
 						}
 					}
 					if(flag) {
@@ -109,15 +110,16 @@ public class CommonController {
 						status = 50003;
 					}
 				}else {
-					hpList = hpos.listAllInfo("asc");
+					hpList = hpos.listAllInfo("desc");
 					boolean flag = false;
-					Integer orderNo = hpList.size() + 100000;
+					Integer orderNo = 100000;
 					if(hpList.size() == 0) {
 						flag = true;
 					}else {
 						//先判断有无重复
 						if(hpos.getEntityByOpt(0, province) == null) {
 							flag = true;
+							orderNo = hpList.get(0).getOrderNo() + 1;
 						}
 					}
 					if(flag) {

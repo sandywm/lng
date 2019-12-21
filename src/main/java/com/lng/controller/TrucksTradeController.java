@@ -70,7 +70,8 @@ public class TrucksTradeController {
 			@ApiImplicitParam(name = "lxTel", value = "联系电话", defaultValue = "13956487523"),
 			@ApiImplicitParam(name = "showStatus", value = "上/下架状态（0：上架，1：下架）", required = true, defaultValue = "0"),
 			@ApiImplicitParam(name = "addUserId", value = "上传人员", required = true),
-			//@ApiImplicitParam(name = "userType", value = "上传人员类型（1：后台管理人员，2：普通用户）", required = true),
+			// @ApiImplicitParam(name = "userType", value = "上传人员类型（1：后台管理人员，2：普通用户）",
+			// required = true),
 			@ApiImplicitParam(name = "tradeType", value = "贸易类型（1：租赁，2：买卖）", required = true, defaultValue = "0"),
 			@ApiImplicitParam(name = "area", value = "运输范围（租赁）"), @ApiImplicitParam(name = "qyTypeId", value = "气源类型"),
 			@ApiImplicitParam(name = "wqpfbzId", value = "尾气排放标准编号", required = true),
@@ -98,7 +99,7 @@ public class TrucksTradeController {
 		String lxTel = CommonTools.getFinalStr("lxTel", request);
 		Integer showStatus = CommonTools.getFinalInteger("showStatus", request);
 		String addUserId = CommonTools.getFinalStr("addUserId", request);
-		//Integer userType = CommonTools.getFinalInteger("userType", request);
+		// Integer userType = CommonTools.getFinalInteger("userType", request);
 		Integer userType = 1;
 		Integer tradeType = CommonTools.getFinalInteger("tradeType", request);
 		String area = CommonTools.getFinalStr("area", request);
@@ -121,7 +122,7 @@ public class TrucksTradeController {
 					Constants.ADD_TRTR)) {
 
 			} else if (cilentInfo.equals("wxApp")) {
-				userType =2;
+				userType = 2;
 				loginUserId = CommonTools.getFinalStr("userId", request);
 			} else {
 				status = 70001;
@@ -270,8 +271,9 @@ public class TrucksTradeController {
 
 	@PutMapping("/updateTrucksTrade")
 	@ApiOperation(value = "修改货车租卖", notes = "修改货车租卖基本信息")
-	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),@ApiResponse(code = 80001, message = "审核通过不能修改"),
-			@ApiResponse(code = 50001, message = "数据未找到"), @ApiResponse(code = 70001, message = "无权限访问") })
+	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
+			@ApiResponse(code = 80001, message = "审核通过不能修改"), @ApiResponse(code = 50001, message = "数据未找到"),
+			@ApiResponse(code = 70001, message = "无权限访问") })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "货车租卖主键", required = true),
 			@ApiImplicitParam(name = "compId", value = "公司编号"),
 			@ApiImplicitParam(name = "mainImg", value = "车辆主图", required = true),
@@ -347,9 +349,9 @@ public class TrucksTradeController {
 				TrucksTrade trtr = trucksTradeService.getEntityById(id);
 				if (trtr == null) {
 					status = 50001;
-				} else if(trtr.getCheckStatus()==1) {
+				} else if (trtr.getCheckStatus() == 1) {
 					status = 80001;
-				}else {
+				} else {
 					if (!compId.isEmpty() && !compId.equals(trtr.getCompanyId())) {
 						trtr.setCompanyId(compId);
 					}
@@ -460,19 +462,19 @@ public class TrucksTradeController {
 	@ApiImplicitParams({ @ApiImplicitParam(name = "checkSta", value = "审核状态(0:未审核,1:审核通过,2:审核未通过)"),
 			@ApiImplicitParam(name = "addUserId", value = "上传人员"),
 			@ApiImplicitParam(name = "tradeType", value = "贸易类型（1：租赁，2：买卖）"),
-			@ApiImplicitParam(name = "pageNo", value = "第几页"), @ApiImplicitParam(name = "pageSize", value = "每页多少条") })
-	public PageResponse queryTrucksTrade(Integer checkSta, String addUserId, Integer tradeType, Integer pageNo,
-			Integer pageSize) {
+			@ApiImplicitParam(name = "page", value = "第几页"), @ApiImplicitParam(name = "limit", value = "每页多少条") })
+	public PageResponse queryTrucksTrade(Integer checkSta, String addUserId, Integer tradeType, Integer page,
+			Integer limit) {
 		Integer status = 200;
 		Page<TrucksTrade> tts = null;
 		try {
 			addUserId = CommonTools.getFinalStr(addUserId);
 
-			if (pageNo == null) {
-				pageNo = 1;
+			if (page == null) {
+				page = 1;
 			}
-			if (pageSize == null) {
-				pageSize = 10;
+			if (limit == null) {
+				limit = 10;
 			}
 			if (checkSta == null) {
 				checkSta = -1;
@@ -480,7 +482,7 @@ public class TrucksTradeController {
 			if (tradeType == null) {
 				tradeType = -1;
 			}
-			tts = trucksTradeService.getTrucksTradeByOption(checkSta, addUserId, tradeType, pageNo, pageSize);
+			tts = trucksTradeService.getTrucksTradeByOption(checkSta, addUserId, tradeType, page - 1, limit);
 			if (tts.getTotalElements() == 0) {
 				status = 50001;
 			}
@@ -488,7 +490,7 @@ public class TrucksTradeController {
 			e.printStackTrace();
 			status = 1000;
 		}
-		return ResponseFormat.getPageJson(pageSize, pageNo, tts.getTotalElements(), status, tts.getContent());
+		return ResponseFormat.getPageJson(limit, page, tts.getTotalElements(), status, tts.getContent());
 	}
 
 }

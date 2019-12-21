@@ -39,25 +39,25 @@ public class MessageCenterController {
 			@ApiResponse(code = 50001, message = "数据未找到") })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "toUserId", value = "接收人编号", required = true),
 			@ApiImplicitParam(name = "readSta", value = "已读状态", dataType = "integer"),
-			@ApiImplicitParam(name = "pageNo", value = "页码", dataType = "integer"),
-			@ApiImplicitParam(name = "pageSize", value = "每页记录条数", dataType = "integer") })
-	public PageResponse getMsgCenterPageList(String toUserId, Integer readSta, Integer pageNo, Integer pageSize) {
+			@ApiImplicitParam(name = "page", value = "页码", dataType = "integer"),
+			@ApiImplicitParam(name = "limit", value = "每页记录条数", dataType = "integer") })
+	public PageResponse getMsgCenterPageList(String toUserId, Integer readSta, Integer page, Integer limit) {
 		toUserId = CommonTools.getFinalStr(toUserId);
-		pageNo = CommonTools.getFinalInteger(pageNo);
-		pageSize = CommonTools.getFinalInteger(pageSize);
+		page = CommonTools.getFinalInteger(page);
+		limit = CommonTools.getFinalInteger(limit);
 		Integer status = 200;
-		if (pageNo.equals(0)) {
-			pageNo = 1;
+		if (page.equals(0)) {
+			page = 1;
 		}
-		if (pageSize.equals(0)) {
-			pageSize = 10;
+		if (limit.equals(0)) {
+			limit = 10;
 		}
 		if (readSta==null) {
 			readSta = -1;
 		}
 		Page<MessageCenter> mcs = null;
 		try {
-			mcs = mcService.getMessageCenterByOption(toUserId, readSta, pageNo - 1, pageSize);
+			mcs = mcService.getMessageCenterByOption(toUserId, readSta, page - 1, limit);
 			if (mcs.getTotalElements() == 0) {
 				status = 50001;
 			}
@@ -65,7 +65,7 @@ public class MessageCenterController {
 			e.printStackTrace();
 			status = 1000;
 		}
-		return ResponseFormat.getPageJson(pageSize, pageNo, mcs.getTotalElements(), status, mcs.getContent());
+		return ResponseFormat.getPageJson(limit, page, mcs.getTotalElements(), status, mcs.getContent());
 	}
 
 	@PostMapping("/addMessageCenter")
