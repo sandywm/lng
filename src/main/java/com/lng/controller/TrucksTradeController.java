@@ -1,5 +1,6 @@
 package com.lng.controller;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -508,7 +509,7 @@ public class TrucksTradeController {
 	public GenericResponse getSpecTrucksTrade(HttpServletRequest request) {
 		Integer status = 200;
 		String ttId = CommonTools.getFinalStr("id", request);
-		List<Object> list = null;
+		List<Object> list = new ArrayList<Object>();
 		try {
 			if(ttId.equals("")) {
 				status = 10002;
