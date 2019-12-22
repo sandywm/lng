@@ -339,12 +339,22 @@ public class CurrentTime {
      * @param sMonth 月份
      * @return
      */
-    public static  String getFirstDayofMonth(int sYear, int sMonth) {
+    @SuppressWarnings("static-access")
+	public static  String getFirstDayofMonth(int sYear, int sMonth) {
     	 Calendar c = Calendar.getInstance();
         String tStartdate = "";
         c.set(c.YEAR, sYear);
         c.set(c.MONTH, sMonth);
-        tStartdate = String.valueOf(sYear) + "-" + String.valueOf(sMonth) + "-" + c.getActualMinimum(c.DAY_OF_MONTH);
+        Integer firstDay = c.getActualMinimum(c.DAY_OF_MONTH);
+        String firstDayStr = "";
+        if(firstDay < 10) {
+        	firstDayStr = "0"+firstDay;
+        }
+        String month = "";
+        if(sMonth < 10) {
+        	month = "0"+month;
+        }
+        tStartdate = String.valueOf(sYear) + "-" + String.valueOf(month) + "-" + firstDayStr;
         return tStartdate;
     }
 
@@ -354,12 +364,22 @@ public class CurrentTime {
      * @param sMonth 月份
      * @return
      */
+    @SuppressWarnings("static-access")
     public static String getEndDayofMonth(int sYear, int sMonth) {
     	Calendar c = Calendar.getInstance();
         String tEnddate = "";
         c.set(c.YEAR, sYear);
         c.set(c.MONTH, sMonth);
-        tEnddate = String.valueOf(sYear) + "-" + String.valueOf(sMonth) + "-" + c.getActualMaximum(c.DAY_OF_MONTH);
+        Integer firstDay = c.getActualMinimum(c.DAY_OF_MONTH);
+        String firstDayStr = "";
+        if(firstDay < 10) {
+        	firstDayStr = "0"+firstDay;
+        }
+        String month = "";
+        if(sMonth < 10) {
+        	month = "0"+month;
+        }
+        tEnddate = String.valueOf(sYear) + "-" + String.valueOf(month) + "-" + firstDayStr;
         return tEnddate;
     }
 
@@ -558,6 +578,7 @@ public class CurrentTime {
     }
     
 	public static void main(String args[]) throws Exception{
-
+		String ss = CurrentTime.getStringDate();
+		System.out.print(ss.substring(8));
 	}
 }

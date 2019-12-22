@@ -47,7 +47,7 @@ public class LngPriceDetailServiceImpl implements LngPriceDetailService{
 				if(!gfId.isEmpty()) {
 					pre.getExpressions().add(cb.equal(root.get("gf").get("id"), gfId));
 				}
-				if(price != null) {
+				if(price > 0) {
 					pre.getExpressions().add(cb.equal(root.get("price"), price));
 				}
 				if(!priceDate.isEmpty()) {
@@ -56,7 +56,8 @@ public class LngPriceDetailServiceImpl implements LngPriceDetailService{
 				}
 				return pre;
 		}};
-		return lpdDao.findAll(spec);
+		Sort sort = Sort.by(Sort.Direction.DESC, "priceTime");//同一天价格时间降序排列
+		return lpdDao.findAll(spec,sort);
 	}
 
 	@Override

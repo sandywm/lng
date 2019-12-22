@@ -2,7 +2,10 @@ package com.lng.tools;
 
 import java.io.File;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.ServletRequest;
@@ -11,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.lng.pojo.LngPriceDetail;
 //import com.baidu.aip.contentcensor.AipContentCensor;
 import com.lng.pojo.SuperDep;
 import com.lng.pojo.SystemInfo;
@@ -391,8 +395,14 @@ public class CommonTools {
 	public static void main(String[] args) {
 		String a = "河南省,安徽省,山西省,安徽省,黑龙江省";
 		String b = "台湾省,安徽省";
-		System.out.println(a.indexOf(b));
-		System.out.println(CommonTools.getFirstSpell("我们的家"));
+//		System.out.println(a.indexOf(b));
+//		System.out.println(CommonTools.getFirstSpell("我们的家"));
+		Map<String,Object> map_d = new HashMap<String,Object>();
+		List<Object> list_tj = new ArrayList<Object>();
+		map_d.put("priceDate", "2019-12-15");
+		map_d.put("price", 120);
+		list_tj.add(map_d);
+		System.out.print(list_tj.get(0).toString());
 //		CommonTools.autoCheckMsg("");
 	}
 }

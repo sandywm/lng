@@ -1,5 +1,10 @@
 package com.lng.controller;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -491,6 +496,36 @@ public class TrucksTradeController {
 			status = 1000;
 		}
 		return ResponseFormat.getPageJson(limit, page, tts.getTotalElements(), status, tts.getContent());
+	}
+
+	
+	@GetMapping("/getSpecTrucksTrade")
+	@ApiOperation(value = "根据主键获取货车租卖详细信息", notes = "根据主键获取货车租卖详细信息")
+	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), 
+		@ApiResponse(code = 200, message = "成功"),
+		@ApiResponse(code = 10002, message = "参数为空"),
+		@ApiResponse(code = 50001, message = "数据未找到") })
+	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "货车租卖编号",required = true)})
+	public GenericResponse getSpecTrucksTrade(HttpServletRequest request) {
+		Integer status = 200;
+		String ttId = CommonTools.getFinalStr("id", request);
+		List<TrucksTrade> ttList = new ArrayList<TrucksTrade>();
+		try {
+			if(ttId.equals("")) {
+				status = 10002;
+			}else {
+				TrucksTrade tt = trucksTradeService.getEntityById(ttId);
+				if(tt == null) {
+					status = 50001;
+				}else {
+					ttList.add(tt);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			status = 1000;
+		}
+		return ResponseFormat.retParam(status, ttList);
 	}
 
 }

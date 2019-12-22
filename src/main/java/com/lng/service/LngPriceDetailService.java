@@ -28,13 +28,13 @@ public interface LngPriceDetailService {
 	void saveBatch(List<LngPriceDetail> lpdList);
 	
 	/**
-	 * @description 获取指定液厂、指定价格、指定日期的记录列表（同一个液厂同一价格一天只能录入一次）
+	 * @description 获取指定液厂、大于等于指定价格、指定日期的记录列表(价格时间降序排列)
 	 * @author wm
 	 * @Version : 版本
 	 * @ModifiedBy : 修改人
 	 * @date  2019年12月12日 上午9:47:19
 	 * @param gfId 液厂
-	 * @param price 价格
+	 * @param price 价格 (0表示全部)
 	 * @param priceDate 价格日期
 	 * @return
 	 */
