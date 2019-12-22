@@ -1,6 +1,5 @@
 package com.lng.controller;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -509,23 +508,23 @@ public class TrucksTradeController {
 	public GenericResponse getSpecTrucksTrade(HttpServletRequest request) {
 		Integer status = 200;
 		String ttId = CommonTools.getFinalStr("id", request);
-		List<TrucksTrade> ttList = new ArrayList<TrucksTrade>();
+		List<Object> list = null;
 		try {
 			if(ttId.equals("")) {
 				status = 10002;
 			}else {
 				TrucksTrade tt = trucksTradeService.getEntityById(ttId);
 				if(tt == null) {
-					status = 50001;
+					status = 10002;
 				}else {
-					ttList.add(tt);
+					list.add(tt);
 				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			status = 1000;
 		}
-		return ResponseFormat.retParam(status, ttList);
+		return ResponseFormat.retParam(status, list);
 	}
 
 }
