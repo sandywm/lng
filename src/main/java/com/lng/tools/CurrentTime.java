@@ -349,10 +349,14 @@ public class CurrentTime {
         String firstDayStr = "";
         if(firstDay < 10) {
         	firstDayStr = "0"+firstDay;
+        }else {
+        	firstDayStr = firstDay+"";
         }
         String month = "";
         if(sMonth < 10) {
         	month = "0"+month;
+        }else {
+        	month = sMonth + "";
         }
         tStartdate = String.valueOf(sYear) + "-" + String.valueOf(month) + "-" + firstDayStr;
         return tStartdate;
@@ -370,14 +374,18 @@ public class CurrentTime {
         String tEnddate = "";
         c.set(c.YEAR, sYear);
         c.set(c.MONTH, sMonth);
-        Integer firstDay = c.getActualMinimum(c.DAY_OF_MONTH);
+        Integer firstDay = c.getActualMaximum(c.DAY_OF_MONTH);
         String firstDayStr = "";
         if(firstDay < 10) {
         	firstDayStr = "0"+firstDay;
+        }else {
+        	firstDayStr = firstDay+"";
         }
         String month = "";
         if(sMonth < 10) {
         	month = "0"+month;
+        }else {
+        	month = sMonth + "";
         }
         tEnddate = String.valueOf(sYear) + "-" + String.valueOf(month) + "-" + firstDayStr;
         return tEnddate;

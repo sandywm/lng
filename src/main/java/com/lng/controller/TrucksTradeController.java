@@ -53,6 +53,7 @@ public class TrucksTradeController {
 	private WqPfbzService wqPfBzService;
 	@Autowired
 	private TrucksTradeService trucksTradeService;
+	
 
 	@PostMapping("/addTrucksTrade")
 	@ApiOperation(value = "添加货车租卖", notes = "添加货车租卖")
@@ -510,6 +511,7 @@ public class TrucksTradeController {
 		Integer status = 200;
 		String ttId = CommonTools.getFinalStr("id", request);
 		List<Object> list = new ArrayList<Object>();
+		List<Object> list_tt = new ArrayList<Object>();
 		try {
 			if(ttId.equals("")) {
 				status = 10002;
@@ -518,7 +520,9 @@ public class TrucksTradeController {
 				if(tt == null) {
 					status = 10002;
 				}else {
-					list.add(tt);
+					list_tt.add(tt);
+					//获取该租卖的进港资质
+					Map<String,String> map = new HashMap<String,String>();
 				}
 			}
 		} catch (Exception e) {

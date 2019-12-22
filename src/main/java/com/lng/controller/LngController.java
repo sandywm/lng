@@ -715,7 +715,7 @@ public class LngController {
 		//获取当前日期的第一天和最后一天
 		String sYearStr = specDate.substring(0, 4);
 		String sMonthStr = specDate.substring(5, 7);
-		String sDate = sYearStr + sMonthStr + "-01";
+		String sDate = sYearStr + "-" + sMonthStr + "-01";
 		String eDate = CurrentTime.getEndDayofMonth(Integer.parseInt(sYearStr), Integer.parseInt(sMonthStr));
 		List<Object> list_d = new ArrayList<Object>();
 		try {
@@ -727,24 +727,20 @@ public class LngController {
 				map.put("prov", gf.getProvince());
 				map.put("gsType", gf.getGasType().getName());
 				map.put("yzbgImg", gf.getYzbgImg());
-				//获取指定日期价格
-				List<LngPriceDetail> lpdList_tj = lpds.listInfoByOpt("", gfId, "", sDate, eDate, "asc");
-				List<LngPriceDetail> list_exist = new ArrayList<LngPriceDetail>();
+				//获取统计图数据
+				List<Object> hpdList = lpdDao.findTjInfoByGfId(gfId, sDate, eDate);
 				List<Object> list_tj = new ArrayList<Object>();
-				for(Integer i = 0 ; i < lpdList_tj.size() ; i++) {
-					Map<String,Object> map_d = new HashMap<String,Object>();
-					LngPriceDetail lpd = lpdList_tj.get(i);
-					String priceDate = lpd.getPriceTime().substring(0, 10);
-					Integer price = 0;
-					if(list_exist.size() == 0) {
-						price = lpd.getPrice();
-					}
-					map_d.put("priceDate", priceDate);
-					map_d.put("price", lpd.getPrice());
-					list_tj.add(map_d);
-					list_exist.add(lpd);
-					
+				for(Object obj : hpdList) {
+					Object[] sub = (Object[]) obj;
+					Map<String,Object> map_tj = new HashMap<String,Object>();
+					map_tj.put("priceDate", sub[0].toString().substring(8));
+					Integer price = Integer.parseInt(sub[1].toString().substring(0,sub[1].toString().indexOf(".")));
+					map_tj.put("price", price);
+					list_tj.add(map_tj);
 				}
+				map.put("specDate", sYearStr+"-"+sMonthStr);
+				map.put("tjList", list_tj);
+				//获取指定日期价格
 				List<LngPriceDetail> lpdList = lpds.listInfoByOpt(gfId, 0, specDate);
 				if(lpdList.size() > 0) {
 					map.put("currPrice", lpdList.get(0).getPrice());
@@ -813,9 +809,10 @@ public class LngController {
 		List hpdList = new ArrayList();
 		try {
 			
-			hpdList = lpdDao.findTjInfoByGfId("591084fb-727c-4919-8155-72a8abe6ef4b", "2019-12-13", "2019-12-30");
+			hpdList = lpdDao.findTjInfoByGfId("591084fb-727c-4919-8155-72a8abe6ef4b", "2019-12-12", "2019-12-30");
 			for(Integer i = 0 ; i < hpdList.size() ; i++) {
-				
+				Object[] sub = (Object[]) hpdList.get(i);
+				System.out.println("日期："+sub[0].toString()+"价格："+Integer.parseInt(sub[1].toString().substring(0,sub[1].toString().indexOf("."))));
 			}
 //			GasFactory gf = gfs.getEntityById(gfId);
 //			if(gf != null) {
