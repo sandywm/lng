@@ -44,7 +44,7 @@ public interface GasTradeOrderService {
 	 * @param pageSize 每页多少条
 	 * @return
 	 */
-	Page<GasTradeOrder> listPageInfoByOpt(String userId,String compId,String addTime,Integer ordSta,Integer pageNo,Integer pageSize);
+	Page<GasTradeOrder> listPageInfoByOpt(String userId,String compId,String sDate,String eDate,Integer ordSta,Integer pageNo,Integer pageSize);
 	/**
 	 * 
 	 * @description 根据燃气交易编号获取信息

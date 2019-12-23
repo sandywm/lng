@@ -39,4 +39,18 @@ public interface UserCompanyService {
 	 * @return
 	 */
 	List<UserCompany> getUserCompanyList(String compId,String userId);
+	
+	/**
+	 * @description 根据条件获取公司列表
+	 * @author wm
+	 * @Version : 1.0
+	 * @ModifiedBy : 修改人
+	 * @date  2019年12月23日 下午5:18:20
+	 * @param typeId 公司类型编号
+	 * @param typeName 公司类型名称
+	 * @param checkStatus 审核状态(0:未审核,1:审核通过,2:审核未通过)
+	 * @param userId 用户编号
+	 * @return
+	 */
+	List<UserCompany> getUserCompanyListByOpt(String typeId, String typeName, Integer checkStatus, String userId);
 }

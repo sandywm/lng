@@ -43,7 +43,8 @@ public class TrucksTypeController {
 	public GenericResponse addTrucksType(HttpServletRequest request, String name, int type) {
 		Integer status = 200;
 		String ttId = "";
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.CCLX_ABILITY)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),
+				Constants.CCLX_ABILITY)) {
 			try {
 				if (ttService.getTrucksTypeByNameList(name).size() == 0) {
 					TrucksType tt = new TrucksType();
@@ -76,7 +77,8 @@ public class TrucksTypeController {
 		Integer status = 200;
 		id = CommonTools.getFinalStr(id);
 		name = CommonTools.getFinalStr(name);
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.CCLX_ABILITY)) {
+		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),
+				Constants.CCLX_ABILITY)) {
 			try {
 				TrucksType tt = ttService.findById(id);
 				if (tt == null) {
@@ -133,6 +135,29 @@ public class TrucksTypeController {
 					ttList.add(tt);
 				}
 			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			status = 1000;
+		}
+		return ResponseFormat.retParam(status, ttList);
+	}
+
+	@GetMapping("/queryTrTypeByType")
+	@ApiOperation(value = "通过车辆类型获取槽车类型", notes = "通过车辆类型获取槽车类型信息")
+	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
+			@ApiResponse(code = 50001, message = "数据未找到") })
+	@ApiImplicitParams({ @ApiImplicitParam(name = "type", value = "车辆类型（1：普货车，2：危货车）") })
+	public GenericResponse queryTrucksType(Integer type) {
+		Integer status = 200;
+		List<TrucksType> ttList = new ArrayList<TrucksType>();
+		type = CommonTools.getFinalInteger(type);
+		try {
+
+			ttList = ttService.getTrucksTypeByType(type);
+			if (ttList.isEmpty()) {
+				status = 50001;
+			}
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			status = 1000;

@@ -53,6 +53,10 @@ public class TrucksTrade implements java.io.Serializable {
 	private String buyYear;
 	@ApiModelProperty(value = "车辆行驶里程")
 	private int xsDistance;
+	@ApiModelProperty(value = "车辆价格")
+	private int price;
+	@ApiModelProperty(value = "车辆注册地")
+	private  String regPlace;
 	@ApiModelProperty(value = "备注")
 	private String remark;
 	@ApiModelProperty(value = "联系人")
@@ -99,7 +103,7 @@ public class TrucksTrade implements java.io.Serializable {
 
 	public TrucksTrade(TrucksHeadPp trucksHeadPp, TrucksHeadType trucksHeadType, TrucksType trucksType,
 			String companyId, String mainImg, String trucksNo, String spYear, int potVolume, String spYearPot,
-			String potPpId, String buyYear, int xsDistance, String remark, String lxName, String lxTel, int checkStatus,
+			String potPpId, String buyYear, int xsDistance, int price, String regPlace, String remark, String lxName, String lxTel, int checkStatus,
 			String checkTime, int showStatus, String addUserId, String addTime, int userType, int hot, int tradeType,
 			String area, String qyTypeId, WqPfbz wqPfbz, int accidentFlag, String trucksHeadxsz, String gcXsz,
 			String tructsYyz, String potJyz, String aqfBg) {
@@ -115,6 +119,8 @@ public class TrucksTrade implements java.io.Serializable {
 		this.potPpId = potPpId;
 		this.buyYear = buyYear;
 		this.xsDistance = xsDistance;
+		this.price = price;
+		this.regPlace  = regPlace;
 		this.remark = remark;
 		this.lxName = lxName;
 		this.lxTel = lxTel;
@@ -333,6 +339,23 @@ public class TrucksTrade implements java.io.Serializable {
 
 	public void setAddTime(String addTime) {
 		this.addTime = addTime;
+	}
+
+	
+	public int getPrice() {
+		return price;
+	}
+
+	public void setPrice(int price) {
+		this.price = price;
+	}
+
+	public String getRegPlace() {
+		return regPlace;
+	}
+
+	public void setRegPlace(String regPlace) {
+		this.regPlace = regPlace;
 	}
 
 	@Column(name = "user_type", nullable = false,columnDefinition = "int(11) COMMENT'上传人员类型（1：后台管理人员，2：普通用户）'")

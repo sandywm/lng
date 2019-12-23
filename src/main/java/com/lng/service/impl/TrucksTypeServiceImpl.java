@@ -59,4 +59,22 @@ public class TrucksTypeServiceImpl implements TrucksTypeService {
 		return trucksTypeDao.findAll();
 	}
 
+	@SuppressWarnings("serial")
+	@Override
+	public List<TrucksType> getTrucksTypeByType(Integer type) {
+		if (!type.equals(0)) {
+			Specification<TrucksType> spec = new Specification<TrucksType>() {
+
+				@Override
+				public Predicate toPredicate(Root<TrucksType> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+					Predicate pre = cb.conjunction();
+					pre.getExpressions().add(cb.equal(root.get("type"), type));
+					return pre;
+				}
+			};
+			return trucksTypeDao.findAll(spec);
+		}
+		return trucksTypeDao.findAll();
+	}
+
 }

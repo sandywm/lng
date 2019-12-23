@@ -25,6 +25,7 @@ import com.lng.pojo.GasTradeOrder;
 import com.lng.pojo.GasType;
 import com.lng.pojo.LngPriceDetail;
 import com.lng.pojo.User;
+import com.lng.pojo.UserCompany;
 import com.lng.service.CommonProvinceOrderService;
 import com.lng.service.CompanyService;
 import com.lng.service.GasFactoryCompanyService;
@@ -32,6 +33,7 @@ import com.lng.service.GasFactoryService;
 import com.lng.service.GasTradeOrderService;
 import com.lng.service.GasTradeService;
 import com.lng.service.GasTypeService;
+import com.lng.service.UserCompanyService;
 import com.lng.service.UserService;
 import com.lng.tools.CommonTools;
 import com.lng.tools.CurrentTime;
@@ -68,6 +70,8 @@ public class GasTradeController {
 	private CommonProvinceOrderService cpos;
 	@Autowired
 	private CompanyService cs;
+	@Autowired
+	private UserCompanyService ucs;
 	
 	@PostMapping("addGasTrade")
 	@ApiOperation(value = "增加燃气买卖记录",notes = "发布燃气买卖记录,配送区域最多能选五个")
@@ -103,6 +107,7 @@ public class GasTradeController {
 		@ApiImplicitParam(name = "bdImg", value = "磅单图片"),
 		@ApiImplicitParam(name = "whpImg", value = "危化品许可证"),
 		@ApiImplicitParam(name = "tructsImg", value = "车辆照片"),
+		@ApiImplicitParam(name = "otherImg", value = "车辆详图")
 	})
 	public GenericResponse addGasTrade(HttpServletRequest request) {
 		Integer status = 200;
@@ -204,7 +209,7 @@ public class GasTradeController {
 		@ApiImplicitParam(name = "gasTypeId", value = "液质编号"),
 		@ApiImplicitParam(name = "gfId", value = "液厂编号"),
 		@ApiImplicitParam(name = "checkStatus", value = "审核状态(-1:全部,0:未审核,1:审核通过,2:审核未通过)",dataType = "integer"),
-		@ApiImplicitParam(name = "showStatus", value = "上/下架状态（0：上架，1：下架)",dataType = "integer"),
+		@ApiImplicitParam(name = "showStatus", value = "上/下架状态（-1:全部,0：上架，1：下架)",dataType = "integer"),
 		@ApiImplicitParam(name = "sPrice", value = "价格一",dataType = "integer"),
 		@ApiImplicitParam(name = "ePrice", value = "价格二",dataType = "integer"),
 		@ApiImplicitParam(name = "psArea", value = "配送区域"),
@@ -214,8 +219,8 @@ public class GasTradeController {
 	public PageResponse getPageGasTradeList(HttpServletRequest request) {
 		Integer status = 200;
 		String cpyId = CommonTools.getFinalStr("cpyId", request);
-		String addUserId = CommonTools.getFinalStr("addUserId", request);//有可能是海气，也可能是其他气
-		String gasTypeId = CommonTools.getFinalStr("gasTypeId", request);
+		String addUserId = CommonTools.getFinalStr("addUserId", request);
+		String gasTypeId = CommonTools.getFinalStr("gasTypeId", request);//有可能是海气，也可能是其他气
 		String gfId = CommonTools.getFinalStr("gfId", request);
 		Integer checkStatus = CommonTools.getFinalInteger("checkStatus", request);
 		Integer showStatus = CommonTools.getFinalInteger("showStatus", request);
@@ -288,12 +293,14 @@ public class GasTradeController {
 	})
 	@ApiImplicitParams({
 		@ApiImplicitParam(name = "gasTradeId", value = "燃气买卖编号)",required = true),
-		@ApiImplicitParam(name = "opt", value = "用途（0：审核用，1：前台使用）", dataType = "integer")
+		@ApiImplicitParam(name = "opt", value = "用途（0：审核用，1：前台使用）", dataType = "integer"),
+		@ApiImplicitParam(name = "userId", value = "前台用户编号（前台时传递）",required = true)
 	})
 	public GenericResponse getSpecGasTradeDetail(HttpServletRequest request) {
 		Integer status = 200;
 		String gasTradeId = CommonTools.getFinalStr("gasTradeId", request);
 		Integer opt = CommonTools.getFinalInteger("opt", request);//用途（0：审核用，1：前台使用）
+		String userId = "";
 		List<Object> list = new ArrayList<Object>();
 		if(gasTradeId.equals("")) {
 			status = 10002;
@@ -305,10 +312,27 @@ public class GasTradeController {
 				}else {
 					Map<String,Object> map = new HashMap<String,Object>();
 					map.put("id", gt.getId());
+					if(opt.equals(1)) {
+						userId = CommonTools.getFinalStr("userId", request);
+					}
 					Company cpy = gt.getCompany();
 					String cpyId = cpy.getId();
-					map.put("cpyId", cpyId);
-					map.put("cpyName", cpy.getName());
+					//获取自己的所有贸易公司
+					List<UserCompany> ucList = ucs.getUserCompanyListByOpt("", "LNG贸易商", 1, userId);
+					List<Object> list_cpy = new ArrayList<Object>();
+					for(UserCompany uc : ucList) {
+						Map<String, Object> map_d = new HashMap<String, Object>();
+						Company cpy_tmp = uc.getCompany();
+						map_d.put("cpyId", cpy_tmp.getId());
+						map_d.put("cpyName", cpy_tmp.getName());
+						if(cpy_tmp.getId().equals(cpyId)) {
+							map_d.put("selFlag", true);
+						}else {
+							map_d.put("selFlag", false);
+						}
+						list.add(map_d);
+					}
+					map.put("cpyList", list_cpy);
 					//液质类型是通过液厂获取出来
 					GasType gasType = gt.getGasType();
 					map.put("gasTypeId", gasType.getId());
@@ -336,34 +360,38 @@ public class GasTradeController {
 					List<CommonProvinceOrder> cpoList = cpos.listAllInfo("asc");
 					String psArea = gt.getPsArea();
 					List<Object> list_prov = new ArrayList<Object>();
-					if(!psArea.equals("全国")) {
-						String[] psAreaArr = psArea.split(",");
-						Map<String,Object> map_prov1 = new HashMap<String,Object>();
-						map_prov1.put("provName", psArea);
-						map_prov1.put("selFlag", false);
-						list_prov.add(map_prov1);
-						for(CommonProvinceOrder cpo : cpoList) {
-							Map<String,Object> map_prov = new HashMap<String,Object>();
-							map_prov.put("provName", cpo.getProvince());
-							for(int i = 0 ; i < psAreaArr.length ; i++) {
-								if(psAreaArr[i].equals(cpo.getProvince())) {
-									map_prov.put("selFlag", true);
-									break;
-								}else {
-									map_prov.put("selFlag", false);
+					Map<String,Object> map_all_prov = new HashMap<String,Object>();
+					map_all_prov.put("provName", "全国");
+					if(!psArea.equals("")) {
+						if(!psArea.equals("全国")) {
+							map_all_prov.put("selFlag", false);
+							list_prov.add(map_all_prov);
+							String[] psAreaArr = psArea.split(",");
+							for(CommonProvinceOrder cpo : cpoList) {
+								Map<String,Object> map_prov = new HashMap<String,Object>();
+								map_prov.put("provName", cpo.getProvince());
+								for(int i = 0 ; i < psAreaArr.length ; i++) {
+									if(psAreaArr[i].equals(cpo.getProvince())) {
+										map_prov.put("selFlag", true);
+										break;
+									}else {
+										map_prov.put("selFlag", false);
+									}
 								}
+								list_prov.add(map_prov);
 							}
-							list_prov.add(map_prov);
-						}
-					}else {
-						Map<String,Object> map_prov1 = new HashMap<String,Object>();
-						map_prov1.put("psArea", gt.getPsArea());
-						map_prov1.put("selFlag", true);
-						for(CommonProvinceOrder cpo : cpoList) {
-							Map<String,Object> map_prov = new HashMap<String,Object>();
-							map_prov.put("provName", cpo.getProvince());
-							map_prov.put("selFlag", false);
-							list_prov.add(map_prov);
+						}else {
+							map_all_prov.put("selFlag", true);
+							list_prov.add(map_all_prov);
+							Map<String,Object> map_prov1 = new HashMap<String,Object>();
+							map_prov1.put("psArea", gt.getPsArea());
+							map_prov1.put("selFlag", true);
+							for(CommonProvinceOrder cpo : cpoList) {
+								Map<String,Object> map_prov = new HashMap<String,Object>();
+								map_prov.put("provName", cpo.getProvince());
+								map_prov.put("selFlag", false);
+								list_prov.add(map_prov);
+							}
 						}
 					}
 					map.put("psArea", list_prov);
@@ -416,6 +444,19 @@ public class GasTradeController {
 							}
 						}
 					}
+					//从燃气交易中获取好评度
+					Integer pjScore = 0;
+					List<GasTradeOrder> gtoList = gtos.listComInfoByCpyId(cpyId);
+					Integer tradeNum = gtoList.size();
+					for(GasTradeOrder gto : gtoList) {
+						pjScore += gto.getOrderPjNumber();
+					}
+					if(tradeNum > 0) {
+						map.put("hpRate",CommonTools.convertInputNumber(pjScore * 100.0 / tradeNum));
+					}else {
+						map.put("hpRate","暂无");
+					}
+					map.put("tradeNum", tradeNum);
 					map.put("tradeOrderList", list_d1);
 					list.add(map);
 				}

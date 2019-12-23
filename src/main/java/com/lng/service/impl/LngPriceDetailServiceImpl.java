@@ -107,4 +107,22 @@ public class LngPriceDetailServiceImpl implements LngPriceDetailService{
 		}
 		return null;
 	}
+
+	@Override
+	public List<Object> listTjMonthInfoByGfId(String gfId, String sDate, String eDate) {
+		// TODO Auto-generated method stub
+		return lpdDao.findTjMonthInfoByGfId(gfId, sDate, eDate);
+	}
+
+	@Override
+	public List<Object> listTjYearInfoByGfId(String gfId, String sMonth, String eMonth) {
+		// TODO Auto-generated method stub
+		return lpdDao.findTjYearInfoByGfId(gfId, sMonth, eMonth);
+	}
+
+	@Override
+	public List<Object> listTjDaysInfoByGfId(String gfId, String sDay, String eDay) {
+		// TODO Auto-generated method stub
+		return lpdDao.findTjDayInfoByGfId(gfId, sDay, eDay);
+	}
 }

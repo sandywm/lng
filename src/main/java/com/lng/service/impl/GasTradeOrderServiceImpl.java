@@ -41,7 +41,7 @@ public class GasTradeOrderServiceImpl implements GasTradeOrderService {
 
 	@SuppressWarnings("serial")
 	@Override
-	public Page<GasTradeOrder> listPageInfoByOpt(String userId, String compId, String addTime, Integer ordSta,
+	public Page<GasTradeOrder> listPageInfoByOpt(String userId, String compId, String sDate,String eDate, Integer ordSta,
 			Integer pageNo, Integer pageSize) {
 		Sort sort = Sort.by(Sort.Direction.DESC, "addTime");// 降序排列
 		Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
@@ -57,8 +57,9 @@ public class GasTradeOrderServiceImpl implements GasTradeOrderService {
 				if (!compId.isEmpty()) {
 					pre.getExpressions().add(cb.equal(root.get("company").get("id"), compId));
 				}
-				if (!addTime.isEmpty()) {
-					pre.getExpressions().add(cb.equal(root.get("addTime"), addTime));
+				if (!sDate.isEmpty() && !eDate.isEmpty()) {
+					pre.getExpressions().add(cb.greaterThanOrEqualTo(root.get("addTime"), sDate + " 00:00:01"));
+					pre.getExpressions().add(cb.greaterThanOrEqualTo(root.get("addTime"), eDate + " 23:59:59"));
 				}
 				if (ordSta!=-1) {
 					pre.getExpressions().add(cb.equal(root.get("orderStatus"), ordSta));

@@ -5,7 +5,6 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 
 import com.lng.pojo.Company;
-import com.lng.pojo.GasFactoryCompany;
 
 public interface CompanyService {
 	/**

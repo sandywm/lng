@@ -17,12 +17,10 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.lng.dao.LngPriceDetailDao;
 import com.lng.pojo.Company;
 import com.lng.pojo.GasFactory;
 import com.lng.pojo.GasFactoryCompany;
 import com.lng.pojo.LngPriceDetail;
-import com.lng.service.CompanyService;
 import com.lng.service.GasFactoryCompanyService;
 import com.lng.service.GasFactoryService;
 import com.lng.service.LngPriceDetailService;
@@ -52,8 +50,6 @@ public class LngController {
 	private GasFactoryService gfs;
 	@Autowired
 	private GasFactoryCompanyService gfcs;
-	@Autowired
-	private LngPriceDetailDao lpdDao;
 	
 	/**
 	 * 按照价格降序排序
@@ -696,14 +692,13 @@ public class LngController {
 	}
 	
 	@GetMapping("getLngPriceDetail")
-	@ApiOperation(value = "获取指定LNG价格行情明细--前台用",notes = "获取指定LNG价格行情明细--前台用(汇总按年、月、日)")
+	@ApiOperation(value = "获取指定LNG价格行情明细--前台用",notes = "获取指定LNG价格行情明细--前台用,默认进来按照当前月的天数汇总")
 	@ApiResponses({@ApiResponse(code = 1000, message = "服务器错误"),
 		@ApiResponse(code = 50001, message = "数据未找到")
 	})
 	@ApiImplicitParams({
 		@ApiImplicitParam(name = "gfId", value = "gfId"),
-		@ApiImplicitParam(name = "specDate", value = "指定日期"),
-		@ApiImplicitParam(name = "opt", value = "汇总类型(year,month,day,默认不传为month)"),
+		@ApiImplicitParam(name = "specDate", value = "指定日期")
 	})
 	public GenericResponse getLngPriceDetail(HttpServletRequest request) {
 		Integer status = 200;
@@ -726,9 +721,14 @@ public class LngController {
 				map.put("gfName", gf.getName());
 				map.put("prov", gf.getProvince());
 				map.put("gsType", gf.getGasType().getName());
-				map.put("yzbgImg", gf.getYzbgImg());
+				String yzbgImg = gf.getYzbgImg();
+				if(!yzbgImg.equals("")) {
+					map.put("yzbgLength", yzbgImg.split(",").length);
+				}else {
+					map.put("yzbgLength", 0);
+				}
 				//获取统计图数据
-				List<Object> hpdList = lpdDao.findTjInfoByGfId(gfId, sDate, eDate);
+				List<Object> hpdList = lpds.listTjMonthInfoByGfId(gfId, sDate, eDate);
 				List<Object> list_tj = new ArrayList<Object>();
 				for(Object obj : hpdList) {
 					Object[] sub = (Object[]) obj;
@@ -738,7 +738,8 @@ public class LngController {
 					map_tj.put("price", price);
 					list_tj.add(map_tj);
 				}
-				map.put("specDate", sYearStr+"-"+sMonthStr);
+				map.put("specTjDate", sYearStr+"-"+sMonthStr);
+				map.put("specDate", specDate);
 				map.put("tjList", list_tj);
 				//获取指定日期价格
 				List<LngPriceDetail> lpdList = lpds.listInfoByOpt(gfId, 0, specDate);
@@ -749,16 +750,7 @@ public class LngController {
 				}
 				//获取该液厂下所有的贸易商
 				List<GasFactoryCompany> gfcList = gfcs.listCompanyByGfId(gfId, "", 1);
-				List<Object> list_cpy = new ArrayList<Object>();
-				for(GasFactoryCompany gfc : gfcList) {
-					Map<String,Object> map_d = new HashMap<String,Object>();
-					Company cpy = gfc.getCompany();
-					map_d.put("cpyName", cpy.getName());
-					map_d.put("lxName", cpy.getLxName());
-					map_d.put("lxTel", cpy.getLxTel());
-					list_cpy.add(map_d);
-				}
-				map.put("cpyList", list_cpy);
+				map.put("cpyLenth", gfcList.size());
 				list_d.add(map);
 			}else {
 				status = 50001;
@@ -772,84 +764,159 @@ public class LngController {
 	}
 	
 	@GetMapping("getReportLngPriceDate")
-	@ApiOperation(value = "获取指定LNG价格行情明细--前台用",notes = "获取指定LNG价格行情明细--前台用(汇总按年、月、日)")
+	@ApiOperation(value = "获取指定LNG价格统计图数据--前台用",notes = "获取指定LNG价格统计图数据--前台用(汇总按年、月、日)")
 	@ApiResponses({@ApiResponse(code = 1000, message = "服务器错误"),
-		@ApiResponse(code = 50001, message = "数据未找到")
+		@ApiResponse(code = 50001, message = "数据未找到"),
+		@ApiResponse(code = 10002, message = "参数为空")
 	})
 	@ApiImplicitParams({
-		@ApiImplicitParam(name = "gfId", value = "gfId"),
-		@ApiImplicitParam(name = "specDate", value = "指定日期"),
-		@ApiImplicitParam(name = "opt", value = "汇总类型(year,month,day,默认不传为month)"),
+		@ApiImplicitParam(name = "gfId", value = "液厂编号"),
+		@ApiImplicitParam(name = "specTjDate", value = "统计日期-格式(2019或者2019-01或者2019-01-01)")
 	})
 	public GenericResponse getReportLngPriceDate(HttpServletRequest request) {
 		Integer status = 200;
 		String gfId = CommonTools.getFinalStr("gfId", request);
-		String specDate = CommonTools.getFinalStr("specDate", request);
-		String opt = CommonTools.getFinalStr("opt", request);
-		if(specDate.equals("")) {
-			specDate = CurrentTime.getStringDate();
-		}
-		if(opt.equals("")) {
-			opt = "month";
-		}
-//		if(opt.equals("year")) {
-//			//获取指定年一年的汇总
-//			
-//		}else if(opt.equals("month")) {
-//			//获取指定月初到月末的汇总
-//			//获取当前日期的第一天和最后一天
-//			String sYearStr = specDate.substring(0, 4);
-//			String sMonthStr = specDate.substring(5, 7);
-//			String sDate = CurrentTime.getFirstDayofMonth(Integer.parseInt(sYearStr), Integer.parseInt(sMonthStr));
-//		}else if(opt.equals("day")) {
-//			//获取指定一天的汇总
-//			lpds.listInfoByOpt("", gfId, "", specDate, specDate, orderStr);
-//		}
-		List<Object> list_d = new ArrayList<Object>();
-		List hpdList = new ArrayList();
-		try {
-			
-			hpdList = lpdDao.findTjInfoByGfId("591084fb-727c-4919-8155-72a8abe6ef4b", "2019-12-12", "2019-12-30");
-			for(Integer i = 0 ; i < hpdList.size() ; i++) {
-				Object[] sub = (Object[]) hpdList.get(i);
-				System.out.println("日期："+sub[0].toString()+"价格："+Integer.parseInt(sub[1].toString().substring(0,sub[1].toString().indexOf("."))));
+		String specTjDate = CommonTools.getFinalStr("specTjDate", request);
+		List<Object> list_tj = new ArrayList<Object>();
+		if(specTjDate.equals("") || gfId.equals("")) {
+			status = 10002;
+		}else {
+			try {
+				//获取统计图数据
+				String sDate = "";
+				String eDate = "";
+				List<Object> hpdList = new ArrayList<Object>();
+				if(specTjDate.length() == 4) {//按年汇总
+					//specTjDate=2019
+					sDate = specTjDate + "-01";
+					eDate = specTjDate + "-12";
+					hpdList = lpds.listTjYearInfoByGfId(gfId, sDate, eDate);
+				}else if(specTjDate.length() == 7) {//按月汇总
+					//specTjDate=2019-12
+					sDate = specTjDate +"-01";
+					String sYearStr = specTjDate.substring(0, 4);
+					String sMonthStr = specTjDate.substring(5, 7);
+					eDate = CurrentTime.getEndDayofMonth(Integer.parseInt(sYearStr), Integer.parseInt(sMonthStr));
+					hpdList = lpds.listTjMonthInfoByGfId(gfId, sDate, eDate);
+				}else if(specTjDate.length() == 10) {//按天汇总
+					//specTjDate=2019-12-05
+					sDate = specTjDate +" 00:00:01";
+					eDate = specTjDate +" 23:59:59";
+					hpdList = lpds.listTjDaysInfoByGfId(gfId, sDate, eDate);
+				}
+				if(hpdList.size() > 0) {
+					for(Object obj : hpdList) {
+						Object[] sub = (Object[]) obj;
+						Map<String,Object> map_tj = new HashMap<String,Object>();
+						System.out.println(sub[0].toString());
+						if(specTjDate.length() == 4){
+							map_tj.put("priceDate", sub[0].toString().substring(0,7));//2019-12
+						}else if(specTjDate.length() == 7) {
+							map_tj.put("priceDate", sub[0].toString().substring(8));//25
+						}else if(specTjDate.length() == 10) {
+							map_tj.put("priceDate", sub[0].toString().substring(11));//12:35:45
+						}
+						Integer price = 0;
+						Integer length = sub[1].toString().indexOf(".");
+						if(length > -1) {
+							price = Integer.parseInt(sub[1].toString().substring(0,length));
+						}else {
+							price = Integer.parseInt(sub[1].toString());
+						}
+						map_tj.put("price", price);
+						list_tj.add(map_tj);
+					}
+				}else {
+					status = 50001;
+				}
+			} catch (Exception e) {
+				// TODO: handle exception
+				e.printStackTrace();
+				status = 1000;
 			}
-//			GasFactory gf = gfs.getEntityById(gfId);
-//			if(gf != null) {
-//				Map<String,Object> map = new HashMap<String,Object>();
-//				map.put("gfId", gf.getId());
-//				map.put("gfName", gf.getName());
-//				map.put("prov", gf.getProvince());
-//				map.put("gsType", gf.getGasType().getName());
-//				map.put("yzbgImg", gf.getYzbgImg());
-//				//获取指定日期价格
-//				List<LngPriceDetail> lpdList = lpds.listInfoByOpt(gfId, 0, specDate);
-//				if(lpdList.size() > 0) {
-//					map.put("currPrice", lpdList.get(0).getPrice());
-//				}else {
-//					map.put("currPrice", 0);
-//				}
-//				//获取该液厂下所有的贸易商
-//				List<GasFactoryCompany> gfcList = gfcs.listCompanyByGfId(gfId, "", 1);
-//				List<Object> list_cpy = new ArrayList<Object>();
-//				for(GasFactoryCompany gfc : gfcList) {
-//					Map<String,Object> map_d = new HashMap<String,Object>();
-//					Company cpy = gfc.getCompany();
-//					map_d.put("cpyName", cpy.getName());
-//					map_d.put("lxName", cpy.getLxName());
-//					map_d.put("lxTel", cpy.getLxTel());
-//					list_cpy.add(map_d);
-//				}
-//				map.put("cpyList", list_cpy);
-//				list_d.add(map);
-//			}else {
-//				status = 50001;
-//			}
-		} catch (Exception e) {
-			// TODO: handle exception
-			e.printStackTrace();
-			status = 1000;
 		}
-		return ResponseFormat.retParam(status, hpdList);
+		return ResponseFormat.retParam(status, list_tj);
+	}
+	
+	@GetMapping("getSpecGasFactoryZzImg")
+	@ApiOperation(value = "获取指定液厂的资质报告图--前台用",notes = "获取指定液厂的资质报告图--前台用")
+	@ApiResponses({@ApiResponse(code = 1000, message = "服务器错误"),
+		@ApiResponse(code = 50001, message = "数据未找到"),
+		@ApiResponse(code = 10002, message = "参数为空")
+	})
+	@ApiImplicitParams({
+		@ApiImplicitParam(name = "gfId", value = "液厂编号",required = true)
+	})
+	public GenericResponse getSpecGasFactoryZzImg(HttpServletRequest request) {
+		Integer status = 200;
+		String gfId = CommonTools.getFinalStr("gfId", request);
+		List<Object> list = new ArrayList<Object>();
+		if(gfId.equals("") ) {
+			status = 10002;
+		}else {
+			try {
+				GasFactory gf = gfs.getEntityById(gfId);
+				//获取统计图数据
+				if(gf != null) {
+					String zzImg = gf.getYzbgImg();
+					String[] zzImgArr = zzImg.split(",");
+					for(int i = 0 ; i < zzImgArr.length ; i++) {
+						Map<String,String> map = new HashMap<String,String>();
+						map.put("imgPath", zzImgArr[i]);
+						list.add(map);
+					}
+				}else {
+					status = 50001;
+				}
+			} catch (Exception e) {
+				// TODO: handle exception
+				e.printStackTrace();
+				status = 1000;
+			}
+		}
+		return ResponseFormat.retParam(status, list);
+	}
+	
+	@GetMapping("getSpecGasFactoryCpy")
+	@ApiOperation(value = "获取指定液厂的贸易商列表--前台用",notes = "获取指定液厂的贸易商列表--前台用")
+	@ApiResponses({@ApiResponse(code = 1000, message = "服务器错误"),
+		@ApiResponse(code = 50001, message = "数据未找到"),
+		@ApiResponse(code = 10002, message = "参数为空")
+	})
+	@ApiImplicitParams({
+		@ApiImplicitParam(name = "gfId", value = "液厂编号",required = true),
+		@ApiImplicitParam(name = "checkStatus", value = "审核状态(0:未审核,1:审核通过,2:审核未通过)",required = true,dataType = "integer")
+	})
+	public GenericResponse getSpecGasFactoryCpy(HttpServletRequest request) {
+		Integer status = 200;
+		String gfId = CommonTools.getFinalStr("gfId", request);
+		Integer checkStatus = CommonTools.getFinalInteger("checkStatus", request);
+		List<Object> list = new ArrayList<Object>();
+		if(gfId.equals("") ) {
+			status = 10002;
+		}else {
+			try {
+				GasFactory gf = gfs.getEntityById(gfId);
+				//获取统计图数据
+				if(gf != null) {
+					List<GasFactoryCompany> gfcList = gfcs.listCompanyByGfId(gfId, "", checkStatus);
+					for(GasFactoryCompany gfc : gfcList) {
+						Map<String,Object> map_d = new HashMap<String,Object>();
+						Company cpy = gfc.getCompany();
+						map_d.put("cpyName", cpy.getName());
+						map_d.put("lxName", cpy.getLxName());
+						map_d.put("lxTel", cpy.getLxTel());
+						list.add(map_d);
+					}
+				}else {
+					status = 50001;
+				}
+			} catch (Exception e) {
+				// TODO: handle exception
+				e.printStackTrace();
+				status = 1000;
+			}
+		}
+		return ResponseFormat.retParam(status, list);
 	}
 }

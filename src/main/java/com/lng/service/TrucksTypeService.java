@@ -38,6 +38,17 @@ public interface TrucksTypeService {
 	 * @return
 	 */
 	List<TrucksType> getTrucksTypeByNameList(String name);
+	/**
+	 * 
+	 * @description 根据车辆类型获取槽车类型信息
+	 * @author zdf
+	 * @Version : 1.0
+	 * @ModifiedBy : 
+	 * @date  2019年12月23日 上午8:49:07
+	 * @param type 车辆类型
+	 * @return
+	 */
+	List<TrucksType> getTrucksTypeByType(Integer type);
 
 
 }

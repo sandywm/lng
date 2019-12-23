@@ -57,5 +57,33 @@ public class UserCompanyServiceImpl implements UserCompanyService {
 		return ucDao.findAll(spec,sort);
 	}
 
+	@SuppressWarnings("serial")
+	@Override
+	public List<UserCompany> getUserCompanyListByOpt(String typeId, String typeName, Integer checkStatus,
+			String userId) {
+		// TODO Auto-generated method stub
+		Specification<UserCompany> spec = new Specification<UserCompany>() {
+			@Override
+			public Predicate toPredicate(Root<UserCompany> root, CriteriaQuery<?> query,
+					CriteriaBuilder cb) {
+				Predicate pre = cb.conjunction();
+				if (!typeId.isEmpty()) {
+					pre.getExpressions().add(cb.equal(root.get("company").get("companyType").get("id"), typeId));
+				}
+				if (!typeName.isEmpty()) {
+					pre.getExpressions().add(cb.equal(root.get("company").get("companyType").get("name"), typeName));
+				}
+				if (checkStatus != -1) { //checkSta  等于 -1  全部
+					pre.getExpressions().add(cb.equal(root.get("company").get("checkStatus"), checkStatus));
+				}
+				if (!userId.isEmpty()) {
+					pre.getExpressions().add(cb.equal(root.get("user").get("id"), userId));
+				}
+				return pre;
+			}
+		};
+		return ucDao.findAll(spec);
+	}
+
 
 }

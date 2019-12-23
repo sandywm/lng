@@ -23,6 +23,7 @@ import com.lng.pojo.CompanyType;
 import com.lng.pojo.CompanyZz;
 import com.lng.pojo.GasFactory;
 import com.lng.pojo.GasFactoryCompany;
+import com.lng.pojo.UserCompany;
 import com.lng.service.CompanyPsrService;
 import com.lng.service.CompanyService;
 import com.lng.service.CompanyTructsGcCpService;
@@ -31,6 +32,7 @@ import com.lng.service.CompanyTypeService;
 import com.lng.service.CompanyZzService;
 import com.lng.service.GasFactoryCompanyService;
 import com.lng.service.GasFactoryService;
+import com.lng.service.UserCompanyService;
 import com.lng.tools.CommonTools;
 import com.lng.tools.CurrentTime;
 import com.lng.util.Constants;
@@ -51,6 +53,8 @@ import io.swagger.annotations.ApiResponses;
 public class CompanyController {
 	@Autowired
 	private CompanyService companyService;
+	@Autowired
+	private UserCompanyService ucs;
 	@Autowired
 	private CompanyTypeService ctService;
 	@Autowired
@@ -354,6 +358,43 @@ public class CompanyController {
 		return ResponseFormat.getPageJson(limit, page, coms.getTotalElements(), status, coms.getContent());
 	}
 
+	@GetMapping("/getCompanyList")
+	@ApiOperation(value = "根据公司类型，公司人员获取公司列表", notes = "根据公司类型，公司人员获取公司列表")
+	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), 
+		@ApiResponse(code = 200, message = "成功"),
+		@ApiResponse(code = 50001, message = "数据未找到") })
+	@ApiImplicitParams({ @ApiImplicitParam(name = "typeId", value = "公司类型编号"),
+		@ApiImplicitParam(name = "typeName", value = "公司类型名称"),
+		@ApiImplicitParam(name = "userId", value = "员工编号"),
+		@ApiImplicitParam(name = "checkStatus", value = "审核状态(,-1：全部,0:未审核,1:审核通过,2:审核未通过)"),
+	})
+	public GenericResponse getCompanyList(HttpServletRequest request) {
+		Integer status = 200;
+		String cpyTypeId = CommonTools.getFinalStr("typeId", request);
+		String cpyTypeName = CommonTools.getFinalStr("typeName", request);
+		String userId = CommonTools.getFinalStr("userId", request);
+		Integer checkStatus = CommonTools.getFinalInteger("checkStatus", request);
+		List<Object> list = new ArrayList<Object>();
+		try {
+			List<UserCompany> ucList = ucs.getUserCompanyListByOpt(cpyTypeId, cpyTypeName, checkStatus, userId);
+			if(ucList.size() > 0) {
+				for(UserCompany uc : ucList) {
+					Map<String, String> map_d = new HashMap<String, String>();
+					Company cpy = uc.getCompany();
+					map_d.put("cpyId", cpy.getId());
+					map_d.put("cpyName", cpy.getName());
+					list.add(map_d);
+				}
+			}else {
+				status = 50001;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			status = 1000;
+		}
+		return ResponseFormat.retParam(status, list);
+	}
+	
 	@GetMapping("/queryCompanyPsr")
 	@ApiOperation(value = "获取公司押运人", notes = "获取公司押运人信息")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),

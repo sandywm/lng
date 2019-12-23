@@ -16,9 +16,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.lng.dao.CompanyDao;
-import com.lng.dao.GasFactoryCompanyDao;
 import com.lng.pojo.Company;
-import com.lng.pojo.GasFactoryCompany;
 import com.lng.service.CompanyService;
 
 @Service
@@ -26,8 +24,6 @@ public class CompanyServiceImpl implements CompanyService {
 
 	@Autowired
 	private CompanyDao companyDao;
-	@Autowired
-	private GasFactoryCompanyDao gfcDao;
 
 	@Override
 	public String saveOrUpdate(Company company) {

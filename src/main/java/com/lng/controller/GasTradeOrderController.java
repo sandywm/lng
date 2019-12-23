@@ -1,6 +1,9 @@
 package com.lng.controller;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -13,9 +16,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.lng.pojo.Company;
+import com.lng.pojo.GasFactory;
 import com.lng.pojo.GasTrade;
 import com.lng.pojo.GasTradeOrder;
 import com.lng.pojo.GasTradeOrderLog;
+import com.lng.pojo.GasType;
 import com.lng.pojo.User;
 import com.lng.service.CompanyService;
 import com.lng.service.GasTradeOrderLogService;
@@ -249,36 +254,79 @@ public class GasTradeOrderController {
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
 			@ApiResponse(code = 50001, message = "数据未找到") })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "userId", value = "用户编号"),
-			@ApiImplicitParam(name = "cpyId", value = "公司编号"), @ApiImplicitParam(name = "addtime", value = "添加时间"),
-			@ApiImplicitParam(name = "orderSta", value = "订单状态"), @ApiImplicitParam(name = "page", value = "第几页"),
+			@ApiImplicitParam(name = "cpyId", value = "公司编号"), 
+			@ApiImplicitParam(name = "sDate", value = "开始时间"),
+			@ApiImplicitParam(name = "eDate", value = "结束时间"),
+			@ApiImplicitParam(name = "orderSta", value = "订单状态（待付款-0或者5，待收货-4）"), 
+			@ApiImplicitParam(name = "page", value = "第几页"),
 			@ApiImplicitParam(name = "limit", value = "每页多少条") })
-	public PageResponse queryGtOrder(String userId, String cpyId, String addtime, Integer orderSta, Integer page,
-			Integer limit) {
+	public PageResponse queryGtOrder(HttpServletRequest request) {
 		Integer status = 200;
-		Page<GasTradeOrder> gto = null;
+		Page<GasTradeOrder> gtoList = null;
+		String userId = CommonTools.getFinalStr("userId",request);
+		String cpyId = CommonTools.getFinalStr("cpyId",request);
+		String sDate = CommonTools.getFinalStr("sDate",request);
+		String eDate = CommonTools.getFinalStr("eDate",request);
+		Integer orderSta = CommonTools.getFinalInteger("orderSta", request);
+		Integer page = CommonTools.getFinalInteger("page", request);
+		Integer limit = CommonTools.getFinalInteger("limit", request);
+		long count = 0;
+		List<Object> list = new ArrayList<Object>();
 		try {
-			userId = CommonTools.getFinalStr(userId);
-			cpyId = CommonTools.getFinalStr(cpyId);
-			addtime = CommonTools.getFinalStr(addtime);
-			if (page == null) {
+			if (page == 0) {
 				page = 1;
 			}
-			if (limit == null) {
+			if (limit == 0) {
 				limit = 10;
 			}
-			if (orderSta == null) {
+			if (orderSta == 0) {
 				orderSta = -1;
 			}
-
-			gto = gtoSeriver.listPageInfoByOpt(userId, cpyId, addtime, orderSta, page - 1, limit);
-			if (gto.getTotalElements() == 0) {
+			gtoList = gtoSeriver.listPageInfoByOpt(userId, cpyId, sDate,eDate, orderSta, page - 1, limit);
+			count = gtoList.getTotalElements();
+			if (count == 0) {
 				status = 50001;
+			}else {
+				for(GasTradeOrder gto : gtoList) {
+					Map<String,Object> map = new HashMap<String,Object>();
+					map.put("id", gto.getId());
+					GasTrade gt = gto.getGasTrade();
+					GasFactory gf = gt.getGasFactory();
+					GasType gasType = gt.getGasType();
+					map.put("headImg", gt.getHeadImg());
+					map.put("title", gf.getProvince()+gf.getName()+gasType.getName());
+					map.put("psArea", gt.getPsArea());
+					map.put("sellPrice", gt.getGasPrice());
+					map.put("sellCpyName", gt.getCompany().getName());
+					map.put("buyCpyName", gto.getCompany().getName());
+					Integer oStatus = gto.getOrderStatus();
+					String orderStatusChi = "";
+					map.put("orderStatus", oStatus);
+					if(oStatus.equals(0)) {
+						orderStatusChi = "待付款";//下单后等待付预付款0
+					}else if(oStatus.equals(1)) {
+						orderStatusChi = "待商家确认";//付款凭证上传后等待商家确认后状态修改为1
+					}else if(oStatus.equals(2)) {
+						orderStatusChi = "待发货";//商家确认无误后等待商家发货状态修改为2，确认有误时状态修改为0，直到确认完成
+					}else if(oStatus.equals(3)) {
+						orderStatusChi = "待收货";//商家发货后状态修改为3
+					}else if(oStatus.equals(4)) {
+						orderStatusChi = "待付款";//买家点击收货时上传磅单，状态修改为4
+					}else if(oStatus.equals(5)) {
+						orderStatusChi = "待商家确认";//买家上传尾款凭证后，状态修改为5
+					}else if(oStatus.equals(6)) {
+						orderStatusChi = "待买家评价";//商家确认后状态修改为6，确认有误时状态修改为4
+					}else if(oStatus.equals(7)) {
+						orderStatusChi = "订单完成";//买家评价后状态修改为7，订单完成
+					}
+					map.put("", gto);
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			status = 1000;
 		}
-		return ResponseFormat.getPageJson(limit, page, gto.getTotalElements(), status, gto.getContent());
+		return ResponseFormat.getPageJson(limit, page, count, status, list);
 	}
 
 	@GetMapping("/queryGtOrderByGtId")
