@@ -68,5 +68,17 @@ public interface GasTradeOrderService {
 	 */
 	List<GasTradeOrder> listComInfoByCpyId(String cpyId);
 	
+	/**
+	 * @description 根据用户编号、燃气买卖编号获取订单列表（防止重复提交）
+	 * @author wm
+	 * @Version : 1.0
+	 * @ModifiedBy : 修改人
+	 * @date  2019年12月24日 上午9:59:09
+	 * @param userId 用户编号
+	 * @param gtId 燃气交易编号
+	 * @return
+	 */
+	List<GasTradeOrder> listComInfoByOpt(String userId,String gtId);
+	
 
 }

@@ -37,6 +37,7 @@ public class ResponseFormat {
 
         /* 业务错误：30001-39999 */
         messageMap.put(30001, "某业务出现问题");
+        messageMap.put(30002, "该交易已存在确认订单，不能再进行确认操作");
 
         /* 系统错误：40001-49999 */
         messageMap.put(40001, "系统繁忙，请稍后重试");

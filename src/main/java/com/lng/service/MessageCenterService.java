@@ -34,12 +34,15 @@ public interface MessageCenterService {
 	  * @Version : 1.0
 	  * @ModifiedBy : 
 	  * @date  2019年12月20日 上午9:09:09
+	  * @param msgTypeId 消息类型（1：新闻资讯，2：系统通知，3：留言回复）
 	  * @param toUserId 接收人
-	  * @param readSta 已读状态
+	  * @param readSta 已读状态（0：未读，1：已读）
+	  * @param showStatus 显示状态（0：默认显示，1：隐藏）
 	  * @param pageNo 第几页
 	  * @param pageSize 每页多少条
 	  * @return
 	  */
-	 Page<MessageCenter> getMessageCenterByOption(String toUserId,Integer readSta,Integer pageNo,Integer pageSize);
+	 Page<MessageCenter> getMessageCenterByOption(Integer msgTypeId,String toUserId,Integer showStatus,Integer readSta,
+			 Integer pageNo,Integer pageSize);
 
 }

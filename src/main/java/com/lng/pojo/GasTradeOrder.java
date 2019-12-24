@@ -29,6 +29,8 @@ public class GasTradeOrder implements java.io.Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 	private String id;
+	@ApiModelProperty(value = "订单号")
+	private String orderNo;
 	@ApiModelProperty(value = "公司编号")
 	private Company company;
 	@ApiModelProperty(value = "燃气交易编号")
@@ -63,9 +65,10 @@ public class GasTradeOrder implements java.io.Serializable {
 	public GasTradeOrder() {
 	}
 
-	public GasTradeOrder(Company company, GasTrade gasTrade, User user, String lxMobile, double price,
+	public GasTradeOrder(String orderNo,Company company, GasTrade gasTrade, User user, String lxMobile, double price,
 			String remark, String lxrProv, String lxrCity, String lxrAddress, String lxrGpsInfo, Integer distance,
 			String addTime, int orderStatus, Integer orderPjNumber, String orderPjDetail) {
+		this.orderNo = orderNo;
 		this.company = company;
 		this.gasTrade = gasTrade;
 		this.user = user;
@@ -92,6 +95,15 @@ public class GasTradeOrder implements java.io.Serializable {
 
 	public void setId(String id) {
 		this.id = id;
+	}
+
+	@Column(name = "order_no", nullable = false, columnDefinition = "varchar(50) COMMENT '订单号'")
+	public String getOrderNo() {
+		return orderNo;
+	}
+
+	public void setOrderNo(String orderNo) {
+		this.orderNo = orderNo;
 	}
 
 	@ManyToOne(fetch = FetchType.EAGER)//等同于lazy="false"

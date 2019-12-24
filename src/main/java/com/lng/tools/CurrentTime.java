@@ -540,14 +540,14 @@ public class CurrentTime {
     }
     
     /**
-     * 获取yyyyMMddhhmmssSSS+2位随机数
+     * 获取yyyyMMddhhmmssSSS+4位随机数
      * @description
      * @author Administrator
      * @date 2018-10-9 下午04:42:50
      * @return
      */
     public static String getRadomTime(){
-    	Integer max = 100,min = 10;
+    	Integer max = 9999,min = 1000;
     	String radomStr = String.valueOf(Math.round(Math.random()*(max-min)+min));//两位随机数
     	return CurrentTime.getStringTime1() + radomStr;
     }
@@ -587,6 +587,8 @@ public class CurrentTime {
     
 	public static void main(String args[]) throws Exception{
 		String ss = CurrentTime.getStringDate();
-		System.out.print(ss.substring(8));
+		for(int i = 0 ; i < 10 ; i++) {
+			System.out.println(CurrentTime.getRadomTime().substring(2));
+		}
 	}
 }

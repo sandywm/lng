@@ -29,7 +29,7 @@ public interface GasTradeOrderLogService {
 	GasTradeOrderLog getEntityById(String id);
     /**
      * 	
-     * @description 根据燃气交易订单编号获取日志信息
+     * @description 根据燃气交易订单编号获取日志信息(升序排列)
      * @author zdf
      * @Version : 1.0
      * @ModifiedBy : 

@@ -359,7 +359,7 @@ public class CompanyController {
 	}
 
 	@GetMapping("/getCompanyList")
-	@ApiOperation(value = "根据公司类型，公司人员获取公司列表", notes = "根据公司类型，公司人员获取公司列表")
+	@ApiOperation(value = "根据公司类型，公司人员获取公司列表", notes = "根据公司类型，公司人员获取公司列表，后台用户用的时候不需要传")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), 
 		@ApiResponse(code = 200, message = "成功"),
 		@ApiResponse(code = 50001, message = "数据未找到") })
@@ -367,6 +367,7 @@ public class CompanyController {
 		@ApiImplicitParam(name = "typeName", value = "公司类型名称"),
 		@ApiImplicitParam(name = "userId", value = "员工编号"),
 		@ApiImplicitParam(name = "checkStatus", value = "审核状态(,-1：全部,0:未审核,1:审核通过,2:审核未通过)"),
+		@ApiImplicitParam(name = "opt", value = "状态（0：后台用，1：前台用）"),
 	})
 	public GenericResponse getCompanyList(HttpServletRequest request) {
 		Integer status = 200;
@@ -374,19 +375,34 @@ public class CompanyController {
 		String cpyTypeName = CommonTools.getFinalStr("typeName", request);
 		String userId = CommonTools.getFinalStr("userId", request);
 		Integer checkStatus = CommonTools.getFinalInteger("checkStatus", request);
+		Integer opt = CommonTools.getFinalInteger("opt", request);
 		List<Object> list = new ArrayList<Object>();
 		try {
-			List<UserCompany> ucList = ucs.getUserCompanyListByOpt(cpyTypeId, cpyTypeName, checkStatus, userId);
-			if(ucList.size() > 0) {
-				for(UserCompany uc : ucList) {
-					Map<String, String> map_d = new HashMap<String, String>();
-					Company cpy = uc.getCompany();
-					map_d.put("cpyId", cpy.getId());
-					map_d.put("cpyName", cpy.getName());
-					list.add(map_d);
+			if(opt.equals(0)) {
+				List<Company> cList = companyService.listSpecCpy(cpyTypeId, cpyTypeName);
+				if(cList.size() > 0) {
+					for(Company cpy : cList) {
+						Map<String, String> map_d = new HashMap<String, String>();
+						map_d.put("cpyId", cpy.getId());
+						map_d.put("cpyName", cpy.getName());
+						list.add(map_d);
+					}
+				}else {
+					status = 50001;
 				}
 			}else {
-				status = 50001;
+				List<UserCompany> ucList = ucs.getUserCompanyListByOpt(cpyTypeId, cpyTypeName, checkStatus, userId);
+				if(ucList.size() > 0) {
+					for(UserCompany uc : ucList) {
+						Map<String, String> map_d = new HashMap<String, String>();
+						Company cpy = uc.getCompany();
+						map_d.put("cpyId", cpy.getId());
+						map_d.put("cpyName", cpy.getName());
+						list.add(map_d);
+					}
+				}else {
+					status = 50001;
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

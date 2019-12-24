@@ -88,4 +88,26 @@ public class CompanyServiceImpl implements CompanyService {
 		return null;
 	}
 
+	@SuppressWarnings("serial")
+	@Override
+	public List<Company> listSpecCpy(String typeId, String typeName) {
+		// TODO Auto-generated method stub
+		Specification<Company> spec = new Specification<Company>() {
+
+			@Override
+			public Predicate toPredicate(Root<Company> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+				Predicate pre = cb.conjunction();
+				if (!typeId.isEmpty()) {
+					pre.getExpressions().add(cb.equal(root.get("companyType").get("id"), typeId));
+				}
+				if (!typeName.isEmpty()) { 
+					pre.getExpressions().add(cb.equal(root.get("companyType").get("name"), typeName));
+				}
+				pre.getExpressions().add(cb.equal(root.get("checkStatus"), 1));
+				return pre;
+			}
+		};
+		return companyDao.findAll(spec);
+	}
+
 }

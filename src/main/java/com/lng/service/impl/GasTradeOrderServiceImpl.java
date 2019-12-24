@@ -32,11 +32,15 @@ public class GasTradeOrderServiceImpl implements GasTradeOrderService {
 
 	@Override
 	public GasTradeOrder getEntityById(String id) {
-		Optional<GasTradeOrder> gto = gtoDao.findById(id);
-		if (gto.isPresent()) {
-			return gto.get();
+		if(id.equals("")) {
+			return null;
+		}else {
+			Optional<GasTradeOrder> gto = gtoDao.findById(id);
+			if (gto.isPresent()) {
+				return gto.get();
+			}
+			return null;
 		}
-		return null;
 	}
 
 	@SuppressWarnings("serial")
@@ -99,6 +103,26 @@ public class GasTradeOrderServiceImpl implements GasTradeOrderService {
 					pre.getExpressions().add(cb.equal(root.get("gasTrade").get("company").get("id"), cpyId));
 				}
 				pre.getExpressions().add(cb.greaterThan(root.get("orderPjNumber"), 0));
+				return pre;
+			}
+		};
+		return gtoDao.findAll(spec);
+	}
+
+	@SuppressWarnings("serial")
+	@Override
+	public List<GasTradeOrder> listComInfoByOpt(String userId, String gtId) {
+		// TODO Auto-generated method stub
+		Specification<GasTradeOrder> spec = new Specification<GasTradeOrder>() {
+			@Override
+			public Predicate toPredicate(Root<GasTradeOrder> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+				Predicate pre = cb.conjunction();
+				if (!gtId.isEmpty()) {
+					pre.getExpressions().add(cb.equal(root.get("gasTrade").get("id"), gtId));
+				}
+				if (!userId.isEmpty()) {
+					pre.getExpressions().add(cb.equal(root.get("user").get("id"), userId));
+				}
 				return pre;
 			}
 		};

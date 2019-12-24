@@ -341,7 +341,7 @@ public class TrucksTrade implements java.io.Serializable {
 		this.addTime = addTime;
 	}
 
-	
+	@Column(name = "price",nullable = false, columnDefinition = "int(11) COMMENT'车辆价格'")
 	public int getPrice() {
 		return price;
 	}
@@ -349,7 +349,7 @@ public class TrucksTrade implements java.io.Serializable {
 	public void setPrice(int price) {
 		this.price = price;
 	}
-
+	@Column(name = "reg_place", columnDefinition = "varchar(100) COMMENT'注册地'")
 	public String getRegPlace() {
 		return regPlace;
 	}

@@ -29,7 +29,6 @@ import com.lng.service.GasTradeService;
 import com.lng.service.UserService;
 import com.lng.tools.CommonTools;
 import com.lng.tools.CurrentTime;
-import com.lng.util.Constants;
 import com.lng.util.GenericResponse;
 import com.lng.util.PageResponse;
 import com.lng.util.ResponseFormat;
@@ -58,9 +57,9 @@ public class GasTradeOrderController {
 	private GasTradeOrderLogService gtolService;
 
 	@PostMapping("/addGasTraderOrder")
-	@ApiOperation(value = "添加燃气交易订单", notes = "添加燃气交易订单信息")
+	@ApiOperation(value = "添加燃气交易订单", notes = "添加燃气交易订单信息并增加订单日志")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
-			@ApiResponse(code = 50003, message = "数据已存在"), @ApiResponse(code = 70001, message = "无权限访问") })
+			@ApiResponse(code = 50003, message = "数据已存在")})
 	@ApiImplicitParams({ @ApiImplicitParam(name = "gtId", value = "燃气交易编号", required = true),
 			@ApiImplicitParam(name = "userId", value = "买气人编号", required = true),
 			@ApiImplicitParam(name = "cpyId", value = "买气人所在公司", required = true),
@@ -86,19 +85,20 @@ public class GasTradeOrderController {
 		Integer distance = CommonTools.getFinalInteger("distance", request);
 		Integer status = 200;
 		String gtoId = "";
-		String cilentInfo = CommonTools.getCilentInfo_new(request);
 		try {
-			if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),
-					CommonTools.getLoginRoleName(request), Constants.ADD_GTO)) {
-
-			} else if (cilentInfo.equals("wxApp")) {
-
-			} else {
-				status = 70001;
+			boolean addFlag = false;
+			GasTrade gt = gtService.getEntityById(gtId);
+			if(gt.getCheckStatus() == 1 && gt.getShowStatus() == 0){//审核通过且上架的交易才能增加订单
+				if(gt.getTradeOrderId().equals("")) {//没确认订单
+					List<GasTradeOrder> gtoList = gtoSeriver.listComInfoByOpt(userId, gtId);
+					if(gtoList.size() == 0) {//当前用户没下过订单
+						addFlag = true;
+					}
+				}
 			}
-
-			if (status.equals(200)) {
+			if(addFlag) {
 				GasTradeOrder gto = new GasTradeOrder();
+				gto.setOrderNo(CurrentTime.getRadomTime().substring(2));
 				GasTrade gasTrade = gtService.getEntityById(gtId);
 				gto.setGasTrade(gasTrade);
 				User user = uService.getEntityById(userId);
@@ -116,8 +116,20 @@ public class GasTradeOrderController {
 				gto.setAddTime(CurrentTime.getCurrentTime());
 				gto.setOrderStatus(0);
 				gtoId = gtoSeriver.addOrUpdate(gto);
+				if(!gtoId.equals("")) {
+					//增加日志
+					GasTradeOrderLog gtoLog = new GasTradeOrderLog();
+					GasTradeOrder gasTradeOrder = gtoSeriver.getEntityById(gtoId);
+					gtoLog.setGasTradeOrder(gasTradeOrder);
+					gtoLog.setOrderStatus(0);
+					gtoLog.setOrderImgDetail("");
+					gtoLog.setOrderDetailTxt("用户已下单，等待商家付款并上传缴费凭证");
+					gtoLog.setAddTime(CurrentTime.getCurrentTime());
+					gtolService.addOrUpdate(gtoLog);
+				}
+			}else {
+				status = 50003;
 			}
-
 		} catch (Exception e) {
 			e.printStackTrace();
 			status = 1000;
@@ -125,40 +137,80 @@ public class GasTradeOrderController {
 		return ResponseFormat.retParam(status, gtoId);
 	}
 
-	@PostMapping("/addGasTraderOrderLog")
-	@ApiOperation(value = "添加燃气交易订单日志", notes = "添加燃气交易订单日志信息")
-	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
-			@ApiResponse(code = 50003, message = "数据已存在"), @ApiResponse(code = 70001, message = "无权限访问") })
+	@PostMapping("/dealGasTraderOrderLog")
+	@ApiOperation(value = "燃气交易中各种业务逻辑处理", notes = "订单中的动作处理")
+	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), 
+		@ApiResponse(code = 200, message = "成功"),
+		@ApiResponse(code = 50001, message = "数据未找到"),
+		@ApiResponse(code = 30002, message = "该交易已存在确认订单，不能再进行确认操作"),
+		@ApiResponse(code = 10002, message = "参数为空")
+	})
 	@ApiImplicitParams({ @ApiImplicitParam(name = "gtoId", value = "燃气交易订单编号", required = true),
 			@ApiImplicitParam(name = "orderSta", value = "订单状态", required = true),
-			@ApiImplicitParam(name = "oImgDetail", value = "详情图片"),
-			@ApiImplicitParam(name = "oDetailTxt", value = "订单详情文字", required = true) })
-	public GenericResponse addGasTraderOrderLog(HttpServletRequest request) {
+			@ApiImplicitParam(name = "oImgDetail", value = "详情图片(买家上传缴费凭证或者上传磅单时传递)"),
+			@ApiImplicitParam(name = "oDetailTxt", value = "订单详情文字")
+	})
+	public GenericResponse dealGasTraderOrderLog(HttpServletRequest request) {
 		String gtoId = CommonTools.getFinalStr("gtoId", request);
 		String oImgDetail = CommonTools.getFinalStr("oImgDetail", request);
 		String oDetailTxt = CommonTools.getFinalStr("oDetailTxt", request);
 		Integer orderSta = CommonTools.getFinalInteger("orderSta", request);
+		String userId = CommonTools.getFinalStr("userId", request);
 		Integer status = 200;
 		String gtolId = "";
-		String cilentInfo = CommonTools.getCilentInfo_new(request);
+		String currentTime = CurrentTime.getCurrentTime();
 		try {
-			if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),
-					CommonTools.getLoginRoleName(request), Constants.ADD_GTO)) {
-
-			} else if (cilentInfo.equals("wxApp")) {
-
-			} else {
-				status = 70001;
-			}
-			if (status.equals(200)) {
-				GasTradeOrderLog gtoLog = new GasTradeOrderLog();
+			if(userId.equals("") && gtoId.equals("")) {
+				status = 10002;
+			}else {
+				//获取订单
 				GasTradeOrder gasTradeOrder = gtoSeriver.getEntityById(gtoId);
-				gtoLog.setGasTradeOrder(gasTradeOrder);
-				gtoLog.setOrderStatus(orderSta);
-				gtoLog.setOrderImgDetail(oImgDetail);
-				gtoLog.setOrderDetailTxt(oDetailTxt);
-				gtoLog.setAddTime(CurrentTime.getCurrentTime());
-				gtolId = gtolService.addOrUpdate(gtoLog);
+				if(gasTradeOrder != null) {
+					//获取燃气贸易
+					GasTrade gt = gasTradeOrder.getGasTrade();
+					if(gt != null) {
+						if(orderSta.equals(2)) {//商家确认订单时
+							//判断该燃气交易有无确认订单
+							if(gt.getTradeOrderId().equals("")) {//无确认订单
+								//并设置其他订单为取消状态
+								List<GasTradeOrder> gtoList = gtoSeriver.getInfoBygtId(gt.getId());
+								if(gtoList.size() > 0) {
+									for(GasTradeOrder gto : gtoList) {
+										if(!gto.getId().equals(gasTradeOrder.getId())) {
+											gto.setOrderStatus(-1);
+											//修改其他订单为取消状态
+											gtoSeriver.addOrUpdate(gto);
+											//增加订单日志
+											gtolService.addOrUpdate(new GasTradeOrderLog(gto, -1, "","订单被商家取消", currentTime));
+										}
+									}
+								}
+							}else {//已存在确认订单，不能进行操作
+								status = 30002;
+							}
+						}
+						if(status.equals(200)) {
+							//修改订单状态
+							gasTradeOrder.setOrderStatus(orderSta);
+							gtoSeriver.addOrUpdate(gasTradeOrder);
+							//增加订单日志
+							GasTradeOrderLog gtoLog = new GasTradeOrderLog();
+							gtoLog.setGasTradeOrder(gasTradeOrder);
+							gtoLog.setOrderStatus(orderSta);
+							//买家上传缴费凭证、上传磅单时需要上传图
+							if(orderSta.equals(1) || orderSta.equals(4) || orderSta.equals(5)) {
+								gtoLog.setOrderImgDetail(CommonTools.dealUploadDetail(userId, "", oImgDetail));
+							}
+							gtoLog.setOrderDetailTxt(oDetailTxt);
+							gtoLog.setAddTime(currentTime);
+							gtolId = gtolService.addOrUpdate(gtoLog);
+						}
+					}else {
+						status = 50001;
+					}
+				}else {
+					status = 50001;
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -167,37 +219,23 @@ public class GasTradeOrderController {
 		return ResponseFormat.retParam(status, gtolId);
 	}
 
-	@PutMapping("/updateGtOrderByStatus")
-	@ApiOperation(value = "更新燃气交易订单状态", notes = "更新燃气交易订单状态")
+	@PutMapping("/cancelTradeOrder")
+	@ApiOperation(value = "商家手动取消订单", notes = "商家手动取消订单")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
 			@ApiResponse(code = 50001, message = "数据未找到"), @ApiResponse(code = 70001, message = "无权限访问") })
-	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "燃气交易订单编号", required = true),
-			@ApiImplicitParam(name = "orderSta", value = "订单状态") })
-	public GenericResponse updatePotTradeByStatus(HttpServletRequest request, String id, Integer orderSta) {
-		id = CommonTools.getFinalStr(id);
-		String cilentInfo = CommonTools.getCilentInfo_new(request);
+	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "燃气交易订单编号", required = true)})
+	public GenericResponse cancelTradeOrder(HttpServletRequest request) {
+		String id = CommonTools.getFinalStr("id",request);
 		Integer status = 200;
-
 		try {
-			if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),
-					CommonTools.getLoginRoleName(request), Constants.UP_GTO)) {
-
-			} else if (cilentInfo.equals("wxApp")) {
-
+			GasTradeOrder gto = gtoSeriver.getEntityById(id);
+			if (gto == null) {
+				status = 50001;
 			} else {
-				status = 70001;
-			}
-
-			if (status.equals(200)) {
-				GasTradeOrder gto = gtoSeriver.getEntityById(id);
-				if (gto == null) {
-					status = 50001;
-				} else {
-					if (orderSta != null && !orderSta.equals(gto.getOrderStatus())) {
-						gto.setOrderStatus(orderSta);
-					}
-					gtoSeriver.addOrUpdate(gto);
-				}
+				gto.setOrderStatus(-1);
+				gtoSeriver.addOrUpdate(gto);
+				//增加订单日志
+				gtolService.addOrUpdate(new GasTradeOrderLog(gto, -1, "","订单被商家取消", CurrentTime.getCurrentTime()));
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -206,40 +244,35 @@ public class GasTradeOrderController {
 		return ResponseFormat.retParam(status, "");
 	}
 
-	@PutMapping("/updateGtOrderByPj")
-	@ApiOperation(value = "更新燃气交易订单评价", notes = "更新燃气交易订单评价")
-	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
-			@ApiResponse(code = 50001, message = "数据未找到"), @ApiResponse(code = 70001, message = "无权限访问") })
+	@PutMapping("/addGtOrderByPj")
+	@ApiOperation(value = "提交燃气交易订单评价", notes = "提交燃气交易订单评价")
+	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), 
+		@ApiResponse(code = 200, message = "成功"),
+		@ApiResponse(code = 50001, message = "数据未找到"), 
+		@ApiResponse(code = 10001, message = "参数无效")
+	})
 	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "燃气交易订单编号", required = true),
 			@ApiImplicitParam(name = "pjNum", value = "1-3星（好，中，差评，未评价时为0）"),
-			@ApiImplicitParam(name = "pjDetail", value = "评价内容"), })
-	public GenericResponse updateGtOrderByPj(HttpServletRequest request, String id, Integer pjNum, String pjDetail) {
-		id = CommonTools.getFinalStr(id);
-		String cilentInfo = CommonTools.getCilentInfo_new(request);
+			@ApiImplicitParam(name = "pjDetail", value = "评价内容")
+	})
+	public GenericResponse addGtOrderByPj(HttpServletRequest request) {
+		String gtoId = CommonTools.getFinalStr("gtoId",request);
+		Integer pjNum = CommonTools.getFinalInteger("pjNum",request);
+		String pjDetail = CommonTools.getFinalStr("pjDetail",request);
 		Integer status = 200;
-
 		try {
-			if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),
-					CommonTools.getLoginRoleName(request), Constants.UP_GTO)) {
-
-			} else if (cilentInfo.equals("wxApp")) {
-
+			GasTradeOrder gto = gtoSeriver.getEntityById(gtoId);
+			if (gto == null) {
+				status = 50001;
 			} else {
-				status = 70001;
-			}
-
-			if (status.equals(200)) {
-				GasTradeOrder gto = gtoSeriver.getEntityById(id);
-				if (gto == null) {
-					status = 50001;
-				} else {
-					if (pjNum != null && !pjNum.equals(gto.getOrderPjNumber())) {
-						gto.setOrderPjNumber(pjNum);
-					}
-					if (!pjDetail.isEmpty() && !pjDetail.equals(gto.getOrderPjDetail())) {
-						gto.setOrderPjDetail(pjDetail);
-					}
+				if (pjNum > 0 && pjNum <= 3) {
+					gto.setOrderPjNumber(pjNum);
+					gto.setOrderStatus(7);
 					gtoSeriver.addOrUpdate(gto);
+					//增加订单日志
+					gtolService.addOrUpdate(new GasTradeOrderLog(gto, -1, "",pjDetail, CurrentTime.getCurrentTime()));
+				}else {
+					status = 10001;
 				}
 			}
 		} catch (Exception e) {
@@ -249,7 +282,7 @@ public class GasTradeOrderController {
 		return ResponseFormat.retParam(status, "");
 	}
 
-	@GetMapping("/queryGtOrder")
+	@GetMapping("/getPageGtOrder")
 	@ApiOperation(value = "获取燃气交易订单分页信息", notes = "获取燃气交易订单分页信息")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
 			@ApiResponse(code = 50001, message = "数据未找到") })
@@ -257,10 +290,10 @@ public class GasTradeOrderController {
 			@ApiImplicitParam(name = "cpyId", value = "公司编号"), 
 			@ApiImplicitParam(name = "sDate", value = "开始时间"),
 			@ApiImplicitParam(name = "eDate", value = "结束时间"),
-			@ApiImplicitParam(name = "orderSta", value = "订单状态（待付款-0或者5，待收货-4）"), 
+			@ApiImplicitParam(name = "orderSta", value = "订单状态（-1到7）"), 
 			@ApiImplicitParam(name = "page", value = "第几页"),
 			@ApiImplicitParam(name = "limit", value = "每页多少条") })
-	public PageResponse queryGtOrder(HttpServletRequest request) {
+	public PageResponse getPageGtOrder(HttpServletRequest request) {
 		Integer status = 200;
 		Page<GasTradeOrder> gtoList = null;
 		String userId = CommonTools.getFinalStr("userId",request);
@@ -294,6 +327,7 @@ public class GasTradeOrderController {
 					GasFactory gf = gt.getGasFactory();
 					GasType gasType = gt.getGasType();
 					map.put("headImg", gt.getHeadImg());
+					map.put("orderNo", gto.getOrderNo());
 					map.put("title", gf.getProvince()+gf.getName()+gasType.getName());
 					map.put("psArea", gt.getPsArea());
 					map.put("sellPrice", gt.getGasPrice());
@@ -302,7 +336,9 @@ public class GasTradeOrderController {
 					Integer oStatus = gto.getOrderStatus();
 					String orderStatusChi = "";
 					map.put("orderStatus", oStatus);
-					if(oStatus.equals(0)) {
+					if(oStatus.equals(-1)) {
+						orderStatusChi = "已取消";//商户取消
+					}else if(oStatus.equals(0)) {
 						orderStatusChi = "待付款";//下单后等待付预付款0
 					}else if(oStatus.equals(1)) {
 						orderStatusChi = "待商家确认";//付款凭证上传后等待商家确认后状态修改为1
@@ -319,7 +355,8 @@ public class GasTradeOrderController {
 					}else if(oStatus.equals(7)) {
 						orderStatusChi = "订单完成";//买家评价后状态修改为7，订单完成
 					}
-					map.put("", gto);
+					map.put("orderStatusChi", orderStatusChi);
+					map.put("addTime", gto.getAddTime());
 				}
 			}
 		} catch (Exception e) {
@@ -330,10 +367,12 @@ public class GasTradeOrderController {
 	}
 
 	@GetMapping("/queryGtOrderByGtId")
-	@ApiOperation(value = "根据燃气交易订单编号获取燃气交易订单", notes = "根据燃气交易订单编号获取燃气交易订单信息")
+	@ApiOperation(value = "根据燃气交易订单编号获取燃气交易订单详情", notes = "根据燃气交易订单编号获取燃气交易订单详情")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
 			@ApiResponse(code = 50001, message = "数据未找到") })
-	@ApiImplicitParams({ @ApiImplicitParam(name = "gtId", value = "燃气交易编号"), })
+	@ApiImplicitParams({ @ApiImplicitParam(name = "gtId", value = "燃气交易编号"), 
+			@ApiImplicitParam(name = "gtId", value = "燃气交易编号")
+	})
 	public GenericResponse queryGtOrderByGtId(String gtId) {
 		Integer status = 200;
 		List<GasTradeOrder> gtoList = null;
@@ -350,22 +389,30 @@ public class GasTradeOrderController {
 	}
 
 	@GetMapping("/queryGtoLogByGtoId")
-	@ApiOperation(value = "获取燃气交易订单日志信息", notes = "获取燃气交易订日志信息")
+	@ApiOperation(value = "根据订单编号获取燃气交易订单日志信息", notes = "根据订单编号获取燃气交易订单日志信息")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
 			@ApiResponse(code = 50001, message = "数据未找到") })
-	@ApiImplicitParams({ @ApiImplicitParam(name = "gtoId", value = "燃气交易订单编号"), })
+	@ApiImplicitParams({ @ApiImplicitParam(name = "gtoId", value = "燃气交易订单编号")})
 	public GenericResponse queryGtoLogByGtoId(String gtoId) {
 		Integer status = 200;
-		List<GasTradeOrderLog> gtolList = null;
+		List<Object> list = new ArrayList<Object>();
 		try {
-			gtolList = gtolService.getGtLogList(gtoId);
+			List<GasTradeOrderLog> gtolList = gtolService.getGtLogList(gtoId);
 			if (gtolList.isEmpty()) {
 				status = 50001;
+			}else {
+				for(GasTradeOrderLog gtol : gtolList) {
+					Map<String,Object> map = new HashMap<String,Object>();
+					map.put("detailTxt", gtol.getOrderDetailTxt());
+					map.put("detailImg", gtol.getOrderImgDetail());
+					map.put("addTime", gtol.getAddTime());
+					list.add(map);
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			status = 1000;
 		}
-		return ResponseFormat.retParam(status, gtolList);
+		return ResponseFormat.retParam(status, list);
 	}
 }

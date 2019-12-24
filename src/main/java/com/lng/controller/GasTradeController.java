@@ -254,11 +254,14 @@ public class GasTradeController {
 						map_d.put("pubUserName", "");
 					}
 					map_d.put("psArea", gt.getPsArea());
-					map_d.put("yyd", gt.getGasFactory().getProvince());
+					GasFactory gf = gt.getGasFactory();
+					map_d.put("gfName", gf.getName());
+					map_d.put("yyd", gf.getProvince());
 					map_d.put("price", gt.getGasPrice());
 					map_d.put("volume", gt.getGasVolume());
 					map_d.put("addTime", gt.getAddTime());
 					map_d.put("checkStatus", gt.getCheckStatus());
+					map_d.put("showStatus",gt.getShowStatus());
 					//从燃气交易中获取好评度
 					Integer pjScore = 0;
 					List<GasTradeOrder> gtoList = gtos.listComInfoByCpyId(cpyId);
@@ -365,10 +368,12 @@ public class GasTradeController {
 					if(!psArea.equals("")) {
 						if(!psArea.equals("全国")) {
 							map_all_prov.put("selFlag", false);
+							map_all_prov.put("disableFlag", true);
 							list_prov.add(map_all_prov);
 							String[] psAreaArr = psArea.split(",");
 							for(CommonProvinceOrder cpo : cpoList) {
 								Map<String,Object> map_prov = new HashMap<String,Object>();
+								map_prov.put("disableFlag", false);
 								map_prov.put("provName", cpo.getProvince());
 								for(int i = 0 ; i < psAreaArr.length ; i++) {
 									if(psAreaArr[i].equals(cpo.getProvince())) {
@@ -382,6 +387,7 @@ public class GasTradeController {
 							}
 						}else {
 							map_all_prov.put("selFlag", true);
+							map_all_prov.put("disableFlag", false);
 							list_prov.add(map_all_prov);
 							Map<String,Object> map_prov1 = new HashMap<String,Object>();
 							map_prov1.put("psArea", gt.getPsArea());
@@ -390,6 +396,7 @@ public class GasTradeController {
 								Map<String,Object> map_prov = new HashMap<String,Object>();
 								map_prov.put("provName", cpo.getProvince());
 								map_prov.put("selFlag", false);
+								map_prov.put("disableFlag", true);
 								list_prov.add(map_prov);
 							}
 						}

@@ -31,17 +31,19 @@ public class MessageCenterServiceImpl implements MessageCenterService {
 
 	@Override
 	public MessageCenter getEntityById(String id) {
-		Optional<MessageCenter> mc =  mcDao.findById(id);
-		if(mc.isPresent()) {
-			return mc.get();
+		if(!id.equals("")) {
+			Optional<MessageCenter> mc =  mcDao.findById(id);
+			if(mc.isPresent()) {
+				return mc.get();
+			}
 		}
 		return null;
 	}
 
 	@SuppressWarnings("serial")
 	@Override
-	public Page<MessageCenter> getMessageCenterByOption(String toUserId, Integer readSta, Integer pageNo,
-			Integer pageSize) {
+	public Page<MessageCenter> getMessageCenterByOption(Integer msgTypeId,String toUserId,Integer showStatus,Integer readSta,
+			 Integer pageNo,Integer pageSize) {
 		Sort sort = Sort.by(Sort.Direction.DESC, "addTime");// 降序排列
 		Pageable pageable = PageRequest.of(pageNo, pageSize,sort);
 		Specification<MessageCenter> spec = new Specification<MessageCenter>() {
@@ -50,11 +52,17 @@ public class MessageCenterServiceImpl implements MessageCenterService {
 			public Predicate toPredicate(Root<MessageCenter> root, CriteriaQuery<?> query,
 					CriteriaBuilder cb) {
 				Predicate pre = cb.conjunction();
+				if(msgTypeId > 0) {
+					pre.getExpressions().add(cb.equal(root.get("messageType"), msgTypeId));
+				}
 				if (!toUserId.isEmpty()) {
 					pre.getExpressions().add(cb.equal(root.get("toUserId"), toUserId));
 				}
-				if (readSta != -1) {
+				if (readSta >= 0) {
 					pre.getExpressions().add(cb.equal(root.get("readStatus"), readSta));
+				}
+				if (showStatus >= 0) {
+					pre.getExpressions().add(cb.equal(root.get("showStatus"), showStatus));
 				}
 				return pre;
 			}

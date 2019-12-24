@@ -9,11 +9,11 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.lng.dao.GasTradeOrderLogDao;
-import com.lng.pojo.GasTradeOrder;
 import com.lng.pojo.GasTradeOrderLog;
 import com.lng.service.GasTradeOrderLogService;
 
@@ -51,7 +51,8 @@ public class GasTradeOrderLogServiceImpl implements GasTradeOrderLogService {
 				return pre;
 			}
 		};
-		return gtolDao.findAll(spec);
+		Sort sort = Sort.by(Sort.Direction.ASC, "addTime");// 时间升序排列
+		return gtolDao.findAll(spec,sort);
 	}
 
 }

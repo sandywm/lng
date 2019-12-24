@@ -329,7 +329,7 @@ public class GasFactoryController {
 		@ApiResponse(code = 50001, message = "数据未找到")
 	})
 	@ApiImplicitParams({
-		@ApiImplicitParam(name = "cpyId", value = "液厂名称",required = true)
+		@ApiImplicitParam(name = "cpyId", value = "液厂编号",required = true)
 	})
 	public GenericResponse getGasFactoryList(HttpServletRequest request) {
 		Integer status = 200;
@@ -343,9 +343,14 @@ public class GasFactoryController {
 				if(gfcList.size() > 0) {
 					for(GasFactoryCompany gfc:gfcList) {
 						Map<String,Object> map = new HashMap<String,Object>();
+						GasFactory gf = gfc.getGasFactory();
+						GasType gt = gf.getGasType();
 						map.put("id", gfc.getId());
-						map.put("gfName", gfc.getGasFactory().getName());
-						map.put("gfId", gfc.getGasFactory().getId());
+						map.put("gfName", gf.getName());
+						map.put("gfId", gf.getId());
+						map.put("gasTypeId", gt.getId());
+						map.put("gasTypeName", gt.getName());
+						map.put("yzImg", gt.getYzImg());
 						list.add(map);
 					}
 				}else {

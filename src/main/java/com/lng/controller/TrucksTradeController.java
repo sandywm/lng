@@ -90,7 +90,7 @@ public class TrucksTradeController {
 			@ApiImplicitParam(name = "lxName", value = "联系人", defaultValue = "小黑"),
 			@ApiImplicitParam(name = "lxTel", value = "联系电话", defaultValue = "13956487523"),
 			@ApiImplicitParam(name = "showStatus", value = "上/下架状态（0：上架，1：下架）", required = true, defaultValue = "0"),
-			@ApiImplicitParam(name = "addUserId", value = "上传人员", required = true),
+			//@ApiImplicitParam(name = "addUserId", value = "上传人员", required = true),
 			@ApiImplicitParam(name = "qualId", value = "进港资质编号", required = true),
 			@ApiImplicitParam(name = "ttImg", value = "槽车租卖详情图片"),
 			// @ApiImplicitParam(name = "userType", value = "上传人员类型（1：后台管理人员，2：普通用户）",
@@ -124,7 +124,7 @@ public class TrucksTradeController {
 		String lxName = CommonTools.getFinalStr("lxName", request);
 		String lxTel = CommonTools.getFinalStr("lxTel", request);
 		Integer showStatus = CommonTools.getFinalInteger("showStatus", request);
-		String addUserId = CommonTools.getFinalStr("addUserId", request);
+		//String addUserId = CommonTools.getFinalStr("addUserId", request);
 		String qualId = CommonTools.getFinalStr("qualId", request);
 		// Integer userType = CommonTools.getFinalInteger("userType", request);
 		Integer userType = 1;
@@ -160,7 +160,7 @@ public class TrucksTradeController {
 
 				trtr.setCompanyId(compId);
 				if (!mainImg.equals("")) {
-					trtr.setMainImg(CommonTools.dealUploadDetail(addUserId, "", mainImg));
+					trtr.setMainImg(CommonTools.dealUploadDetail(loginUserId, "", mainImg));
 				}
 				trtr.setTrucksNo(trucksNo);
 				trtr.setSpYear(spYear);
@@ -189,7 +189,7 @@ public class TrucksTradeController {
 					trtr.setCheckTime("");
 				}
 				trtr.setShowStatus(showStatus);
-				trtr.setAddUserId(addUserId);
+				trtr.setAddUserId(loginUserId);
 				trtr.setAddTime(CurrentTime.getCurrentTime());
 				trtr.setUserType(userType);
 				trtr.setHot(0);
@@ -199,11 +199,22 @@ public class TrucksTradeController {
 				WqPfbz wqPfbz = wqPfBzService.findById(wqpfbzId);
 				trtr.setWqPfbz(wqPfbz);
 				trtr.setAccidentFlag(accidentFlag);
-				trtr.setTrucksHeadxsz(tructsHeadxsz);
-				trtr.setGcXsz(gcXsz);
-				trtr.setTructsYyz(tructsYyz);
-				trtr.setPotJyz(potJyz);
-				trtr.setAqfBg(aqfbg);
+				if(!tructsHeadxsz.isEmpty()) {
+					trtr.setTrucksHeadxsz(CommonTools.dealUploadDetail(loginUserId, "", tructsHeadxsz));
+				}
+				if(!gcXsz.isEmpty()) {
+					trtr.setGcXsz(CommonTools.dealUploadDetail(loginUserId, "", gcXsz));
+				}
+				if(!tructsYyz.isEmpty()) {
+					trtr.setTructsYyz(CommonTools.dealUploadDetail(loginUserId, "", tructsYyz));	
+				}
+				if(!potJyz.isEmpty()) {
+					trtr.setPotJyz(CommonTools.dealUploadDetail(loginUserId, "", potJyz));	
+				}
+				if(!aqfbg.isEmpty()) {
+					trtr.setAqfBg(CommonTools.dealUploadDetail(loginUserId, "", aqfbg));
+				}
+				
 				ttId = trucksTradeService.saveOrUpdate(trtr);
 
 				if (!ttId.isEmpty()) {
@@ -350,7 +361,7 @@ public class TrucksTradeController {
 			@ApiImplicitParam(name = "lxName", value = "联系人", defaultValue = "小黑"),
 			@ApiImplicitParam(name = "lxTel", value = "联系电话", defaultValue = "13956487523"),
 			@ApiImplicitParam(name = "showStatus", value = "上/下架状态（0：上架，1：下架）", required = true, defaultValue = "0"),
-			@ApiImplicitParam(name = "addUserId", value = "上传人员", required = true),
+			//@ApiImplicitParam(name = "addUserId", value = "上传人员", required = true),
 			@ApiImplicitParam(name = "userType", value = "上传人员类型（1：后台管理人员，2：普通用户）", required = true),
 			@ApiImplicitParam(name = "tradeType", value = "贸易类型（1：租赁，2：买卖）", required = true, defaultValue = "0"),
 			@ApiImplicitParam(name = "area", value = "运输范围（租赁）"), @ApiImplicitParam(name = "qyTypeId", value = "气源类型"),
@@ -359,6 +370,8 @@ public class TrucksTradeController {
 			@ApiImplicitParam(name = "tructsHeadxsz", value = "车头行驶证（危货）"),
 			@ApiImplicitParam(name = "gcXsz", value = "罐车行驶证（危货）"),
 			@ApiImplicitParam(name = "tructsYyz", value = "车辆运营证（危货）"),
+			@ApiImplicitParam(name = "price", value = "车辆价格"),
+			@ApiImplicitParam(name = "regPlace", value = "车辆注册地"),
 			@ApiImplicitParam(name = "potJyz", value = "储罐检验合格证（危货）"),
 			@ApiImplicitParam(name = "aqfbg", value = "安全阀校验报告（危货）") })
 	public GenericResponse updateTrucksTrade(HttpServletRequest request) {
@@ -380,8 +393,10 @@ public class TrucksTradeController {
 		String remark = CommonTools.getFinalStr("remark", request);
 		String lxName = CommonTools.getFinalStr("lxName", request);
 		String lxTel = CommonTools.getFinalStr("lxTel", request);
+		String regPlace = CommonTools.getFinalStr("regPlace", request);
 		Integer showStatus = CommonTools.getFinalInteger("showStatus", request);
-		String addUserId = CommonTools.getFinalStr("addUserId", request);
+		Integer price = CommonTools.getFinalInteger("price", request);
+		//String addUserId = CommonTools.getFinalStr("addUserId", request);
 		Integer userType = CommonTools.getFinalInteger("userType", request);
 		Integer tradeType = CommonTools.getFinalInteger("tradeType", request);
 		String area = CommonTools.getFinalStr("area", request);
@@ -418,7 +433,7 @@ public class TrucksTradeController {
 					}
 
 					if (!mainImg.equals("") && !compId.equals(trtr.getMainImg())) {
-						trtr.setMainImg(CommonTools.dealUploadDetail(addUserId, trtr.getMainImg(), mainImg));
+						trtr.setMainImg(CommonTools.dealUploadDetail(loginUserId, trtr.getMainImg(), mainImg));
 					}
 					if (!trucksNo.isEmpty() && !trucksNo.equals(trtr.getTrucksNo())) {
 						trtr.setTrucksNo(trucksNo);
@@ -453,10 +468,10 @@ public class TrucksTradeController {
 						TrucksType trucksType = typeService.findById(trucksTypeId);
 						trtr.setTrucksType(trucksType);
 					}
-					if (xsDistance != null && !xsDistance.equals(xsDistance.equals(trtr.getXsDistance()))) {
+					if (xsDistance != null && !xsDistance.equals(trtr.getXsDistance())) {
 						trtr.setXsDistance(xsDistance);
 					}
-					if (!remark.isEmpty() && !remark.equals(remark.equals(trtr.getRemark()))) {
+					if (!remark.isEmpty() && !remark.equals(trtr.getRemark())) {
 						trtr.setRemark(remark);
 					}
 					if (!lxName.isEmpty() && !lxName.equals(trtr.getLxName())) {
@@ -465,12 +480,18 @@ public class TrucksTradeController {
 					if (!lxTel.isEmpty() && !lxTel.equals(trtr.getLxTel())) {
 						trtr.setLxTel(lxTel);
 					}
+					if (!regPlace.isEmpty() && !regPlace.equals(trtr.getRegPlace())) {
+						trtr.setRegPlace(regPlace);
+					}
+					if (price != null && !price.equals(trtr.getPrice())) {
+						trtr.setPrice(price);
+					}
 					if (showStatus != null && !showStatus.equals(trtr.getShowStatus())) {
 						trtr.setShowStatus(showStatus);
 					}
-					if (!addUserId.isEmpty() && !addUserId.equals(trtr.getAddUserId())) {
-						trtr.setAddUserId(addUserId);
-					}
+					
+					trtr.setAddUserId(loginUserId);
+					
 					if (userType != null && !userType.equals(trtr.getUserType())) {
 						trtr.setUserType(userType);
 					}
@@ -491,27 +512,29 @@ public class TrucksTradeController {
 						trtr.setAccidentFlag(accidentFlag);
 					}
 					if (!tructsHeadxsz.isEmpty() && !tructsHeadxsz.equals(trtr.getTrucksHeadxsz())) {
-						trtr.setTrucksHeadxsz(tructsHeadxsz);
+						trtr.setTrucksHeadxsz(CommonTools.dealUploadDetail(loginUserId, trtr.getTrucksHeadxsz(), tructsHeadxsz));
 					}
 					if (!gcXsz.isEmpty() && !gcXsz.equals(trtr.getGcXsz())) {
-						trtr.setGcXsz(gcXsz);
+						trtr.setGcXsz(CommonTools.dealUploadDetail(loginUserId, trtr.getGcXsz(), gcXsz));
 					}
 					if (!tructsYyz.isEmpty() && !tructsYyz.equals(trtr.getTructsYyz())) {
-						trtr.setTructsYyz(tructsYyz);
+						trtr.setTructsYyz(CommonTools.dealUploadDetail(loginUserId, trtr.getTructsYyz(), tructsYyz));	
 					}
 					if (!potJyz.isEmpty() && !potJyz.equals(trtr.getPotJyz())) {
-						trtr.setPotJyz(potJyz);
+						trtr.setPotJyz(CommonTools.dealUploadDetail(loginUserId, trtr.getPotJyz(), potJyz));	
 					}
 					if (!aqfbg.isEmpty() && !aqfbg.equals(trtr.getAqfBg())) {
-						trtr.setAqfBg(aqfbg);
+						trtr.setAqfBg(CommonTools.dealUploadDetail(loginUserId, trtr.getAqfBg(), aqfbg));
 					}
 					trucksTradeService.saveOrUpdate(trtr);
-
+					
+					List<TrucksTradeQualification> ttqs=   ttQualService.getTrucksTradeQualList(id);
+					if(!ttqs.isEmpty()) {
+						ttQualService.deleteBatch(ttqs);
+					}
+					
 					if(!qualId.isEmpty()) {
-						List<TrucksTradeQualification> ttqs=   ttQualService.getTrucksTradeQualList(id);
-						if(!ttqs.isEmpty()) {
-							ttQualService.deleteBatch(ttqs);
-						}
+						
 						String[] qualArr = qualId.split(",");
 						for (int i = 0; i < qualArr.length; i++) {
 							Qualification qual = qualService.findById(qualArr[i]);
@@ -522,15 +545,18 @@ public class TrucksTradeController {
 						}
 					}
 					
-				
+					List<TructsTradeZz> zzs = ttzzService.getTructsTradeZzByttId(id);
+					String imgPath_db = "";
+					if(!zzs.isEmpty()) {
+						for(TructsTradeZz ttz : zzs) {
+							imgPath_db += ttz.getTructsTradeZz() + ",";
+						}
+						imgPath_db = imgPath_db.substring(0, imgPath_db.length() - 1);
+						ttzzService.deleteBatch(zzs);
+					}
 					if (!ttImg.equals("")) {
 						String ttImgs = "";
-						List<TructsTradeZz> zzs = ttzzService.getTructsTradeZzByttId(id);
-						if(!zzs.isEmpty()) {
-							ttzzService.deleteBatch(zzs);
-						}
-						
-						ttImgs = CommonTools.dealUploadDetail(loginUserId, "", ttImg);
+						ttImgs = CommonTools.dealUploadDetail(loginUserId, imgPath_db, ttImg);
 						String[] ttimgArr = ttImgs.split(",");
 						List<TructsTradeZz> zzlist = new ArrayList<>();
 						for (int i = 0; i < ttimgArr.length; i++) {
@@ -652,6 +678,7 @@ public class TrucksTradeController {
 					map.put("headTypeId", tt.getTrucksHeadType().getId());
 					map.put("headPpId", tt.getTrucksHeadPp().getId());
 					map.put("trucksTypeId", tt.getTrucksType().getId());
+					map.put("trucksTypes", tt.getTrucksType().getType());
 					map.put("xsDistance", tt.getXsDistance());
 					map.put("price", tt.getPrice());
 					map.put("regPlace", tt.getRegPlace());

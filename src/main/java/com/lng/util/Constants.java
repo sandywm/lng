@@ -165,14 +165,15 @@ public class Constants {
 	public static final String ADD_ZP = "addZp";//添加司机招聘
 	public static final String UP_ZP = "upZp";//修改司机招聘
 	
+	public static final String LIST_MSG = "listMsg";//浏览
+	public static final String ADD_MSG = "addMsg";//发布消息
+	public static final String UP_MSG = "upMsg";//设置消息
+	
 	public static final String ADD_LNG_PRICE = "addLngPrice";//添加lng价格
 	public static final String UP_LNG_PRICE = "upLngPrice";//修改lng价格
 	
 	public static final String ADD_GAS_TRADE = "addGasTrade";//添加燃气买卖
 	public static final String UP_GAS_TRADE = "upGasTrade";//修改燃气买卖
-	
-	public static final String ADD_GTO = "addGto";//添加燃气交易订单
-	public static final String UP_GTO = "upGto";//修改燃气交易订单
 	
 	public static final String CHECK_GAS_FCY_CPY_APPLY = "goCpyJoinFcyCheckPage";//贸易商加入液厂的申请审核
 	public static final String CHECK_USER_JOIN_CPY_APPLY = "goUserJoinCpyCheckPage";//用户加入公司的申请审核

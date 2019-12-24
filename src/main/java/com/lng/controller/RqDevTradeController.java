@@ -1,5 +1,10 @@
 package com.lng.controller;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,9 +17,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.lng.pojo.Company;
 import com.lng.pojo.RqDevTrade;
+import com.lng.pojo.RqDevTradeImg;
 import com.lng.pojo.RqDevType;
 import com.lng.pojo.RqDevType1;
 import com.lng.service.CompanyService;
+import com.lng.service.RqDevTradeImgService;
 import com.lng.service.RqDevTradeService;
 import com.lng.service.RqDevType1Service;
 import com.lng.service.RqDevTypeService;
@@ -44,6 +51,8 @@ public class RqDevTradeController {
 	private RqDevTypeService lmService;
 	@Autowired
 	private RqDevTradeService rdtService;
+	@Autowired
+	private RqDevTradeImgService rdtiService;
 
 	@PostMapping("/addRqDevTrade")
 	@ApiOperation(value = "添加燃气设备买卖", notes = "添加燃气设备买卖")
@@ -58,6 +67,7 @@ public class RqDevTradeController {
 			@ApiImplicitParam(name = "lmId", value = "设备类目主键", required = true),
 			@ApiImplicitParam(name = "zlId", value = "设备种类主键", required = true),
 			@ApiImplicitParam(name = "description", value = "描述", defaultValue = "这是一个描述"),
+			@ApiImplicitParam(name = "detailImg", value = "燃气设备详情图"),
 			@ApiImplicitParam(name = "lxName", value = "联系人", defaultValue = "小黑"),
 			@ApiImplicitParam(name = "lxTel", value = "联系电话", defaultValue = "13956487523"),
 			@ApiImplicitParam(name = "showStatus", value = "上/下架状态（0：上架，1：下架）", required = true, defaultValue = "0"),
@@ -79,8 +89,9 @@ public class RqDevTradeController {
 		String description = CommonTools.getFinalStr("description", request);
 		String lxName = CommonTools.getFinalStr("lxName", request);
 		String lxTel = CommonTools.getFinalStr("lxTel", request);
+		String detailImg = CommonTools.getFinalStr("detailImg", request);
 		Integer showStatus = CommonTools.getFinalInteger("showStatus", request);
-		String addUserId = CommonTools.getFinalStr("addUserId", request);
+		// String addUserId = CommonTools.getFinalStr("addUserId", request);
 		// Integer userType = CommonTools.getFinalInteger("userType", request);
 		Integer userType = 1;
 		String cilentInfo = CommonTools.getCilentInfo_new(request);
@@ -101,7 +112,7 @@ public class RqDevTradeController {
 				Company company = companyService.getEntityById(compId);
 				rdt.setCompany(company);
 				if (!mainImg.equals("")) {
-					rdt.setMainImg(CommonTools.dealUploadDetail(addUserId, "", mainImg));
+					rdt.setMainImg(CommonTools.dealUploadDetail(loginUserId, "", mainImg));
 				}
 				rdt.setDevName(devName);
 				rdt.setDevNo(devNo);
@@ -115,7 +126,7 @@ public class RqDevTradeController {
 				rdt.setLxName(lxName);
 				rdt.setLxTel(lxTel);
 				rdt.setShowStatus(showStatus);
-				rdt.setAddUserId(addUserId);
+				rdt.setAddUserId(loginUserId);
 				rdt.setUserType(userType);
 				rdt.setAddTime(CurrentTime.getCurrentTime());
 				if (userType.equals(1)) {
@@ -127,6 +138,19 @@ public class RqDevTradeController {
 				}
 				rdt.setHot(0);
 				rdtId = rdtService.saveOrUpdate(rdt);
+
+				if (!detailImg.isEmpty()) {
+					String dImgs = CommonTools.dealUploadDetail(loginUserId, "", detailImg);
+					String[] dImgArr = dImgs.split(",");
+					List<RqDevTradeImg> rdtiList = new ArrayList<>();
+					for (int i = 0; i < dImgArr.length; i++) {
+						RqDevTradeImg rdti = new RqDevTradeImg();
+						rdti.setRqDevTrade(rdt);
+						rdti.setReDevDetailImg(dImgArr[i]);
+						rdtiList.add(rdti);
+					}
+					rdtiService.addOrUpdateBatch(rdtiList);
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -224,6 +248,7 @@ public class RqDevTradeController {
 			@ApiResponse(code = 70001, message = "无权限访问") })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "燃气设备买卖主键", required = true),
 			@ApiImplicitParam(name = "mainImg", value = "燃气设备主图", required = true, defaultValue = "燃气设备图.img"),
+			@ApiImplicitParam(name = "compId", value = "公司编号", required = true),
 			@ApiImplicitParam(name = "devName", value = "设备名称", required = true, defaultValue = "马哈"),
 			@ApiImplicitParam(name = "devNo", value = "设备型号", required = true, defaultValue = "NoAlo909"),
 			@ApiImplicitParam(name = "devPp", value = "生产厂家", required = true, defaultValue = "其他牌"),
@@ -232,12 +257,14 @@ public class RqDevTradeController {
 			@ApiImplicitParam(name = "zlId", value = "设备种类主键", required = true),
 			@ApiImplicitParam(name = "description", value = "描述", defaultValue = "这是一个描述"),
 			@ApiImplicitParam(name = "lxName", value = "联系人", defaultValue = "小黑"),
+			@ApiImplicitParam(name = "detailImg", value = "燃气设备详情图"),
 			@ApiImplicitParam(name = "lxTel", value = "联系电话", defaultValue = "13956487523"),
 			@ApiImplicitParam(name = "showStatus", value = "上/下架状态（0：上架，1：下架）", required = true, defaultValue = "0"), })
 	public GenericResponse updateRqDevTrade(HttpServletRequest request) {
 
 		String id = CommonTools.getFinalStr("id", request);
 		String mainImg = CommonTools.getFinalStr("mainImg", request);
+		String compId = CommonTools.getFinalStr("compId", request);
 		String devName = CommonTools.getFinalStr("devName", request);
 		String devNo = CommonTools.getFinalStr("devNo", request);
 		String devPp = CommonTools.getFinalStr("devPp", request);
@@ -247,6 +274,7 @@ public class RqDevTradeController {
 		String description = CommonTools.getFinalStr("description", request);
 		String lxName = CommonTools.getFinalStr("lxName", request);
 		String lxTel = CommonTools.getFinalStr("lxTel", request);
+		String detailImg = CommonTools.getFinalStr("detailImg", request);
 		Integer showStatus = CommonTools.getFinalInteger("showStatus", request);
 
 		String loginUserId = CommonTools.getLoginUserId(request);
@@ -269,6 +297,10 @@ public class RqDevTradeController {
 				} else {
 					if (!mainImg.equals(rdt.getMainImg())) {
 						rdt.setMainImg(CommonTools.dealUploadDetail(loginUserId, rdt.getMainImg(), mainImg));
+					}
+					if(!compId.isEmpty() && ! compId.equals(rdt.getCompany().getId())) {
+						Company company = companyService.getEntityById(compId);
+						rdt.setCompany(company);
 					}
 					if (!devName.equals(rdt.getDevName())) {
 						rdt.setDevName(devName);
@@ -303,6 +335,29 @@ public class RqDevTradeController {
 						rdt.setShowStatus(showStatus);
 					}
 					rdtService.saveOrUpdate(rdt);
+
+					List<RqDevTradeImg> riList = rdtiService.getRdtImgByRdtId(id);
+					String imgPath_db = "";
+					if (!riList.isEmpty()) {
+						for (RqDevTradeImg ri : riList) {
+							imgPath_db += ri.getReDevDetailImg() + ",";
+						}
+						imgPath_db = imgPath_db.substring(0, imgPath_db.length() - 1);
+						rdtiService.deleteBatch(riList);
+					}
+
+					if (!detailImg.isEmpty()) {
+						String dImgs = CommonTools.dealUploadDetail(loginUserId, imgPath_db, detailImg);
+						String[] dImgArr = dImgs.split(",");
+						List<RqDevTradeImg> rdtiList = new ArrayList<>();
+						for (int i = 0; i < dImgArr.length; i++) {
+							RqDevTradeImg rdti = new RqDevTradeImg();
+							rdti.setRqDevTrade(rdt);
+							rdti.setReDevDetailImg(dImgArr[i]);
+							rdtiList.add(rdti);
+						}
+						rdtiService.addOrUpdateBatch(rdtiList);
+					}
 				}
 			}
 		} catch (Exception e) {
@@ -326,6 +381,7 @@ public class RqDevTradeController {
 			String addUserId, Integer page, Integer limit) {
 		Integer status = 200;
 		Page<RqDevTrade> rdt = null;
+		List<Object> list = new ArrayList<Object>();
 		try {
 			compId = CommonTools.getFinalStr(compId);
 			lmId = CommonTools.getFinalStr(lmId);
@@ -343,15 +399,91 @@ public class RqDevTradeController {
 			if (showSta == null) {
 				showSta = -1;
 			}
-			rdt = rdtService.getRqDevTradeList(compId, lmId, zlId, checkSta, showSta, addUserId, page, limit);
+			rdt = rdtService.getRqDevTradeList(compId, lmId, zlId, checkSta, showSta, addUserId, page-1, limit);
 			if (rdt.getTotalElements() == 0) {
 				status = 50001;
+			} else {
+				List<RqDevTrade> rdtList = rdt.getContent();
+				for (RqDevTrade rdts : rdtList) {
+					Map<String, Object> map = new HashMap<String, Object>();
+					map.put("rdtId",rdts.getId());
+					map.put("cpyName", rdts.getCompany().getName());
+					map.put("devName", rdts.getDevName());
+					map.put("lmName", rdts.getRqDevType().getName());
+					map.put("zlName", rdts.getRqDevType1().getName());
+					map.put("checkStatus", rdts.getCheckStatus());
+					map.put("showStatus", rdts.getShowStatus());
+					map.put("devPrice", rdts.getDevPrice());
+					map.put("addTime", rdts.getAddTime());
+					list.add(map);
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			status = 1000;
 		}
-		return ResponseFormat.getPageJson(limit, page, rdt.getTotalElements(), status, rdt.getContent());
+		return ResponseFormat.getPageJson(limit, page, rdt.getTotalElements(), status, list);
+	}
+
+	@GetMapping("/getRqDevTradeById")
+	@ApiOperation(value = "根据主键获取燃气设备买卖详细信息", notes = "根据主键获取燃气设备买卖详细信息")
+	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
+			@ApiResponse(code = 10002, message = "参数为空"), @ApiResponse(code = 50001, message = "数据未找到") })
+	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "燃气设备买卖编号", required = true) })
+	public GenericResponse getRqDevTradeById(HttpServletRequest request) {
+		Integer status = 200;
+		String rdtId = CommonTools.getFinalStr("id", request);
+		List<Object> list = new ArrayList<Object>();
+
+		try {
+			if (rdtId.equals("")) {
+				status = 10002;
+			} else {
+				RqDevTrade rdt = rdtService.getEntityById(rdtId);
+				if (rdt == null) {
+					status = 10002;
+				} else {
+					Map<String, Object> map = new HashMap<String, Object>();
+					map.put("cpyId", rdt.getCompany().getId());
+					map.put("cpyName", rdt.getCompany().getName());
+					map.put("mainImg", rdt.getMainImg());
+					map.put("devName", rdt.getDevName());
+					map.put("devNo", rdt.getDevNo());
+					map.put("devPp", rdt.getDevPp());
+					map.put("devPrice", rdt.getDevPrice());
+					map.put("devTypeId1", rdt.getRqDevType().getId());
+					map.put("devTypeName1", rdt.getRqDevType().getName());
+					map.put("devTypeId2", rdt.getRqDevType1().getId());
+					map.put("devTypeName2", rdt.getRqDevType1().getName());
+					map.put("description", rdt.getDescription());
+					map.put("lxName", rdt.getLxName());
+					map.put("lxTel", rdt.getLxTel());
+					map.put("checkStatus", rdt.getCheckStatus());
+					map.put("checkTime", rdt.getCheckTime());
+					map.put("showStatus", rdt.getShowStatus());
+					map.put("addUserId", rdt.getAddUserId());
+					map.put("addTime", rdt.getAddTime());
+					map.put("userType", rdt.getUserType());
+					map.put("hot", rdt.getHot());
+
+					List<RqDevTradeImg> rdti = rdtiService.getRdtImgByRdtId(rdtId);
+					List<Object> rdtilist = new ArrayList<Object>();
+					if (!rdti.isEmpty()) {
+						for (int i = 0; i < rdti.size(); i++) {
+							Map<String, Object> rdtimap = new HashMap<String, Object>();
+							rdtimap.put("pdiImg", rdti.get(i).getReDevDetailImg());
+							rdtilist.add(rdtimap);
+						}
+					}
+					map.put("detailImg", rdtilist);
+					list.add(map);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			status = 1000;
+		}
+		return ResponseFormat.retParam(status, list);
 	}
 
 }

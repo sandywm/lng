@@ -1,5 +1,10 @@
 package com.lng.controller;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,9 +17,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.lng.pojo.Company;
 import com.lng.pojo.PotTrade;
+import com.lng.pojo.PotTradeImg;
 import com.lng.pojo.PotZzjzType;
 import com.lng.pojo.TrucksPotPp;
 import com.lng.service.CompanyService;
+import com.lng.service.PotTradeImgService;
 import com.lng.service.PotTradeService;
 import com.lng.service.PotZzjzTypeService;
 import com.lng.service.TrucksPotPpService;
@@ -45,6 +52,8 @@ public class PotTradeController {
 	private TrucksPotPpService potPpService;
 	@Autowired
 	private PotZzjzTypeService zzjzTypeService;
+	@Autowired
+	private PotTradeImgService ptiService;
 
 	@PostMapping("/addPotTrade")
 	@ApiOperation(value = "添加储罐租卖", notes = "添加储罐租卖")
@@ -65,8 +74,9 @@ public class PotTradeController {
 			@ApiImplicitParam(name = "lxName", value = "联系人", defaultValue = "小黑"),
 			@ApiImplicitParam(name = "lxTel", value = "联系电话", defaultValue = "13956487523"),
 			@ApiImplicitParam(name = "userId", value = "用户编号(微信)"),
+			@ApiImplicitParam(name = "potDetailImg", value = "储罐详情图"),
 			@ApiImplicitParam(name = "showStatus", value = "上/下架状态（0：上架，1：下架）", required = true, defaultValue = "0"),
-			@ApiImplicitParam(name = "addUserId", value = "上传人员", required = true),
+			// @ApiImplicitParam(name = "addUserId", value = "上传人员", required = true),
 			// @ApiImplicitParam(name = "userType", value = "上传人员类型（1：后台管理人员，2：普通用户）",
 			// required = true),
 			@ApiImplicitParam(name = "tradeStatus", value = "租卖类型(0:可租可卖,1:租,2:卖)", required = true, defaultValue = "0") })
@@ -86,7 +96,8 @@ public class PotTradeController {
 		String lxName = CommonTools.getFinalStr("lxName", request);
 		String lxTel = CommonTools.getFinalStr("lxTel", request);
 		Integer showStatus = CommonTools.getFinalInteger("showStatus", request);
-		String addUserId = CommonTools.getFinalStr("addUserId", request);
+		// String addUserId = CommonTools.getFinalStr("addUserId", request);
+		String potDetailImg = CommonTools.getFinalStr("potDetailImg", request);
 		// Integer userType = CommonTools.getFinalInteger("userType", request);
 		Integer userType = 1;
 		Integer tradeStatus = CommonTools.getFinalInteger("tradeStatus", request);
@@ -133,12 +144,25 @@ public class PotTradeController {
 					pt.setCheckTime("");
 				}
 				pt.setShowStatus(showStatus);
-				pt.setAddUserId(addUserId);
+				pt.setAddUserId(loginUserId);
 				pt.setAddTime(CurrentTime.getCurrentTime());
 				pt.setUserType(userType);
 				pt.setHot(0);
 				pt.setTradeStatus(tradeStatus);
 				ptId = potTradeService.saveOrUpdate(pt);
+
+				if (!potDetailImg.isEmpty()) {
+					String ptImgs = CommonTools.dealUploadDetail(loginUserId, "", potDetailImg);
+					String[] ptimgArr = ptImgs.split(",");
+					List<PotTradeImg> ptList = new ArrayList<>();
+					for (int i = 0; i < ptimgArr.length; i++) {
+						PotTradeImg pti = new PotTradeImg();
+						pti.setPotTrade(pt);
+						pti.setPotDetailImg(ptimgArr[i]);
+						ptList.add(pti);
+					}
+					ptiService.addOrUpdateBatch(ptList);
+				}
 			}
 
 		} catch (Exception e) {
@@ -239,6 +263,7 @@ public class PotTradeController {
 	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "储罐租卖编号", required = true),
 			@ApiImplicitParam(name = "mainImg", value = "储罐主图", required = true),
 			@ApiImplicitParam(name = "potPpId", value = "储罐品牌编号", required = true),
+			@ApiImplicitParam(name = "compId", value = "公司编号", required = true),
 			@ApiImplicitParam(name = "potVol", value = "储罐容积", required = true),
 			@ApiImplicitParam(name = "sxInfo", value = "有无手续(1：有，2：无)", defaultValue = "有", required = true),
 			@ApiImplicitParam(name = "buyYear", value = "购买年份", required = true),
@@ -251,11 +276,13 @@ public class PotTradeController {
 			@ApiImplicitParam(name = "lxName", value = "联系人", defaultValue = "小黑"),
 			@ApiImplicitParam(name = "lxTel", value = "联系电话", defaultValue = "13956487523"),
 			@ApiImplicitParam(name = "userId", value = "用户编号(WX)"),
+			@ApiImplicitParam(name = "potDetailImg", value = "储罐详情图"),
 			@ApiImplicitParam(name = "showStatus", value = "上/下架状态（0：上架，1：下架）", defaultValue = "0", required = true),
 			@ApiImplicitParam(name = "tradeStatus", value = "租卖类型(0:可租可卖,1:租,2:卖)", defaultValue = "0", required = true) })
 	public GenericResponse updatePotTrade(HttpServletRequest request) {
 		String id = CommonTools.getFinalStr("id", request);
 		String mainImg = CommonTools.getFinalStr("mainImg", request);
+		String compId = CommonTools.getFinalStr("compId", request);
 		String potPpId = CommonTools.getFinalStr("potPpId", request);
 		Integer potVol = CommonTools.getFinalInteger("potVol", request);
 		String sxInfo = CommonTools.getFinalStr("sxInfo", request);
@@ -268,6 +295,7 @@ public class PotTradeController {
 		String remark = CommonTools.getFinalStr("remark", request);
 		String lxName = CommonTools.getFinalStr("lxName", request);
 		String lxTel = CommonTools.getFinalStr("lxTel", request);
+		String potDetailImg = CommonTools.getFinalStr("potDetailImg", request);
 		Integer showStatus = CommonTools.getFinalInteger("showStatus", request);
 		Integer tradeStatus = CommonTools.getFinalInteger("tradeStatus", request);
 		String loginUserId = CommonTools.getLoginUserId(request);
@@ -293,6 +321,11 @@ public class PotTradeController {
 					if (!mainImg.isEmpty() && !mainImg.equals(pt.getMainImg())) {
 						pt.setMainImg(CommonTools.dealUploadDetail(loginUserId, pt.getMainImg(), mainImg));
 					}
+					if(!compId.isEmpty() && ! compId.equals(pt.getCompany().getId())) {
+						Company company = companyService.getEntityById(compId);
+						pt.setCompany(company);
+					}
+					
 					if (!potPpId.isEmpty() && !potPpId.equals(pt.getTrucksPotPp().getId())) {
 						TrucksPotPp trucksPotPp = potPpService.findById(potPpId);
 						pt.setTrucksPotPp(trucksPotPp);
@@ -338,6 +371,28 @@ public class PotTradeController {
 						pt.setTradeStatus(tradeStatus);
 					}
 					potTradeService.saveOrUpdate(pt);
+					
+					List<PotTradeImg> ptiList = ptiService.getPotTradeImgByPtId(id);
+					String imgPath_db = "";
+					if (!ptiList.isEmpty()) {
+						for (PotTradeImg pti : ptiList) {
+							imgPath_db += pti.getPotDetailImg() + ",";
+						}
+						imgPath_db = imgPath_db.substring(0, imgPath_db.length() - 1);
+						ptiService.deleteBatch(ptiList);
+					}
+					if (!potDetailImg.isEmpty()) {
+						String ptImgs = CommonTools.dealUploadDetail(loginUserId, imgPath_db, potDetailImg);
+						String[] ptimgArr = ptImgs.split(",");
+						List<PotTradeImg> ptList = new ArrayList<>();
+						for (int i = 0; i < ptimgArr.length; i++) {
+							PotTradeImg pti = new PotTradeImg();
+							pti.setPotTrade(pt);
+							pti.setPotDetailImg(ptimgArr[i]);
+							ptList.add(pti);
+						}
+						ptiService.addOrUpdateBatch(ptList);
+					}
 				}
 			}
 
@@ -362,6 +417,7 @@ public class PotTradeController {
 			Integer checkSta, Integer page, Integer limit) {
 		Integer status = 200;
 		Page<PotTrade> pts = null;
+		List<Object> list = new ArrayList<Object>();
 		try {
 			potPpId = CommonTools.getFinalStr(potPpId);
 			sxInfo = CommonTools.getFinalStr(sxInfo);
@@ -378,16 +434,94 @@ public class PotTradeController {
 			if (potVol == null) {
 				potVol = -1;
 			}
-			pts = potTradeService.getPotTradeByOption(potPpId, potVol, sxInfo, zzjzTypeId, checkSta, page - 1,
-					limit);
+			pts = potTradeService.getPotTradeByOption(potPpId, potVol, sxInfo, zzjzTypeId, checkSta, page - 1, limit);
 			if (pts.getTotalElements() == 0) {
 				status = 50001;
+			} else {
+				List<PotTrade> ttList = pts.getContent();
+				for (PotTrade pt : ttList) {
+					Map<String, Object> map = new HashMap<String, Object>();
+					map.put("ptId", pt.getId());
+					map.put("tradeStatus", pt.getTradeStatus());
+					map.put("cpyName", pt.getCompany().getName());
+					map.put("potPpName", pt.getTrucksPotPp().getName());
+					map.put("potVol", pt.getPotVolume());
+					map.put("sxInfo", pt.getSxInfo());
+					map.put("leasePrice", pt.getLeasePrice());
+					map.put("sellPrice", pt.getSellPrice());
+					map.put("checkStatus", pt.getCheckStatus());
+					map.put("showStatus", pt.getShowStatus());
+					list.add(map);
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			status = 1000;
 		}
-		return ResponseFormat.getPageJson(limit, page, pts.getTotalElements(), status, pts.getContent());
+		return ResponseFormat.getPageJson(limit, page, pts.getTotalElements(), status, list);
+	}
+
+	@GetMapping("/getPotTradeById")
+	@ApiOperation(value = "根据主键获取储罐租卖详细信息", notes = "根据主键获取储罐租卖详细信息")
+	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
+			@ApiResponse(code = 10002, message = "参数为空"), @ApiResponse(code = 50001, message = "数据未找到") })
+	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "储罐租卖编号", required = true) })
+	public GenericResponse getPotTradeById(HttpServletRequest request) {
+		Integer status = 200;
+		String ptId = CommonTools.getFinalStr("id", request);
+		List<Object> list = new ArrayList<Object>();
+
+		try {
+			if (ptId.equals("")) {
+				status = 10002;
+			} else {
+				PotTrade pt = potTradeService.getEntityById(ptId);
+				if (pt == null) {
+					status = 10002;
+				} else {
+					Map<String, Object> map = new HashMap<String, Object>();
+					map.put("cpyId", pt.getCompany().getId());
+					map.put("cpyName", pt.getCompany().getName());
+					map.put("mainImg", pt.getMainImg());
+					map.put("potPpId", pt.getTrucksPotPp().getId());
+					map.put("potPpName", pt.getTrucksPotPp().getName());
+					map.put("potVolume", pt.getPotVolume());
+					map.put("sxInfo", pt.getSxInfo());
+					map.put("buyYear", pt.getBuyYear());
+					map.put("zzjzTypeId", pt.getPotZzjzType().getId());
+					map.put("zzJzTypeName", pt.getPotZzjzType().getName());
+					map.put("province", pt.getProvince());
+					map.put("city", pt.getCity());
+					map.put("leasePrice", pt.getLeasePrice());
+					map.put("sellPrice", pt.getSellPrice());
+					map.put("reMark", pt.getRemark());
+					map.put("lxName", pt.getLxName());
+					map.put("lxTel", pt.getLxTel());
+					map.put("checkStatus", pt.getCheckStatus());
+					map.put("checkTime", pt.getCheckTime());
+					map.put("addUserId", pt.getAddUserId());
+					map.put("addTime", pt.getAddTime());
+					map.put("userType", pt.getUserType());
+					map.put("hot", pt.getHot());
+					map.put("tradeStatus", pt.getTradeStatus());
+					List<PotTradeImg> pti = ptiService.getPotTradeImgByPtId(ptId);
+					List<Object> ptilist = new ArrayList<Object>();
+					if (!pti.isEmpty()) {
+						for (int i = 0; i < pti.size(); i++) {
+							Map<String, Object> ptimap = new HashMap<String, Object>();
+							ptimap.put("pdiImg", pti.get(i).getPotDetailImg());
+							ptilist.add(ptimap);
+						}
+					}
+					map.put("detailImg", ptilist);
+					list.add(map);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			status = 1000;
+		}
+		return ResponseFormat.retParam(status, list);
 	}
 
 }
