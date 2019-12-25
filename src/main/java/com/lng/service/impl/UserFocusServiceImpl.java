@@ -37,7 +37,34 @@ public class UserFocusServiceImpl implements UserFocusService {
 
 	@SuppressWarnings("serial")
 	@Override
-	public List<UserFocus> getUserFocusList(String userId, String focusType) {
+	public List<UserFocus> getUserFocusList(String userId, String focusId,String focusType) {
+		Specification<UserFocus> spec = new Specification<UserFocus>() {
+			@Override
+			public Predicate toPredicate(Root<UserFocus> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+				Predicate pre = cb.conjunction();
+				if(!userId.isEmpty()) {
+					pre.getExpressions().add((cb.equal(root.get("user").get("id"), userId)));
+				}
+				if(!focusId.isEmpty()) {
+					pre.getExpressions().add((cb.equal(root.get("focusId"), focusId)));
+				}
+				if(!focusType.isEmpty()) {
+					pre.getExpressions().add((cb.equal(root.get("focusType"), focusType)));
+				}
+				return pre;
+			}
+		};
+		return ufDao.findAll(spec);
+	}
+
+	@Override
+	public void delete(String id) {
+		ufDao.deleteById(id);
+	}
+
+	@SuppressWarnings("serial")
+	@Override
+	public List<UserFocus> userFocusList(String userId, String focusType) {
 		Specification<UserFocus> spec = new Specification<UserFocus>() {
 			@Override
 			public Predicate toPredicate(Root<UserFocus> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
@@ -52,10 +79,5 @@ public class UserFocusServiceImpl implements UserFocusService {
 			}
 		};
 		return ufDao.findAll(spec);
-	}
-
-	@Override
-	public void delete(String id) {
-		ufDao.deleteById(id);
 	}
 }

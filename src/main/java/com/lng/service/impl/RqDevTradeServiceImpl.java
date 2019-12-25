@@ -1,5 +1,6 @@
 package com.lng.service.impl;
 
+import java.util.List;
 import java.util.Optional;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -77,6 +78,33 @@ public class RqDevTradeServiceImpl implements RqDevTradeService {
 			}
 		};
 		return rqDevTradeDao.findAll(spec, pageable);
+	}
+
+	@SuppressWarnings("serial")
+	@Override
+	public List<RqDevTrade> listInfoByOpt(String sDate, String eDate, Integer checkSta, Integer showSta) {
+		// TODO Auto-generated method stub
+		Sort sort = Sort.by(Sort.Direction.DESC, "addTime");//降序排列
+		Specification<RqDevTrade> spec = new Specification<RqDevTrade>() {
+
+			@Override
+			public Predicate toPredicate(Root<RqDevTrade> root, CriteriaQuery<?> query,
+					CriteriaBuilder cb) {
+				Predicate pre = cb.conjunction();
+				if (!sDate.isEmpty() && !eDate.isEmpty()) {
+					pre.getExpressions().add(cb.greaterThanOrEqualTo(root.get("addTime"), sDate + " 00:00:01"));
+					pre.getExpressions().add(cb.lessThanOrEqualTo(root.get("addTime"), eDate + " 23:59:59"));
+				}
+				if (checkSta != -1) { 
+					pre.getExpressions().add(cb.equal(root.get("checkStatus"), checkSta));
+				}
+				if (showSta != -1) { 
+					pre.getExpressions().add(cb.equal(root.get("showStatus"), showSta));
+				}
+				return pre;
+			}
+		};
+		return rqDevTradeDao.findAll(spec, sort);
 	}
 
 }

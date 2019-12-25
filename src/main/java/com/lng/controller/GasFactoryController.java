@@ -350,7 +350,7 @@ public class GasFactoryController {
 						map.put("gfId", gf.getId());
 						map.put("gasTypeId", gt.getId());
 						map.put("gasTypeName", gt.getName());
-						map.put("yzImg", gt.getYzImg());
+						map.put("headImg", gt.getYzImg());
 						list.add(map);
 					}
 				}else {

@@ -105,4 +105,19 @@ public interface GasTradeService {
 	 * @param gtiList
 	 */
 	void addBatchInfo(List<GasTradeImg> gtiList);
+	
+	/**
+	 * @description 获取指定日期时间段的燃气贸易列表（时间降序排列）
+	 * @author wm
+	 * @Version : 1.0
+	 * @ModifiedBy : 修改人
+	 * @date  2019年12月25日 下午1:49:13
+	 * @param sDate 开始时间
+	 * @param eDate 结束时间
+	 * @param checkStatus 审核状态(0:未审核,1:审核通过,2:审核未通过)
+	 * @param showStatus 上/下架状态（0：上架，1：下架）
+	 * @return
+	 */
+	Page<GasTrade> listInfoByOpt(String sDate,String eDate,Integer checkStatus,
+			Integer showStatus, Integer pageNo,Integer pageSize);
 }

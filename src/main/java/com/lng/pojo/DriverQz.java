@@ -44,6 +44,20 @@ public class DriverQz implements java.io.Serializable {
 	private String province;
 	@ApiModelProperty(value = "市")
 	private String city;
+	@ApiModelProperty(value = "学历")
+	private String education;
+	@ApiModelProperty(value = "年龄")
+	private int age;
+	@ApiModelProperty(value = "性别")
+	private String sex;
+	@ApiModelProperty(value = "工作经验")
+	private String workExp;
+	@ApiModelProperty(value = "工作年限")
+	private String workYear;
+	@ApiModelProperty(value = "毕业院校")
+	private String colleges;
+	@ApiModelProperty(value = "婚否")
+	private String marriage;
 	@ApiModelProperty(value = "备注")
 	private String remark;
 	@ApiModelProperty(value = "审核状态")
@@ -62,8 +76,11 @@ public class DriverQz implements java.io.Serializable {
 	public DriverQz() {
 	}
 
-	public DriverQz(String userId, String userName, String userMobile, String userHead, int jzYear,
-			String jzType, int wage, String province, String city, String remark, int checkStatus, String checkTime,
+	
+
+	public DriverQz(String userId, String userName, String userMobile, String userHead, int jzYear, String jzType,
+			int wage, String province, String city, String education, int age, String sex, String workExp,
+			String workYear, String colleges, String marriage, String remark, int checkStatus, String checkTime,
 			int showStatus, String addTime, int userType, int hot) {
 		this.userId = userId;
 		this.userName = userName;
@@ -74,6 +91,13 @@ public class DriverQz implements java.io.Serializable {
 		this.wage = wage;
 		this.province = province;
 		this.city = city;
+		this.education = education;
+		this.age = age;
+		this.sex = sex;
+		this.workExp = workExp;
+		this.workYear = workYear;
+		this.colleges = colleges;
+		this.marriage = marriage;
 		this.remark = remark;
 		this.checkStatus = checkStatus;
 		this.checkTime = checkTime;
@@ -82,6 +106,8 @@ public class DriverQz implements java.io.Serializable {
 		this.userType = userType;
 		this.hot = hot;
 	}
+
+
 
 	@Id
 	@GeneratedValue(generator = "system-uuid")
@@ -173,6 +199,62 @@ public class DriverQz implements java.io.Serializable {
 
 	public void setCity(String city) {
 		this.city = city;
+	}
+	@Column(name = "education",  columnDefinition = "varchar(100) COMMENT '学历'")
+	public String getEducation() {
+		return education;
+	}
+
+	public void setEducation(String education) {
+		this.education = education;
+	}
+	@Column(name = "age",  columnDefinition = "int(11) COMMENT '年龄'")
+	public int getAge() {
+		return age;
+	}
+
+	public void setAge(int age) {
+		this.age = age;
+	}
+	@Column(name = "sex",  columnDefinition = "varchar(50) COMMENT '性别'")
+	public String getSex() {
+		return sex;
+	}
+
+	public void setSex(String sex) {
+		this.sex = sex;
+	}
+	@Column(name = "work_exp",  columnDefinition = "varchar(100) COMMENT '工作经验'")
+	public String getWorkExp() {
+		return workExp;
+	}
+
+	public void setWorkExp(String workExp) {
+		this.workExp = workExp;
+	}
+	
+	@Column(name = "work_year",  columnDefinition = "varchar(100) COMMENT '工作年限'")
+	public String getWorkYear() {
+		return workYear;
+	}
+	public void setWorkYear(String workYear) {
+		this.workYear = workYear;
+	}
+	@Column(name = "collages",  columnDefinition = "varchar(100) COMMENT '院校'")
+	public String getColleges() {
+		return colleges;
+	}
+
+	public void setColleges(String colleges) {
+		this.colleges = colleges;
+	}
+	@Column(name = "marriage",  columnDefinition = "varchar(50) COMMENT '婚否'")
+	public String getMarriage() {
+		return marriage;
+	}
+
+	public void setMarriage(String marriage) {
+		this.marriage = marriage;
 	}
 
 	@Column(name = "remark", columnDefinition = "varchar(255) COMMENT '备注'")

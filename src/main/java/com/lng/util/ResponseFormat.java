@@ -47,6 +47,7 @@ public class ResponseFormat {
         messageMap.put(50002, "数据有误");
         messageMap.put(50003, "数据已存在");
         messageMap.put(50004,"查询出错");
+        messageMap.put(50005,"超过最大数量");
 
         /* 接口错误：60001-69999 */
         messageMap.put(60001, "内部系统接口调用异常");

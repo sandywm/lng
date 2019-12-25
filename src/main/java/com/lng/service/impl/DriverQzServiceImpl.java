@@ -1,5 +1,6 @@
 package com.lng.service.impl;
 
+import java.util.List;
 import java.util.Optional;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -33,7 +34,7 @@ public class DriverQzServiceImpl implements DriverQzService {
 	public DriverQz getEntityById(String id) {
 		if (!id.isEmpty()) {
 			Optional<DriverQz> qz = driverQzDao.findById(id);
-			if(qz.isPresent()) {
+			if (qz.isPresent()) {
 				return qz.get();
 			}
 			return null;
@@ -67,10 +68,10 @@ public class DriverQzServiceImpl implements DriverQzService {
 				if (!wage.isEmpty()) {
 					String[] wages = wage.split("-");
 					Integer wage1 = Integer.parseInt(wages[0]);
-					Integer wage2=null;
-					if(wages.length==1) {
-						wage2=wage1;
-					}else {
+					Integer wage2 = null;
+					if (wages.length == 1) {
+						wage2 = wage1;
+					} else {
 						wage2 = Integer.parseInt(wages[1]);
 					}
 					pre.getExpressions().add(cb.between(root.get("wage"), wage1, wage2));
@@ -85,6 +86,52 @@ public class DriverQzServiceImpl implements DriverQzService {
 			}
 		};
 		return driverQzDao.findAll(spec, pageable);
+	}
+
+	@SuppressWarnings("serial")
+	@Override
+	public List<DriverQz> getDriverQzByUserId(String userId) {
+		if (!userId.isEmpty()) {
+			Specification<DriverQz> spec = new Specification<DriverQz>() {
+				@Override
+				public Predicate toPredicate(Root<DriverQz> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+					Predicate pre = cb.conjunction();
+					if (!userId.isEmpty()) {
+						pre.getExpressions().add(cb.equal(root.get("userId"), userId));
+					}
+					return pre;
+				}
+			};
+			return driverQzDao.findAll(spec);
+		}
+		return driverQzDao.findAll();
+	}
+
+	@SuppressWarnings("serial")
+	@Override
+	public List<DriverQz> listQzInfoByOpt(String sDate, String eDate, Integer checkSta, Integer showSta) {
+		// TODO Auto-generated method stub
+		Sort sort = Sort.by(Sort.Direction.DESC, "addTime");// 降序排列
+
+		Specification<DriverQz> spec = new Specification<DriverQz>() {
+
+			@Override
+			public Predicate toPredicate(Root<DriverQz> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+				Predicate pre = cb.conjunction();
+				if (!sDate.isEmpty() && !eDate.isEmpty()) {
+					pre.getExpressions().add(cb.greaterThanOrEqualTo(root.get("addTime"), sDate + " 00:00:01"));
+					pre.getExpressions().add(cb.lessThanOrEqualTo(root.get("addTime"), eDate + " 23:59:59"));
+				}
+				if (checkSta != -1) {
+					pre.getExpressions().add(cb.equal(root.get("checkStatus"), checkSta));
+				}
+				if (showSta != -1) {
+					pre.getExpressions().add(cb.equal(root.get("showStatus"), showSta));
+				}
+				return pre;
+			}
+		};
+		return driverQzDao.findAll(spec, sort);
 	}
 
 }

@@ -112,7 +112,7 @@ public class MessageCenter implements java.io.Serializable {
 		this.addTime = addTime;
 	}
 
-	@Column(name = "message_type", nullable = false, columnDefinition = "int(11) COMMENT '消息类型'")
+	@Column(name = "message_type", nullable = false, columnDefinition = "int(11) COMMENT '消息类型（1：新闻资讯，2：系统通知，3：留言回复，4：价格变动通知）'")
 	public int getMessageType() {
 		return this.messageType;
 	}

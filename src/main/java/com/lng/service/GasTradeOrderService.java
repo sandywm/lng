@@ -39,7 +39,7 @@ public interface GasTradeOrderService {
 	 * @param userId 用户编号
 	 * @param compId 公司编号
 	 * @param addTime 添加时间
-	 * @param ordSta 订单状态
+	 * @param ordSta 订单状态(-3表示全部,-2表示未完成，7表示订单完成)
 	 * @param pageNo 第几页
 	 * @param pageSize 每页多少条
 	 * @return

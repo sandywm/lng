@@ -326,6 +326,7 @@ public class GasTradeOrderController {
 					GasTrade gt = gto.getGasTrade();
 					GasFactory gf = gt.getGasFactory();
 					GasType gasType = gt.getGasType();
+//					map.put("gasTradeId", gt.getId());
 					map.put("headImg", gt.getHeadImg());
 					map.put("orderNo", gto.getOrderNo());
 					map.put("title", gf.getProvince()+gf.getName()+gasType.getName());
@@ -357,6 +358,7 @@ public class GasTradeOrderController {
 					}
 					map.put("orderStatusChi", orderStatusChi);
 					map.put("addTime", gto.getAddTime());
+					list.add(map);
 				}
 			}
 		} catch (Exception e) {
@@ -367,7 +369,7 @@ public class GasTradeOrderController {
 	}
 
 	@GetMapping("/queryGtOrderByGtId")
-	@ApiOperation(value = "根据燃气交易订单编号获取燃气交易订单详情", notes = "根据燃气交易订单编号获取燃气交易订单详情")
+	@ApiOperation(value = "根据燃气交易编号获取燃气交易订单详情", notes = "根据燃气交易编号获取燃气交易订单详情")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
 			@ApiResponse(code = 50001, message = "数据未找到") })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "gtId", value = "燃气交易编号"), 
@@ -388,6 +390,79 @@ public class GasTradeOrderController {
 		return ResponseFormat.retParam(status, gtoList);
 	}
 
+	@GetMapping("/queryGtOrderByGtoId")
+	@ApiOperation(value = "根据燃气交易订单编号获取燃气交易订单详情", notes = "根据燃气交易订单编号获取燃气交易订单详情")
+	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
+			@ApiResponse(code = 50001, message = "数据未找到") })
+	@ApiImplicitParams({ @ApiImplicitParam(name = "gtoId", value = "燃气交易订单编号"), 
+			@ApiImplicitParam(name = "gtoId", value = "燃气交易订单编号")
+	})
+	public GenericResponse queryGtOrderByGtoId(String gtoId) {
+		Integer status = 200;
+		List<Object> list = new ArrayList<Object>();
+		try {
+			GasTradeOrder gt = gtoSeriver.getEntityById(gtoId);
+			if (gt == null) {
+				status = 50001;
+			}else {
+				Map<String,Object> map = new HashMap<String,Object>();
+				map.put("id", gt.getId());
+				map.put("orderNo", gt.getOrderNo());
+				GasTrade gasTrade = gt.getGasTrade();
+				GasFactory gf = gasTrade.getGasFactory();
+				map.put("title", gf.getProvince()+gf.getName()+gf.getGasType().getName());
+				String headImg = gasTrade.getHeadImg();
+				if(headImg.equals("")) {
+					headImg = gf.getGasType().getYzImg();
+				}
+				map.put("headImg", headImg);
+				map.put("gasTradeId", gasTrade.getId());
+				map.put("sellCpyName", gasTrade.getCompany().getName());
+				map.put("buyUserName", gt.getUser().getRealName());
+				map.put("buyCpyName", gt.getCompany().getName());
+				map.put("buyUserMobile", gt.getLxMobile());
+				map.put("price", gt.getPrice());
+				map.put("remark", gt.getRemark());
+				map.put("userProv", gt.getLxrProv());
+				map.put("userCity", gt.getLxrCity());
+				map.put("userAddress", gt.getLxrAddress());
+				map.put("gpsInfo", gt.getLxrGpsInfo());
+				map.put("distance", gt.getDistance());
+				map.put("addTime", gt.getAddTime());
+				Integer oStatus = gt.getOrderStatus();
+				String orderStatusChi = "";
+				map.put("orderStatus", oStatus);
+				if(oStatus.equals(-1)) {
+					orderStatusChi = "已取消";//商户取消
+				}else if(oStatus.equals(0)) {
+					orderStatusChi = "待付款";//下单后等待付预付款0
+				}else if(oStatus.equals(1)) {
+					orderStatusChi = "待商家确认";//付款凭证上传后等待商家确认后状态修改为1
+				}else if(oStatus.equals(2)) {
+					orderStatusChi = "待发货";//商家确认无误后等待商家发货状态修改为2，确认有误时状态修改为0，直到确认完成
+				}else if(oStatus.equals(3)) {
+					orderStatusChi = "待收货";//商家发货后状态修改为3
+				}else if(oStatus.equals(4)) {
+					orderStatusChi = "待付款";//买家点击收货时上传磅单，状态修改为4
+				}else if(oStatus.equals(5)) {
+					orderStatusChi = "待商家确认";//买家上传尾款凭证后，状态修改为5
+				}else if(oStatus.equals(6)) {
+					orderStatusChi = "待买家评价";//商家确认后状态修改为6，确认有误时状态修改为4
+				}else if(oStatus.equals(7)) {
+					orderStatusChi = "订单完成";//买家评价后状态修改为7，订单完成
+				}
+				map.put("orderStatusChi", orderStatusChi);
+				map.put("pjNumber", gt.getOrderPjNumber());
+				map.put("pjDetail", gt.getOrderPjDetail());
+				list.add(map);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			status = 1000;
+		}
+		return ResponseFormat.retParam(status, list);
+	}
+	
 	@GetMapping("/queryGtoLogByGtoId")
 	@ApiOperation(value = "根据订单编号获取燃气交易订单日志信息", notes = "根据订单编号获取燃气交易订单日志信息")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),

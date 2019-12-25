@@ -1,5 +1,6 @@
 package com.lng.service.impl;
 
+import java.util.List;
 import java.util.Optional;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -68,6 +69,30 @@ public class MessageCenterServiceImpl implements MessageCenterService {
 			}
 		};
 		return mcDao.findAll(spec, pageable);
+	}
+
+	@SuppressWarnings("serial")
+	@Override
+	public List<MessageCenter> listMsgByOpt(Integer msgTypeId, String sTime, String eTime) {
+		// TODO Auto-generated method stub
+		Sort sort = Sort.by(Sort.Direction.DESC, "addTime");// 降序排列
+		Specification<MessageCenter> spec = new Specification<MessageCenter>() {
+
+			@Override
+			public Predicate toPredicate(Root<MessageCenter> root, CriteriaQuery<?> query,
+					CriteriaBuilder cb) {
+				Predicate pre = cb.conjunction();
+				if(msgTypeId > 0) {
+					pre.getExpressions().add(cb.equal(root.get("messageType"), msgTypeId));
+				}
+				if (!sTime.isEmpty() && !eTime.isEmpty()) {
+					pre.getExpressions().add(cb.greaterThanOrEqualTo(root.get("addTime"), sTime + " 00:00:01"));
+					pre.getExpressions().add(cb.lessThanOrEqualTo(root.get("addTime"), eTime + " 23:59:59"));
+				}
+				return pre;
+			}
+		};
+		return mcDao.findAll(spec, sort);
 	}
 
 }

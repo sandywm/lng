@@ -1,5 +1,6 @@
 package com.lng.service.impl;
 
+import java.util.List;
 import java.util.Optional;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -45,7 +46,7 @@ public class PotTradeServiceImpl implements PotTradeService {
 	@SuppressWarnings("serial")
 	@Override
 	public Page<PotTrade> getPotTradeByOption(String potPpId, Integer potVol, String sxInfo, String zzjzTypeId,
-			Integer checkSta, Integer pageNo, Integer pageSize) {
+			Integer checkSta,Integer showStatus,Integer tradeStatus, Integer pageNo, Integer pageSize) {
 		Sort sort = Sort.by(Sort.Direction.DESC, "addTime");// 降序排列
 		Pageable pageable = PageRequest.of(pageNo, pageSize,sort);
 		Specification<PotTrade> spec = new Specification<PotTrade>() {
@@ -67,10 +68,41 @@ public class PotTradeServiceImpl implements PotTradeService {
 				if (checkSta != -1) {
 					pre.getExpressions().add(cb.equal(root.get("checkStatus"), checkSta));
 				}
+				if (showStatus != -1) {
+					pre.getExpressions().add(cb.equal(root.get("showStatus"), showStatus));
+				}
+				if (tradeStatus != -1) {
+					pre.getExpressions().add(cb.equal(root.get("tradeStatus"), tradeStatus));
+				}
 				return pre;
 			}
 		};
 		return potTradeDao.findAll(spec, pageable);
+	}
+
+	@SuppressWarnings("serial")
+	@Override
+	public List<PotTrade> listPotTradeByOpt(String sDate, String eDate, Integer checkSta, Integer showStatus) {
+		// TODO Auto-generated method stub
+		Sort sort = Sort.by(Sort.Direction.DESC, "addTime");// 降序排列
+		Specification<PotTrade> spec = new Specification<PotTrade>() {
+			@Override
+			public Predicate toPredicate(Root<PotTrade> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+				Predicate pre = cb.conjunction();
+				if (!sDate.isEmpty() && !eDate.isEmpty()) {
+					pre.getExpressions().add(cb.greaterThanOrEqualTo(root.get("addTime"), sDate + " 00:00:01"));
+					pre.getExpressions().add(cb.lessThanOrEqualTo(root.get("addTime"), eDate + " 23:59:59"));
+				}
+				if (checkSta != -1) {
+					pre.getExpressions().add(cb.equal(root.get("checkStatus"), checkSta));
+				}
+				if (showStatus != -1) {
+					pre.getExpressions().add(cb.equal(root.get("showStatus"), showStatus));
+				}
+				return pre;
+			}
+		};
+		return potTradeDao.findAll(spec, sort);
 	}
 
 }

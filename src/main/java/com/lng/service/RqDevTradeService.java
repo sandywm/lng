@@ -1,5 +1,7 @@
 package com.lng.service;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 
 import com.lng.pojo.RqDevTrade;
@@ -48,5 +50,17 @@ public interface RqDevTradeService {
 	 */
 	Page<RqDevTrade> getRqDevTradeList(String compId,String lmId,String zlId,Integer checkSta,Integer showSta,String addUserId, Integer pageNo, Integer pageSize);
 	
-
+	/**
+	 * @description 根据条件获取设备租卖记录
+	 * @author wm
+	 * @Version : 1.0
+	 * @ModifiedBy : 修改人
+	 * @date  2019年12月25日 下午3:33:30
+	 * @param sDate 开始时间
+	 * @param eDate 结束时间
+	 * @param checkSta 审核状态
+	 * @param showSta 上下架状态
+	 * @return
+	 */
+	List<RqDevTrade> listInfoByOpt(String sDate,String eDate,Integer checkSta,Integer showSta);
 }

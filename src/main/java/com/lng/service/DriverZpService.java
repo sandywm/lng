@@ -1,5 +1,7 @@
 package com.lng.service;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 
 import com.lng.pojo.DriverZp;
@@ -27,6 +29,17 @@ public interface DriverZpService {
 	 * @return
 	 */
 	DriverZp getEntityById(String id);
+	/**
+	 * 
+	 * @description 根据司机招聘获取司机招聘
+	 * @author zdf
+	 * @Version : 1.0
+	 * @ModifiedBy : 
+	 * @date  2019年12月25日 上午11:09:51
+	 * @param cpyId 公司编号
+	 * @return
+	 */
+	List<DriverZp> getDriverZpList(String cpyId);
 	/**
 	 * 
 	 * @description 根据条件分页获取司机招聘信息

@@ -45,6 +45,14 @@ public class DriverZp implements java.io.Serializable {
 	private String city;
 	@ApiModelProperty(value = "公司地址")
 	private String address;
+	@ApiModelProperty(value = "学历")
+	private String education;
+	@ApiModelProperty(value = "工作年限")
+	private String workYear;
+	@ApiModelProperty(value = "人数")
+	private int num;
+	@ApiModelProperty(value = "福利待遇")
+	private String welfare;
 	@ApiModelProperty(value = "备注")
 	private String remark;
 	@ApiModelProperty(value = "审核状态")
@@ -69,9 +77,12 @@ public class DriverZp implements java.io.Serializable {
 	public DriverZp() {
 	}
 
+	
+
 	public DriverZp(Company company, String jzType, String sjAgeRange, String jlYearRange, int wage, String province,
-			String city, String address, String remark, int checkStatus, String checkTime, int showStatus,
-			String addTime, int userType, String addUserId, int hot, String lxName, String lxTel) {
+			String city, String address, String education, String workYear, int num, String welfare, String remark,
+			int checkStatus, String checkTime, int showStatus, String addTime, int userType, String addUserId, int hot,
+			String lxName, String lxTel) {
 		this.company = company;
 		this.jzType = jzType;
 		this.sjAgeRange = sjAgeRange;
@@ -80,6 +91,10 @@ public class DriverZp implements java.io.Serializable {
 		this.province = province;
 		this.city = city;
 		this.address = address;
+		this.education = education;
+		this.workYear = workYear;
+		this.num = num;
+		this.welfare = welfare;
 		this.remark = remark;
 		this.checkStatus = checkStatus;
 		this.checkTime = checkTime;
@@ -91,6 +106,8 @@ public class DriverZp implements java.io.Serializable {
 		this.lxName = lxName;
 		this.lxTel = lxTel;
 	}
+
+
 
 	@Id
 	@GeneratedValue(generator = "system-uuid")
@@ -175,7 +192,34 @@ public class DriverZp implements java.io.Serializable {
 	public void setAddress(String address) {
 		this.address = address;
 	}
-
+	@Column(name = "education",  columnDefinition = "varchar(100) COMMENT '学历'")
+	public String getEducation() {
+		return education;
+	}
+	public void setEducation(String education) {
+		this.education = education;
+	}
+	@Column(name = "work_year",  columnDefinition = "varchar(100) COMMENT '工作年限'")
+	public String getWorkYear() {
+		return workYear;
+	}
+	public void setWorkYear(String workYear) {
+		this.workYear = workYear;
+	}
+	@Column(name = "num",  columnDefinition = "int(11) COMMENT '人数'")
+	public int getNum() {
+		return num;
+	}
+	public void setNum(int num) {
+		this.num = num;
+	}
+	@Column(name = "welfare",  columnDefinition = "varchar(100) COMMENT '福利待遇'")
+	public String getWelfare() {
+		return welfare;
+	}
+	public void setWelfare(String welfare) {
+		this.welfare = welfare;
+	}
 	@Column(name = "remark", columnDefinition = "varchar(255) COMMENT '备注'")
 	public String getRemark() {
 		return this.remark;

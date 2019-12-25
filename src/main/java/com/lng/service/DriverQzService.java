@@ -1,5 +1,7 @@
 package com.lng.service;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 
 import com.lng.pojo.DriverQz;
@@ -28,6 +30,17 @@ public interface DriverQzService {
 	 * @return
 	 */
 	DriverQz getEntityById(String id);
+	/**
+	 * 
+	 * @description 通过用户编号获取司机求职
+	 * @author zdf
+	 * @Version : 1.0
+	 * @ModifiedBy : 
+	 * @date  2019年12月25日 上午9:33:29
+	 * @param userId 用户编号
+	 * @return
+	 */
+	List<DriverQz> getDriverQzByUserId(String userId);
 
 	/**
 	 * 
@@ -48,5 +61,19 @@ public interface DriverQzService {
 	 */
 	Page<DriverQz> getDriverQzByOption(String userId, Integer jzYear, String jzType, String wage, Integer checkSta,
 			Integer showSta, Integer pageNo, Integer pageSize);
+	
+	/**
+	 * @description 根据条件获取司机求职信息
+	 * @author wm
+	 * @Version : 1.0
+	 * @ModifiedBy : 修改人
+	 * @date  2019年12月25日 下午4:46:42
+	 * @param sDate 开始时间
+	 * @param eDate 结束时间
+	 * @param checkSta 审核状态
+	 * @param showSta 上下架状态
+	 * @return
+	 */
+	List<DriverQz> listQzInfoByOpt(String sDate,String eDate,Integer checkSta,Integer showSta);
 
 }

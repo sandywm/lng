@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.lng.pojo.CommonProvinceOrder;
 import com.lng.pojo.Company;
+import com.lng.pojo.CompanyPsr;
 import com.lng.pojo.GasFactory;
 import com.lng.pojo.GasFactoryCompany;
 import com.lng.pojo.GasTrade;
@@ -27,6 +28,7 @@ import com.lng.pojo.LngPriceDetail;
 import com.lng.pojo.User;
 import com.lng.pojo.UserCompany;
 import com.lng.service.CommonProvinceOrderService;
+import com.lng.service.CompanyPsrService;
 import com.lng.service.CompanyService;
 import com.lng.service.GasFactoryCompanyService;
 import com.lng.service.GasFactoryService;
@@ -72,6 +74,8 @@ public class GasTradeController {
 	private CompanyService cs;
 	@Autowired
 	private UserCompanyService ucs;
+	@Autowired
+	private CompanyPsrService cps;
 	
 	@PostMapping("addGasTrade")
 	@ApiOperation(value = "增加燃气买卖记录",notes = "发布燃气买卖记录,配送区域最多能选五个")
@@ -160,8 +164,12 @@ public class GasTradeController {
 					Company cpy = cs.getEntityById(cpyId);
 					GasFactory gf = gfs.getEntityById(gasFactotyId);
 					if(gasType != null && cpy != null && gf != null) {
-						if(headImg.equals("")) {//没上传图时用默认图片
-							headImg = gasType.getYzImg();
+						List<GasType> gtList = gtypes.getGasTypeList();
+						for(GasType gt : gtList) {
+							if(gt.getYzImg().replace("_small", "").equals(headImg)) {
+								headImg = "";
+								break;
+							}
 						}
 						GasTrade gt = new GasTrade(cpy, gf, gasType, 
 								CommonTools.dealUploadDetail(userId, "", headImg), gasVolume,
@@ -238,7 +246,7 @@ public class GasTradeController {
 				for(GasTrade gt : gtList) {
 					Map<String,Object> map_d = new HashMap<String,Object>();
 					map_d.put("id", gt.getId());
-					map_d.put("cpyName", gt.getCompany().getId());
+					map_d.put("cpyName", gt.getCompany().getName());
 					map_d.put("headImg", gt.getHeadImg());
 					map_d.put("gasTypeName", gt.getGasType().getName());
 					String pubUserId = gt.getAddUserId();
@@ -315,44 +323,69 @@ public class GasTradeController {
 				}else {
 					Map<String,Object> map = new HashMap<String,Object>();
 					map.put("id", gt.getId());
-					if(opt.equals(1)) {
-						userId = CommonTools.getFinalStr("userId", request);
-					}
 					Company cpy = gt.getCompany();
 					String cpyId = cpy.getId();
-					//获取自己的所有贸易公司
-					List<UserCompany> ucList = ucs.getUserCompanyListByOpt("", "LNG贸易商", 1, userId);
 					List<Object> list_cpy = new ArrayList<Object>();
-					for(UserCompany uc : ucList) {
-						Map<String, Object> map_d = new HashMap<String, Object>();
-						Company cpy_tmp = uc.getCompany();
-						map_d.put("cpyId", cpy_tmp.getId());
-						map_d.put("cpyName", cpy_tmp.getName());
-						if(cpy_tmp.getId().equals(cpyId)) {
-							map_d.put("selFlag", true);
-						}else {
-							map_d.put("selFlag", false);
+					if(opt.equals(1)) {//前台
+						userId = CommonTools.getFinalStr("userId", request);
+						//获取自己的所有贸易公司
+						List<UserCompany> ucList = ucs.getUserCompanyListByOpt("", "LNG贸易商", 1, userId);
+						for(UserCompany uc : ucList) {
+							Map<String, Object> map_d = new HashMap<String, Object>();
+							Company cpy_tmp = uc.getCompany();
+							map_d.put("cpyId", cpy_tmp.getId());
+							map_d.put("cpyName", cpy_tmp.getName());
+							if(cpy_tmp.getId().equals(cpyId)) {
+								map_d.put("selFlag", true);
+							}else {
+								map_d.put("selFlag", false);
+							}
+							list_cpy.add(map_d);
 						}
-						list.add(map_d);
+					}else {//后台--获取所有贸易商公司
+						List<Company> cList = cs.listSpecCpy("","LNG贸易商");
+						for(Company cpy_tmp : cList) {
+							Map<String, Object> map_d = new HashMap<String, Object>();
+							map_d.put("cpyId", cpy_tmp.getId());
+							map_d.put("cpyName", cpy_tmp.getName());
+							if(cpy_tmp.getId().equals(cpyId)) {
+								map_d.put("selFlag", true);
+							}else {
+								map_d.put("selFlag", false);
+							}
+							list_cpy.add(map_d);
+						}
 					}
 					map.put("cpyList", list_cpy);
 					//液质类型是通过液厂获取出来
 					GasType gasType = gt.getGasType();
 					map.put("gasTypeId", gasType.getId());
 					map.put("gasTypeName", gasType.getName());
+					List<Object> list_gf = new ArrayList<Object>();
 					GasFactory gf = gt.getGasFactory();
 					List<GasFactoryCompany>  gfcList = gfcs.listCompanyByGfId("", cpyId, 1);
+					String headImg = gt.getHeadImg();
 					for(GasFactoryCompany gfc:gfcList) {
 						Map<String,Object> map_gfc = new HashMap<String,Object>();
 						GasFactory gf_tmp = gfc.getGasFactory();
+						GasType gt_tmp = gf_tmp.getGasType();
 						map_gfc.put("gfId", gf_tmp.getId());
 						map_gfc.put("gfName", gf_tmp.getName());
+						map_gfc.put("headImg", gt_tmp.getYzImg());
+						map_gfc.put("gasTypeId", gt_tmp.getId());
+						map_gfc.put("gasTypeName", gt_tmp.getName());
 						if(gf_tmp.getId().equals(gf.getId())) {
 							map_gfc.put("selFlag", true);
+							if(headImg.equals("")) {
+								headImg = gt_tmp.getYzImg();
+							}
 						}else {
 							map_gfc.put("selFlag", false);
 						}
+						list_gf.add(map_gfc);
 					}
+					map.put("gasFacotryList", list_gf);
+					map.put("headImg", headImg);
 					map.put("yyd", gf.getProvince());
 					map.put("gasVolume", gt.getGasVolume());
 					map.put("gasPrice", gt.getGasPrice());
@@ -408,10 +441,38 @@ public class GasTradeController {
 					map.put("addTime", gt.getAddTime());
 					map.put("userType", gt.getUserType());
 					map.put("cpNo", gt.getCpNo());
-					map.put("jsyName", gt.getJsyName());
-					map.put("jsyMobile", gt.getJsyMobile());
-					map.put("yyrName", gt.getYyrName());
-					map.put("yyrMobile", gt.getYyrMobile());
+					//获取公司驾驶员押运人
+					List<CompanyPsr> cpyPsrList = cps.getCompanyPsrList(cpyId);
+					List<Object> list_jsr = new ArrayList<Object>();
+					List<Object> list_yyr = new ArrayList<Object>();
+					String jsyName = gt.getJsyName();
+					String jsyMobile = gt.getJsyMobile();
+					String yyrName = gt.getYyrName();
+					String yyrMobile = gt.getYyrMobile();
+					for(CompanyPsr psr : cpyPsrList) {
+						Map<String,Object> map_d = new HashMap<String,Object>();
+						String driverName = psr.getName();
+						String driverMobile = psr.getMobile();
+						map_d.put("jsyName", driverName);
+						map_d.put("jsyMobile", driverMobile);
+						if(driverName.equals(jsyName) && driverMobile.equals(jsyMobile)) {
+							map_d.put("selFlag", true);
+						}else {
+							map_d.put("selFlag", false);
+						}
+						list_jsr.add(map_d);
+						Map<String,Object> map_d1 = new HashMap<String,Object>();
+						map_d1.put("yyrName", driverName);
+						map_d1.put("yyrMobile", driverMobile);
+						if(driverName.equals(yyrName) && driverMobile.equals(yyrMobile)) {
+							map_d1.put("selFlag", true);
+						}else {
+							map_d1.put("selFlag", false);
+						}
+						list_yyr.add(map_d1);
+					}
+					map.put("jsrList", list_jsr);
+					map.put("yyrList", list_yyr);
 					map.put("qfTxt1", gt.getQfText1());
 					map.put("qfTxt2", gt.getQfText2());
 					map.put("qfTxt3", gt.getQfText3());
@@ -498,7 +559,7 @@ public class GasTradeController {
 		try {
 			if(!gasTradeId.equals("")){
 				if(opt.equals(0)) {//审核
-					if(checkStatus.equals(1) && checkStatus.equals(2)) {
+					if(checkStatus.equals(1) || checkStatus.equals(2)) {
 						if(CommonTools.checkAuthorization(userId, CommonTools.getLoginRoleName(request),Constants.CHECK_GAS_TRADE_PUB)) {
 							GasTrade gt = gts.getEntityById(gasTradeId);
 							if(gt == null) {
@@ -515,7 +576,7 @@ public class GasTradeController {
 						status = 10002;
 					}
 				}else {//上下架
-					if(checkStatus.equals(0) && checkStatus.equals(1)) {
+					if(checkStatus.equals(0) || checkStatus.equals(1)) {
 						GasTrade gt = gts.getEntityById(gasTradeId);
 						if(gt == null) {
 							status = 50001;
@@ -623,16 +684,22 @@ public class GasTradeController {
 						if(gt.getCheckStatus() == 1) {//审核通过的不能进行修改
 							status = 80001;
 						}else {
+							GasFactory gf = gt.getGasFactory();
+							GasType gasType = gt.getGasType();
 							if(!cpyId.equals(gt.getCompany().getId())) {
 								gt.setCompany(cs.getEntityById(cpyId));
 							}
-							if(!gasTypeId.equals(gt.getGasType().getId())) {
-								gt.setGasType(gtypes.findById(gasTypeId));
+							if(!gasTypeId.equals(gasType.getId())) {//液质类型发生变化
+								gasType = gtypes.findById(gasTypeId);
+								gt.setGasType(gasType);
 							}
-							if(!gasFactotyId.equals(gt.getGasFactory().getId())) {
+							if(!gasFactotyId.equals(gf.getId())) {
 								gt.setGasFactory(gfs.getEntityById(gasFactotyId));
 							}
-							gt.setHeadImg(CommonTools.dealUploadDetail(userId, gt.getHeadImg(), headImg));
+							if(!headImg.equals(gasType.getYzImg().replace("_small", ""))) {//说明是自己上传
+								gt.setHeadImg(CommonTools.dealUploadDetail(userId, gt.getHeadImg(), headImg));
+							}
+							//如果图片不是液厂默认图片--上传
 							gt.setGasVolume(gasVolume);
 							gt.setGasPrice(Double.parseDouble(gasPrice));
 							gt.setZcDate(zcDate);

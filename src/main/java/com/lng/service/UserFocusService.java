@@ -35,10 +35,23 @@ public interface UserFocusService {
 	 * @ModifiedBy : 
 	 * @date  2019年12月16日 下午3:55:24
 	 * @param userId 用户编号
+	 * @param focusId 关注编号
 	 * @param focusType 关注类型
 	 * @return
 	 */
-	List<UserFocus> getUserFocusList(String userId,String focusType);
+	List<UserFocus> getUserFocusList(String userId,String focusId, String focusType);
+	/**
+	 * 
+	 * @description 获取我的关注
+	 * @author zdf
+	 * @Version : 1.0
+	 * @ModifiedBy : 
+	 * @date  2019年12月24日 下午2:05:51
+	 * @param userId 用户编号
+	 * @param focusType 关注类型
+	 * @return
+	 */
+	List<UserFocus> userFocusList(String userId, String focusType);
 	/**
 	 * 
 	 * @description 取消关注

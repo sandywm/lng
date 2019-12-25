@@ -1,5 +1,6 @@
 package com.lng.service.impl;
 
+import java.util.List;
 import java.util.Optional;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -33,7 +34,7 @@ public class DriverZpServiceImpl implements DriverZpService {
 	public DriverZp getEntityById(String id) {
 		if (!id.isEmpty()) {
 			Optional<DriverZp> zp = driverZpDao.findById(id);
-			if(zp.isPresent()) {
+			if (zp.isPresent()) {
 				return zp.get();
 			}
 			return null;
@@ -48,7 +49,7 @@ public class DriverZpServiceImpl implements DriverZpService {
 	public Page<DriverZp> getDriverQzByOption(String compId, String jzType, Integer checkSta, Integer showSta,
 			String wage, Integer pageNo, Integer pageSize) {
 		Sort sort = Sort.by(Sort.Direction.DESC, "addTime");// 降序排列
-		Pageable pageable = PageRequest.of(pageNo, pageSize,sort);
+		Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
 		Specification<DriverZp> spec = new Specification<DriverZp>() {
 
 			@Override
@@ -70,18 +71,34 @@ public class DriverZpServiceImpl implements DriverZpService {
 				if (!wage.isEmpty()) {
 					String[] wages = wage.split("-");
 					Integer wage1 = Integer.parseInt(wages[0]);
-					Integer wage2=null;
-					if(wages.length==1) {
-						wage2=wage1;
-					}else {
+					Integer wage2 = null;
+					if (wages.length == 1) {
+						wage2 = wage1;
+					} else {
 						wage2 = Integer.parseInt(wages[1]);
 					}
 					pre.getExpressions().add(cb.between(root.get("wage"), wage1, wage2));
 				}
-				return null;
+				return pre;
 			}
 		};
 		return driverZpDao.findAll(spec, pageable);
 	}
 
+	@SuppressWarnings("serial")
+	@Override
+	public List<DriverZp> getDriverZpList(String cpyId) {
+		if (!cpyId.isEmpty()) {
+			Specification<DriverZp> spec = new Specification<DriverZp>() {
+				@Override
+				public Predicate toPredicate(Root<DriverZp> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+					Predicate pre = cb.conjunction();
+					pre.getExpressions().add(cb.equal(root.get("company").get("id"), cpyId));
+					return pre;
+				}
+			};
+			return driverZpDao.findAll(spec);
+		}
+		return driverZpDao.findAll();
+	}
 }

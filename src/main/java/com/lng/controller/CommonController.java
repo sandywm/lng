@@ -6,6 +6,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -13,14 +14,26 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.lng.pojo.CommonProvinceOrder;
+import com.lng.pojo.DriverQz;
 import com.lng.pojo.GasFactory;
+import com.lng.pojo.GasTrade;
 import com.lng.pojo.GasType;
 import com.lng.pojo.HqProvinceOrder;
+import com.lng.pojo.MessageCenter;
 import com.lng.service.CommonProvinceOrderService;
+import com.lng.service.DriverQzService;
+import com.lng.service.DriverZpService;
 import com.lng.service.GasFactoryService;
+import com.lng.service.GasTradeService;
 import com.lng.service.GasTypeService;
 import com.lng.service.HqProvinceOrderService;
+import com.lng.service.MessageCenterService;
+import com.lng.service.PotTradeImgService;
+import com.lng.service.PotTradeService;
+import com.lng.service.RqDevTradeService;
+import com.lng.service.TrucksTradeService;
 import com.lng.tools.CommonTools;
+import com.lng.tools.CurrentTime;
 import com.lng.util.Constants;
 import com.lng.util.GenericResponse;
 import com.lng.util.ResponseFormat;
@@ -45,6 +58,20 @@ public class CommonController {
 	private GasFactoryService gfs;
 	@Autowired
 	private GasTypeService gts;
+	@Autowired
+	private MessageCenterService mcs;
+	@Autowired
+	private GasTradeService gasTrades;
+	@Autowired
+	private TrucksTradeService tts;
+	@Autowired
+	private RqDevTradeService rdts;
+	@Autowired
+	private PotTradeService pts;
+	@Autowired
+	private DriverQzService dqzs;
+	@Autowired
+	private DriverZpService dzps;
 	
 	@GetMapping("/getProvinceList")
 	@ApiOperation(value = "获取省份排序列表", notes = "lng液厂显示顺序用")
@@ -265,5 +292,42 @@ public class CommonController {
 			status = 1000;
 		}
 		return ResponseFormat.retParam(status, "");
+	}
+	
+	@GetMapping("/getWelcomeData")
+	@ApiOperation(value = "获取微信首页数据", notes = "l获取微信首页数据")
+	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), 
+		@ApiResponse(code = 200, message = "成功"),
+		@ApiResponse(code = 50001, message = "数据未找到")
+	})
+	@ApiImplicitParams({ @ApiImplicitParam(name = "mcLimit", value = "头条限制条数",required = true),
+		@ApiImplicitParam(name = "gsType", value = "液质类型(0:其他,1:海气)", dataType = "integer",required = true)
+	})
+	public GenericResponse getWelcomeData() {
+		Integer status = 200;
+		List<Object> list = new ArrayList<Object>();
+		String currentDate = CurrentTime.getStringDate();
+		String sDate = CurrentTime.getFinalDate(currentDate, -6);
+		try {
+			//获取当天最新的价格变动消息
+			List<MessageCenter> mcList = mcs.listMsgByOpt(4, currentDate, currentDate);
+			//获取燃气贸易最新的一条记录
+			Page<GasTrade> gtList = gasTrades.listInfoByOpt("", "", 1, -1, 1, 1);
+			//获取货车买卖当天最新记录条数
+			Integer tructsTradeNum = tts.listTrucksTradeByOpt(1, -1, sDate, currentDate).size();
+			//获取燃气设备买卖当天最新记录条数
+			Integer rqDevTradeNum = rdts.listInfoByOpt(sDate, currentDate, 1, -1).size();
+			//获取储罐租卖当天最新记录条数
+			Integer potTradeNum = pts.listPotTradeByOpt(sDate, currentDate, 1, -1).size();
+			//获取最近2条行业资讯
+			Page<MessageCenter> mcList_xw = mcs.getMessageCenterByOption(1, "", 1, -1, 1, 2);
+			//获取最近一条招聘司机的记录
+			List<DriverQz> qzList = dqzs.listQzInfoByOpt(currentDate, currentDate, 1, -1);
+			//获取最近一条司机求职的记录
+		} catch (Exception e) {
+			e.printStackTrace();
+			status = 1000;
+		}
+		return ResponseFormat.retParam(status, list);
 	}
 }

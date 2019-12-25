@@ -65,7 +65,11 @@ public class GasTradeOrderServiceImpl implements GasTradeOrderService {
 					pre.getExpressions().add(cb.greaterThanOrEqualTo(root.get("addTime"), sDate + " 00:00:01"));
 					pre.getExpressions().add(cb.greaterThanOrEqualTo(root.get("addTime"), eDate + " 23:59:59"));
 				}
-				if (ordSta!=-1) {
+				if(ordSta.equals(-2)) {//未完成
+					pre.getExpressions().add(cb.lessThan(root.get("orderStatus"), 7));
+				}else if(ordSta.equals(-3)) {//全部
+					
+				}else {
 					pre.getExpressions().add(cb.equal(root.get("orderStatus"), ordSta));
 				}
 				return pre;

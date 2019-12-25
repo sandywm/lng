@@ -1,5 +1,6 @@
 package com.lng.service.impl;
 
+import java.util.List;
 import java.util.Optional;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -45,7 +46,7 @@ public class TrucksTradeServiceImpl implements TrucksTradeService {
 
 	@SuppressWarnings("serial")
 	@Override
-	public Page<TrucksTrade> getTrucksTradeByOption(Integer checkSta, String addUserId, Integer tradeType,
+	public Page<TrucksTrade> getTrucksTradeByOption(Integer checkSta, String addUserId, Integer tradeType,Integer showStatus,
 			Integer pageNo, Integer pageSize) {
 		Sort sort = Sort.by(Sort.Direction.DESC, "addTime");// 降序排列
 		Pageable pageable = PageRequest.of(pageNo, pageSize,sort);
@@ -62,10 +63,38 @@ public class TrucksTradeServiceImpl implements TrucksTradeService {
 				if (tradeType != -1) {
 					pre.getExpressions().add(cb.equal(root.get("tradeType"), tradeType));
 				}
+				if (showStatus != -1) {
+					pre.getExpressions().add(cb.equal(root.get("showStatus"), showStatus));
+				}
 				return pre;
 			}
 		};
 		return trucksTradeDao.findAll(spec, pageable);
+	}
+
+	@SuppressWarnings("serial")
+	@Override
+	public List<TrucksTrade> listTrucksTradeByOpt(Integer checkSta, Integer showStatus, String sDate, String eDate) {
+		// TODO Auto-generated method stub
+		Sort sort = Sort.by(Sort.Direction.DESC, "addTime");// 降序排列
+		Specification<TrucksTrade> spec = new Specification<TrucksTrade>() {
+			@Override
+			public Predicate toPredicate(Root<TrucksTrade> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+				Predicate pre = cb.conjunction();
+				if (checkSta != -1) { 
+					pre.getExpressions().add(cb.equal(root.get("checkStatus"), checkSta));
+				}
+				if (showStatus != -1) {
+					pre.getExpressions().add(cb.equal(root.get("showStatus"), showStatus));
+				}
+				if (!sDate.isEmpty() && !eDate.isEmpty()) {
+					pre.getExpressions().add(cb.greaterThanOrEqualTo(root.get("addTime"), sDate + " 00:00:01"));
+					pre.getExpressions().add(cb.lessThanOrEqualTo(root.get("addTime"), eDate + " 23:59:59"));
+				}
+				return pre;
+			}
+		};
+		return trucksTradeDao.findAll(spec, sort);
 	}
 
 }

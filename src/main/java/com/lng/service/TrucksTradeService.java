@@ -1,5 +1,7 @@
 package com.lng.service;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 
 import com.lng.pojo.TrucksTrade;
@@ -38,11 +40,26 @@ public interface TrucksTradeService {
 	 * @param checkSta 审核状态
 	 * @param addUserId 上传人员
 	 * @param tradeType 贸易类型
+	 * @param showStatus  上/下架状态
 	 * @param pageNo 第几页
 	 * @param pageSize 每页多少条
 	 * @return
 	 */
-	Page<TrucksTrade> getTrucksTradeByOption(Integer checkSta, String addUserId, Integer tradeType, Integer pageNo,
+	Page<TrucksTrade> getTrucksTradeByOption(Integer checkSta, String addUserId, Integer tradeType,Integer showStatus, Integer pageNo,
 			Integer pageSize);
+	
+	/**
+	 * @description 根据条件获取货车租卖记录列表
+	 * @author wm
+	 * @Version : 1.0
+	 * @ModifiedBy : 修改人
+	 * @date  2019年12月25日 下午2:26:12
+	 * @param checkSta 审核状态
+	 * @param showStatus 上下架状态
+	 * @param sDate 开始时间
+	 * @param eDate 结束时间
+	 * @return
+	 */
+	List<TrucksTrade> listTrucksTradeByOpt(Integer checkSta,Integer showStatus,String sDate,String eDate);
 
 }

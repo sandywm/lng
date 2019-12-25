@@ -20,11 +20,13 @@ import com.lng.pojo.RqDevTrade;
 import com.lng.pojo.RqDevTradeImg;
 import com.lng.pojo.RqDevType;
 import com.lng.pojo.RqDevType1;
+import com.lng.pojo.UserFocus;
 import com.lng.service.CompanyService;
 import com.lng.service.RqDevTradeImgService;
 import com.lng.service.RqDevTradeService;
 import com.lng.service.RqDevType1Service;
 import com.lng.service.RqDevTypeService;
+import com.lng.service.UserFocusService;
 import com.lng.tools.CommonTools;
 import com.lng.tools.CurrentTime;
 import com.lng.util.Constants;
@@ -53,6 +55,8 @@ public class RqDevTradeController {
 	private RqDevTradeService rdtService;
 	@Autowired
 	private RqDevTradeImgService rdtiService;
+	@Autowired	
+	private UserFocusService ufService;
 
 	@PostMapping("/addRqDevTrade")
 	@ApiOperation(value = "添加燃气设备买卖", notes = "添加燃气设备买卖")
@@ -429,10 +433,14 @@ public class RqDevTradeController {
 	@ApiOperation(value = "根据主键获取燃气设备买卖详细信息", notes = "根据主键获取燃气设备买卖详细信息")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
 			@ApiResponse(code = 10002, message = "参数为空"), @ApiResponse(code = 50001, message = "数据未找到") })
-	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "燃气设备买卖编号", required = true) })
+	@ApiImplicitParams({
+		@ApiImplicitParam(name = "userId", value = "用户编号"), 
+		@ApiImplicitParam(name = "id", value = "燃气设备买卖编号", required = true) 
+	})
 	public GenericResponse getRqDevTradeById(HttpServletRequest request) {
 		Integer status = 200;
 		String rdtId = CommonTools.getFinalStr("id", request);
+		String userId = CommonTools.getFinalStr("userId", request);
 		List<Object> list = new ArrayList<Object>();
 
 		try {
@@ -475,6 +483,12 @@ public class RqDevTradeController {
 							rdtilist.add(rdtimap);
 						}
 					}
+					String ufId = "";
+					if (!userId.isEmpty()) {
+						List<UserFocus> ufList = ufService.getUserFocusList(userId, rdtId, "rqsb");
+						ufId = ufList.get(0).getId();
+					}
+					map.put("ufId", ufId);
 					map.put("detailImg", rdtilist);
 					list.add(map);
 				}

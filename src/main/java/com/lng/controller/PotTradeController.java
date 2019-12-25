@@ -20,11 +20,13 @@ import com.lng.pojo.PotTrade;
 import com.lng.pojo.PotTradeImg;
 import com.lng.pojo.PotZzjzType;
 import com.lng.pojo.TrucksPotPp;
+import com.lng.pojo.UserFocus;
 import com.lng.service.CompanyService;
 import com.lng.service.PotTradeImgService;
 import com.lng.service.PotTradeService;
 import com.lng.service.PotZzjzTypeService;
 import com.lng.service.TrucksPotPpService;
+import com.lng.service.UserFocusService;
 import com.lng.tools.CommonTools;
 import com.lng.tools.CurrentTime;
 import com.lng.util.Constants;
@@ -54,6 +56,8 @@ public class PotTradeController {
 	private PotZzjzTypeService zzjzTypeService;
 	@Autowired
 	private PotTradeImgService ptiService;
+	@Autowired
+	private UserFocusService ufService;
 
 	@PostMapping("/addPotTrade")
 	@ApiOperation(value = "添加储罐租卖", notes = "添加储罐租卖")
@@ -321,11 +325,11 @@ public class PotTradeController {
 					if (!mainImg.isEmpty() && !mainImg.equals(pt.getMainImg())) {
 						pt.setMainImg(CommonTools.dealUploadDetail(loginUserId, pt.getMainImg(), mainImg));
 					}
-					if(!compId.isEmpty() && ! compId.equals(pt.getCompany().getId())) {
+					if (!compId.isEmpty() && !compId.equals(pt.getCompany().getId())) {
 						Company company = companyService.getEntityById(compId);
 						pt.setCompany(company);
 					}
-					
+
 					if (!potPpId.isEmpty() && !potPpId.equals(pt.getTrucksPotPp().getId())) {
 						TrucksPotPp trucksPotPp = potPpService.findById(potPpId);
 						pt.setTrucksPotPp(trucksPotPp);
@@ -371,7 +375,7 @@ public class PotTradeController {
 						pt.setTradeStatus(tradeStatus);
 					}
 					potTradeService.saveOrUpdate(pt);
-					
+
 					List<PotTradeImg> ptiList = ptiService.getPotTradeImgByPtId(id);
 					String imgPath_db = "";
 					if (!ptiList.isEmpty()) {
@@ -412,9 +416,12 @@ public class PotTradeController {
 			@ApiImplicitParam(name = "sxInfo", value = "有无手续(1：有，2：无)"),
 			@ApiImplicitParam(name = "zzjzTypeId", value = "装载介质类型编号"),
 			@ApiImplicitParam(name = "checkSta", value = "审核状态(0:未审核,1:审核通过,2:审核未通过)"),
+			@ApiImplicitParam(name = "showStatus", value = "上/下架状态（0：上架，1：下架）"),
+			@ApiImplicitParam(name = "tradeStatus", value = "租卖类型(0:可租可卖,1:租,2:卖)"),
+
 			@ApiImplicitParam(name = "page", value = "第几页"), @ApiImplicitParam(name = "limit", value = "每页多少条") })
 	public PageResponse queryPotTrade(String potPpId, Integer potVol, String sxInfo, String zzjzTypeId,
-			Integer checkSta, Integer page, Integer limit) {
+			Integer checkSta, Integer showStatus, Integer tradeStatus, Integer page, Integer limit) {
 		Integer status = 200;
 		Page<PotTrade> pts = null;
 		List<Object> list = new ArrayList<Object>();
@@ -431,10 +438,17 @@ public class PotTradeController {
 			if (checkSta == null) {
 				checkSta = -1;
 			}
+			if (showStatus == null) {
+				showStatus = -1;
+			}
+			if (tradeStatus == null) {
+				tradeStatus = -1;
+			}
 			if (potVol == null) {
 				potVol = -1;
 			}
-			pts = potTradeService.getPotTradeByOption(potPpId, potVol, sxInfo, zzjzTypeId, checkSta, page - 1, limit);
+			pts = potTradeService.getPotTradeByOption(potPpId, potVol, sxInfo, zzjzTypeId, checkSta, showStatus,
+					tradeStatus, page - 1, limit);
 			if (pts.getTotalElements() == 0) {
 				status = 50001;
 			} else {
@@ -465,10 +479,12 @@ public class PotTradeController {
 	@ApiOperation(value = "根据主键获取储罐租卖详细信息", notes = "根据主键获取储罐租卖详细信息")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
 			@ApiResponse(code = 10002, message = "参数为空"), @ApiResponse(code = 50001, message = "数据未找到") })
-	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "储罐租卖编号", required = true) })
+	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "储罐租卖编号", required = true),
+			@ApiImplicitParam(name = "userId", value = "用户编号") })
 	public GenericResponse getPotTradeById(HttpServletRequest request) {
 		Integer status = 200;
 		String ptId = CommonTools.getFinalStr("id", request);
+		String userId = CommonTools.getFinalStr("userId", request);
 		List<Object> list = new ArrayList<Object>();
 
 		try {
@@ -513,6 +529,12 @@ public class PotTradeController {
 							ptilist.add(ptimap);
 						}
 					}
+					String ufId = "";
+					if (!userId.isEmpty()) {
+						List<UserFocus> ufList = ufService.getUserFocusList(userId, ptId, "cgzm");
+						ufId = ufList.get(0).getId();
+					}
+					map.put("ufId", ufId);
 					map.put("detailImg", ptilist);
 					list.add(map);
 				}

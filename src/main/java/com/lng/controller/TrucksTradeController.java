@@ -23,6 +23,7 @@ import com.lng.pojo.TrucksTrade;
 import com.lng.pojo.TrucksTradeQualification;
 import com.lng.pojo.TrucksType;
 import com.lng.pojo.TructsTradeZz;
+import com.lng.pojo.UserFocus;
 import com.lng.pojo.WqPfbz;
 import com.lng.service.CompanyService;
 import com.lng.service.QualificationService;
@@ -32,6 +33,7 @@ import com.lng.service.TrucksTradeQualService;
 import com.lng.service.TrucksTradeService;
 import com.lng.service.TrucksTypeService;
 import com.lng.service.TructsTradeZzService;
+import com.lng.service.UserFocusService;
 import com.lng.service.WqPfbzService;
 import com.lng.tools.CommonTools;
 import com.lng.tools.CurrentTime;
@@ -69,6 +71,8 @@ public class TrucksTradeController {
 	private TrucksTradeQualService ttQualService;
 	@Autowired
 	private TructsTradeZzService ttzzService;
+	@Autowired
+	private UserFocusService ufService;
 
 	@PostMapping("/addTrucksTrade")
 	@ApiOperation(value = "添加货车租卖", notes = "添加货车租卖")
@@ -90,7 +94,7 @@ public class TrucksTradeController {
 			@ApiImplicitParam(name = "lxName", value = "联系人", defaultValue = "小黑"),
 			@ApiImplicitParam(name = "lxTel", value = "联系电话", defaultValue = "13956487523"),
 			@ApiImplicitParam(name = "showStatus", value = "上/下架状态（0：上架，1：下架）", required = true, defaultValue = "0"),
-			//@ApiImplicitParam(name = "addUserId", value = "上传人员", required = true),
+			// @ApiImplicitParam(name = "addUserId", value = "上传人员", required = true),
 			@ApiImplicitParam(name = "qualId", value = "进港资质编号", required = true),
 			@ApiImplicitParam(name = "ttImg", value = "槽车租卖详情图片"),
 			// @ApiImplicitParam(name = "userType", value = "上传人员类型（1：后台管理人员，2：普通用户）",
@@ -124,7 +128,7 @@ public class TrucksTradeController {
 		String lxName = CommonTools.getFinalStr("lxName", request);
 		String lxTel = CommonTools.getFinalStr("lxTel", request);
 		Integer showStatus = CommonTools.getFinalInteger("showStatus", request);
-		//String addUserId = CommonTools.getFinalStr("addUserId", request);
+		// String addUserId = CommonTools.getFinalStr("addUserId", request);
 		String qualId = CommonTools.getFinalStr("qualId", request);
 		// Integer userType = CommonTools.getFinalInteger("userType", request);
 		Integer userType = 1;
@@ -199,26 +203,26 @@ public class TrucksTradeController {
 				WqPfbz wqPfbz = wqPfBzService.findById(wqpfbzId);
 				trtr.setWqPfbz(wqPfbz);
 				trtr.setAccidentFlag(accidentFlag);
-				if(!tructsHeadxsz.isEmpty()) {
+				if (!tructsHeadxsz.isEmpty()) {
 					trtr.setTrucksHeadxsz(CommonTools.dealUploadDetail(loginUserId, "", tructsHeadxsz));
 				}
-				if(!gcXsz.isEmpty()) {
+				if (!gcXsz.isEmpty()) {
 					trtr.setGcXsz(CommonTools.dealUploadDetail(loginUserId, "", gcXsz));
 				}
-				if(!tructsYyz.isEmpty()) {
-					trtr.setTructsYyz(CommonTools.dealUploadDetail(loginUserId, "", tructsYyz));	
+				if (!tructsYyz.isEmpty()) {
+					trtr.setTructsYyz(CommonTools.dealUploadDetail(loginUserId, "", tructsYyz));
 				}
-				if(!potJyz.isEmpty()) {
-					trtr.setPotJyz(CommonTools.dealUploadDetail(loginUserId, "", potJyz));	
+				if (!potJyz.isEmpty()) {
+					trtr.setPotJyz(CommonTools.dealUploadDetail(loginUserId, "", potJyz));
 				}
-				if(!aqfbg.isEmpty()) {
+				if (!aqfbg.isEmpty()) {
 					trtr.setAqfBg(CommonTools.dealUploadDetail(loginUserId, "", aqfbg));
 				}
-				
+
 				ttId = trucksTradeService.saveOrUpdate(trtr);
 
 				if (!ttId.isEmpty()) {
-					if(!qualId.isEmpty()) {
+					if (!qualId.isEmpty()) {
 						String[] qualArr = qualId.split(",");
 						for (int i = 0; i < qualArr.length; i++) {
 							Qualification qual = qualService.findById(qualArr[i]);
@@ -227,11 +231,11 @@ public class TrucksTradeController {
 							ttQual.setTrucksTrade(trtr);
 							ttQualService.addOrUpdate(ttQual);
 						}
-						
+
 					}
-					
+
 					if (!ttImg.equals("")) {
-						String	ttImgs = CommonTools.dealUploadDetail(loginUserId, "", ttImg);
+						String ttImgs = CommonTools.dealUploadDetail(loginUserId, "", ttImg);
 						String[] ttimgArr = ttImgs.split(",");
 						List<TructsTradeZz> zzlist = new ArrayList<>();
 						for (int i = 0; i < ttimgArr.length; i++) {
@@ -356,12 +360,11 @@ public class TrucksTradeController {
 			@ApiImplicitParam(name = "trucksTypeId", value = "车辆种类编号", required = true),
 			@ApiImplicitParam(name = "xsDistance", value = "车辆行驶里程", required = true),
 			@ApiImplicitParam(name = "qualId", value = "进港资质编号", required = true),
-			@ApiImplicitParam(name = "ttImg", value = "槽车租卖详情图片"),
-			@ApiImplicitParam(name = "remark", value = "备注"),
+			@ApiImplicitParam(name = "ttImg", value = "槽车租卖详情图片"), @ApiImplicitParam(name = "remark", value = "备注"),
 			@ApiImplicitParam(name = "lxName", value = "联系人", defaultValue = "小黑"),
 			@ApiImplicitParam(name = "lxTel", value = "联系电话", defaultValue = "13956487523"),
 			@ApiImplicitParam(name = "showStatus", value = "上/下架状态（0：上架，1：下架）", required = true, defaultValue = "0"),
-			//@ApiImplicitParam(name = "addUserId", value = "上传人员", required = true),
+			// @ApiImplicitParam(name = "addUserId", value = "上传人员", required = true),
 			@ApiImplicitParam(name = "userType", value = "上传人员类型（1：后台管理人员，2：普通用户）", required = true),
 			@ApiImplicitParam(name = "tradeType", value = "贸易类型（1：租赁，2：买卖）", required = true, defaultValue = "0"),
 			@ApiImplicitParam(name = "area", value = "运输范围（租赁）"), @ApiImplicitParam(name = "qyTypeId", value = "气源类型"),
@@ -370,8 +373,7 @@ public class TrucksTradeController {
 			@ApiImplicitParam(name = "tructsHeadxsz", value = "车头行驶证（危货）"),
 			@ApiImplicitParam(name = "gcXsz", value = "罐车行驶证（危货）"),
 			@ApiImplicitParam(name = "tructsYyz", value = "车辆运营证（危货）"),
-			@ApiImplicitParam(name = "price", value = "车辆价格"),
-			@ApiImplicitParam(name = "regPlace", value = "车辆注册地"),
+			@ApiImplicitParam(name = "price", value = "车辆价格"), @ApiImplicitParam(name = "regPlace", value = "车辆注册地"),
 			@ApiImplicitParam(name = "potJyz", value = "储罐检验合格证（危货）"),
 			@ApiImplicitParam(name = "aqfbg", value = "安全阀校验报告（危货）") })
 	public GenericResponse updateTrucksTrade(HttpServletRequest request) {
@@ -396,7 +398,7 @@ public class TrucksTradeController {
 		String regPlace = CommonTools.getFinalStr("regPlace", request);
 		Integer showStatus = CommonTools.getFinalInteger("showStatus", request);
 		Integer price = CommonTools.getFinalInteger("price", request);
-		//String addUserId = CommonTools.getFinalStr("addUserId", request);
+		// String addUserId = CommonTools.getFinalStr("addUserId", request);
 		Integer userType = CommonTools.getFinalInteger("userType", request);
 		Integer tradeType = CommonTools.getFinalInteger("tradeType", request);
 		String area = CommonTools.getFinalStr("area", request);
@@ -489,9 +491,9 @@ public class TrucksTradeController {
 					if (showStatus != null && !showStatus.equals(trtr.getShowStatus())) {
 						trtr.setShowStatus(showStatus);
 					}
-					
+
 					trtr.setAddUserId(loginUserId);
-					
+
 					if (userType != null && !userType.equals(trtr.getUserType())) {
 						trtr.setUserType(userType);
 					}
@@ -512,29 +514,30 @@ public class TrucksTradeController {
 						trtr.setAccidentFlag(accidentFlag);
 					}
 					if (!tructsHeadxsz.isEmpty() && !tructsHeadxsz.equals(trtr.getTrucksHeadxsz())) {
-						trtr.setTrucksHeadxsz(CommonTools.dealUploadDetail(loginUserId, trtr.getTrucksHeadxsz(), tructsHeadxsz));
+						trtr.setTrucksHeadxsz(
+								CommonTools.dealUploadDetail(loginUserId, trtr.getTrucksHeadxsz(), tructsHeadxsz));
 					}
 					if (!gcXsz.isEmpty() && !gcXsz.equals(trtr.getGcXsz())) {
 						trtr.setGcXsz(CommonTools.dealUploadDetail(loginUserId, trtr.getGcXsz(), gcXsz));
 					}
 					if (!tructsYyz.isEmpty() && !tructsYyz.equals(trtr.getTructsYyz())) {
-						trtr.setTructsYyz(CommonTools.dealUploadDetail(loginUserId, trtr.getTructsYyz(), tructsYyz));	
+						trtr.setTructsYyz(CommonTools.dealUploadDetail(loginUserId, trtr.getTructsYyz(), tructsYyz));
 					}
 					if (!potJyz.isEmpty() && !potJyz.equals(trtr.getPotJyz())) {
-						trtr.setPotJyz(CommonTools.dealUploadDetail(loginUserId, trtr.getPotJyz(), potJyz));	
+						trtr.setPotJyz(CommonTools.dealUploadDetail(loginUserId, trtr.getPotJyz(), potJyz));
 					}
 					if (!aqfbg.isEmpty() && !aqfbg.equals(trtr.getAqfBg())) {
 						trtr.setAqfBg(CommonTools.dealUploadDetail(loginUserId, trtr.getAqfBg(), aqfbg));
 					}
 					trucksTradeService.saveOrUpdate(trtr);
-					
-					List<TrucksTradeQualification> ttqs=   ttQualService.getTrucksTradeQualList(id);
-					if(!ttqs.isEmpty()) {
+
+					List<TrucksTradeQualification> ttqs = ttQualService.getTrucksTradeQualList(id);
+					if (!ttqs.isEmpty()) {
 						ttQualService.deleteBatch(ttqs);
 					}
-					
-					if(!qualId.isEmpty()) {
-						
+
+					if (!qualId.isEmpty()) {
+
 						String[] qualArr = qualId.split(",");
 						for (int i = 0; i < qualArr.length; i++) {
 							Qualification qual = qualService.findById(qualArr[i]);
@@ -544,11 +547,11 @@ public class TrucksTradeController {
 							ttQualService.addOrUpdate(ttQual);
 						}
 					}
-					
+
 					List<TructsTradeZz> zzs = ttzzService.getTructsTradeZzByttId(id);
 					String imgPath_db = "";
-					if(!zzs.isEmpty()) {
-						for(TructsTradeZz ttz : zzs) {
+					if (!zzs.isEmpty()) {
+						for (TructsTradeZz ttz : zzs) {
 							imgPath_db += ttz.getTructsTradeZz() + ",";
 						}
 						imgPath_db = imgPath_db.substring(0, imgPath_db.length() - 1);
@@ -584,9 +587,10 @@ public class TrucksTradeController {
 	@ApiImplicitParams({ @ApiImplicitParam(name = "checkSta", value = "审核状态(0:未审核,1:审核通过,2:审核未通过)"),
 			@ApiImplicitParam(name = "addUserId", value = "上传人员"),
 			@ApiImplicitParam(name = "tradeType", value = "贸易类型（1：租赁，2：买卖）"),
+			@ApiImplicitParam(name = "showStatus", value = "上/下架状态（0：上架，1：下架）"),
 			@ApiImplicitParam(name = "page", value = "第几页"), @ApiImplicitParam(name = "limit", value = "每页多少条") })
-	public PageResponse queryTrucksTrade(Integer checkSta, String addUserId, Integer tradeType, Integer page,
-			Integer limit) {
+	public PageResponse queryTrucksTrade(Integer checkSta, String addUserId, Integer tradeType, Integer showStatus,
+			Integer page, Integer limit) {
 		Integer status = 200;
 		Page<TrucksTrade> tts = null;
 		List<Object> list = new ArrayList<Object>();
@@ -605,7 +609,11 @@ public class TrucksTradeController {
 			if (tradeType == null) {
 				tradeType = -1;
 			}
-			tts = trucksTradeService.getTrucksTradeByOption(checkSta, addUserId, tradeType, page - 1, limit);
+			if (showStatus == null) {
+				showStatus = -1;
+			}
+			tts = trucksTradeService.getTrucksTradeByOption(checkSta, addUserId, tradeType, showStatus, page - 1,
+					limit);
 			if (tts.getTotalElements() == 0) {
 				status = 50001;
 			} else {
@@ -651,10 +659,12 @@ public class TrucksTradeController {
 	@ApiOperation(value = "根据主键获取货车租卖详细信息", notes = "根据主键获取货车租卖详细信息")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
 			@ApiResponse(code = 10002, message = "参数为空"), @ApiResponse(code = 50001, message = "数据未找到") })
-	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "货车租卖编号", required = true) })
+	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "货车租卖编号", required = true),
+			@ApiImplicitParam(name = "userId", value = "用户编号") })
 	public GenericResponse getSpecTrucksTrade(HttpServletRequest request) {
 		Integer status = 200;
 		String ttId = CommonTools.getFinalStr("id", request);
+		String userId = CommonTools.getFinalStr("userId", request);
 		List<Object> list = new ArrayList<Object>();
 
 		try {
@@ -704,24 +714,30 @@ public class TrucksTradeController {
 					map.put("aqfBg", tt.getAqfBg());
 					List<TructsTradeZz> zzs = ttzzService.getTructsTradeZzByttId(ttId);
 					List<Object> zzlist = new ArrayList<Object>();
-					if(!zzs.isEmpty()) {
+					if (!zzs.isEmpty()) {
 						for (int i = 0; i < zzs.size(); i++) {
 							Map<String, Object> zzmap = new HashMap<String, Object>();
 							zzmap.put("ttImg", zzs.get(i).getTructsTradeZz());
 							zzlist.add(zzmap);
 						}
 					}
-					
-					List<TrucksTradeQualification>  ttqualList = 	ttQualService.getTrucksTradeQualList(ttId);
+
+					List<TrucksTradeQualification> ttqualList = ttQualService.getTrucksTradeQualList(ttId);
 					List<Object> tQllist = new ArrayList<Object>();
-					if(!ttqualList.isEmpty()) {
+					if (!ttqualList.isEmpty()) {
 						for (int i = 0; i < ttqualList.size(); i++) {
 							Map<String, Object> qualmap = new HashMap<String, Object>();
-							qualmap.put("qualId",ttqualList.get(i).getQualification().getId() );
+							qualmap.put("qualId", ttqualList.get(i).getQualification().getId());
 							qualmap.put("qualName", ttqualList.get(i).getQualification().getName());
 							tQllist.add(qualmap);
 						}
 					}
+					String ufId = "";
+					if (!userId.isEmpty()) {
+						List<UserFocus> ufList = ufService.getUserFocusList(userId, ttId, "cczm");
+						ufId = ufList.get(0).getId();
+					}
+					map.put("ufId", ufId);
 					map.put("zzlist", zzlist);
 					map.put("tqList", tQllist);
 					list.add(map);

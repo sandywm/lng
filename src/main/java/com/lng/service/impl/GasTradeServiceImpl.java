@@ -149,4 +149,32 @@ public class GasTradeServiceImpl implements GasTradeService{
 		gtiDao.saveAll(gtiList);
 	}
 
+	@Override
+	public Page<GasTrade> listInfoByOpt(String sDate, String eDate,Integer checkStatus,
+			Integer showStatus, Integer pageNo,Integer pageSize) {
+		// TODO Auto-generated method stub
+		Sort sort = Sort.by(Sort.Direction.DESC, "addTime");// 降序排列
+		Specification<GasTrade> spec = new Specification<GasTrade>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public Predicate toPredicate(Root<GasTrade> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+				// TODO Auto-generated method stub
+				Predicate pre = cb.conjunction();
+				if(!sDate.isEmpty() && !eDate.isEmpty()) {
+					pre.getExpressions().add(cb.greaterThanOrEqualTo(root.get("addTime"), sDate + " 00:00:01"));
+					pre.getExpressions().add(cb.lessThanOrEqualTo(root.get("addTime"), eDate + " 23:59:59"));
+				}
+				if(checkStatus >= 0) {
+					pre.getExpressions().add(cb.equal(root.get("checkStatus"), checkStatus));
+				}
+				if(showStatus.equals(0) || showStatus.equals(1)) {
+					pre.getExpressions().add(cb.equal(root.get("showStatus"), showStatus));
+				}
+				return pre;
+		}};
+		Pageable pageable = PageRequest.of(pageNo-1, pageSize, sort);
+		return gtDao.findAll(spec, pageable);
+	}
+
 }

@@ -98,7 +98,7 @@ public class UserCompanyAndFocusController {
 		String ufId = "";
 		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.ADD_USER)) {
 			try {
-				if (ufService.getUserFocusList(userId, focusType).size() == 0) {
+				if (ufService.getUserFocusList(userId,focusId,focusType).size() == 0) {
 					UserFocus uf = new UserFocus();
 					User user = uService.getEntityById(userId);
 					uf.setUser(user);
@@ -186,7 +186,7 @@ public class UserCompanyAndFocusController {
 		Integer status = 200;
 		List<UserFocus> ufs = null;
 		try {
-			ufs = ufService.getUserFocusList(userId, focusType);
+			ufs = ufService.userFocusList(userId, focusType);
 			if (ufs == null) {
 				status = 50001;
 			}
