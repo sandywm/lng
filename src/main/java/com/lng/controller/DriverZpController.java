@@ -454,13 +454,13 @@ public class DriverZpController {
 			@ApiImplicitParam(name = "showStatus", value = "上/下架状态（0：上架，1：下架）", required = true, defaultValue = "0"),
 			@ApiImplicitParam(name = "userType", value = "上传人员类型（1：后台管理人员，2：普通用户）", required = true),
 			@ApiImplicitParam(name = "addUserId", value = "上传人员编号", required = true),
-			@ApiImplicitParam(name = "hot", value = "热度", defaultValue = "0", required = true),
+			@ApiImplicitParam(name = "hot", value = "热度", defaultValue = "0"),
 			@ApiImplicitParam(name = "lxName", value = "联系人", required = true),
 			@ApiImplicitParam(name = "lxTel", value = "联系电话", required = true) })
 	public GenericResponse addDriverZp(HttpServletRequest request) {
 		String compId = CommonTools.getFinalStr("compId", request);
 		String jzType = CommonTools.getFinalStr("jzType", request);
-		Integer wage = CommonTools.getFinalInteger("wage", request);
+		String wage = CommonTools.getFinalStr("wage", request);
 		Integer num = CommonTools.getFinalInteger("num", request);
 		String sjAgeRange = CommonTools.getFinalStr("sjAgeRange", request);
 		String education = CommonTools.getFinalStr("education", request);
@@ -605,7 +605,7 @@ public class DriverZpController {
 	public GenericResponse updateDriverZp(HttpServletRequest request) {
 		String id = CommonTools.getFinalStr("id", request);
 		String jzType = CommonTools.getFinalStr("jzType", request);
-		Integer wage = CommonTools.getFinalInteger("wage", request);
+		String wage = CommonTools.getFinalStr("wage", request);
 		Integer num = CommonTools.getFinalInteger("num", request);
 		String sjAgeRange = CommonTools.getFinalStr("sjAgeRange", request);
 		String jlYearRange = CommonTools.getFinalStr("jlYearRange", request);
@@ -633,7 +633,7 @@ public class DriverZpController {
 				if (!jzType.isEmpty() && jzType.equals(zp.getJzType())) {
 					zp.setJzType(jzType);
 				}
-				if (wage != null && !wage.equals(zp.getWage())) {
+				if (!wage.isEmpty() && !wage.equals(zp.getWage())) {
 					zp.setWage(wage);
 				}
 				if (num != null && !num.equals(zp.getNum())) {
@@ -736,6 +736,8 @@ public class DriverZpController {
 					map.put("welfare", zp.getWelfare());
 					map.put("wage", zp.getWage());
 					map.put("addTime", zp.getAddTime());
+					map.put("checkStatus", zp.getCheckStatus());
+					map.put("showStatus", zp.getShowStatus());
 					list.add(map);
 				}
 			}

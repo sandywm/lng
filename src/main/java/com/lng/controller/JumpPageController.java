@@ -194,8 +194,8 @@ public class JumpPageController {
 		return new ModelAndView("applyManager/tradeApply");
 	}
 	
-	@ApiOperation("LNG行情管理")
-	@GetMapping("goLngPage") 
+	@ApiOperation("lng行情管理")
+	@GetMapping("goLngPage")
 	public ModelAndView goLngPage(){
 		return new ModelAndView("LngManager/lngManager");
 	}
@@ -204,6 +204,36 @@ public class JumpPageController {
 	@GetMapping("goTrucksTradePage") 
 	public ModelAndView goTrucksTradePage(){
 		return new ModelAndView("trucksTrade/trucksTradeList");
+	}
+	
+	@ApiOperation("储罐租卖管理")
+	@GetMapping("goPotTradePage") 
+	public ModelAndView goPotTradePage(){
+		return new ModelAndView("potTrade/potTradeList");
+	}
+
+	@ApiOperation("燃气设备管理")
+	@GetMapping("goRqDevPage") 
+	public ModelAndView goRqDevPage(){
+		return new ModelAndView("rqDevTrade/rqDevTradeList");
+	}
+	
+	@ApiOperation("燃气买卖管理")
+	@GetMapping("goRqTradePage") 
+	public ModelAndView goRqTradePage(){
+		return new ModelAndView("rqTrade/rqTradeList");
+	}
+	
+	@ApiOperation("燃气交易订单管理")
+	@GetMapping("goRqTradeOrderPage") 
+	public ModelAndView goRqTradeOrderPage(){
+		return new ModelAndView("rqTradeOrder/rqTradeOrderList");
+	}
+	
+	@ApiOperation("司机招聘管理")
+	@GetMapping("goDriverZpPage") 
+	public ModelAndView goDriverZpPage(){
+		return new ModelAndView("driverZp/driverZpList");
 	}
 	
 }

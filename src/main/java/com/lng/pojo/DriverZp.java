@@ -38,7 +38,7 @@ public class DriverZp implements java.io.Serializable {
 	@ApiModelProperty(value = "司机驾龄范围")
 	private String jlYearRange;
 	@ApiModelProperty(value = "薪资")
-	private int wage;
+	private String wage;
 	@ApiModelProperty(value = "省")
 	private String province;
 	@ApiModelProperty(value = "市")
@@ -79,7 +79,7 @@ public class DriverZp implements java.io.Serializable {
 
 	
 
-	public DriverZp(Company company, String jzType, String sjAgeRange, String jlYearRange, int wage, String province,
+	public DriverZp(Company company, String jzType, String sjAgeRange, String jlYearRange, String wage, String province,
 			String city, String address, String education, String workYear, int num, String welfare, String remark,
 			int checkStatus, String checkTime, int showStatus, String addTime, int userType, String addUserId, int hot,
 			String lxName, String lxTel) {
@@ -157,12 +157,12 @@ public class DriverZp implements java.io.Serializable {
 		this.jlYearRange = jlYearRange;
 	}
 
-	@Column(name = "wage", nullable = false, columnDefinition = "int(11) COMMENT '薪资'")
-	public int getWage() {
+	@Column(name = "wage", nullable = false, columnDefinition = "varchar(100) COMMENT '薪资'")
+	public String getWage() {
 		return this.wage;
 	}
 
-	public void setWage(int wage) {
+	public void setWage(String  wage) {
 		this.wage = wage;
 	}
 
