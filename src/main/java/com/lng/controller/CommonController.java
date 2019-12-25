@@ -1,7 +1,9 @@
 package com.lng.controller;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -15,11 +17,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.lng.pojo.CommonProvinceOrder;
 import com.lng.pojo.DriverQz;
+import com.lng.pojo.DriverZp;
 import com.lng.pojo.GasFactory;
 import com.lng.pojo.GasTrade;
 import com.lng.pojo.GasType;
 import com.lng.pojo.HqProvinceOrder;
 import com.lng.pojo.MessageCenter;
+import com.lng.pojo.User;
 import com.lng.service.CommonProvinceOrderService;
 import com.lng.service.DriverQzService;
 import com.lng.service.DriverZpService;
@@ -32,6 +36,7 @@ import com.lng.service.PotTradeImgService;
 import com.lng.service.PotTradeService;
 import com.lng.service.RqDevTradeService;
 import com.lng.service.TrucksTradeService;
+import com.lng.service.UserService;
 import com.lng.tools.CommonTools;
 import com.lng.tools.CurrentTime;
 import com.lng.util.Constants;
@@ -72,6 +77,8 @@ public class CommonController {
 	private DriverQzService dqzs;
 	@Autowired
 	private DriverZpService dzps;
+	@Autowired
+	private UserService us;
 	
 	@GetMapping("/getProvinceList")
 	@ApiOperation(value = "获取省份排序列表", notes = "lng液厂显示顺序用")
@@ -313,17 +320,74 @@ public class CommonController {
 			List<MessageCenter> mcList = mcs.listMsgByOpt(4, currentDate, currentDate);
 			//获取燃气贸易最新的一条记录
 			Page<GasTrade> gtList = gasTrades.listInfoByOpt("", "", 1, -1, 1, 1);
-			//获取货车买卖当天最新记录条数
+			//获取货车买卖最近一周最新记录条数
 			Integer tructsTradeNum = tts.listTrucksTradeByOpt(1, -1, sDate, currentDate).size();
-			//获取燃气设备买卖当天最新记录条数
+			//获取燃气设备买卖最近一周最新记录条数
 			Integer rqDevTradeNum = rdts.listInfoByOpt(sDate, currentDate, 1, -1).size();
-			//获取储罐租卖当天最新记录条数
+			//获取储罐租卖当天最新最近一周记录条数
 			Integer potTradeNum = pts.listPotTradeByOpt(sDate, currentDate, 1, -1).size();
 			//获取最近2条行业资讯
 			Page<MessageCenter> mcList_xw = mcs.getMessageCenterByOption(1, "", 1, -1, 1, 2);
-			//获取最近一条招聘司机的记录
-			List<DriverQz> qzList = dqzs.listQzInfoByOpt(currentDate, currentDate, 1, -1);
-			//获取最近一条司机求职的记录
+			//获取最近一周最近一条司机求职的记录
+			List<DriverQz> qzList = dqzs.listQzInfoByOpt(sDate, currentDate, 1, -1);
+			//获取最近一周最近一条招聘司机的记录
+			List<DriverZp> zpList = dzps.listDriverZpByOpt(sDate, currentDate, 1, -1);
+			Map<String,Object> map = new HashMap<String,Object>();
+			map.put("tructsTradeNum", tructsTradeNum);
+			map.put("rqDevTradeNum", rqDevTradeNum);
+			map.put("potTradeNum", potTradeNum);
+			List<Object> list_1 = new ArrayList<Object>();//燃气贸易
+			for(GasTrade gt : gtList) {
+				Map<String,Object> map_d = new HashMap<String,Object>();
+				map_d.put("gasTradeId", gt.getId());
+				String addUserId = gt.getAddUserId();
+				User user = us.getEntityById(addUserId);
+				String title = "";
+				if(user != null) {
+					title = user.getRealName() + "发布了一条卖气信息";
+				}
+				map_d.put("title", title);
+				map_d.put("psArea", gt.getPsArea());
+				map_d.put("gasTypeName", gt.getGasType().getName());
+				map_d.put("yyd", gt.getGasFactory().getProvince());
+				list_1.add(map_d);
+			}
+			map.put("gasTradeList", list_1);
+			List<Object> list_news = new ArrayList<Object>();//行业资讯
+			for(MessageCenter mc : mcList_xw) {
+				Map<String,Object> map_d = new HashMap<String,Object>();
+				map_d.put("newId", mc.getId());
+				map_d.put("newTitle",mc.getTitle());
+				map_d.put("addTime", mc.getAddTime());
+				list_news.add(map_d);
+			}
+			map.put("newsList", list_news);
+			List<Object> list_qz = new ArrayList<Object>();//求职
+			if(qzList.size() > 0) {
+				DriverQz qz = qzList.get(0);
+				Map<String,Object> map_qz = new HashMap<String,Object>();
+				map_qz.put("qzId", qz.getId());
+				map_qz.put("qzUserName", qz.getUserName());
+				map_qz.put("userAge", qz.getAge());
+				map_qz.put("jzType", qz.getJzType());
+				map_qz.put("jzYear", qz.getJzYear());
+				map_qz.put("address", qz.getProvince() + qz.getCity());
+				list_qz.add(map_qz);
+			}
+			map.put("qzList", list_qz);
+			List<Object> list_zp = new ArrayList<Object>();//招聘
+			if(qzList.size() > 0) {
+				DriverZp zp = zpList.get(0);
+				Map<String,Object> map_zp = new HashMap<String,Object>();
+				map_zp.put("qzId", zp.getId());
+				map_zp.put("cpyName", zp.getCompany().getName());
+				map_zp.put("address", zp.getProvince() + zp.getCity());
+				map_zp.put("jzType", zp.getJzType());
+				map_zp.put("jlYear", zp.getJlYearRange());
+				map_zp.put("ageRange", zp.getSjAgeRange());
+				list_zp.add(map_zp);
+			}
+			map.put("zpList", list_zp);
 		} catch (Exception e) {
 			e.printStackTrace();
 			status = 1000;

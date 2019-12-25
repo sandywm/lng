@@ -101,4 +101,30 @@ public class DriverZpServiceImpl implements DriverZpService {
 		}
 		return driverZpDao.findAll();
 	}
+
+	@SuppressWarnings("serial")
+	@Override
+	public List<DriverZp> listDriverZpByOpt(String sDate, String eDate, Integer checkSta, Integer showSta) {
+		// TODO Auto-generated method stub
+		Sort sort = Sort.by(Sort.Direction.DESC, "addTime");// 降序排列
+		Specification<DriverZp> spec = new Specification<DriverZp>() {
+
+			@Override
+			public Predicate toPredicate(Root<DriverZp> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+				Predicate pre = cb.conjunction();
+				if (!sDate.isEmpty() && !eDate.isEmpty()) {
+					pre.getExpressions().add(cb.greaterThanOrEqualTo(root.get("addTime"), sDate + " 00:00:01"));
+					pre.getExpressions().add(cb.lessThanOrEqualTo(root.get("addTime"), eDate + " 23:59:59"));
+				}
+				if (checkSta != -1) {
+					pre.getExpressions().add(cb.equal(root.get("checkStatus"), checkSta));
+				}
+				if (showSta != -1) {
+					pre.getExpressions().add(cb.equal(root.get("showStatus"), showSta));
+				}
+				return pre;
+			}
+		};
+		return driverZpDao.findAll(spec, sort);
+	}
 }

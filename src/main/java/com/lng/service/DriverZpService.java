@@ -58,4 +58,18 @@ public interface DriverZpService {
 	 */
 	Page<DriverZp> getDriverQzByOption(String compId, String jzType, Integer checkSta, Integer showSta, String wage,
 			Integer pageNo, Integer pageSize);
+	
+	/**
+	 * @description 根据条件获取司机招聘信息
+	 * @author wmk
+	 * @Version : 1.0
+	 * @ModifiedBy : 
+	 * @date  2019年12月13日 下午21:50:19
+	 * @param sDate 开始时间
+	 * @param eDate 结束时间
+	 * @param checkSta 审核状态
+	 * @param showSta 上下架状态
+	 * @return
+	 */
+	List<DriverZp> listDriverZpByOpt(String sDate,String eDate,Integer checkSta, Integer showSta);
 }
