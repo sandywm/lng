@@ -33,6 +33,8 @@ public class GasFactoryCompany implements java.io.Serializable {
 	private Company company;
 	@ApiModelProperty(value = "液厂编号")
 	private GasFactory gasFactory;
+	@ApiModelProperty(value = "申请人")
+	private String addUserId;
 	@ApiModelProperty(value = "添加时间")
 	private String addTime;
 	@ApiModelProperty(value = "审核状态")
@@ -43,9 +45,10 @@ public class GasFactoryCompany implements java.io.Serializable {
 	public GasFactoryCompany() {
 	}
 
-	public GasFactoryCompany(Company company, GasFactory gasFactory, String addTime,int checkStatus,String checkTime) {
+	public GasFactoryCompany(Company company, GasFactory gasFactory, String addUserId,String addTime,int checkStatus,String checkTime) {
 		this.company = company;
 		this.gasFactory = gasFactory;
+		this.addUserId = addUserId;
 		this.addTime = addTime;
 		this.checkStatus = checkStatus;
 		this.checkTime = checkTime;
@@ -80,6 +83,15 @@ public class GasFactoryCompany implements java.io.Serializable {
 
 	public void setGasFactory(GasFactory gasFactory) {
 		this.gasFactory = gasFactory;
+	}
+
+	@Column(name = "add_user_id", columnDefinition = "varchar(100) COMMENT '申请人'")
+	public String getAddUserId() {
+		return addUserId;
+	}
+
+	public void setAddUserId(String addUserId) {
+		this.addUserId = addUserId;
 	}
 
 	@Column(name = "add_time", columnDefinition = "varchar(50) COMMENT '添加时间'")

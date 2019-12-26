@@ -9,6 +9,9 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -37,18 +40,18 @@ public class UserFocusServiceImpl implements UserFocusService {
 
 	@SuppressWarnings("serial")
 	@Override
-	public List<UserFocus> getUserFocusList(String userId, String focusId,String focusType) {
+	public List<UserFocus> getUserFocusList(String userId, String focusId, String focusType) {
 		Specification<UserFocus> spec = new Specification<UserFocus>() {
 			@Override
 			public Predicate toPredicate(Root<UserFocus> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
 				Predicate pre = cb.conjunction();
-				if(!userId.isEmpty()) {
+				if (!userId.isEmpty()) {
 					pre.getExpressions().add((cb.equal(root.get("user").get("id"), userId)));
 				}
-				if(!focusId.isEmpty()) {
+				if (!focusId.isEmpty()) {
 					pre.getExpressions().add((cb.equal(root.get("focusId"), focusId)));
 				}
-				if(!focusType.isEmpty()) {
+				if (!focusType.isEmpty()) {
 					pre.getExpressions().add((cb.equal(root.get("focusType"), focusType)));
 				}
 				return pre;
@@ -64,20 +67,21 @@ public class UserFocusServiceImpl implements UserFocusService {
 
 	@SuppressWarnings("serial")
 	@Override
-	public List<UserFocus> userFocusList(String userId, String focusType) {
+	public Page<UserFocus> userFocusList(String userId, String focusType, Integer pageNo, Integer pageSize) {
+		Pageable pageable = PageRequest.of(pageNo, pageSize);
 		Specification<UserFocus> spec = new Specification<UserFocus>() {
 			@Override
 			public Predicate toPredicate(Root<UserFocus> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
 				Predicate pre = cb.conjunction();
-				if(!userId.isEmpty()) {
+				if (!userId.isEmpty()) {
 					pre.getExpressions().add((cb.equal(root.get("user").get("id"), userId)));
 				}
-				if(!focusType.isEmpty()) {
+				if (!focusType.isEmpty()) {
 					pre.getExpressions().add((cb.equal(root.get("focusType"), focusType)));
 				}
 				return pre;
 			}
 		};
-		return ufDao.findAll(spec);
+		return ufDao.findAll(spec,pageable);
 	}
 }

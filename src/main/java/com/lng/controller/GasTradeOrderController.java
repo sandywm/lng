@@ -21,11 +21,13 @@ import com.lng.pojo.GasTrade;
 import com.lng.pojo.GasTradeOrder;
 import com.lng.pojo.GasTradeOrderLog;
 import com.lng.pojo.GasType;
+import com.lng.pojo.MessageCenter;
 import com.lng.pojo.User;
 import com.lng.service.CompanyService;
 import com.lng.service.GasTradeOrderLogService;
 import com.lng.service.GasTradeOrderService;
 import com.lng.service.GasTradeService;
+import com.lng.service.MessageCenterService;
 import com.lng.service.UserService;
 import com.lng.tools.CommonTools;
 import com.lng.tools.CurrentTime;
@@ -55,7 +57,9 @@ public class GasTradeOrderController {
 	private UserService uService;
 	@Autowired
 	private GasTradeOrderLogService gtolService;
-
+	@Autowired
+	private MessageCenterService mcs;
+	
 	@PostMapping("/addGasTraderOrder")
 	@ApiOperation(value = "添加燃气交易订单", notes = "添加燃气交易订单信息并增加订单日志")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
@@ -126,6 +130,9 @@ public class GasTradeOrderController {
 					gtoLog.setOrderDetailTxt("用户已下单，等待商家付款并上传缴费凭证");
 					gtoLog.setAddTime(CurrentTime.getCurrentTime());
 					gtolService.addOrUpdate(gtoLog);
+					MessageCenter mc = new MessageCenter(user.getRealName()+"想购买您发布的"+gt.getGasFactory().getName()+"燃气", user.getRealName()+"想购买您发布的"+gt.getGasFactory().getName()+"燃气", 0, CurrentTime.getCurrentTime(), 2,
+							gtId, "gasTrade", "", gt.getAddUserId(), 0);
+					mcs.saveOrUpdate(mc);
 				}
 			}else {
 				status = 50003;

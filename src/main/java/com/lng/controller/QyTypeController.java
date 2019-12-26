@@ -79,13 +79,13 @@ public class QyTypeController {
 				if (qy == null) {
 					status = 50001;
 				} else {
-					if (qytypeService.getQyTypeByNameList(name).size() == 0) {
-						if (!name.equals("") && !name.equals(qy.getName())) {
+					if(!name.equals(qy.getName())) {
+						if (qytypeService.getQyTypeByNameList(name).size() == 0) {
 							qy.setName(name);
+							qytypeService.saveOrUpdate(qy);
+						} else {
+							status = 50003;
 						}
-						qytypeService.saveOrUpdate(qy);
-					} else {
-						status = 50003;
 					}
 				}
 			} catch (Exception e) {

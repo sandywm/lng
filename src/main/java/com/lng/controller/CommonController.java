@@ -32,7 +32,6 @@ import com.lng.service.GasTradeService;
 import com.lng.service.GasTypeService;
 import com.lng.service.HqProvinceOrderService;
 import com.lng.service.MessageCenterService;
-import com.lng.service.PotTradeImgService;
 import com.lng.service.PotTradeService;
 import com.lng.service.RqDevTradeService;
 import com.lng.service.TrucksTradeService;
@@ -41,6 +40,7 @@ import com.lng.tools.CommonTools;
 import com.lng.tools.CurrentTime;
 import com.lng.util.Constants;
 import com.lng.util.GenericResponse;
+import com.lng.util.PageResponse;
 import com.lng.util.ResponseFormat;
 
 import io.swagger.annotations.Api;
@@ -393,5 +393,17 @@ public class CommonController {
 			status = 1000;
 		}
 		return ResponseFormat.retParam(status, list);
+	}
+	
+	@GetMapping("/myPublish")
+	@ApiOperation(value = "获取我的发布", notes = "获取我的发布信息")
+	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
+			@ApiResponse(code = 50001, message = "数据未找到") })
+	@ApiImplicitParams({ @ApiImplicitParam(name = "userId", value = "用户编号", required = true),
+			@ApiImplicitParam(name = "showStatus", value = "上/下架状态（0：上架，1：下架）", required = true),
+			@ApiImplicitParam(name = "page", value = "第几页"), @ApiImplicitParam(name = "limit", value = "每页多少条") })
+	public PageResponse myPublish(String userId, Integer showStatus, Integer page, Integer limit) {
+
+		return ResponseFormat.getPageJson(limit, page, /* ufs.getTotalElements() */null, 0, null);
 	}
 }

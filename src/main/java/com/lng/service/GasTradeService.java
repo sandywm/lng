@@ -52,6 +52,20 @@ public interface GasTradeService {
 	 */
 	Page<GasTrade> listPageInfoByOpt(String cpyId,String addUserId,String gtId,String gfId,Integer checkStatus,
 			Integer showStatus,Integer sPrice,Integer ePrice,String psArea,Integer pageNo,Integer pageSize);
+	/**
+	 * 
+	 * @description 根据用户编号获取燃气发布信息
+	 * @author zdf
+	 * @Version : 1.0
+	 * @ModifiedBy : 
+	 * @date  2019年12月26日 下午2:07:56
+	 * @param userId 用户编号
+	 * @param showStatus 上下架状态
+	 * @param pageNo 第几页
+	 * @param pageSize 每页多少条
+	 * @return
+	 */
+	Page<GasTrade> gasTradeOnPublish(String userId,Integer showStatus,Integer pageNo,Integer pageSize);
 	
 	/**
 	 * @description 增加或修改燃气买卖其他详图

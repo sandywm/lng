@@ -82,6 +82,26 @@ public class PotTradeServiceImpl implements PotTradeService {
 
 	@SuppressWarnings("serial")
 	@Override
+	public Page<PotTrade> potTradeOnPublish(String userId, Integer showStatus, Integer pageNo, Integer pageSize) {
+		Pageable pageable = PageRequest.of(pageNo, pageSize);
+		Specification<PotTrade> spec = new Specification<PotTrade>() {
+			@Override
+			public Predicate toPredicate(Root<PotTrade> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+				Predicate pre = cb.conjunction();
+				if (!userId.isEmpty()) {
+					pre.getExpressions().add(cb.equal(root.get("addUserId"), userId));
+				}
+				if (showStatus != -1) {
+					pre.getExpressions().add(cb.equal(root.get("showStatus"), showStatus));
+				}
+				return pre;
+			}
+		};
+		return potTradeDao.findAll(spec, pageable);
+	}
+
+	@SuppressWarnings("serial")
+	@Override
 	public List<PotTrade> listPotTradeByOpt(String sDate, String eDate, Integer checkSta, Integer showStatus) {
 		// TODO Auto-generated method stub
 		Sort sort = Sort.by(Sort.Direction.DESC, "addTime");// 降序排列
@@ -104,5 +124,4 @@ public class PotTradeServiceImpl implements PotTradeService {
 		};
 		return potTradeDao.findAll(spec, sort);
 	}
-
 }

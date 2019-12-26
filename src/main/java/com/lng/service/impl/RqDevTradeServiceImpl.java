@@ -82,6 +82,27 @@ public class RqDevTradeServiceImpl implements RqDevTradeService {
 
 	@SuppressWarnings("serial")
 	@Override
+	public Page<RqDevTrade> rqDevTradeOnPublish(String userId, Integer showStatus, Integer pageNo, Integer pageSize) {
+		Pageable pageable = PageRequest.of(pageNo, pageSize);
+		Specification<RqDevTrade> spec = new Specification<RqDevTrade>() {
+			@Override
+			public Predicate toPredicate(Root<RqDevTrade> root, CriteriaQuery<?> query,
+					CriteriaBuilder cb) {
+				Predicate pre = cb.conjunction();
+				if (!userId.isEmpty()) {
+					pre.getExpressions().add(cb.equal(root.get("addUserId").get("id"), userId));
+				}
+				if (showStatus != -1) { 
+					pre.getExpressions().add(cb.equal(root.get("showStatus"), showStatus));
+				}
+				return pre;
+			}
+		};
+		return rqDevTradeDao.findAll(spec, pageable);
+	}
+
+	@SuppressWarnings("serial")
+	@Override
 	public List<RqDevTrade> listInfoByOpt(String sDate, String eDate, Integer checkSta, Integer showSta) {
 		// TODO Auto-generated method stub
 		Sort sort = Sort.by(Sort.Direction.DESC, "addTime");//降序排列

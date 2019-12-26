@@ -66,7 +66,7 @@ public class ModuleController {
 			List<SuperDep> sdList = sds.listSpecInfoByUserId(superUserId);
 			if(sdList.size() > 0) {
 				String roleName = CommonTools.getLoginRoleName(request);
-				if(Constants.SUPER_DEP_ABILITY.contains(roleName)) {//拥有全部权限
+				if(Constants.SUPER_DEP_ABILITY.contains(roleName)) {//超级管理员
 					//获取所有模块
 					List<Module> mList  = ms.listAllInfo();
 					for(Module mod : mList) {
@@ -154,9 +154,8 @@ public class ModuleController {
 								}
 							}
 						}
-//						Sort sort = new Sort();
-//						Collections.sort(list_d, sort);//list_d升序排列
-					}else {
+					}
+					if(list_d.size() == 0) {
 						status = 50001;
 					}
 				}
@@ -419,9 +418,9 @@ public class ModuleController {
 			List<SuperDep> sdList = sds.listSpecInfoByUserId(superUserId);
 			if(sdList.size() > 0) {
 				if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),CommonTools.getLoginRoleName(request), Constants.ADD_MOD)) {
-					//查询名字不能相同
-					List<ModuleAct> maList = mas.listInfoByOpt(actNameChi,"");
-					List<ModuleAct> maList_1 = mas.listInfoByOpt("",actNameEng);
+					//动作英文必须唯一，中文一个模块内部必须唯一
+					List<ModuleAct> maList = mas.listInfoByOpt(modId,actNameChi,"");
+					List<ModuleAct> maList_1 = mas.listInfoByOpt("","",actNameEng);
 					if(maList.size() == 0 && maList_1.size() == 0) {
 						maList = mas.listInfoByModId(modId);
 						Integer actOrder = 1;
@@ -469,7 +468,9 @@ public class ModuleController {
 						
 					}else if(!actNameChi_db.equals(actNameChi)){//模块名称不同时
 						//需要判断模块是否重复
-						if(mas.listInfoByOpt(actNameChi, "").size() == 0) {
+						String modId = mc.getModule().getId();
+						//动作英文必须唯一，中文一个模块内部必须唯一
+						if(mas.listInfoByOpt(modId,actNameChi, "").size() == 0) {
 							mc.setActNameChi(actNameChi);
 							mc.setActNameEng(actNameEng);
 							mas.addOrUpModuleAct(mc);
@@ -477,9 +478,13 @@ public class ModuleController {
 							status = 50003;
 						}
 					}else {//模块名称相同，动作不同时
-						mc.setActNameChi(actNameChi);
-						mc.setActNameEng(actNameEng);
-						mas.addOrUpModuleAct(mc);
+						if(mas.listInfoByOpt("","", actNameEng).size() == 0) {
+							mc.setActNameChi(actNameChi);
+							mc.setActNameEng(actNameEng);
+							mas.addOrUpModuleAct(mc);
+						}else {
+							status = 50003;
+						}
 					}
 				}else {
 					status = 50001;

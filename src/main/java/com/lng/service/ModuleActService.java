@@ -23,11 +23,12 @@ public interface ModuleActService {
 	 * @Version : 版本
 	 * @ModifiedBy : 修改人
 	 * @date  2019年12月5日 下午1:19:37
+	 * @param modId 模块编号
 	 * @param actNameChi 模块动作中文
 	 * @param actNameEng 模块动作英文
 	 * @return
 	 */
-	List<ModuleAct> listInfoByOpt(String actNameChi,String actNameEng);
+	List<ModuleAct> listInfoByOpt(String modId,String actNameChi,String actNameEng);
 	
 	/**
 	 * @description 增加或者保存模块动作

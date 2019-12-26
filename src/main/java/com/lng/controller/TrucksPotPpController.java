@@ -78,13 +78,13 @@ public class TrucksPotPpController {
 				if (tppp== null) {
 					status = 50001;
 				} else {
-					if (tpppService.getTrucksPotPpByNameList(name).size() == 0) {
-						if(!name.equals("") && ! name.equals(tppp.getName())) {
+					if(!name.equals(tppp.getName())) {
+						if (tpppService.getTrucksPotPpByNameList(name).size() == 0) {
 							tppp.setName(name);
+							tpppService.saveOrUpdate(tppp);
+						} else {
+							status = 50003;
 						}
-						tpppService.saveOrUpdate(tppp);
-					} else {
-						status = 50003;
 					}
 				}
 			} catch (Exception e) {   

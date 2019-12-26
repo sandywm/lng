@@ -79,13 +79,13 @@ public class PotZzjzTypeController {
 				if (jz == null) {
 					status = 50001;
 				} else {
-					if (potZzjztypeService.getPotZzjzTypeByNameList(name).size() == 0) {
-						if (!(name.equals("") && !name.equals(jz.getName()))) {
+					if(!name.equals(jz.getName())) {
+						if (potZzjztypeService.getPotZzjzTypeByNameList(name).size() == 0) {
 							jz.setName(name);
+							potZzjztypeService.saveOrUpdate(jz);
+						} else {
+							status = 50003;
 						}
-						potZzjztypeService.saveOrUpdate(jz);
-					} else {
-						status = 50003;
 					}
 				}
 			} catch (Exception e) {

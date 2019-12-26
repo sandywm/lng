@@ -2,6 +2,8 @@ package com.lng.service;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+
 import com.lng.pojo.UserFocus;
 
 public interface UserFocusService {
@@ -49,9 +51,11 @@ public interface UserFocusService {
 	 * @date  2019年12月24日 下午2:05:51
 	 * @param userId 用户编号
 	 * @param focusType 关注类型
+	 * @param pageNo 第几页
+	 * @param  pageSize 每页多少条
 	 * @return
 	 */
-	List<UserFocus> userFocusList(String userId, String focusType);
+	Page<UserFocus> userFocusList(String userId, String focusType,Integer pageNo,Integer pageSize);
 	/**
 	 * 
 	 * @description 取消关注

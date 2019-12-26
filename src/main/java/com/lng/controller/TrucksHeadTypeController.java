@@ -68,9 +68,9 @@ public class TrucksHeadTypeController {
 			@ApiResponse(code = 70001, message = "无权限访问") })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "槽车车头类型编号", required = true),
 			@ApiImplicitParam(name = "name", value = "槽车车头类型名称", defaultValue = "槽车车头类型测试", required = true) })
-	public GenericResponse updateTHeadType(HttpServletRequest request, String id, String name) {
-		id = CommonTools.getFinalStr(id);
-		name=CommonTools.getFinalStr(name);
+	public GenericResponse updateTHeadType(HttpServletRequest request) {
+		String id = CommonTools.getFinalStr("id",request);
+		String name=CommonTools.getFinalStr("name",request);
 		Integer status = 200;
 		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.CCCTLX_ABILITY)) {
 			try {
@@ -78,13 +78,13 @@ public class TrucksHeadTypeController {
 				if (tht== null) {
 					status = 50001;
 				} else {
-					if (thtService.getTrucksHeadTypeByNameList(name).size() == 0) {
-						if(!name.equals("") && name.equals(tht.getName())) {
+					if(!name.equals(tht.getName())) {
+						if (thtService.getTrucksHeadTypeByNameList(name).size() == 0) {
 							tht.setName(name);
+							thtService.saveOrUpdate(tht);
+						} else {
+							status = 50003;
 						}
-						thtService.saveOrUpdate(tht);
-					} else {
-						status = 50003;
 					}
 				}
 			} catch (Exception e) {

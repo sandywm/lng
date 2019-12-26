@@ -78,13 +78,13 @@ public class WqPfbzController {
 				if (pfbz== null) {
 					status = 50001;
 				} else {
-					if (pfbzService.getWqPfbzByNameList(name).size() == 0) {
-						if(!name.equals("") && ! name.equals(pfbz.getName())) {
+					if(!name.equals(pfbz.getName())) {
+						if (pfbzService.getWqPfbzByNameList(name).size() == 0) {
 							pfbz.setName(name);
+							pfbzService.saveOrUpdate(pfbz);
+						} else {
+							status = 50003;
 						}
-						pfbzService.saveOrUpdate(pfbz);
-					} else {
-						status = 50003;
 					}
 				}
 			} catch (Exception e) {

@@ -35,11 +35,11 @@ public class Constants {
 	/**
 	 * 燃气设备类目操作
 	 */
-	public static final String RQSBLM_ABILITY = "dealRqsblm";
+	public static final String RQSBLM_ABILITY = "goGasEquipCategPage";
 	/**
 	 * 燃气类型操作
 	 */
-	public static final String RQLX_ABILITY = "dealRqlx";
+	public static final String RQLX_ABILITY = "goGasEquipTypePage";
 	/**
 	 * 货车类型操作
 	 */
@@ -47,19 +47,19 @@ public class Constants {
 	/**
 	 * 货车储罐品牌操作
 	 */
-	public static final String CGPP_ABILITY = "dealHccgpp";
+	public static final String CGPP_ABILITY = "goTankBrandPage";
 	/**
 	 * 货车车头类型操作
 	 */
-	public static final String CCCTLX_ABILITY = "dealHcctlx";
+	public static final String CCCTLX_ABILITY = "goTHeadTypePage";
 	/**
 	 * 货车车头品牌操作
 	 */
-	public static final String CCCTPP_ABILITY = "dealHcctpp";
+	public static final String CCCTPP_ABILITY = "goTHeadBrandPage";
 	/**
 	 * 装载介质操作
 	 */
-	public static final String ZZJZ_ABILITY = "dealZzjz";
+	public static final String ZZJZ_ABILITY = "goZzjzPage";
 	/**
 	 * 职位操作
 	 */
@@ -67,11 +67,11 @@ public class Constants {
 	/**
 	 * 尾气排放操作
 	 */
-	public static final String WQPP_ABILITY = "dealWqpp";
+	public static final String WQPP_ABILITY = "goWqPfbzPage";
 	/**
 	 * 公司类型操作
 	 */
-	public static final String GSLX_ABILITY = "dealGslx";
+	public static final String GSLX_ABILITY = "goCompTypePage";
 	
 	
 	public static final String ADD_ROLE = "addRole";// 角色
@@ -160,8 +160,11 @@ public class Constants {
 	
 	public static final String ADD_TRTR = "addTrtr";//添加货车租卖
 	public static final String UP_TRTR = "upTrtr";//修改货车租卖
+	
 	public static final String ADD_QZ = "addQz";//添加司机求职
 	public static final String UP_QZ = "upQz";//修改司机求职
+	public static final String LIST_QZ = "listQz";//查看司机求职
+	
 	public static final String ADD_ZP = "addZp";//添加司机招聘
 	public static final String UP_ZP = "upZp";//修改司机招聘
 	

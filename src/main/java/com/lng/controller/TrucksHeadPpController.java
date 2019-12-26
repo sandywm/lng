@@ -78,13 +78,13 @@ public class TrucksHeadPpController {
 				if (thpp== null) {
 					status = 50001;
 				} else {
-					if (thppService.getTrucksHeadPpByNameList(name).size() == 0) {
-						if(!name.equals("")&& ! name.equals(thpp.getName())) {
+					if(!name.equals(thpp.getName())) {
+						if (thppService.getTrucksHeadPpByNameList(name).size() == 0) {
 							thpp.setName(name);
+							thppService.saveOrUpdate(thpp);
+						} else {
+							status = 50003;
 						}
-						thppService.saveOrUpdate(thpp);
-					} else {
-						status = 50003;
 					}
 				}
 			} catch (Exception e) {

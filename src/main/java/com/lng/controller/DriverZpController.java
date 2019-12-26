@@ -185,7 +185,7 @@ public class DriverZpController {
 
 		try {
 			DriverQz qz = qzService.getEntityById(id);
-			if (qz == null) {
+			if (qz == null) { 
 				status = 50001;
 			} else {
 				if (hot != null && !hot.equals(qz.getHot())) {

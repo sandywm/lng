@@ -23,6 +23,7 @@ import com.lng.pojo.CompanyType;
 import com.lng.pojo.CompanyZz;
 import com.lng.pojo.GasFactory;
 import com.lng.pojo.GasFactoryCompany;
+import com.lng.pojo.MessageCenter;
 import com.lng.pojo.UserCompany;
 import com.lng.service.CompanyPsrService;
 import com.lng.service.CompanyService;
@@ -32,6 +33,7 @@ import com.lng.service.CompanyTypeService;
 import com.lng.service.CompanyZzService;
 import com.lng.service.GasFactoryCompanyService;
 import com.lng.service.GasFactoryService;
+import com.lng.service.MessageCenterService;
 import com.lng.service.UserCompanyService;
 import com.lng.tools.CommonTools;
 import com.lng.tools.CurrentTime;
@@ -69,6 +71,8 @@ public class CompanyController {
 	private GasFactoryCompanyService gfcs;
 	@Autowired
 	private GasFactoryService gfs;
+	@Autowired
+	private MessageCenterService mcs;
 
 	@PostMapping("/addCompany")
 	@ApiOperation(value = "添加公司", notes = "添加公司")
@@ -505,7 +509,7 @@ public class CompanyController {
 		id = CommonTools.getFinalStr(id);
 		Integer status = 200;
 		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),
-				Constants.UP_COMPANY)) {
+				Constants.CHECK_CPY_APPLY)) {
 			try {
 				Company comp = companyService.getEntityById(id);
 				if (comp == null) {
@@ -514,6 +518,13 @@ public class CompanyController {
 					if (checkSta != null && !checkSta.equals(comp.getCheckStatus())) {
 						comp.setCheckStatus(checkSta);
 						comp.setCheckTime(CurrentTime.getCurrentTime());
+						String result = "未审核通过";
+						if(checkSta.equals(1)) {
+							result = "审核通过";
+						}
+						MessageCenter mc = new MessageCenter("您提交的"+comp.getName()+"公司的申请"+result, "您提交的"+comp.getName()+"公司的申请"+result, 0, CurrentTime.getCurrentTime(), 2,
+								id, "addCpy", "", comp.getOwerUserId(), 0);
+						mcs.saveOrUpdate(mc);
 					}
 					companyService.saveOrUpdate(comp);
 				}
@@ -931,13 +942,15 @@ public class CompanyController {
 			@ApiResponse(code = 50003, message = "数据已存在")
 	})
 	@ApiImplicitParams({ @ApiImplicitParam(name = "compId", value = "公司编号", required = true),
-			@ApiImplicitParam(name = "gfId", value = "液厂编号", required = true)
+			@ApiImplicitParam(name = "gfId", value = "液厂编号", required = true),
+			@ApiImplicitParam(name = "userId", value = "申请人", required = true)
 	})
 	public GenericResponse joinGasFactorApply(HttpServletRequest request) {
 		Integer status = 200;
 		String gfcId = "";
 		String compId = CommonTools.getFinalStr("compId", request);
 		String gfId = CommonTools.getFinalStr("gfId", request);
+		String userId = CommonTools.getFinalStr("userId", request);
 		if(compId.equals("") || gfId.equals("")) {
 			status = 10002;
 		}else {
@@ -947,7 +960,7 @@ public class CompanyController {
 					GasFactory gf = gfs.getEntityById(gfId);
 					if(c != null || gf != null) {
 						if(c.getCheckStatus() == 1 && gf.getCheckStatus() == 1) {
-							gfcId = gfcs.saveOrUpdate(new GasFactoryCompany(c, gf, CurrentTime.getCurrentTime(),0,""));
+							gfcId = gfcs.saveOrUpdate(new GasFactoryCompany(c, gf, userId,CurrentTime.getCurrentTime(),0,""));
 						}else {
 							status = 50001;
 						}

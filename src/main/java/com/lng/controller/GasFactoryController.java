@@ -20,11 +20,15 @@ import com.lng.pojo.GasFactory;
 import com.lng.pojo.GasFactoryCompany;
 import com.lng.pojo.GasType;
 import com.lng.pojo.HqProvinceOrder;
+import com.lng.pojo.MessageCenter;
+import com.lng.pojo.User;
 import com.lng.service.CommonProvinceOrderService;
 import com.lng.service.GasFactoryCompanyService;
 import com.lng.service.GasFactoryService;
 import com.lng.service.GasTypeService;
 import com.lng.service.HqProvinceOrderService;
+import com.lng.service.MessageCenterService;
+import com.lng.service.UserService;
 import com.lng.tools.CommonTools;
 import com.lng.tools.CurrentTime;
 import com.lng.util.Constants;
@@ -54,6 +58,8 @@ public class GasFactoryController {
 	private CommonProvinceOrderService cpos;
 	@Autowired
 	private HqProvinceOrderService hpos;
+	@Autowired
+	private MessageCenterService mcs;
 	
 	@PostMapping("addGasFactory")
 	@ApiOperation(value = "增加液厂--后台人员",notes = "后台人员增加液厂信息时使用")
@@ -515,6 +521,13 @@ public class GasFactoryController {
 						gfc.setCheckStatus(checkStatus);
 						gfc.setCheckTime(CurrentTime.getCurrentTime());
 						uId = gfcs.saveOrUpdate(gfc);
+						String result = "未审核通过";
+						if(checkStatus.equals(1)) {
+							result = "审核通过";
+						}
+						MessageCenter mc = new MessageCenter("您提交的加入"+gfc.getGasFactory().getName()+"贸易商的申请"+result, "您提交的加入"+gfc.getGasFactory().getName()+"贸易商的申请"+result, 0, CurrentTime.getCurrentTime(), 2,
+								gfcId, "joinGf", "", gfc.getAddUserId(), 0);
+						mcs.saveOrUpdate(mc);
 					}
 				}else {
 					status = 70001;

@@ -97,4 +97,24 @@ public class TrucksTradeServiceImpl implements TrucksTradeService {
 		return trucksTradeDao.findAll(spec, sort);
 	}
 
+	@SuppressWarnings("serial")
+	@Override
+	public Page<TrucksTrade> trucksTradeOnPublish(String userId, Integer showStatus, Integer pageNo, Integer pageSize) {
+		Pageable pageable = PageRequest.of(pageNo, pageSize);
+		Specification<TrucksTrade> spec = new Specification<TrucksTrade>() {
+			@Override
+			public Predicate toPredicate(Root<TrucksTrade> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+				Predicate pre = cb.conjunction();
+				if (!userId.isEmpty()) {
+					pre.getExpressions().add(cb.equal(root.get("addUserId"), userId));
+				}
+				if (showStatus != -1) {
+					pre.getExpressions().add(cb.equal(root.get("showStatus"), showStatus));
+				}
+				return pre;
+			}
+		};
+		return trucksTradeDao.findAll(spec, pageable);
+	}
+
 }

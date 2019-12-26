@@ -41,7 +41,7 @@ public class ModuleActServiceImpl implements ModuleActService{
 	}
 
 	@Override
-	public List<ModuleAct> listInfoByOpt(String actNameChi,String actNameEng) {
+	public List<ModuleAct> listInfoByOpt(String modId,String actNameChi,String actNameEng) {
 		// TODO Auto-generated method stub
 		Specification<ModuleAct> spec = new Specification<ModuleAct>() {
 			private static final long serialVersionUID = 1L;
@@ -50,6 +50,9 @@ public class ModuleActServiceImpl implements ModuleActService{
 			public Predicate toPredicate(Root<ModuleAct> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
 				// TODO Auto-generated method stub
 				Predicate pre = cb.conjunction();
+				if(!modId.isEmpty()) {
+					pre.getExpressions().add(cb.equal(root.get("module").get("id"), modId));
+				}
 				if(!actNameChi.isEmpty()) {
 					pre.getExpressions().add(cb.equal(root.get("actNameChi"), actNameChi));
 				}

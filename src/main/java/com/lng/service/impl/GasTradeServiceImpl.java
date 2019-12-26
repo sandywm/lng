@@ -176,5 +176,23 @@ public class GasTradeServiceImpl implements GasTradeService{
 		Pageable pageable = PageRequest.of(pageNo-1, pageSize, sort);
 		return gtDao.findAll(spec, pageable);
 	}
+	@SuppressWarnings("serial")
+	@Override
+	public Page<GasTrade> gasTradeOnPublish(String userId, Integer showStatus, Integer pageNo, Integer pageSize) {
+		Pageable pageable = PageRequest.of(pageNo, pageSize);
+		Specification<GasTrade> spec = new Specification<GasTrade>() {
+			@Override
+			public Predicate toPredicate(Root<GasTrade> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+				Predicate pre = cb.conjunction();
+				if(!userId.isEmpty()) {
+					pre.getExpressions().add(cb.equal(root.get("addUserId"), userId));
+				}
+				if(showStatus != -1) {
+					pre.getExpressions().add(cb.equal(root.get("showStatus"), showStatus));
+				}
+				return pre;
+		}};
+		return gtDao.findAll(spec, pageable);
+	}
 
 }

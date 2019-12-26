@@ -61,5 +61,20 @@ public interface TrucksTradeService {
 	 * @return
 	 */
 	List<TrucksTrade> listTrucksTradeByOpt(Integer checkSta,Integer showStatus,String sDate,String eDate);
+	/**
+	 * 
+	 * @description 根据用户编号获取槽车租卖上下架信息
+	 * @author zdf
+	 * @Version : 1.0
+	 * @ModifiedBy : 
+	 * @date  2019年12月26日 下午1:52:32
+	 * @param addUserId 用户编号
+	 * @param showStatus 上下架状态
+	 * @param pageNo 第几页
+	 * @param pageSize 每页多少条
+	 * @return
+	 */
+	Page<TrucksTrade> trucksTradeOnPublish(String userId,Integer showStatus, Integer pageNo,
+			Integer pageSize);
 
 }

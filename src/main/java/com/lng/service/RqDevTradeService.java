@@ -49,6 +49,20 @@ public interface RqDevTradeService {
 	 * @return
 	 */
 	Page<RqDevTrade> getRqDevTradeList(String compId,String lmId,String zlId,Integer checkSta,Integer showSta,String addUserId, Integer pageNo, Integer pageSize);
+	/**
+	 * 
+	 * @description 根据用户编号获取发布信息
+	 * @author zdf
+	 * @Version : 1.0
+	 * @ModifiedBy : 
+	 * @date  2019年12月26日 下午1:59:11
+	 * @param userId 用户编号
+	 * @param showStatus 上下架状态
+	 * @param pageNo 第几页
+	 * @param pageSize 每页多少条
+	 * @return
+	 */
+	Page<RqDevTrade> rqDevTradeOnPublish(String userId,Integer showStatus, Integer pageNo, Integer pageSize);
 	
 	/**
 	 * @description 根据条件获取设备租卖记录

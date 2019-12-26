@@ -25,6 +25,7 @@ import com.lng.pojo.GasTradeImg;
 import com.lng.pojo.GasTradeOrder;
 import com.lng.pojo.GasType;
 import com.lng.pojo.LngPriceDetail;
+import com.lng.pojo.MessageCenter;
 import com.lng.pojo.User;
 import com.lng.pojo.UserCompany;
 import com.lng.service.CommonProvinceOrderService;
@@ -35,6 +36,7 @@ import com.lng.service.GasFactoryService;
 import com.lng.service.GasTradeOrderService;
 import com.lng.service.GasTradeService;
 import com.lng.service.GasTypeService;
+import com.lng.service.MessageCenterService;
 import com.lng.service.UserCompanyService;
 import com.lng.service.UserService;
 import com.lng.tools.CommonTools;
@@ -76,6 +78,8 @@ public class GasTradeController {
 	private UserCompanyService ucs;
 	@Autowired
 	private CompanyPsrService cps;
+	@Autowired
+	private MessageCenterService mcs;
 	
 	@PostMapping("addGasTrade")
 	@ApiOperation(value = "增加燃气买卖记录",notes = "发布燃气买卖记录,配送区域最多能选五个")
@@ -568,6 +572,16 @@ public class GasTradeController {
 								gt.setCheckStatus(checkStatus);
 								gt.setCheckTime(CurrentTime.getCurrentTime());
 								gts.saveOrUpdate(gt);
+								//给发布人发送一条消息
+								String result = "";
+								if(opt.equals(1)) {
+									result = "审核通过";
+								}else if(opt.equals(2)) {
+									result = "审核未通过";
+								}
+								MessageCenter mc = new MessageCenter("您发布的"+gt.getGasFactory().getName()+"燃气"+result, "您发布的"+gt.getGasFactory().getName()+"燃气"+result, 0, CurrentTime.getCurrentTime(), 2,
+										gasTradeId, "gasTrade", "", gt.getAddUserId(), 0);
+								mcs.saveOrUpdate(mc);
 							}
 						}else {
 							status = 70001;

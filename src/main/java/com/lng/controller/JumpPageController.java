@@ -56,6 +56,12 @@ public class JumpPageController {
 		return null;
 	}
 	
+	@ApiOperation("登录进来跳转欢迎页平台管理员")
+	@GetMapping("goMainWelcomePage")
+	public ModelAndView goMainWelcomePage(){
+		return new ModelAndView("welcome/mainWelcomePage");
+	}
+	
 	@ApiOperation("模块权限设置")
 	@GetMapping("goSpuModPage")
 	public ModelAndView goSpuModPage(){
@@ -236,4 +242,9 @@ public class JumpPageController {
 		return new ModelAndView("driverZp/driverZpList");
 	}
 	
+	@ApiOperation("司机求职管理")
+	@GetMapping("goDriverQzPage") 
+	public ModelAndView goDriverQzPage(){
+		return new ModelAndView("driverQz/driverQzList");
+	}
 }

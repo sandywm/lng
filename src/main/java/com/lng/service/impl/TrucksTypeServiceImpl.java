@@ -9,6 +9,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -44,6 +45,7 @@ public class TrucksTypeServiceImpl implements TrucksTypeService {
 	@SuppressWarnings("serial")
 	@Override
 	public List<TrucksType> getTrucksTypeByNameList(String name) {
+		Sort sort = Sort.by(Sort.Direction.ASC, "type");// 降序排列
 		if (!name.isEmpty()) {
 			Specification<TrucksType> spec = new Specification<TrucksType>() {
 
@@ -54,14 +56,15 @@ public class TrucksTypeServiceImpl implements TrucksTypeService {
 					return pre;
 				}
 			};
-			return trucksTypeDao.findAll(spec);
+			return trucksTypeDao.findAll(spec,sort);
 		}
-		return trucksTypeDao.findAll();
+		return trucksTypeDao.findAll(sort);
 	}
 
 	@SuppressWarnings("serial")
 	@Override
 	public List<TrucksType> getTrucksTypeByType(Integer type) {
+		Sort sort = Sort.by(Sort.Direction.ASC, "type");// 降序排列
 		if (!type.equals(0)) {
 			Specification<TrucksType> spec = new Specification<TrucksType>() {
 
@@ -72,9 +75,9 @@ public class TrucksTypeServiceImpl implements TrucksTypeService {
 					return pre;
 				}
 			};
-			return trucksTypeDao.findAll(spec);
+			return trucksTypeDao.findAll(spec,sort);
 		}
-		return trucksTypeDao.findAll();
+		return trucksTypeDao.findAll(sort);
 	}
 
 }

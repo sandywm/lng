@@ -48,6 +48,20 @@ public interface PotTradeService {
    * @return
    */
   Page<PotTrade> getPotTradeByOption(String potPpId,Integer potVol,String sxInfo,String zzjzTypeId,Integer checkSta,Integer showStatus,Integer tradeStatus,Integer pageNo,Integer pageSize);
+   /**
+    * 
+    * @description 获取用户的上下架信息
+    * @author zdf
+    * @Version : 1.0
+    * @ModifiedBy : 
+    * @date  2019年12月26日 下午1:46:49
+    * @param userId 用户编号
+    * @param showStatus 上下架状态
+    * @param pageNo 第几页
+    * @param pageSize 每页多少条
+    * @return
+    */
+  Page<PotTrade> potTradeOnPublish(String userId,Integer showStatus,Integer pageNo,Integer pageSize);
 
   /**
    * @description 根据条件获取储罐租卖记录列表

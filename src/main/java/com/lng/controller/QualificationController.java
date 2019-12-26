@@ -85,17 +85,15 @@ public class QualificationController {
 					status = 50001;
 				} else {
 					if(name.equals(qual.getName())) {
-						if (validstatus != null) {
+						if (!validstatus.equals(qual.getValidStatus())) {
 							qual.setValidStatus(validstatus);
+							qual.setAddTime(CurrentTime.getCurrentTime());
+							quaService.edit(qual);
 						}
-						qual.setAddTime(CurrentTime.getCurrentTime());
-						quaService.edit(qual);
 					}else {
 						if (quaService.getQualByNameList(name).size() == 0) {
-							if (!name.equals("") && !name.equals(qual.getName())) {
-								qual.setName(name);
-							}
-							if (validstatus != null) {
+							qual.setName(name);
+							if (!validstatus.equals(qual.getValidStatus())) {
 								qual.setValidStatus(validstatus);
 							}
 							qual.setAddTime(CurrentTime.getCurrentTime());
