@@ -95,9 +95,7 @@ public class GasTypeController {
 						}
 					}else {
 						if (gTypeService.getGasTypeByNameList(name).size() == 0) {
-							if (!name.equals("") && !name.equals(gt.getName())) {
-								gt.setName(name);
-							}
+							gt.setName(name);
 							if (!yzImg.equals("") && !yzImg.equals(gt.getYzImg())) {
 								gt.setYzImg(CommonTools.dealUploadDetail(loginUserId, gt.getYzImg(), yzImg));
 							}

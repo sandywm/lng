@@ -178,7 +178,7 @@ public class RqDevTradeController {
 
 		try {
 			if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),
-					CommonTools.getLoginRoleName(request), Constants.UP_RDT)) {
+					CommonTools.getLoginRoleName(request), Constants.CHECK_RDT)) {
 
 			} else if (cilentInfo.equals("wxApp")) {
 

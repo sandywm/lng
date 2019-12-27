@@ -113,6 +113,21 @@
 		    <artifactId>pinyin4j</artifactId>
 	    	<version>${pinyin4j.version}</version>
 		</dependency>
+		<!-- http请求工具 -->
+		<dependency>
+		    <groupId>de.taimos</groupId>
+		    <artifactId>httputils</artifactId>
+		    <version>1.0.0</version>
+		</dependency>
+		
+		<!-- 加密工具包 -->
+		<dependency>
+		    <groupId>org.bouncycastle</groupId>
+		    <artifactId>bcprov-jdk15on</artifactId>
+		    <version>1.64</version>
+		</dependency>
+		
+		
 		<!-- 百度文本识别 -->
 		<!--dependency>
 		    <groupId>com.baidu.aip</groupId>

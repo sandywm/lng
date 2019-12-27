@@ -232,7 +232,7 @@ public class ModuleController {
 		Integer status = 200;
 		List<Object> modList = new ArrayList<Object>();
 		try {
-			if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.SET_ABILITY)) {
+			if(Constants.SUPER_DEP_ABILITY.contains(CommonTools.getLoginRoleName(request))) {
 				//获取所有模块
 				List<Module> mList = ms.listAllInfo();
 				Integer i = 1;
@@ -317,7 +317,7 @@ public class ModuleController {
 		Integer modType = CommonTools.getFinalInteger("modType", request);
 		try {
 			if(!modName.equals("") && !modUrl.equals("")) {
-				if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.ADD_MOD)) {
+				if(Constants.SUPER_DEP_ABILITY.contains(CommonTools.getLoginRoleName(request))) {
 					//查询名字不能相同
 					List<Module> mList = ms.listSpecInfoByName(modName);
 					if(mList.size() == 0) {
@@ -365,7 +365,7 @@ public class ModuleController {
 		String modUrl =  CommonTools.getFinalStr("modUrl", request);
 		Integer modType = CommonTools.getFinalInteger("modType", request);
 		try {
-			if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),CommonTools.getLoginRoleName(request), Constants.UP_MOD)) {
+			if(Constants.SUPER_DEP_ABILITY.contains(CommonTools.getLoginRoleName(request))) {
 				//查询名字不能相同
 				Module mod = ms.getEntityById(modId);
 				if(mod != null) {
@@ -417,7 +417,7 @@ public class ModuleController {
 			//获取用户所在部门
 			List<SuperDep> sdList = sds.listSpecInfoByUserId(superUserId);
 			if(sdList.size() > 0) {
-				if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),CommonTools.getLoginRoleName(request), Constants.ADD_MOD)) {
+				if(Constants.SUPER_DEP_ABILITY.contains(CommonTools.getLoginRoleName(request))) {
 					//动作英文必须唯一，中文一个模块内部必须唯一
 					List<ModuleAct> maList = mas.listInfoByOpt(modId,actNameChi,"");
 					List<ModuleAct> maList_1 = mas.listInfoByOpt("","",actNameEng);
@@ -458,7 +458,7 @@ public class ModuleController {
 	public GenericResponse upModAct(HttpServletRequest request,String maId,String actNameChi, String actNameEng) {
 		Integer status = 200;
 		try {
-			if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.UP_MOD)) {
+			if(Constants.SUPER_DEP_ABILITY.contains(CommonTools.getLoginRoleName(request))) {
 				//查询名字不能相同
 				ModuleAct mc = mas.getEntityById(maId);
 				if(mc != null) {
@@ -519,7 +519,7 @@ public class ModuleController {
 				//获取用户所在部门
 				List<SuperDep> sdList = sds.listSpecInfoByUserId(superUserId);
 				if(sdList.size() > 0) {
-					if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.SET_ABILITY)) {
+					if(Constants.SUPER_DEP_ABILITY.contains(CommonTools.getLoginRoleName(request))) {//拥有全部权限
 						//查询当前人员所有模块动作
 						List<ActSuper> asList = ass.listSpecInfoByUserId(specUserId, "",-1);
 						if(asList.size() > 0) {

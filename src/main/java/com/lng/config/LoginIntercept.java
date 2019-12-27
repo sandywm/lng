@@ -45,7 +45,7 @@ public class LoginIntercept {
 	             	// 如果是ajax请求响应头会有，x-requested-with
 	        		System.out.println("session丢失，拦截(ajax请求)---" + uri);
 	        		response.setHeader("SESSIONSTATUS", "TIMEOUT");
-	        		response.setHeader("CONTEXTPATH", "/index");
+	        		response.setHeader("CONTEXTPATH", "/loginOut");
 	                // FORBIDDEN，forbidden。也就是禁止、403
 	        		response.setStatus(HttpServletResponse.SC_FORBIDDEN); 
 	        		String url = "window.top.location.href = '"+CommonTools.getWebAddress(request)+"/loginOut'";

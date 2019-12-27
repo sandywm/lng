@@ -24,6 +24,7 @@ import com.lng.pojo.CompanyZz;
 import com.lng.pojo.GasFactory;
 import com.lng.pojo.GasFactoryCompany;
 import com.lng.pojo.MessageCenter;
+import com.lng.pojo.User;
 import com.lng.pojo.UserCompany;
 import com.lng.service.CompanyPsrService;
 import com.lng.service.CompanyService;
@@ -35,6 +36,7 @@ import com.lng.service.GasFactoryCompanyService;
 import com.lng.service.GasFactoryService;
 import com.lng.service.MessageCenterService;
 import com.lng.service.UserCompanyService;
+import com.lng.service.UserService;
 import com.lng.tools.CommonTools;
 import com.lng.tools.CurrentTime;
 import com.lng.util.Constants;
@@ -55,6 +57,8 @@ import io.swagger.annotations.ApiResponses;
 public class CompanyController {
 	@Autowired
 	private CompanyService companyService;
+	@Autowired
+	private UserService us;
 	@Autowired
 	private UserCompanyService ucs;
 	@Autowired
@@ -103,9 +107,9 @@ public class CompanyController {
 		String comId = "";
 		Integer userType =1;
 		try {
-			if (CommonTools.checkAuthorization(loginUserId, CommonTools.getLoginRoleName(request),
+			if (!CommonTools.checkAuthorization(loginUserId, CommonTools.getLoginRoleName(request),
 					Constants.ADD_COMPANY)) {
-
+				
 			} else if (cilentInfo.equals("wxApp")) {
 				userType =2;
 				loginUserId = CommonTools.getFinalStr("owerUserId", request);
@@ -156,6 +160,8 @@ public class CompanyController {
 						}
 						zzService.saveOrUpdateBatch(zzList);
 					}
+					//将自己加入到公司员工关联
+					ucs.addOrUpdate(new UserCompany(comp, us.getEntityById(loginUserId), CurrentTime.getCurrentTime(),1,CurrentTime.getCurrentTime()));
 				} else {
 					status = 50003;
 				}
@@ -182,23 +188,17 @@ public class CompanyController {
 		compId = CommonTools.getFinalStr(compId);
 		Integer status = 200;
 		String psrId = "";
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),
-				Constants.ADD_PSR)) {
-			try {
-
-				CompanyPsr psr = new CompanyPsr();
-				Company company = companyService.getEntityById(compId);
-				psr.setCompany(company);
-				psr.setName(CommonTools.getFinalStr(name));
-				psr.setSex(CommonTools.getFinalStr(sex));
-				psr.setMobile(CommonTools.getFinalStr(mobile));
-				psrId = psrService.saveOrUpdate(psr);
-			} catch (Exception e) {
-				e.printStackTrace();
-				status = 1000;
-			}
-		} else {
-			status = 70001;
+		try {
+			CompanyPsr psr = new CompanyPsr();
+			Company company = companyService.getEntityById(compId);
+			psr.setCompany(company);
+			psr.setName(CommonTools.getFinalStr(name));
+			psr.setSex(CommonTools.getFinalStr(sex));
+			psr.setMobile(CommonTools.getFinalStr(mobile));
+			psrId = psrService.saveOrUpdate(psr);
+		} catch (Exception e) {
+			e.printStackTrace();
+			status = 1000;
 		}
 		return ResponseFormat.retParam(status, psrId);
 	}
@@ -213,29 +213,24 @@ public class CompanyController {
 		compId = CommonTools.getFinalStr(compId);
 		Integer status = 200;
 		String gcId = "";
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),
-				Constants.ADD_GCCP)) {
-			try {
-				gch = CommonTools.getFinalStr(gch);
-				if (tructsGcCpService.getGcCpByName(gch.toUpperCase()).size() == 0) {
-					CompanyTructsGcCp gccp = new CompanyTructsGcCp();
-					Company company = companyService.getEntityById(compId);
-					gccp.setCompany(company);
-					if (!CommonTools.getFinalStr(gch).equals("")) {
-						gccp.setTrucksGch(gch.toUpperCase());
-					} else {
-						gccp.setTrucksGch("");
-					}
-					gcId = tructsGcCpService.saveOrUpdate(gccp);
+		try {
+			gch = CommonTools.getFinalStr(gch);
+			if (tructsGcCpService.getGcCpByName(gch.toUpperCase()).size() == 0) {
+				CompanyTructsGcCp gccp = new CompanyTructsGcCp();
+				Company company = companyService.getEntityById(compId);
+				gccp.setCompany(company);
+				if (!CommonTools.getFinalStr(gch).equals("")) {
+					gccp.setTrucksGch(gch.toUpperCase());
 				} else {
-					status = 50003;
+					gccp.setTrucksGch("");
 				}
-			} catch (Exception e) {
-				e.printStackTrace();
-				status = 1000;
+				gcId = tructsGcCpService.saveOrUpdate(gccp);
+			} else {
+				status = 50003;
 			}
-		} else {
-			status = 70001;
+		} catch (Exception e) {
+			e.printStackTrace();
+			status = 1000;
 		}
 		return ResponseFormat.retParam(status, gcId);
 	}
@@ -250,29 +245,24 @@ public class CompanyController {
 		compId = CommonTools.getFinalStr(compId);
 		Integer status = 200;
 		String cId = "";
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),
-				Constants.ADD_HEADCP)) {
-			try {
-				cp = CommonTools.getFinalStr(cp);
-				if (tructsHeadCpService.getHeadCpList(cp.toUpperCase()).size() == 0) {
-					CompanyTructsHeadCp headCp = new CompanyTructsHeadCp();
-					Company company = companyService.getEntityById(compId);
-					headCp.setCompany(company);
-					if (!CommonTools.getFinalStr(cp).equals("")) {
-						headCp.setTrucksCp(cp.toUpperCase());
-					} else {
-						headCp.setTrucksCp("");
-					}
-					cId = tructsHeadCpService.saveOrUpdate(headCp);
+		try {
+			cp = CommonTools.getFinalStr(cp);
+			if (tructsHeadCpService.getHeadCpList(cp.toUpperCase()).size() == 0) {
+				CompanyTructsHeadCp headCp = new CompanyTructsHeadCp();
+				Company company = companyService.getEntityById(compId);
+				headCp.setCompany(company);
+				if (!CommonTools.getFinalStr(cp).equals("")) {
+					headCp.setTrucksCp(cp.toUpperCase());
 				} else {
-					status = 50003;
+					headCp.setTrucksCp("");
 				}
-			} catch (Exception e) {
-				e.printStackTrace();
-				status = 1000;
+				cId = tructsHeadCpService.saveOrUpdate(headCp);
+			} else {
+				status = 50003;
 			}
-		} else {
-			status = 70001;
+		} catch (Exception e) {
+			e.printStackTrace();
+			status = 1000;
 		}
 		return ResponseFormat.retParam(status, cId);
 	}
@@ -340,6 +330,8 @@ public class CompanyController {
 	public PageResponse queryCompany(String typeId, String name, Integer checkSta, Integer page, Integer limit) {
 		Integer status = 200;
 		Page<Company> coms = null;
+		long count = 0;
+		List<Object> list = new ArrayList<Object>();
 		try {
 			if (page == null) {
 				page = 1;
@@ -352,14 +344,31 @@ public class CompanyController {
 			}
 			coms = companyService.getCompanyList(CommonTools.getFinalStr(name), CommonTools.getFinalStr(typeId),
 					checkSta, page - 1, limit);
-			if (coms.getTotalElements() == 0) {
+			count = coms.getTotalElements();
+			if (count == 0) {
 				status = 50001;
+			}else {
+				for(Company cpy : coms) {
+					Map<String,Object> map_d = new HashMap<String,Object>();
+					map_d.put("id", cpy.getId());
+					map_d.put("name", cpy.getName());
+					map_d.put("checkStatus", cpy.getCheckStatus());
+					map_d.put("companyType", cpy.getCompanyType().getName());
+					map_d.put("lxName", cpy.getLxName());
+					map_d.put("lxTel", cpy.getLxTel());
+					map_d.put("address", cpy.getAddress());
+					map_d.put("province", cpy.getProvince());
+					map_d.put("city", cpy.getCity());
+					map_d.put("county", cpy.getCounty());
+					map_d.put("addTime", cpy.getAddTime());
+					list.add(map_d);
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			status = 1000;
 		}
-		return ResponseFormat.getPageJson(limit, page, coms.getTotalElements(), status, coms.getContent());
+		return ResponseFormat.getPageJson(limit, page, count, status, list);
 	}
 
 	@GetMapping("/getCompanyList")
@@ -406,6 +415,39 @@ public class CompanyController {
 					}
 				}else {
 					status = 50001;
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			status = 1000;
+		}
+		return ResponseFormat.retParam(status, list);
+	}
+	
+	@GetMapping("/queryCompanyEmployee")
+	@ApiOperation(value = "获取公司员工", notes = "获取公司员工")
+	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
+			@ApiResponse(code = 50001, message = "数据未找到") })
+	@ApiImplicitParams({ @ApiImplicitParam(name = "compId", value = "公司编号") })
+	public GenericResponse queryCompanyEmployee(HttpServletRequest request) {
+		Integer status = 200;
+		String compId = CommonTools.getFinalStr("compId", request);
+		List<Object> list = new ArrayList<Object>();
+		try {
+			List<UserCompany> ucList = ucs.getUserCompanyList(compId, "");
+			if (ucList.size() == 0) {
+				status = 50001;
+			} else {
+				for (UserCompany uc : ucList) {
+					Map<String, String> map_d = new HashMap<String, String>();
+					User user = uc.getUser();
+					map_d.put("userId", user.getId());
+					map_d.put("userHead", user.getUserPortrait());
+					map_d.put("wxName", user.getWxName());
+					map_d.put("sex", user.getSex());
+					map_d.put("userName", user.getRealName());
+					map_d.put("userMobile", user.getMobile());
+					list.add(map_d);
 				}
 			}
 		} catch (Exception e) {
@@ -644,30 +686,25 @@ public class CompanyController {
 		name = CommonTools.getFinalStr(name);
 		sex = CommonTools.getFinalStr(sex);
 		mobile = CommonTools.getFinalStr(mobile);
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),
-				Constants.UP_PSR)) {
-			try {
-				CompanyPsr psr = psrService.getEntityById(id);
-				if (psr == null) {
-					status = 50001;
-				} else {
-					if (!name.isEmpty() && !name.equals(psr.getName())) {
-						psr.setName(name);
-					}
-					if (!sex.isEmpty() && !sex.equals(psr.getSex())) {
-						psr.setSex(sex);
-					}
-					if (mobile.isEmpty() && !mobile.equals(psr.getMobile())) {
-						psr.setMobile(mobile);
-					}
-					psrService.saveOrUpdate(psr);
+		try {
+			CompanyPsr psr = psrService.getEntityById(id);
+			if (psr == null) {
+				status = 50001;
+			} else {
+				if (!name.isEmpty() && !name.equals(psr.getName())) {
+					psr.setName(name);
 				}
-			} catch (Exception e) {
-				e.printStackTrace();
-				status = 1000;
+				if (!sex.isEmpty() && !sex.equals(psr.getSex())) {
+					psr.setSex(sex);
+				}
+				if (mobile.isEmpty() && !mobile.equals(psr.getMobile())) {
+					psr.setMobile(mobile);
+				}
+				psrService.saveOrUpdate(psr);
 			}
-		} else {
-			status = 70001;
+		} catch (Exception e) {
+			e.printStackTrace();
+			status = 1000;
 		}
 		return ResponseFormat.retParam(status, "");
 	}
@@ -684,24 +721,19 @@ public class CompanyController {
 		Integer status = 200;
 		gch = CommonTools.getFinalStr(gch);
 		id = CommonTools.getFinalStr(id);
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),
-				Constants.UP_GCCP)) {
-			try {
-				CompanyTructsGcCp gccp = tructsGcCpService.getEntityById(id);
-				if (gccp == null) {
-					status = 50001;
-				} else {
-					if (!gch.isEmpty() && !gch.equals(gccp.getTrucksGch())) {
-						gccp.setTrucksGch(gch);
-					}
-					tructsGcCpService.saveOrUpdate(gccp);
+		try {
+			CompanyTructsGcCp gccp = tructsGcCpService.getEntityById(id);
+			if (gccp == null) {
+				status = 50001;
+			} else {
+				if (!gch.isEmpty() && !gch.equals(gccp.getTrucksGch())) {
+					gccp.setTrucksGch(gch);
 				}
-			} catch (Exception e) {
-				e.printStackTrace();
-				status = 1000;
+				tructsGcCpService.saveOrUpdate(gccp);
 			}
-		} else {
-			status = 70001;
+		} catch (Exception e) {
+			e.printStackTrace();
+			status = 1000;
 		}
 		return ResponseFormat.retParam(status, "");
 	}
@@ -718,24 +750,19 @@ public class CompanyController {
 		Integer status = 200;
 		cp = CommonTools.getFinalStr(cp);
 		id = CommonTools.getFinalStr(id);
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),
-				Constants.UP_HEADCP)) {
-			try {
-				CompanyTructsHeadCp headCp = tructsHeadCpService.getEntityById(id);
-				if (headCp == null) {
-					status = 50001;
-				} else {
-					if (!cp.isEmpty() && !cp.equals(headCp.getTrucksCp())) {
-						headCp.setTrucksCp(cp);
-					}
-					tructsHeadCpService.saveOrUpdate(headCp);
+		try {
+			CompanyTructsHeadCp headCp = tructsHeadCpService.getEntityById(id);
+			if (headCp == null) {
+				status = 50001;
+			} else {
+				if (!cp.isEmpty() && !cp.equals(headCp.getTrucksCp())) {
+					headCp.setTrucksCp(cp);
 				}
-			} catch (Exception e) {
-				e.printStackTrace();
-				status = 1000;
+				tructsHeadCpService.saveOrUpdate(headCp);
 			}
-		} else {
-			status = 70001;
+		} catch (Exception e) {
+			e.printStackTrace();
+			status = 1000;
 		}
 		return ResponseFormat.retParam(status, "");
 	}
@@ -753,24 +780,19 @@ public class CompanyController {
 		zzImg = CommonTools.getFinalStr(zzImg);
 		id = CommonTools.getFinalStr(id);
 		String loginUserId = CommonTools.getLoginUserId(request);
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),
-				Constants.UP_ZZ)) {
-			try {
-				CompanyZz zz = zzService.getEntityById(id);
-				if (zz == null) {
-					status = 50001;
-				} else {
-					if (!zzImg.isEmpty() && !zzImg.equals(zz.getCompanyZzImg())) {
-						zz.setCompanyZzImg(CommonTools.dealUploadDetail(loginUserId, zz.getCompanyZzImg(), zzImg));
-					}
-					zzService.saveOrUpdate(zz);
+		try {
+			CompanyZz zz = zzService.getEntityById(id);
+			if (zz == null) {
+				status = 50001;
+			} else {
+				if (!zzImg.isEmpty() && !zzImg.equals(zz.getCompanyZzImg())) {
+					zz.setCompanyZzImg(CommonTools.dealUploadDetail(loginUserId, zz.getCompanyZzImg(), zzImg));
 				}
-			} catch (Exception e) {
-				e.printStackTrace();
-				status = 1000;
+				zzService.saveOrUpdate(zz);
 			}
-		} else {
-			status = 70001;
+		} catch (Exception e) {
+			e.printStackTrace();
+			status = 1000;
 		}
 		return ResponseFormat.retParam(status, "");
 	}

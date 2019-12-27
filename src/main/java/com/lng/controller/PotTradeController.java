@@ -191,7 +191,7 @@ public class PotTradeController {
 
 		try {
 			if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),
-					CommonTools.getLoginRoleName(request), Constants.UP_PT)) {
+					CommonTools.getLoginRoleName(request), Constants.CHECK_PT)) {
 
 			} else if (cilentInfo.equals("wxApp")) {
 

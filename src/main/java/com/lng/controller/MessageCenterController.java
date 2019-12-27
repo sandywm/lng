@@ -38,8 +38,8 @@ public class MessageCenterController {
 	@ApiOperation(value = "分页获取消息中心列表", notes = "分页获取消息中心列表")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
 			@ApiResponse(code = 50001, message = "数据未找到") })
-	@ApiImplicitParams({ @ApiImplicitParam(name = "toUserId", value = "接收人编号", required = true),
-			@ApiImplicitParam(name = "msgTypeId", value = "消息类型（1：新闻资讯，2：系统通知，3：留言回复）", dataType = "integer"),
+	@ApiImplicitParams({ @ApiImplicitParam(name = "toUserId", value = "接收人编号"),
+			@ApiImplicitParam(name = "msgTypeId", value = "消息类型（1：新闻资讯，2：系统通知，3：留言回复，4：价格变动通知）", dataType = "integer"),
 			@ApiImplicitParam(name = "showStatus", value = "显示状态（-1:全部，0：默认显示，1：隐藏）", dataType = "integer"),
 			@ApiImplicitParam(name = "readSta", value = "已读状态（-1:全部，0：未读，1：已读）", dataType = "integer"),
 			@ApiImplicitParam(name = "page", value = "页码", dataType = "integer"),
@@ -81,7 +81,7 @@ public class MessageCenterController {
 	})
 	@ApiImplicitParams({ @ApiImplicitParam(name = "title", value = "标题", required = true),
 			@ApiImplicitParam(name = "content", value = "内容", required = true),
-			@ApiImplicitParam(name = "msgType", value = "消息类型（1：新闻资讯，2：系统通知，3：留言回复）", required = true),
+			@ApiImplicitParam(name = "msgType", value = "消息类型（1：新闻资讯，2：系统通知，3：留言回复，4：价格变动通知）", required = true),
 			@ApiImplicitParam(name = "primaryId", value = "主键类型-新闻资讯时无需传递"),
 			@ApiImplicitParam(name = "primaryType", value = "主键类型-新闻资讯时无需传递"),
 			@ApiImplicitParam(name = "addUserId", value = "发布人员编号-留言回复时传递"),

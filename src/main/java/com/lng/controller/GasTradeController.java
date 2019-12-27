@@ -564,7 +564,7 @@ public class GasTradeController {
 			if(!gasTradeId.equals("")){
 				if(opt.equals(0)) {//审核
 					if(checkStatus.equals(1) || checkStatus.equals(2)) {
-						if(CommonTools.checkAuthorization(userId, CommonTools.getLoginRoleName(request),Constants.CHECK_GAS_TRADE_PUB)) {
+						if(CommonTools.checkAuthorization(userId, CommonTools.getLoginRoleName(request),Constants.CHECK_GAS_TRADE)) {
 							GasTrade gt = gts.getEntityById(gasTradeId);
 							if(gt == null) {
 								status = 50001;

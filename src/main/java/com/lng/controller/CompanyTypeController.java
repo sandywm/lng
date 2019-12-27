@@ -80,14 +80,14 @@ public class CompanyTypeController {
 				if (ct == null) {
 					status = 50001;
 				} else {
-					if (cTypeService.getCompanyTypeByNameList(name).size() == 0) {
-						if (!name.equals("") && !name.equals(ct.getName())) {
+					if(!name.equals(ct.getName())) {
+						if (cTypeService.getCompanyTypeByNameList(name).size() == 0) {
 							ct.setName(name);
 							ct.setAddTime(CurrentTime.getCurrentTime());
+							cTypeService.saveOrUpdate(ct);
+						} else {
+							status = 50003;
 						}
-						cTypeService.saveOrUpdate(ct);
-					} else {
-						status = 50003;
 					}
 				}
 

@@ -25,6 +25,7 @@ import com.lng.service.DriverZpService;
 import com.lng.service.UserFocusService;
 import com.lng.tools.CommonTools;
 import com.lng.tools.CurrentTime;
+import com.lng.util.Constants;
 import com.lng.util.GenericResponse;
 import com.lng.util.PageResponse;
 import com.lng.util.ResponseFormat;
@@ -143,13 +144,18 @@ public class DriverZpController {
 
 	@PutMapping("/updateQzByStatus")
 	@ApiOperation(value = "更新司机求职审核状态", notes = "更新司机求职审核状态")
-	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
-			@ApiResponse(code = 50001, message = "数据未找到") })
+	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), 
+					@ApiResponse(code = 200, message = "成功"),
+					@ApiResponse(code = 50001, message = "数据未找到"),
+					@ApiResponse(code = 70001, message = "无权限访问")
+	})
 	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "司机求职主键", required = true),
 			@ApiImplicitParam(name = "checkSta", value = "审核状态(0:未审核,1:审核通过,2:审核未通过)"),
 			@ApiImplicitParam(name = "showSta", value = "上/下架状态（0：上架，1：下架）") })
-	public GenericResponse updateQzByStatus(HttpServletRequest request, String id, Integer checkSta, Integer showSta) {
-		id = CommonTools.getFinalStr(id);
+	public GenericResponse updateQzByStatus(HttpServletRequest request) {
+		String  id = CommonTools.getFinalStr("id",request);
+		Integer checkSta = CommonTools.getFinalInteger("checkSta", request);
+		Integer showSta = CommonTools.getFinalInteger("showSta", request);
 		Integer status = 200;
 
 		try {
@@ -157,14 +163,19 @@ public class DriverZpController {
 			if (qz == null) {
 				status = 50001;
 			} else {
-				if (checkSta != null && !checkSta.equals(qz.getCheckStatus())) {
-					qz.setCheckStatus(checkSta);
-					qz.setCheckTime(CurrentTime.getCurrentTime());
-				}
-				if (showSta != null && !showSta.equals(qz.getShowStatus())) {
+				
+				if(checkSta >= 0 && !checkSta.equals(qz.getCheckStatus())) {
+					if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),CommonTools.getLoginRoleName(request), Constants.CHECK_QZ)) {
+						qz.setCheckStatus(checkSta);
+						qz.setCheckTime(CurrentTime.getCurrentTime());
+						qzService.saveOrUpdate(qz);
+					}else {
+						status = 70001;
+					}
+				}else if (showSta >=0 && !showSta.equals(qz.getShowStatus())) {
 					qz.setShowStatus(showSta);
+					qzService.saveOrUpdate(qz);
 				}
-				qzService.saveOrUpdate(qz);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -526,27 +537,36 @@ public class DriverZpController {
 
 	@PutMapping("/updateZpByStatus")
 	@ApiOperation(value = "更新司机招聘审核状态", notes = "更新司机招聘审核状态")
-	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
-			@ApiResponse(code = 50001, message = "数据未找到") })
+	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"),
+					@ApiResponse(code = 200, message = "成功"),
+					@ApiResponse(code = 50001, message = "数据未找到"),
+					@ApiResponse(code = 70001, message = "无权限访问")
+	})
 	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "司机招聘主键", required = true),
 			@ApiImplicitParam(name = "checkSta", value = "审核状态(0:未审核,1:审核通过,2:审核未通过)"),
 			@ApiImplicitParam(name = "showSta", value = "上/下架状态（0：上架，1：下架）") })
-	public GenericResponse updateZpByStatus(HttpServletRequest request, String id, Integer checkSta, Integer showSta) {
-		id = CommonTools.getFinalStr(id);
+	public GenericResponse updateZpByStatus(HttpServletRequest request) {
+		String  id = CommonTools.getFinalStr("id",request);
+		Integer checkSta = CommonTools.getFinalInteger("checkSta", request);
+		Integer showSta = CommonTools.getFinalInteger("showSta", request);
 		Integer status = 200;
 		try {
 			DriverZp zp = zpService.getEntityById(id);
 			if (zp == null) {
 				status = 50001;
 			} else {
-				if (checkSta != null && !checkSta.equals(zp.getCheckStatus())) {
-					zp.setCheckStatus(checkSta);
-					zp.setCheckTime(CurrentTime.getCurrentTime());
-				}
-				if (showSta != null && !showSta.equals(zp.getShowStatus())) {
+				if(checkSta >= 0 && !checkSta.equals(zp.getCheckStatus())) {
+					if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),CommonTools.getLoginRoleName(request), Constants.CHECK_ZP)) {
+						zp.setCheckStatus(checkSta);
+						zp.setCheckTime(CurrentTime.getCurrentTime());
+						zpService.saveOrUpdate(zp);
+					}else {
+						status = 70001;
+					}
+				}else if (showSta >=0 && !showSta.equals(zp.getShowStatus())) {
 					zp.setShowStatus(showSta);
+					zpService.saveOrUpdate(zp);
 				}
-				zpService.saveOrUpdate(zp);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

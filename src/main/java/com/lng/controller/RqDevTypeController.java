@@ -79,13 +79,13 @@ public class RqDevTypeController {
 				if (rqdev == null) {
 					status = 50001;
 				} else {
-					if (rqDevTypeService.getRqDevTypeByNameList(name).size() == 0) {
-						if (!name.equals("") && !name.equals(rqdev.getName())) {
+					if(!name.equals(rqdev.getName())) {
+						if (rqDevTypeService.getRqDevTypeByNameList(name).size() == 0) {
 							rqdev.setName(name);
+							rqDevTypeService.saveOrUpdate(rqdev);
+						} else {
+							status = 50003;
 						}
-						rqDevTypeService.saveOrUpdate(rqdev);
-					} else {
-						status = 50003;
 					}
 				}
 			} catch (Exception e) {

@@ -14,7 +14,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.lng.pojo.LngPriceDetail;
 //import com.baidu.aip.contentcensor.AipContentCensor;
 import com.lng.pojo.SuperDep;
 import com.lng.pojo.SystemInfo;
@@ -383,6 +382,7 @@ public class CommonTools {
 		}
 		return finalPath;
 	}
+	
 	
 	public static Integer autoCheckMsg(String msg) {
 //		AipContentCensor client = new AipContentCensor(Constants.APP_ID, Constants.APP_KEY, Constants.SECRET_KEY);

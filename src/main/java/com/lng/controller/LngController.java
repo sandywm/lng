@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -370,48 +369,48 @@ public class LngController {
 		return ResponseFormat.retParam(status, list);
 	}
 	
-	@PutMapping("upSpecLngData")
-	@ApiOperation(value = "不用--修改指定lng行情记录",notes = "修改指定lng行情记录")
-	@ApiResponses({@ApiResponse(code = 1000, message = "服务器错误"),
-		@ApiResponse(code = 70001, message = "无权限访问"),
-		@ApiResponse(code = 10002, message = "参数为空"),
-		@ApiResponse(code = 50001, message = "数据未找到")
-	})
-	@ApiImplicitParams({
-		@ApiImplicitParam(name = "lpdId", value = "lng行情编号"),
-		@ApiImplicitParam(name = "price", value = "价格(多个逗号隔开)"),
-		@ApiImplicitParam(name = "priceDate", value = "价格时间(yyyy-mm-dd)"),
-		@ApiImplicitParam(name = "remark", value = "备注")
-	})
-	public GenericResponse upSpecLngData(HttpServletRequest request) {
-		String lpdId = CommonTools.getFinalStr("lpdId", request);
-		Integer price = CommonTools.getFinalInteger("price", request);
-		String remark = CommonTools.getFinalStr("remark");
-		Integer status = 200;
-		try {
-			if(!lpdId.equals("") && price >= 0) {
-				if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.UP_LNG_PRICE)) {
-					LngPriceDetail lpd = lpds.getEntityById(lpdId);
-					if(lpd != null) {
-						lpd.setPrice(price);
-						lpd.setRemark(remark);
-						lpds.addOrUpdate(lpd);
-					}else {
-						status = 50001;
-					}
-				}else {
-					status = 70001;
-				}
-			}else {
-				status = 10002;
-			}
-		} catch (Exception e) {
-			// TODO: handle exception
-			e.printStackTrace();
-			status = 1000;
-		}
-		return ResponseFormat.retParam(status, "");
-	}
+//	@PutMapping("upSpecLngData")
+//	@ApiOperation(value = "不用--修改指定lng行情记录",notes = "修改指定lng行情记录")
+//	@ApiResponses({@ApiResponse(code = 1000, message = "服务器错误"),
+//		@ApiResponse(code = 70001, message = "无权限访问"),
+//		@ApiResponse(code = 10002, message = "参数为空"),
+//		@ApiResponse(code = 50001, message = "数据未找到")
+//	})
+//	@ApiImplicitParams({
+//		@ApiImplicitParam(name = "lpdId", value = "lng行情编号"),
+//		@ApiImplicitParam(name = "price", value = "价格(多个逗号隔开)"),
+//		@ApiImplicitParam(name = "priceDate", value = "价格时间(yyyy-mm-dd)"),
+//		@ApiImplicitParam(name = "remark", value = "备注")
+//	})
+//	public GenericResponse upSpecLngData(HttpServletRequest request) {
+//		String lpdId = CommonTools.getFinalStr("lpdId", request);
+//		Integer price = CommonTools.getFinalInteger("price", request);
+//		String remark = CommonTools.getFinalStr("remark");
+//		Integer status = 200;
+//		try {
+//			if(!lpdId.equals("") && price >= 0) {
+//				if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.UP_LNG_PRICE)) {
+//					LngPriceDetail lpd = lpds.getEntityById(lpdId);
+//					if(lpd != null) {
+//						lpd.setPrice(price);
+//						lpd.setRemark(remark);
+//						lpds.addOrUpdate(lpd);
+//					}else {
+//						status = 50001;
+//					}
+//				}else {
+//					status = 70001;
+//				}
+//			}else {
+//				status = 10002;
+//			}
+//		} catch (Exception e) {
+//			// TODO: handle exception
+//			e.printStackTrace();
+//			status = 1000;
+//		}
+//		return ResponseFormat.retParam(status, "");
+//	}
 	
 	@GetMapping("getLngPriceData")
 	@ApiOperation(value = "根据省、液厂编号、液厂首字母获取LNG价格行情--后台录入时显示",

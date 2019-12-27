@@ -259,7 +259,7 @@ public class GasFactoryController {
 			if(gfId.equals("") || checkStatus.equals(0)) {
 				status = 10002;
 			}else {
-				if(CommonTools.checkAuthorization(userId,CommonTools.getLoginRoleName(request), Constants.CHECK_GAS_FACTORY_PUB)) {
+				if(CommonTools.checkAuthorization(userId,CommonTools.getLoginRoleName(request), Constants.CHECK_YC)) {
 					GasFactory gf = gfs.getEntityById(gfId);
 					if(gf != null) {
 						gf.setCheckStatus(checkStatus);

@@ -152,32 +152,28 @@ public class UserCompanyAndFocusController {
 	public GenericResponse updateUserCompanyBySta(HttpServletRequest request, String id, Integer checkSta) {
 		id = CommonTools.getFinalStr(id);
 		Integer status = 200;
-		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.CHECK_USER_JOIN_CPY_APPLY)) {
-			try {
-				UserCompany uc = ucService.getEntityId(id);
-				if (uc == null) {
-					status = 50001;
-				} else {
-					if (checkSta != null && !checkSta.equals(uc.getCheckStatus())) {
-						uc.setCheckStatus(checkSta);
-						uc.setCheckTime(CurrentTime.getCurrentTime());
-						String result = "未审核通过";
-						if(checkSta.equals(1)) {
-							result = "审核通过";
-						}
-						Company cpy = uc.getCompany();
-						MessageCenter mc = new MessageCenter("您提交的加入"+cpy.getName()+"公司的申请"+result, "您提交的加入"+cpy.getName()+"公司的申请"+result, 0, CurrentTime.getCurrentTime(), 2,
-								id, "joinCpy", "", uc.getUser().getId(), 0);
-						mcs.saveOrUpdate(mc);
+		try {
+			UserCompany uc = ucService.getEntityId(id);
+			if (uc == null) {
+				status = 50001;
+			} else {
+				if (checkSta != null && !checkSta.equals(uc.getCheckStatus())) {
+					uc.setCheckStatus(checkSta);
+					uc.setCheckTime(CurrentTime.getCurrentTime());
+					String result = "未审核通过";
+					if(checkSta.equals(1)) {
+						result = "审核通过";
 					}
-					ucService.addOrUpdate(uc);
+					Company cpy = uc.getCompany();
+					MessageCenter mc = new MessageCenter("您提交的加入"+cpy.getName()+"公司的申请"+result, "您提交的加入"+cpy.getName()+"公司的申请"+result, 0, CurrentTime.getCurrentTime(), 2,
+							id, "joinCpy", "", uc.getUser().getId(), 0);
+					mcs.saveOrUpdate(mc);
 				}
-			} catch (Exception e) {
-				e.printStackTrace();
-				status = 1000;
+				ucService.addOrUpdate(uc);
 			}
-		} else {
-			status = 70001;
+		} catch (Exception e) {
+			e.printStackTrace();
+			status = 1000;
 		}
 		return ResponseFormat.retParam(status, "");
 	}
@@ -210,7 +206,7 @@ public class UserCompanyAndFocusController {
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
 			@ApiResponse(code = 50001, message = "数据未找到") })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "userId", value = "用户编号", required = true),
-			@ApiImplicitParam(name = "focusType", value = "关注类型"), @ApiImplicitParam(name = "page", value = "第几页"),
+			@ApiImplicitParam(name = "focusType", value = "关注类型(cczm,rqsb,cgzm,rqmm)"), @ApiImplicitParam(name = "page", value = "第几页"),
 			@ApiImplicitParam(name = "limit", value = "每页多少条") })
 	public PageResponse queryUserFocus(String userId, String focusType, Integer page, Integer limit) {
 		userId = CommonTools.getFinalStr(userId);
@@ -234,7 +230,7 @@ public class UserCompanyAndFocusController {
 					String ufId = uf.getFocusId();
 					focusType = uf.getFocusType();
 					Map<String, Object> map = new HashMap<String, Object>();
-					if (focusType.equals("cczm")) {
+					if (focusType.equalsIgnoreCase("cczm")) {
 						TrucksTrade tt = trucksTradeService.getEntityById(ufId);
 						String cId = tt.getCompanyId();
 						if (!cId.isEmpty()) {
@@ -257,7 +253,7 @@ public class UserCompanyAndFocusController {
 						map.put("hot", tt.getHot());
 						map.put("tradeType", tt.getTradeType());
 						map.put("area", tt.getArea());
-					} else if (focusType.equals("cgzm")) {
+					} else if (focusType.equalsIgnoreCase("cgzm")) {
 						PotTrade pt = potTradeService.getEntityById(ufId);
 						map.put("ptId", pt.getId());
 						map.put("mainImg", pt.getMainImg());
@@ -268,7 +264,7 @@ public class UserCompanyAndFocusController {
 						map.put("zzJzTypeName", pt.getPotZzjzType().getName());
 						map.put("leasePrice", pt.getLeasePrice());
 						map.put("sellPrice", pt.getSellPrice());
-					} else if (focusType.equals("rqsb")) {
+					} else if (focusType.equalsIgnoreCase("rqsb")) {
 						RqDevTrade rdt = rdtService.getEntityById(ufId);
 						map.put("rdtId", rdt.getId());
 						map.put("mainImg", rdt.getMainImg());
@@ -276,7 +272,7 @@ public class UserCompanyAndFocusController {
 						map.put("devNo", rdt.getDevNo());
 						map.put("devPp", rdt.getDevPp());
 						map.put("devPrice", rdt.getDevPrice());
-					} else if (focusType.equals("rqmm")) {
+					} else if (focusType.equalsIgnoreCase("rqmm")) {
 						GasTrade gt = gts.getEntityById(ufId);
 						map.put("id", gt.getId());
 						map.put("headImg", gt.getHeadImg());

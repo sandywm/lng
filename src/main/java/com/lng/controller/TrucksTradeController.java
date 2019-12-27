@@ -272,7 +272,7 @@ public class TrucksTradeController {
 
 		try {
 			if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),
-					CommonTools.getLoginRoleName(request), Constants.UP_TRTR)) {
+					CommonTools.getLoginRoleName(request), Constants.CHECK_TRTR)) {
 
 			} else if (cilentInfo.equals("wxApp")) {
 

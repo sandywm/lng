@@ -16,18 +16,26 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.lng.pojo.CommonProvinceOrder;
+import com.lng.pojo.Company;
 import com.lng.pojo.DriverQz;
 import com.lng.pojo.DriverZp;
 import com.lng.pojo.GasFactory;
 import com.lng.pojo.GasTrade;
+import com.lng.pojo.GasTradeOrder;
 import com.lng.pojo.GasType;
 import com.lng.pojo.HqProvinceOrder;
 import com.lng.pojo.MessageCenter;
+import com.lng.pojo.PotTrade;
+import com.lng.pojo.RqDevTrade;
+import com.lng.pojo.TrucksTrade;
 import com.lng.pojo.User;
+import com.lng.pojo.UserFocus;
 import com.lng.service.CommonProvinceOrderService;
+import com.lng.service.CompanyService;
 import com.lng.service.DriverQzService;
 import com.lng.service.DriverZpService;
 import com.lng.service.GasFactoryService;
+import com.lng.service.GasTradeOrderService;
 import com.lng.service.GasTradeService;
 import com.lng.service.GasTypeService;
 import com.lng.service.HqProvinceOrderService;
@@ -79,90 +87,98 @@ public class CommonController {
 	private DriverZpService dzps;
 	@Autowired
 	private UserService us;
-	
+	@Autowired
+	private TrucksTradeService trucksTradeService;
+	@Autowired
+	private PotTradeService potTradeService;
+	@Autowired
+	private RqDevTradeService rdtService;
+	@Autowired
+	private CompanyService cService;
+	@Autowired
+	private GasTradeOrderService gtos;
+
 	@GetMapping("/getProvinceList")
 	@ApiOperation(value = "获取省份排序列表", notes = "lng液厂显示顺序用")
-	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), 
-		@ApiResponse(code = 200, message = "成功"),
-		@ApiResponse(code = 50001, message = "数据未找到")
-	})
-	@ApiImplicitParams({ @ApiImplicitParam(name = "gsType", value = "液质类型(0:其他,1:海气)", dataType = "integer",required = true)})
+	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
+			@ApiResponse(code = 50001, message = "数据未找到") })
+	@ApiImplicitParams({
+			@ApiImplicitParam(name = "gsType", value = "液质类型(0:其他,1:海气)", dataType = "integer", required = true) })
 	public GenericResponse getProvinceList(Integer gsType) {
 		Integer status = 200;
 		List<CommonProvinceOrder> cpList = new ArrayList<CommonProvinceOrder>();
 		List<HqProvinceOrder> hpList = new ArrayList<HqProvinceOrder>();
 		try {
-			if(gsType.equals(0)) {
+			if (gsType.equals(0)) {
 				cpList = cpos.listAllInfo("asc");
-			}else {
+			} else {
 				hpList = hpos.listAllInfo("asc");
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			status = 1000;
 		}
-		if(gsType.equals(0)) {
+		if (gsType.equals(0)) {
 			return ResponseFormat.retParam(status, cpList);
-		}else {
+		} else {
 			return ResponseFormat.retParam(status, hpList);
 		}
 	}
-	
+
 	@PostMapping("/addProvince")
 	@ApiOperation(value = "增加省份排序列表", notes = "lng液厂显示顺序用")
-	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), 
-		@ApiResponse(code = 200, message = "成功"),
-		@ApiResponse(code = 50003, message = "数据已存在"),
-		@ApiResponse(code = 70001, message = "无权限访问")
-	})
-	@ApiImplicitParams({ @ApiImplicitParam(name = "province", value = "省份",required = true),
-		@ApiImplicitParam(name = "gsType", value = "液质类型(0:其他,1:海气)", dataType = "integer",required = true)
-	})
-	public GenericResponse addProvince(HttpServletRequest request,String province,Integer gsType) {
+	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
+			@ApiResponse(code = 50003, message = "数据已存在"), @ApiResponse(code = 70001, message = "无权限访问") })
+	@ApiImplicitParams({ @ApiImplicitParam(name = "province", value = "省份", required = true),
+			@ApiImplicitParam(name = "gsType", value = "液质类型(0:其他,1:海气)", dataType = "integer", required = true) })
+	public GenericResponse addProvince(HttpServletRequest request, String province, Integer gsType) {
 		Integer status = 200;
 		Integer id = 0;
 		List<CommonProvinceOrder> cpList = new ArrayList<CommonProvinceOrder>();
 		List<HqProvinceOrder> hpList = new ArrayList<HqProvinceOrder>();
 		try {
-			if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.ADD_PROV)) {
-				if(gsType.equals(0)) {
+			if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),
+					CommonTools.getLoginRoleName(request), Constants.ADD_PROV)) {
+				if (gsType.equals(0)) {
 					cpList = cpos.listAllInfo("desc");
 					boolean flag = false;
 					Integer orderNo = 0;
-					if(cpList.size() == 0) {
+					if (cpList.size() == 0) {
 						flag = true;
-					}else {
-						//先判断有无重复
-						if(cpos.getEntityByOpt(0, province) == null) {
+					} else {
+						// 先判断有无重复
+						if (cpos.getEntityByOpt(0, province) == null) {
 							flag = true;
 							orderNo = cpList.get(0).getOrderNo() + 1;
 						}
 					}
-					if(flag) {
-						id = cpos.saveOrUpdate(new CommonProvinceOrder(province,CommonTools.getFirstSpell(province),orderNo));
-					}else {
+					if (flag) {
+						id = cpos.saveOrUpdate(
+								new CommonProvinceOrder(province, CommonTools.getFirstSpell(province), orderNo));
+					} else {
 						status = 50003;
 					}
-				}else {
+				} else {
 					hpList = hpos.listAllInfo("desc");
 					boolean flag = false;
 					Integer orderNo = 100000;
-					if(hpList.size() == 0) {
+					if (hpList.size() == 0) {
 						flag = true;
-					}else {
-						//先判断有无重复
-						if(hpos.getEntityByOpt(0, province) == null) {
+					} else {
+						// 先判断有无重复
+						if (hpos.getEntityByOpt(0, province) == null) {
 							flag = true;
 							orderNo = hpList.get(0).getOrderNo() + 1;
 						}
 					}
-					if(flag) {
-						id = hpos.saveOrUpdate(new HqProvinceOrder(province,CommonTools.getFirstSpell(province),orderNo));
-					}else {
+					if (flag) {
+						id = hpos.saveOrUpdate(
+								new HqProvinceOrder(province, CommonTools.getFirstSpell(province), orderNo));
+					} else {
 						status = 50003;
 					}
 				}
-			}else {
+			} else {
 				status = 70001;
 			}
 		} catch (Exception e) {
@@ -171,19 +187,16 @@ public class CommonController {
 		}
 		return ResponseFormat.retParam(status, id);
 	}
-	
+
 	@PutMapping("/upProvName")
 	@ApiOperation(value = "修改省份名称", notes = "修改省份名称")
-	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), 
-		@ApiResponse(code = 200, message = "成功"),
-		@ApiResponse(code = 70001, message = "无权限访问"),
-		@ApiResponse(code = 10002, message = "参数为空"),
-		@ApiResponse(code = 50001, message = "数据未找到")
-	})
-	@ApiImplicitParams({ @ApiImplicitParam(name = "proId", value = "省份ID",required = true),
-		@ApiImplicitParam(name = "provName", value = "身份名称", required = true),
-		@ApiImplicitParam(name = "gsType", value = "液质类型(0:其他,1:海气)", dataType = "integer",required = true)
-		
+	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
+			@ApiResponse(code = 70001, message = "无权限访问"), @ApiResponse(code = 10002, message = "参数为空"),
+			@ApiResponse(code = 50001, message = "数据未找到") })
+	@ApiImplicitParams({ @ApiImplicitParam(name = "proId", value = "省份ID", required = true),
+			@ApiImplicitParam(name = "provName", value = "身份名称", required = true),
+			@ApiImplicitParam(name = "gsType", value = "液质类型(0:其他,1:海气)", dataType = "integer", required = true)
+
 	})
 	public GenericResponse upProvName(HttpServletRequest request) {
 		Integer status = 200;
@@ -191,35 +204,36 @@ public class CommonController {
 		String provName = CommonTools.getFinalStr("provName", request);
 		Integer gsType = CommonTools.getFinalInteger("gsType", request);
 		try {
-			if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),CommonTools.getLoginRoleName(request), Constants.ADD_PROV)) {
-				if(provId.equals(0) || provName.equals("")) {
+			if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),
+					CommonTools.getLoginRoleName(request), Constants.ADD_PROV)) {
+				if (provId.equals(0) || provName.equals("")) {
 					status = 10002;
-				}else {
-					if(gsType.equals(0)) {
+				} else {
+					if (gsType.equals(0)) {
 						CommonProvinceOrder cpo = cpos.getEntityByOpt(provId, "");
-						if(cpo != null) {
-							if(!provName.equals(cpo.getProvince())) {
+						if (cpo != null) {
+							if (!provName.equals(cpo.getProvince())) {
 								cpo.setProvince(provName);
 								cpo.setProvincePy(CommonTools.getFirstSpell(provName));
 								cpos.saveOrUpdate(cpo);
 							}
-						}else {
+						} else {
 							status = 50001;
 						}
-					}else if(gsType.equals(1)) {
+					} else if (gsType.equals(1)) {
 						HqProvinceOrder hpo = hpos.getEntityByOpt(provId, "");
-						if(hpo != null) {
-							if(!provName.equals(hpo.getProvince())) {
+						if (hpo != null) {
+							if (!provName.equals(hpo.getProvince())) {
 								hpo.setProvince(provName);
 								hpo.setProvincePy(CommonTools.getFirstSpell(provName));
 								hpos.saveOrUpdate(hpo);
 							}
-						}else {
+						} else {
 							status = 50001;
 						}
 					}
 				}
-			}else {
+			} else {
 				status = 70001;
 			}
 		} catch (Exception e) {
@@ -228,61 +242,59 @@ public class CommonController {
 		}
 		return ResponseFormat.retParam(status, "");
 	}
-	
+
 	@PutMapping("/setProvOrder")
 	@ApiOperation(value = "修改省份排序列表", notes = "lng液厂显示顺序用")
-	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), 
-		@ApiResponse(code = 200, message = "成功"),
-		@ApiResponse(code = 70001, message = "无权限访问"),
-		@ApiResponse(code = 10002, message = "参数为空")
-	})
-	@ApiImplicitParams({ @ApiImplicitParam(name = "proIdStr", value = "省份ID组合",required = true),
-		@ApiImplicitParam(name = "gsType", value = "液质类型(0:其他,1:海气)", dataType = "integer",required = true)
-	})
-	public GenericResponse setProvOrder(HttpServletRequest request,String proIdStr,Integer gsType) {
+	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
+			@ApiResponse(code = 70001, message = "无权限访问"), @ApiResponse(code = 10002, message = "参数为空") })
+	@ApiImplicitParams({ @ApiImplicitParam(name = "proIdStr", value = "省份ID组合", required = true),
+			@ApiImplicitParam(name = "gsType", value = "液质类型(0:其他,1:海气)", dataType = "integer", required = true) })
+	public GenericResponse setProvOrder(HttpServletRequest request, String proIdStr, Integer gsType) {
 		Integer status = 200;
 		try {
-			if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),CommonTools.getLoginRoleName(request), Constants.UP_YC)) {
-				if(proIdStr == null || proIdStr == "") {
+			if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),
+					CommonTools.getLoginRoleName(request), Constants.UP_YC)) {
+				if (proIdStr == null || proIdStr == "") {
 					status = 10002;
-				}else {
+				} else {
 					String[] provIdArr = proIdStr.split(",");
-					if(gsType.equals(0)) {
-						for(int i = 0 ; i < provIdArr.length ; i++) {
+					if (gsType.equals(0)) {
+						for (int i = 0; i < provIdArr.length; i++) {
 							Integer provId = Integer.parseInt(provIdArr[i]);
 							CommonProvinceOrder cpo = cpos.getEntityByOpt(provId, "");
-							if(cpo != null) {
+							if (cpo != null) {
 								cpo.setOrderNo(i);
 								cpos.saveOrUpdate(cpo);
-								//批量修改普通类型的液厂
+								// 批量修改普通类型的液厂
 								Integer orderNo = cpo.getOrderNo();
-								List<GasFactory>  gfList = gfs.listInfoByOpt("", "", "", cpo.getProvince(), "", -1);
-								for(GasFactory gf : gfList) {
-									if(gf.getGasType().getName().equals("海气")) {
+								List<GasFactory> gfList = gfs.listInfoByOpt("", "", "", cpo.getProvince(), "", -1);
+								for (GasFactory gf : gfList) {
+									if (gf.getGasType().getName().equals("海气")) {
 										continue;
-									}else {
+									} else {
 										gf.setOrderNo(orderNo);
 										gfs.addOrUpGasFactory(gf);
 									}
 								}
 							}
 						}
-					}else {
-						for(int i = 0 ; i < provIdArr.length ; i++) {
+					} else {
+						for (int i = 0; i < provIdArr.length; i++) {
 							Integer provId = Integer.parseInt(provIdArr[i]);
 							HqProvinceOrder hpo = hpos.getEntityByOpt(provId, "");
-							if(hpo != null) {
+							if (hpo != null) {
 								hpo.setOrderNo(i);
 								hpos.saveOrUpdate(hpo);
-								//批量修改海气类型的液厂
+								// 批量修改海气类型的液厂
 								Integer orderNo = hpo.getOrderNo();
-								//获取海气的编号
+								// 获取海气的编号
 								List<GasType> gtList = gts.getGasTypeByNameList("海气");
 								String gtId = "";
-								if(gtList.size() > 0) {
+								if (gtList.size() > 0) {
 									gtId = gtList.get(0).getId();
-									List<GasFactory>  gfList = gfs.listInfoByOpt("", "", gtId, hpo.getProvince(), "", -1);
-									for(GasFactory gf : gfList) {
+									List<GasFactory> gfList = gfs.listInfoByOpt("", "", gtId, hpo.getProvince(), "",
+											-1);
+									for (GasFactory gf : gfList) {
 										gf.setOrderNo(orderNo);
 										gfs.addOrUpGasFactory(gf);
 									}
@@ -291,7 +303,7 @@ public class CommonController {
 						}
 					}
 				}
-			}else {
+			} else {
 				status = 70001;
 			}
 		} catch (Exception e) {
@@ -300,50 +312,47 @@ public class CommonController {
 		}
 		return ResponseFormat.retParam(status, "");
 	}
-	
+
 	@GetMapping("/getWelcomeData")
 	@ApiOperation(value = "获取微信首页数据", notes = "l获取微信首页数据")
-	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), 
-		@ApiResponse(code = 200, message = "成功"),
-		@ApiResponse(code = 50001, message = "数据未找到")
-	})
-	@ApiImplicitParams({ @ApiImplicitParam(name = "mcLimit", value = "头条限制条数",required = true),
-		@ApiImplicitParam(name = "gsType", value = "液质类型(0:其他,1:海气)", dataType = "integer",required = true)
-	})
+	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
+			@ApiResponse(code = 50001, message = "数据未找到") })
+	@ApiImplicitParams({ @ApiImplicitParam(name = "mcLimit", value = "头条限制条数", required = true),
+			@ApiImplicitParam(name = "gsType", value = "液质类型(0:其他,1:海气)", dataType = "integer", required = true) })
 	public GenericResponse getWelcomeData() {
 		Integer status = 200;
 		List<Object> list = new ArrayList<Object>();
 		String currentDate = CurrentTime.getStringDate();
 		String sDate = CurrentTime.getFinalDate(currentDate, -6);
 		try {
-			//获取当天最新的价格变动消息
+			// 获取当天最新的价格变动消息
 			List<MessageCenter> mcList = mcs.listMsgByOpt(4, currentDate, currentDate);
-			//获取燃气贸易最新的一条记录
+			// 获取燃气贸易最新的一条记录
 			Page<GasTrade> gtList = gasTrades.listInfoByOpt("", "", 1, -1, 1, 1);
-			//获取货车买卖最近一周最新记录条数
+			// 获取货车买卖最近一周最新记录条数
 			Integer tructsTradeNum = tts.listTrucksTradeByOpt(1, -1, sDate, currentDate).size();
-			//获取燃气设备买卖最近一周最新记录条数
+			// 获取燃气设备买卖最近一周最新记录条数
 			Integer rqDevTradeNum = rdts.listInfoByOpt(sDate, currentDate, 1, -1).size();
-			//获取储罐租卖当天最新最近一周记录条数
+			// 获取储罐租卖当天最新最近一周记录条数
 			Integer potTradeNum = pts.listPotTradeByOpt(sDate, currentDate, 1, -1).size();
-			//获取最近2条行业资讯
+			// 获取最近2条行业资讯
 			Page<MessageCenter> mcList_xw = mcs.getMessageCenterByOption(1, "", 1, -1, 1, 2);
-			//获取最近一周最近一条司机求职的记录
+			// 获取最近一周最近一条司机求职的记录
 			List<DriverQz> qzList = dqzs.listQzInfoByOpt(sDate, currentDate, 1, -1);
-			//获取最近一周最近一条招聘司机的记录
+			// 获取最近一周最近一条招聘司机的记录
 			List<DriverZp> zpList = dzps.listDriverZpByOpt(sDate, currentDate, 1, -1);
-			Map<String,Object> map = new HashMap<String,Object>();
+			Map<String, Object> map = new HashMap<String, Object>();
 			map.put("tructsTradeNum", tructsTradeNum);
 			map.put("rqDevTradeNum", rqDevTradeNum);
 			map.put("potTradeNum", potTradeNum);
-			List<Object> list_1 = new ArrayList<Object>();//燃气贸易
-			for(GasTrade gt : gtList) {
-				Map<String,Object> map_d = new HashMap<String,Object>();
+			List<Object> list_1 = new ArrayList<Object>();// 燃气贸易
+			for (GasTrade gt : gtList) {
+				Map<String, Object> map_d = new HashMap<String, Object>();
 				map_d.put("gasTradeId", gt.getId());
 				String addUserId = gt.getAddUserId();
 				User user = us.getEntityById(addUserId);
 				String title = "";
-				if(user != null) {
+				if (user != null) {
 					title = user.getRealName() + "发布了一条卖气信息";
 				}
 				map_d.put("title", title);
@@ -353,19 +362,19 @@ public class CommonController {
 				list_1.add(map_d);
 			}
 			map.put("gasTradeList", list_1);
-			List<Object> list_news = new ArrayList<Object>();//行业资讯
-			for(MessageCenter mc : mcList_xw) {
-				Map<String,Object> map_d = new HashMap<String,Object>();
+			List<Object> list_news = new ArrayList<Object>();// 行业资讯
+			for (MessageCenter mc : mcList_xw) {
+				Map<String, Object> map_d = new HashMap<String, Object>();
 				map_d.put("newId", mc.getId());
-				map_d.put("newTitle",mc.getTitle());
+				map_d.put("newTitle", mc.getTitle());
 				map_d.put("addTime", mc.getAddTime());
 				list_news.add(map_d);
 			}
 			map.put("newsList", list_news);
-			List<Object> list_qz = new ArrayList<Object>();//求职
-			if(qzList.size() > 0) {
+			List<Object> list_qz = new ArrayList<Object>();// 求职
+			if (qzList.size() > 0) {
 				DriverQz qz = qzList.get(0);
-				Map<String,Object> map_qz = new HashMap<String,Object>();
+				Map<String, Object> map_qz = new HashMap<String, Object>();
 				map_qz.put("qzId", qz.getId());
 				map_qz.put("qzUserName", qz.getUserName());
 				map_qz.put("userAge", qz.getAge());
@@ -375,10 +384,10 @@ public class CommonController {
 				list_qz.add(map_qz);
 			}
 			map.put("qzList", list_qz);
-			List<Object> list_zp = new ArrayList<Object>();//招聘
-			if(qzList.size() > 0) {
+			List<Object> list_zp = new ArrayList<Object>();// 招聘
+			if (qzList.size() > 0) {
 				DriverZp zp = zpList.get(0);
-				Map<String,Object> map_zp = new HashMap<String,Object>();
+				Map<String, Object> map_zp = new HashMap<String, Object>();
 				map_zp.put("qzId", zp.getId());
 				map_zp.put("cpyName", zp.getCompany().getName());
 				map_zp.put("address", zp.getProvince() + zp.getCity());
@@ -394,16 +403,144 @@ public class CommonController {
 		}
 		return ResponseFormat.retParam(status, list);
 	}
-	
+
 	@GetMapping("/myPublish")
 	@ApiOperation(value = "获取我的发布", notes = "获取我的发布信息")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
-			@ApiResponse(code = 50001, message = "数据未找到") })
+			@ApiResponse(code = 50001, message = "数据未找到"), @ApiResponse(code = 10002, message = "参数为空"), })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "userId", value = "用户编号", required = true),
 			@ApiImplicitParam(name = "showStatus", value = "上/下架状态（0：上架，1：下架）", required = true),
+			@ApiImplicitParam(name = "pubType", value = "发布类型（cczm,rqsb,cgzm,rqmm）", required = true),
 			@ApiImplicitParam(name = "page", value = "第几页"), @ApiImplicitParam(name = "limit", value = "每页多少条") })
-	public PageResponse myPublish(String userId, Integer showStatus, Integer page, Integer limit) {
+	public PageResponse myPublish(String userId, Integer showStatus, String pubType, Integer page, Integer limit) {
+		userId = CommonTools.getFinalStr(userId);
+		pubType = CommonTools.getFinalStr(pubType);
+		Integer status = 200;
+		if (page == null) {
+			page = 1;
+		}
+		if (limit == null) {
+			limit = 10;
+		}
+		if (showStatus == null) {
+			showStatus = -1;
+		}
+		Long count = null;
+		List<Object> list = new ArrayList<Object>();
+		try {
+			if (userId.isEmpty() || pubType.isEmpty() || showStatus == -1) {
+				status = 10002;
+			} else {
+				if (pubType.equalsIgnoreCase("cczm")) {
+					Page<TrucksTrade> trucksTrades = trucksTradeService.trucksTradeOnPublish(userId, showStatus,
+							page - 1, limit);
+					if (trucksTrades == null) {
+						status = 50001;
+					} else {
+						count = trucksTrades.getTotalElements();
+						for (TrucksTrade tt : trucksTrades) {
+							Map<String, Object> map = new HashMap<String, Object>();
+							String cId = tt.getCompanyId();
+							if (!cId.isEmpty()) {
+								Company cpy = cService.getEntityById(cId);
+								map.put("cpyName", cpy.getName());
+							} else {
+								map.put("cpyName", "");
+							}
+							map.put("ttId", tt.getId());
+							map.put("mainImg", tt.getMainImg());
+							map.put("spYear", tt.getSpYear());
+							map.put("buyYear", tt.getBuyYear());
+							map.put("headTypeName", tt.getTrucksHeadType().getName());
+							map.put("headPpName", tt.getTrucksHeadPp().getName());
+							map.put("trucksTypeName", tt.getTrucksType().getName());
+							map.put("trucksTypes", tt.getTrucksType().getType());
+							map.put("xsDistance", tt.getXsDistance());
+							map.put("price", tt.getPrice());
+							map.put("regPlace", tt.getRegPlace());
+							map.put("hot", tt.getHot());
+							map.put("tradeType", tt.getTradeType());
+							map.put("area", tt.getArea());
+							list.add(map);
+						}
+					}
+				} else if (pubType.equalsIgnoreCase("cgzm")) {
+					Page<PotTrade> potTrades = potTradeService.potTradeOnPublish(userId, showStatus, page - 1, limit);
+					if (potTrades == null) {
+						status = 50001;
+					} else {
+						count = potTrades.getTotalElements();
+						for (PotTrade pt : potTrades) {
+							Map<String, Object> map = new HashMap<String, Object>();
+							map.put("ptId", pt.getId());
+							map.put("mainImg", pt.getMainImg());
+							map.put("potPpName", pt.getTrucksPotPp().getName());
+							map.put("potVolume", pt.getPotVolume());
+							map.put("sxInfo", pt.getSxInfo());
+							map.put("buyYear", pt.getBuyYear());
+							map.put("zzJzTypeName", pt.getPotZzjzType().getName());
+							map.put("leasePrice", pt.getLeasePrice());
+							map.put("sellPrice", pt.getSellPrice());
+							list.add(map);
+						}
 
-		return ResponseFormat.getPageJson(limit, page, /* ufs.getTotalElements() */null, 0, null);
+					}
+
+				} else if (pubType.equalsIgnoreCase("cczm")) {
+					Page<RqDevTrade> rqDevTrades = rdtService.rqDevTradeOnPublish(userId, showStatus, page - 1, limit);
+					if (rqDevTrades == null) {
+						status = 50001;
+					} else {
+						count = rqDevTrades.getTotalElements();
+						for (RqDevTrade rdt : rqDevTrades) {
+							Map<String, Object> map = new HashMap<String, Object>();
+							map.put("rdtId", rdt.getId());
+							map.put("mainImg", rdt.getMainImg());
+							map.put("devName", rdt.getDevName());
+							map.put("devNo", rdt.getDevNo());
+							map.put("devPp", rdt.getDevPp());
+							map.put("devPrice", rdt.getDevPrice());
+							list.add(map);
+						}
+
+					}
+				} else if (pubType.equalsIgnoreCase("rqmm")) {
+					Page<GasTrade> gasTradesList = gasTrades.gasTradeOnPublish(userId, showStatus, page - 1, limit);
+					if (gasTradesList == null) {
+						status = 50001;
+					} else {
+						count = gasTradesList.getTotalElements();
+						for (GasTrade gt : gasTradesList) {
+							Map<String, Object> map = new HashMap<String, Object>();
+							map.put("id", gt.getId());
+							map.put("headImg", gt.getHeadImg());
+							map.put("gasPrice", gt.getGasPrice());
+							map.put("psArea", gt.getPsArea());
+							map.put("gasName", gt.getGasType().getName());
+							map.put("gasVolume", gt.getGasVolume());
+							// 从燃气交易中获取好评度
+							Integer pjScore = 0;
+							List<GasTradeOrder> gtoList = gtos.listComInfoByCpyId(gt.getCompany().getId());
+							Integer tradeNum = gtoList.size();
+							for (GasTradeOrder gto : gtoList) {
+								pjScore += gto.getOrderPjNumber();
+							}
+							if (tradeNum > 0) {
+								map.put("hpRate", CommonTools.convertInputNumber(pjScore * 100.0 / tradeNum));
+							} else {
+								map.put("hpRate", "暂无");
+							}
+							list.add(map);
+						}
+					}
+				}
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			status = 1000;
+		}
+
+		return ResponseFormat.getPageJson(limit, page, count, status, list);
 	}
 }
