@@ -18,13 +18,12 @@ public interface UserService {
 	String saveAndUpdate(User user);
 	
 	/**
-	 * @description 根据主键或者微信授权号获取用户信息实体
+	 * @description 根据主键获取用户信息实体
 	 * @author wm
 	 * @Version : 版本
 	 * @ModifiedBy : 修改人
 	 * @date  2019年12月16日 上午9:00:56
 	 * @param userId 用户编号
-	 * @param wxOpenId 微信授权号
 	 * @return
 	 */
 	User getEntityById(String userId);

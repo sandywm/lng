@@ -59,5 +59,30 @@ public interface MessageCenterService {
 	  * @return
 	  */
 	 List<MessageCenter> listMsgByOpt(Integer msgTypeId,String sTime,String eTime);
+	 
+	 /**
+	  * @description 获取指定日期的消息
+	  * @author wm
+	  * @Version : 1.0
+	  * @ModifiedBy : 修改人
+	  * @date  2019年12月28日 上午9:34:16
+	  * @param msgTypeId 消息类型
+	  * @param primaryId 主键编号
+	  * @param primaryType 主键类型
+	  * @param sTime 开始时间
+	  * @param eTime 结束时间
+	  * @return
+	  */
+	 List<MessageCenter> listMsgByOpt_1(Integer msgTypeId,String primaryId,String primaryType,String sTime,String eTime);
+	 
+	 /**
+	  * @description 删除指定编号的消息
+	  * @author wm
+	  * @Version : 1.0
+	  * @ModifiedBy : 修改人
+	  * @date  2019年12月28日 下午2:18:05
+	  * @param id
+	  */
+	 void delMsgById(String id);
 
 }

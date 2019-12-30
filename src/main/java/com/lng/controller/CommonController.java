@@ -29,7 +29,6 @@ import com.lng.pojo.PotTrade;
 import com.lng.pojo.RqDevTrade;
 import com.lng.pojo.TrucksTrade;
 import com.lng.pojo.User;
-import com.lng.pojo.UserFocus;
 import com.lng.service.CommonProvinceOrderService;
 import com.lng.service.CompanyService;
 import com.lng.service.DriverQzService;
@@ -57,6 +56,7 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import com.baidu.ueditor.ActionEnter;
 
 @RestController
 @Api(tags = "通用相关接口")
@@ -314,16 +314,19 @@ public class CommonController {
 	}
 
 	@GetMapping("/getWelcomeData")
-	@ApiOperation(value = "获取微信首页数据", notes = "l获取微信首页数据")
+	@ApiOperation(value = "获取微信首页数据", notes = "获取微信首页数据--价格变动消息为当天的消息，燃气贸易为最新的一条消息，行业资讯为最新的一条消息")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
 			@ApiResponse(code = 50001, message = "数据未找到") })
-	@ApiImplicitParams({ @ApiImplicitParam(name = "mcLimit", value = "头条限制条数", required = true),
-			@ApiImplicitParam(name = "gsType", value = "液质类型(0:其他,1:海气)", dataType = "integer", required = true) })
-	public GenericResponse getWelcomeData() {
+	@ApiImplicitParams({ @ApiImplicitParam(name = "days", value = "最近几天的数据(0-30)-货车买卖，设备买卖，储罐租卖，司机招聘/求职"),
+		@ApiImplicitParam(name = "limit", value = "行业资讯显示条数（不传默认为2）")
+	})
+	public GenericResponse getWelcomeData(HttpServletRequest request) {
 		Integer status = 200;
 		List<Object> list = new ArrayList<Object>();
 		String currentDate = CurrentTime.getStringDate();
-		String sDate = CurrentTime.getFinalDate(currentDate, -6);
+		Integer days = CommonTools.getFinalInteger("days", request);
+		Integer xwLimit = CommonTools.getFinalInteger("limit", request);
+		String sDate = CurrentTime.getFinalDate(currentDate, -days);
 		try {
 			// 获取当天最新的价格变动消息
 			List<MessageCenter> mcList = mcs.listMsgByOpt(4, currentDate, currentDate);
@@ -336,12 +339,22 @@ public class CommonController {
 			// 获取储罐租卖当天最新最近一周记录条数
 			Integer potTradeNum = pts.listPotTradeByOpt(sDate, currentDate, 1, -1).size();
 			// 获取最近2条行业资讯
-			Page<MessageCenter> mcList_xw = mcs.getMessageCenterByOption(1, "", 1, -1, 1, 2);
+			if(xwLimit.equals(0)) {
+				xwLimit = 2;
+			}
+			Page<MessageCenter> mcList_xw = mcs.getMessageCenterByOption(1, "", 1, -1, 1, xwLimit);
 			// 获取最近一周最近一条司机求职的记录
 			List<DriverQz> qzList = dqzs.listQzInfoByOpt(sDate, currentDate, 1, -1);
 			// 获取最近一周最近一条招聘司机的记录
 			List<DriverZp> zpList = dzps.listDriverZpByOpt(sDate, currentDate, 1, -1);
 			Map<String, Object> map = new HashMap<String, Object>();
+			List<Object> list_mc = new ArrayList<Object>();// 燃气贸易
+			for(MessageCenter mc : mcList) {
+				Map<String, Object> map_d = new HashMap<String, Object>();
+				map_d.put("title", "通知："+mc.getContent());
+				list_mc.add(map_d);
+			}
+			map.put("topMsgList", list_mc);
 			map.put("tructsTradeNum", tructsTradeNum);
 			map.put("rqDevTradeNum", rqDevTradeNum);
 			map.put("potTradeNum", potTradeNum);
@@ -397,6 +410,7 @@ public class CommonController {
 				list_zp.add(map_zp);
 			}
 			map.put("zpList", list_zp);
+			list.add(map);
 		} catch (Exception e) {
 			e.printStackTrace();
 			status = 1000;
@@ -410,7 +424,7 @@ public class CommonController {
 			@ApiResponse(code = 50001, message = "数据未找到"), @ApiResponse(code = 10002, message = "参数为空"), })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "userId", value = "用户编号", required = true),
 			@ApiImplicitParam(name = "showStatus", value = "上/下架状态（0：上架，1：下架）", required = true),
-			@ApiImplicitParam(name = "pubType", value = "发布类型（cczm,rqsb,cgzm,rqmm）", required = true),
+			@ApiImplicitParam(name = "pubType", value = "发布类型（tructTrade-槽车租卖,gasDev-燃气设备,potTrade-储罐租卖,gasTrade-燃气买卖）", required = true),
 			@ApiImplicitParam(name = "page", value = "第几页"), @ApiImplicitParam(name = "limit", value = "每页多少条") })
 	public PageResponse myPublish(String userId, Integer showStatus, String pubType, Integer page, Integer limit) {
 		userId = CommonTools.getFinalStr(userId);
@@ -431,7 +445,7 @@ public class CommonController {
 			if (userId.isEmpty() || pubType.isEmpty() || showStatus == -1) {
 				status = 10002;
 			} else {
-				if (pubType.equalsIgnoreCase("cczm")) {
+				if (pubType.equalsIgnoreCase("tructTrade")) {
 					Page<TrucksTrade> trucksTrades = trucksTradeService.trucksTradeOnPublish(userId, showStatus,
 							page - 1, limit);
 					if (trucksTrades == null) {
@@ -464,7 +478,7 @@ public class CommonController {
 							list.add(map);
 						}
 					}
-				} else if (pubType.equalsIgnoreCase("cgzm")) {
+				} else if (pubType.equalsIgnoreCase("potTrade")) {
 					Page<PotTrade> potTrades = potTradeService.potTradeOnPublish(userId, showStatus, page - 1, limit);
 					if (potTrades == null) {
 						status = 50001;
@@ -486,7 +500,7 @@ public class CommonController {
 
 					}
 
-				} else if (pubType.equalsIgnoreCase("cczm")) {
+				} else if (pubType.equalsIgnoreCase("gasDev")) {
 					Page<RqDevTrade> rqDevTrades = rdtService.rqDevTradeOnPublish(userId, showStatus, page - 1, limit);
 					if (rqDevTrades == null) {
 						status = 50001;
@@ -504,7 +518,7 @@ public class CommonController {
 						}
 
 					}
-				} else if (pubType.equalsIgnoreCase("rqmm")) {
+				} else if (pubType.equalsIgnoreCase("gasTrade")) {
 					Page<GasTrade> gasTradesList = gasTrades.gasTradeOnPublish(userId, showStatus, page - 1, limit);
 					if (gasTradesList == null) {
 						status = 50001;

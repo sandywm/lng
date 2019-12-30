@@ -119,6 +119,7 @@ public class Constants {
 	public static final String LIST_MSG = "listMsg";//浏览
 	public static final String ADD_MSG = "addMsg";//发布消息
 	public static final String UP_MSG = "upMsg";//设置消息
+	public static final String DEL_MSG = "delMsg";//删除消息
 	
 	public static final String ADD_LNG_PRICE = "addLngPrice";//添加lng价格
 	

@@ -586,9 +586,7 @@ public class CurrentTime {
     }
     
 	public static void main(String args[]) throws Exception{
-		String ss = CurrentTime.getStringDate();
-		for(int i = 0 ; i < 10 ; i++) {
-			System.out.println(CurrentTime.getRadomTime().substring(2));
-		}
+		String ss = CurrentTime.getCurrentTime();
+		System.out.println(ss.substring(0, 10));
 	}
 }

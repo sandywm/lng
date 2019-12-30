@@ -41,7 +41,7 @@ spring:
     default-encoding: UTF-8
   jpa:
     database: MYSQL
-    show-sql: true
+    show-sql: false
     open-in-view: false #忽略警告
     hibernate:
       ddl-auto: update

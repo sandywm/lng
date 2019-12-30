@@ -133,4 +133,10 @@ public class GasTradeOrderServiceImpl implements GasTradeOrderService {
 		return gtoDao.findAll(spec);
 	}
 
+	@Override
+	public void delBatchOrder(List<GasTradeOrder> gtoList) {
+		// TODO Auto-generated method stub
+		gtoDao.deleteInBatch(gtoList);
+	}
+
 }

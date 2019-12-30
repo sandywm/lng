@@ -89,10 +89,48 @@ public class MessageCenterServiceImpl implements MessageCenterService {
 					pre.getExpressions().add(cb.greaterThanOrEqualTo(root.get("addTime"), sTime + " 00:00:01"));
 					pre.getExpressions().add(cb.lessThanOrEqualTo(root.get("addTime"), eTime + " 23:59:59"));
 				}
+				pre.getExpressions().add(cb.equal(root.get("showStatus"), 0));
 				return pre;
 			}
 		};
 		return mcDao.findAll(spec, sort);
+	}
+
+	@SuppressWarnings("serial")
+	@Override
+	public List<MessageCenter> listMsgByOpt_1(Integer msgTypeId, String primaryId, String primaryType, String sTime,
+			String eTime) {
+		// TODO Auto-generated method stub
+		Sort sort = Sort.by(Sort.Direction.DESC, "addTime");// 降序排列
+		Specification<MessageCenter> spec = new Specification<MessageCenter>() {
+
+			@Override
+			public Predicate toPredicate(Root<MessageCenter> root, CriteriaQuery<?> query,
+					CriteriaBuilder cb) {
+				Predicate pre = cb.conjunction();
+				if(msgTypeId > 0) {
+					pre.getExpressions().add(cb.equal(root.get("messageType"), msgTypeId));
+				}
+				if(!primaryId.isEmpty()) {
+					pre.getExpressions().add(cb.equal(root.get("primaryId"), primaryId));
+				}
+				if(!primaryType.isEmpty()) {
+					pre.getExpressions().add(cb.equal(root.get("primaryType"), primaryType));
+				}
+				if (!sTime.isEmpty() && !eTime.isEmpty()) {
+					pre.getExpressions().add(cb.greaterThanOrEqualTo(root.get("addTime"), sTime + " 00:00:01"));
+					pre.getExpressions().add(cb.lessThanOrEqualTo(root.get("addTime"), eTime + " 23:59:59"));
+				}
+				return pre;
+			}
+		};
+		return mcDao.findAll(spec, sort);
+	}
+
+	@Override
+	public void delMsgById(String id) {
+		// TODO Auto-generated method stub
+		mcDao.deleteById(id);
 	}
 
 }

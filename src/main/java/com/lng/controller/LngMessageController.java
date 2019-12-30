@@ -73,6 +73,9 @@ public class LngMessageController {
 				for(LngMessage lm : page) {
 					Map<String,Object> map_d = new HashMap<String,Object>();
 					map_d.put("id", lm.getId());
+					User user = lm.getUser();
+					map_d.put("headImg", user.getUserPortrait());
+					map_d.put("userName", user.getRealName());
 					map_d.put("content", lm.getContent());
 					map_d.put("addTime", lm.getAddTime());
 					map_d.put("zcTimes", lm.getZcTimes());
@@ -145,7 +148,7 @@ public class LngMessageController {
 	}
 	
 	@GetMapping("/getLngMsgRep")
-	@ApiOperation(value = "分页获取lng留言回复列表", notes = "分页获取lng留言回复列表")
+	@ApiOperation(value = "获取lng留言回复列表", notes = "获取lng留言回复列表")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), 
 			@ApiResponse(code = 200, message = "成功"),
 			@ApiResponse(code = 50001, message = "数据未找到") })
@@ -167,7 +170,9 @@ public class LngMessageController {
 			}else {
 				for(LngMessageReply lm : lmList) {
 					Map<String,String> map_d = new HashMap<String,String>();
-					map_d.put("wxName", lm.getUser().getWxName());
+					User user = lm.getUser();
+					map_d.put("headImg", user.getUserPortrait());
+					map_d.put("userName", user.getWxName());
 					map_d.put("content", lm.getContent());
 					map_d.put("addTime", lm.getAddTime());
 					list.add(map_d);
@@ -200,8 +205,16 @@ public class LngMessageController {
 			if(zcService.getLmZc(userId, msgId).size()==0) {
 				User user = userService.getEntityById(userId);
 				LngMessage lngMessage =lms.getEntityById(msgId) ;
-				LngMessageUserZc lmZc = new LngMessageUserZc(lngMessage , user, CurrentTime.getCurrentTime());
-				zcService.addLmZc(lmZc );
+				if(lngMessage == null || user == null) {
+					
+				}else {
+					LngMessageUserZc lmZc = new LngMessageUserZc(lngMessage , user, CurrentTime.getCurrentTime());
+					id = zcService.addLmZc(lmZc );
+					if(id.equals("")) {
+						lngMessage.setZcTimes(lngMessage.getZcTimes()+1);
+						lms.addOrUpdateLngMsg(lngMessage);
+					}
+				}
 			}else {
 				status = 50003;
 			}

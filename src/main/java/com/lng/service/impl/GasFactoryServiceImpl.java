@@ -45,7 +45,7 @@ public class GasFactoryServiceImpl implements GasFactoryService{
 				// TODO Auto-generated method stub
 				Predicate pre = cb.conjunction();
 				if(!name.isEmpty()) {
-					pre.getExpressions().add(cb.like(root.get("name"), "%"+name+"%"));
+					pre.getExpressions().add(cb.like(root.get("name"), name));
 				}
 				if(!namePy.isEmpty()) {
 					pre.getExpressions().add(cb.like(root.get("namePy"), "%"+namePy+"%"));
@@ -94,7 +94,7 @@ public class GasFactoryServiceImpl implements GasFactoryService{
 					pre.getExpressions().add(cb.equal(root.get("gasType").get("id"), gasTypeId));
 				}
 				if(!province.isEmpty()) {
-					pre.getExpressions().add(cb.equal(root.get("province"), province));
+					pre.getExpressions().add(cb.like(root.get("province"), "%"+province+"%"));
 				}
 				if(!provincePy.isEmpty()) {
 					pre.getExpressions().add(cb.like(root.get("provincePy"), "%"+provincePy+"%"));
@@ -191,6 +191,12 @@ public class GasFactoryServiceImpl implements GasFactoryService{
 		Sort sort = Sort.by(Sort.Direction.DESC, "hot");//降序排列
 		Pageable pageable = PageRequest.of(pageIndex-1, pageSize, sort);
 		return gfDao.findAll(spec, pageable);
+	}
+
+	@Override
+	public List<Object> getTjInfo() {
+		// TODO Auto-generated method stub
+		return gfDao.findTjInfo();
 	}
 
 }

@@ -39,4 +39,15 @@ public interface HqProvinceOrderService {
 	 * @return
 	 */
 	Integer saveOrUpdate(HqProvinceOrder prov);
+	
+	/**
+	 * @description 根据身份模糊匹配（批量导入时使用）
+	 * @author wm
+	 * @Version : 1.0
+	 * @ModifiedBy : 修改人
+	 * @date  2019年12月29日 下午4:07:59
+	 * @param province
+	 * @return
+	 */
+	HqProvinceOrder getEntityByOpt(String province);
 }

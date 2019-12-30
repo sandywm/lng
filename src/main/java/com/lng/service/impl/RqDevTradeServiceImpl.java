@@ -72,7 +72,7 @@ public class RqDevTradeServiceImpl implements RqDevTradeService {
 					pre.getExpressions().add(cb.equal(root.get("showStatus"), showSta));
 				}
 				if (!addUserId.isEmpty()) {
-					pre.getExpressions().add(cb.equal(root.get("addUserId").get("id"), addUserId));
+					pre.getExpressions().add(cb.equal(root.get("addUserId"), addUserId));
 				}
 				return pre;
 			}
@@ -90,7 +90,7 @@ public class RqDevTradeServiceImpl implements RqDevTradeService {
 					CriteriaBuilder cb) {
 				Predicate pre = cb.conjunction();
 				if (!userId.isEmpty()) {
-					pre.getExpressions().add(cb.equal(root.get("addUserId").get("id"), userId));
+					pre.getExpressions().add(cb.equal(root.get("addUserId"), userId));
 				}
 				if (showStatus != -1) { 
 					pre.getExpressions().add(cb.equal(root.get("showStatus"), showStatus));

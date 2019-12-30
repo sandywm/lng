@@ -80,5 +80,15 @@ public interface GasTradeOrderService {
 	 */
 	List<GasTradeOrder> listComInfoByOpt(String userId,String gtId);
 	
+	/**
+	 * @description 批量删除指定燃气交易下的订单（下架时使用）
+	 * @author wm
+	 * @Version : 1.0
+	 * @ModifiedBy : 修改人
+	 * @date  2019年12月29日 上午10:56:39
+	 * @param gtoList
+	 */
+	void delBatchOrder(List<GasTradeOrder> gtoList);
+	
 
 }

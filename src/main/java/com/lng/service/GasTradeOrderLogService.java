@@ -38,5 +38,15 @@ public interface GasTradeOrderLogService {
      * @return
      */
 	List<GasTradeOrderLog> getGtLogList(String gtoId);
+	
+	/**
+	 * @description 批量删除指定订单的日志
+	 * @author wm
+	 * @Version : 1.0
+	 * @ModifiedBy : 修改人
+	 * @date  2019年12月29日 上午10:57:47
+	 * @param logList
+	 */
+	void delBatchLog(List<GasTradeOrderLog> logList);
 
 }

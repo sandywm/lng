@@ -38,6 +38,9 @@ public class ResponseFormat {
         /* 业务错误：30001-39999 */
         messageMap.put(30001, "某业务出现问题");
         messageMap.put(30002, "该交易已存在确认订单，不能再进行确认操作");
+        messageMap.put(30003, "该交易审核未通过或已下架，不能进行操作");
+        messageMap.put(30004, "该产品正在交易中，不能进行下单");
+        messageMap.put(30005, "您已下过单，不能重复下单");
 
         /* 系统错误：40001-49999 */
         messageMap.put(40001, "系统繁忙，请稍后重试");
@@ -62,6 +65,8 @@ public class ResponseFormat {
         
         /* 修改错误：80001-89999 */
         messageMap.put(80001, "审核通过不能修改");
+        messageMap.put(80002, "审核通过才能进行上/下架");
+        messageMap.put(80003, "存在交易订单，不能进行上/下架");
     }
     
     public static String getMessage(Integer code) {

@@ -39,4 +39,15 @@ public interface CommonProvinceOrderService {
 	 * @return
 	 */
 	Integer saveOrUpdate(CommonProvinceOrder pro);
+	
+	/**
+	 * @description 根据省份模糊查询（批量导入时使用）
+	 * @author wm
+	 * @Version : 1.0
+	 * @ModifiedBy : 修改人
+	 * @date  2019年12月29日 下午4:10:24
+	 * @param province
+	 * @return
+	 */
+	CommonProvinceOrder getEntityByProv(String province);
 }

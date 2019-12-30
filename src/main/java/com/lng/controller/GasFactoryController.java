@@ -1,5 +1,7 @@
 package com.lng.controller;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -7,6 +9,15 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.hssf.usermodel.HSSFFont;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.hssf.util.HSSFColor;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +31,7 @@ import com.lng.pojo.GasFactory;
 import com.lng.pojo.GasFactoryCompany;
 import com.lng.pojo.GasType;
 import com.lng.pojo.HqProvinceOrder;
+import com.lng.pojo.LngPriceDetail;
 import com.lng.pojo.MessageCenter;
 import com.lng.pojo.User;
 import com.lng.service.CommonProvinceOrderService;
@@ -27,6 +39,7 @@ import com.lng.service.GasFactoryCompanyService;
 import com.lng.service.GasFactoryService;
 import com.lng.service.GasTypeService;
 import com.lng.service.HqProvinceOrderService;
+import com.lng.service.LngPriceDetailService;
 import com.lng.service.MessageCenterService;
 import com.lng.service.UserService;
 import com.lng.tools.CommonTools;
@@ -42,6 +55,10 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import jxl.Cell;
+import jxl.Sheet;
+import jxl.Workbook;
+import jxl.WorkbookSettings;
 
 @RestController
 @Api(tags = "液厂管理")
@@ -60,6 +77,8 @@ public class GasFactoryController {
 	private HqProvinceOrderService hpos;
 	@Autowired
 	private MessageCenterService mcs;
+	@Autowired
+	private LngPriceDetailService lpds;
 	
 	@PostMapping("addGasFactory")
 	@ApiOperation(value = "增加液厂--后台人员",notes = "后台人员增加液厂信息时使用")
@@ -140,6 +159,306 @@ public class GasFactoryController {
 			status = 1000;
 		}
 		return ResponseFormat.retParam(status, uId);
+	}
+	
+	@PostMapping("addBatchGasFactory")
+	@ApiOperation(value = "批量增加液厂--初始导入时使用",notes = "批量增加液厂--初始导入时使用")
+	@ApiResponses({@ApiResponse(code = 1000, message = "服务器错误")
+	})
+	@ApiImplicitParams({
+		@ApiImplicitParam(name = "filePath", value = "excel路径", required = true)
+	})
+	public GenericResponse addBatchGasFactory(HttpServletRequest request) {
+		Integer status = 200;
+		String userId = CommonTools.getLoginUserId(request);
+		String filePath = CommonTools.getFinalStr("filePath", request);
+		try {
+			if(!filePath.equals("") ) {
+				if(CommonTools.checkAuthorization(userId,CommonTools.getLoginRoleName(request), Constants.ADD_YC)) {
+					int i;  
+			        Sheet sheet;  
+			        Workbook book;  
+			        Cell cell1;
+			        HSSFWorkbook wb = new HSSFWorkbook();  
+			        WorkbookSettings wbs = new WorkbookSettings();
+			        wbs.setEncoding("GBK"); // 解决中文乱码
+			        wbs.setSuppressWarnings(true); 
+			        book= Workbook.getWorkbook(new File(filePath),wbs);
+					//获得第一个工作表对象(ecxel中sheet的编号从0开始,0,1,2,3,....)  
+					sheet=book.getSheet(0);   
+		            i = 1;
+		            Integer maxRow = sheet.getRows();
+		         // 第一步，创建一个webbook，对应一个Excel文件  
+			        // 第二步，在webbook中添加一个sheet,对应Excel文件中的sheet  
+			        HSSFSheet sheet1 = wb.createSheet("初始导入液厂");  
+			        //设置横向打印
+			        sheet1.getPrintSetup().setLandscape(true);
+			        // 第三步，在sheet中添加表头第0行,注意老版本poi对Excel的行数列数有限制short  
+			        HSSFRow row = sheet1.createRow(0);  
+			        // 第四步，创建单元格，并设置值表头 设置表头居中  
+			        HSSFCellStyle style = wb.createCellStyle();  
+			        style.setAlignment(HorizontalAlignment.CENTER); // 创建一个居中格式  
+		            style.setVerticalAlignment(VerticalAlignment.CENTER);  
+		            
+		            row = sheet1.createRow(0);
+		            CommonTools.addCellData("id", "液厂名称", "液质类型", "液质类型编号", "省", "市", "县", "",  "", row, style);
+		            
+		            while(i < maxRow){
+		            	String uId = "";
+		            	//获取每一行的单元格   
+		                cell1=sheet.getCell(0,i);//（列，行）  
+		                if("".equals(cell1.getContents())==true)    //如果读取的数据为空  
+		                    break;   
+//		                String id = sheet.getCell(0,i).getContents().replace(" ", "").replace("\t", "");//编号
+		                String gfName = sheet.getCell(1,i).getContents().replace(" ", "").replace("\t", "");//液厂名称
+		                String prov = sheet.getCell(2,i).getContents().replace(" ", "").replace("\t", "");//省份
+		                String gasType = sheet.getCell(3,i).getContents().replace(" ", "").replace("\t", "");//液质类型
+		                String city = "";
+		                String county = "";
+		                String address = "";
+		                String lxName = "";
+		                String lxTel = "";
+		                row = sheet1.createRow(i);
+		                
+		                String gasTypeId = "";
+		                String namePy = CommonTools.getFirstSpell(gfName);
+		                String provincePy = "";
+		                if(gasType.equals("")) {
+		                	gasType = "没类型";
+		                }
+		                List<GasType> gtList = gts.getGasTypeByNameList(gasType);
+	                	if(gtList.size() > 0) {
+	                		gasTypeId = gtList.get(0).getId();
+							//获取指定省份的排序
+							GasType gt = gts.findById(gasTypeId);
+							if(gt != null) {
+								Integer orderNo = 0;
+								if(gt.getName().equals("海气")) {
+									HqProvinceOrder provOrder = hpos.getEntityByOpt(prov);
+									if(prov != null) {
+										orderNo = provOrder.getOrderNo();
+										prov = provOrder.getProvince();
+										provincePy = provOrder.getProvincePy();
+									}
+								}else {
+									CommonProvinceOrder provOrder = cpos.getEntityByProv(prov);
+									if(prov != null) {
+										orderNo = provOrder.getOrderNo();
+										prov = provOrder.getProvince();
+										provincePy = provOrder.getProvincePy();
+									}
+								}
+								Integer orderSubNo = i;
+								GasFactory gf = new GasFactory(gts.findById(gasTypeId), gfName, namePy, "", prov, provincePy,city,
+										county, address, lxName, lxTel, CurrentTime.getCurrentTime(), "", 1,
+										CurrentTime.getCurrentTime(),userId,orderNo,orderSubNo,0);
+								uId = gfs.addOrUpGasFactory(gf);
+								if(!uId.equals("")) {
+									CommonTools.addCellData(uId, gfName, gasType, gasTypeId, prov, city, county, "", "", row, style);
+								}
+							}else {
+								status = 50001;
+							}
+	                	}
+	                	i++;
+		            }
+		            String absoFilePath = "d:\\批量液厂_"+CurrentTime.getStringTime1()+".xls";
+		            FileOutputStream fout = new FileOutputStream(absoFilePath);  
+		            wb.write(fout);  
+		            fout.close();  
+		            wb.close();
+				}else {
+					status = 70001;
+				}
+			}else {
+				status = 10002;
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			status = 1000;
+		}
+		return ResponseFormat.retParam(status, "");
+	}
+	
+	
+	@PostMapping("addBatchGfPrice")
+	@ApiOperation(value = "批量增加液厂价格明细--初始导入时使用",notes = "批量增加液厂价格明细--初始导入时使用")
+	@ApiResponses({@ApiResponse(code = 1000, message = "服务器错误")
+	})
+	@ApiImplicitParams({
+		@ApiImplicitParam(name = "filePath", value = "excel路径", required = true)
+	})
+	public GenericResponse addBatchGfPrice(HttpServletRequest request) {
+		Integer status = 200;
+		String userId = CommonTools.getLoginUserId(request);
+		String filePath = CommonTools.getFinalStr("filePath", request);
+		try {
+			if(!filePath.equals("") ) {
+				if(CommonTools.checkAuthorization(userId,CommonTools.getLoginRoleName(request), Constants.ADD_YC)) {
+					int i;  
+			        Sheet sheet;  
+			        Workbook book;  
+			        Cell cell1;
+			        HSSFWorkbook wb = new HSSFWorkbook();  
+			        WorkbookSettings wbs = new WorkbookSettings();
+			        wbs.setEncoding("GBK"); // 解决中文乱码
+			        wbs.setSuppressWarnings(true); 
+			        book= Workbook.getWorkbook(new File(filePath),wbs);
+					//获得第一个工作表对象(ecxel中sheet的编号从0开始,0,1,2,3,....)  
+					sheet=book.getSheet(0);   
+		            i = 1;
+		            Integer maxRow = sheet.getRows();
+		         // 第一步，创建一个webbook，对应一个Excel文件  
+			        // 第二步，在webbook中添加一个sheet,对应Excel文件中的sheet  
+			        HSSFSheet sheet1 = wb.createSheet("初始导入液厂价格");  
+			        //设置横向打印
+			        sheet1.getPrintSetup().setLandscape(true);
+			        // 第三步，在sheet中添加表头第0行,注意老版本poi对Excel的行数列数有限制short  
+			        HSSFRow row = sheet1.createRow(0);  
+			        // 第四步，创建单元格，并设置值表头 设置表头居中  
+			        HSSFCellStyle style = wb.createCellStyle();  
+			        style.setAlignment(HorizontalAlignment.CENTER); // 创建一个居中格式  
+		            style.setVerticalAlignment(VerticalAlignment.CENTER);  
+		            
+		            row = sheet1.createRow(0);
+		            CommonTools.addCellData("id", "液厂名称", "价格时间", "价格", "", "", "", "",  "", row, style);
+		            
+		            while(i < maxRow){
+		            	//获取每一行的单元格   
+		                cell1=sheet.getCell(0,i);//（列，行）  
+		                if("".equals(cell1.getContents())==true)    //如果读取的数据为空  
+		                    break;   
+		                String gfName = sheet.getCell(6,i).getContents().replace(" ", "").replace("\t", "");//液厂名称
+		                String year = sheet.getCell(1,i).getContents().replace(" ", "").replace("\t", "");//年
+		                Integer month = Integer.parseInt(sheet.getCell(2,i).getContents().replace(" ", "").replace("\t", ""));//月
+		                Integer day = Integer.parseInt(sheet.getCell(3,i).getContents().replace(" ", "").replace("\t", ""));//日
+		                Integer price = Integer.parseInt(sheet.getCell(4,i).getContents().replace(" ", "").replace("\t", ""));//价格
+		                String monthStr = String.valueOf(month);
+		                String dayStr = String.valueOf(day);
+		                if(month < 10) {
+		                	monthStr = "0"+month;
+		                }
+		                if(day < 10) {
+		                	dayStr = "0"+day;
+		                }
+		                String priceTime = year + "-"+monthStr + "-"+dayStr + " 08:08:08";
+		                row = sheet1.createRow(i);
+		                
+		                List<GasFactory> gfList = gfs.listInfoByOpt(gfName, "", "", "", "", 1);
+	                	if(gfList.size() > 0) {
+	                		String lpdId = lpds.addOrUpdate(new LngPriceDetail(gfList.get(0), price, priceTime, "", CurrentTime.getCurrentTime()));
+	                		if(!lpdId.equals("")) {
+	                			CommonTools.addCellData(lpdId, gfName, priceTime, String.valueOf(price), "", "", "", "", "", row, style);
+	                		}
+	                	}else {
+	                		CommonTools.addCellData("找不到该液厂", gfName, priceTime, String.valueOf(price), "", "", "", "", "", row, style);
+	                	}
+	                	i++;
+		            }
+		            String absoFilePath = "d:\\批量液厂价格_"+CurrentTime.getStringTime1()+".xls";
+		            FileOutputStream fout = new FileOutputStream(absoFilePath);  
+		            wb.write(fout);  
+		            fout.close();  
+		            wb.close();
+				}else {
+					status = 70001;
+				}
+			}else {
+				status = 10002;
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			status = 1000;
+		}
+		return ResponseFormat.retParam(status, "");
+	}
+	
+	@PostMapping("addBatchGfRemark")
+	@ApiOperation(value = "批量增加液厂备注--初始导入时使用",notes = "批量增加液厂价格备注--初始导入时使用")
+	@ApiResponses({@ApiResponse(code = 1000, message = "服务器错误")
+	})
+	@ApiImplicitParams({
+		@ApiImplicitParam(name = "filePath", value = "excel路径", required = true)
+	})
+	public GenericResponse addBatchGfRemark(HttpServletRequest request) {
+		Integer status = 200;
+		String userId = CommonTools.getLoginUserId(request);
+		String filePath = CommonTools.getFinalStr("filePath", request);
+		try {
+			if(!filePath.equals("") ) {
+				if(CommonTools.checkAuthorization(userId,CommonTools.getLoginRoleName(request), Constants.ADD_YC)) {
+					int i;  
+			        Sheet sheet;  
+			        Workbook book;  
+			        Cell cell1;
+			        HSSFWorkbook wb = new HSSFWorkbook();  
+			        WorkbookSettings wbs = new WorkbookSettings();
+			        wbs.setEncoding("GBK"); // 解决中文乱码
+			        wbs.setSuppressWarnings(true); 
+			        book= Workbook.getWorkbook(new File(filePath),wbs);
+					//获得第一个工作表对象(ecxel中sheet的编号从0开始,0,1,2,3,....)  
+					sheet=book.getSheet(0);   
+		            i = 1;
+		            Integer maxRow = sheet.getRows();
+		         // 第一步，创建一个webbook，对应一个Excel文件  
+			        // 第二步，在webbook中添加一个sheet,对应Excel文件中的sheet  
+			        HSSFSheet sheet1 = wb.createSheet("初始导入液厂价格备注");  
+			        //设置横向打印
+			        sheet1.getPrintSetup().setLandscape(true);
+			        // 第三步，在sheet中添加表头第0行,注意老版本poi对Excel的行数列数有限制short  
+			        HSSFRow row = sheet1.createRow(0);  
+			        // 第四步，创建单元格，并设置值表头 设置表头居中  
+			        HSSFCellStyle style = wb.createCellStyle();  
+			        style.setAlignment(HorizontalAlignment.CENTER); // 创建一个居中格式  
+		            style.setVerticalAlignment(VerticalAlignment.CENTER);  
+		            
+		            row = sheet1.createRow(0);
+		            CommonTools.addCellData("id", "液厂名称", "价格时间", "价格", "备注", "", "", "",  "", row, style);
+		            
+		            while(i < maxRow){
+		            	//获取每一行的单元格   
+		                cell1=sheet.getCell(0,i);//（列，行）  
+		                if("".equals(cell1.getContents())==true)    //如果读取的数据为空  
+		                    break;   
+		                String gfName = sheet.getCell(4,i).getContents().replace(" ", "").replace("\t", "");//液厂名称
+		                String date = sheet.getCell(2,i).getContents().replace(" ", "").replace("\t", "");//时间
+		                String remark = sheet.getCell(3,i).getContents().replace(" ", "").replace("\t", "");//时间
+		                row = sheet1.createRow(i);
+		                
+		                List<GasFactory> gfList = gfs.listInfoByOpt(gfName, "", "", "", "", 1);
+	                	if(gfList.size() > 0) {
+	                		String gfId = gfList.get(0).getId();
+	                		List<LngPriceDetail> lpdList = lpds.listInfoByOpt(gfId, 0, date);
+	                		if(lpdList.size() > 0) {
+	                			LngPriceDetail lpd = lpdList.get(0);
+	                			lpd.setRemark(remark);
+	                			String lpdId = lpds.addOrUpdate(lpd);
+	                			CommonTools.addCellData(lpdId, gfName, lpd.getPriceTime(), remark, "", "", "", "", "", row, style);
+	                		}
+	                	}else {
+	                		CommonTools.addCellData("找不到该液厂", gfName, "", remark, "", "", "", "", "", row, style);
+	                	}
+	                	i++;
+		            }
+		            String absoFilePath = "d:\\批量液厂价格备注_"+CurrentTime.getStringTime1()+".xls";
+		            FileOutputStream fout = new FileOutputStream(absoFilePath);  
+		            wb.write(fout);  
+		            fout.close();  
+		            wb.close();
+				}else {
+					status = 70001;
+				}
+			}else {
+				status = 10002;
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			status = 1000;
+		}
+		return ResponseFormat.retParam(status, "");
 	}
 	
 	@PutMapping("upGasFactory")

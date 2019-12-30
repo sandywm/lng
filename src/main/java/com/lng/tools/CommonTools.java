@@ -11,6 +11,9 @@ import javax.annotation.PostConstruct;
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -383,7 +386,73 @@ public class CommonTools {
 		return finalPath;
 	}
 	
+	/**
+	 * @description 封装添加单元格数据内容方法
+	 * @author wm
+	 * @Version : 1.0
+	 * @ModifiedBy : 修改人
+	 * @date  2019年12月29日 下午4:16:15
+	 * @param column0
+	 * @param column1
+	 * @param column2
+	 * @param column3
+	 * @param column4
+	 * @param row
+	 * @param style
+	 */
+	public static void addCellData(String column0,String column1,String column2,String column3,String column4,
+			String column5,String column6,String column7,String column8,HSSFRow row,HSSFCellStyle style){
+		HSSFCell cell = row.createCell(0); 
+		cell = row.createCell(0); 
+        cell.setCellStyle(style);  
+        cell.setCellValue(column0); 
+        cell = row.createCell(1);  
+        cell.setCellStyle(style);  
+        cell.setCellValue(column1);  
+        cell = row.createCell(2);  
+        cell.setCellStyle(style);  
+        cell.setCellValue(column2);
+        if(!column3.equals("")) {
+        	cell = row.createCell(3);  
+            cell.setCellStyle(style);  
+            cell.setCellValue(column3);
+        }
+        if(!column4.equals("")) {
+        	cell = row.createCell(4);  
+            cell.setCellStyle(style);  
+            cell.setCellValue(column4);  
+        }
+        if(!column5.equals("")) {
+        	cell = row.createCell(5);  
+            cell.setCellStyle(style);  
+            cell.setCellValue(column5);  
+        }
+        if(!column6.equals("")) {
+        	cell = row.createCell(6);  
+            cell.setCellStyle(style);  
+            cell.setCellValue(column6);  
+        }
+        if(!column7.equals("")) {
+        	cell = row.createCell(7);  
+            cell.setCellStyle(style);  
+            cell.setCellValue(column7);  
+        }
+        if(!column8.equals("")) {
+        	cell = row.createCell(8);  
+            cell.setCellStyle(style);  
+            cell.setCellValue(column8);  
+        }
+	}
 	
+	/**
+	 * @description 语言屏蔽测试
+	 * @author wm
+	 * @Version : 1.0
+	 * @ModifiedBy : 修改人
+	 * @date  2019年12月28日 上午8:30:58
+	 * @param msg
+	 * @return
+	 */
 	public static Integer autoCheckMsg(String msg) {
 //		AipContentCensor client = new AipContentCensor(Constants.APP_ID, Constants.APP_KEY, Constants.SECRET_KEY);
 //		String content = "操你妈";

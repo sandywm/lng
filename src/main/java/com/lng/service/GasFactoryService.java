@@ -96,4 +96,14 @@ public interface GasFactoryService {
 	 * @return
 	 */
 	Page<GasFactory> listInfoByOpt(String provPy,String gtId,String gsNamePy,Integer pageIndex,Integer pageSize);
+	
+	/**
+	 * @description 按照全国省份统计液厂数量（审核通过）
+	 * @author wm
+	 * @Version : 1.0
+	 * @ModifiedBy : 修改人
+	 * @date  2019年12月28日 下午2:47:13
+	 * @return
+	 */
+	List<Object> getTjInfo();
 }

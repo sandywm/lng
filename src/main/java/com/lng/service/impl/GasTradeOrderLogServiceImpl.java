@@ -55,4 +55,10 @@ public class GasTradeOrderLogServiceImpl implements GasTradeOrderLogService {
 		return gtolDao.findAll(spec,sort);
 	}
 
+	@Override
+	public void delBatchLog(List<GasTradeOrderLog> logList) {
+		// TODO Auto-generated method stub
+		gtolDao.deleteInBatch(logList);
+	}
+
 }

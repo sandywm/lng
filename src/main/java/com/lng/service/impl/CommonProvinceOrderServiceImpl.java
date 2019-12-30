@@ -68,4 +68,30 @@ public class CommonProvinceOrderServiceImpl implements CommonProvinceOrderServic
 		return cpDao.save(pro).getId();
 	}
 
+	@Override
+	public CommonProvinceOrder getEntityByProv(String province) {
+		// TODO Auto-generated method stub
+		List<CommonProvinceOrder> cpList = new ArrayList<CommonProvinceOrder>();
+		if(!province.isEmpty()) {
+			Specification<CommonProvinceOrder> spec = new Specification<CommonProvinceOrder>() {
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public Predicate toPredicate(Root<CommonProvinceOrder> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+					// TODO Auto-generated method stub
+					Predicate pre = cb.conjunction();
+					if(!province.isEmpty()) {
+						pre.getExpressions().add(cb.like(root.get("province"), "%"+province+"%"));
+					}
+					return pre;
+			}};
+			cpList = cpDao.findAll(spec);
+			if(cpList.size() > 0) {
+				return cpList.get(0);
+			}
+			
+		}
+		return null;
+	}
+
 }

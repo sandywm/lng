@@ -68,4 +68,30 @@ public class HqProvinceOrderServiceImpl implements HqProvinceOrderService{
 		return hpDao.save(prov).getId();
 	}
 
+	@Override
+	public HqProvinceOrder getEntityByOpt(String province) {
+		// TODO Auto-generated method stub
+		List<HqProvinceOrder> cpList = new ArrayList<HqProvinceOrder>();
+		if(!province.isEmpty()) {
+			Specification<HqProvinceOrder> spec = new Specification<HqProvinceOrder>() {
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public Predicate toPredicate(Root<HqProvinceOrder> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+					// TODO Auto-generated method stub
+					Predicate pre = cb.conjunction();
+					if(!province.isEmpty()) {
+						pre.getExpressions().add(cb.like(root.get("province"), "%"+province+"%"));
+					}
+					return pre;
+			}};
+			cpList = hpDao.findAll(spec);
+			if(cpList.size() > 0) {
+				return cpList.get(0);
+			}
+			
+		}
+		return null;
+	}
+
 }

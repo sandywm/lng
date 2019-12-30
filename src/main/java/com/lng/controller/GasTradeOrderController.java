@@ -62,8 +62,12 @@ public class GasTradeOrderController {
 	
 	@PostMapping("/addGasTraderOrder")
 	@ApiOperation(value = "添加燃气交易订单", notes = "添加燃气交易订单信息并增加订单日志")
-	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
-			@ApiResponse(code = 50003, message = "数据已存在")})
+	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), 
+			@ApiResponse(code = 200, message = "成功"),
+			@ApiResponse(code = 30003, message = "该交易审核未通过或已下架，不能进行操作"),
+			@ApiResponse(code = 30004, message = "该产品正在交易中，不能进行下单"),
+			@ApiResponse(code = 30005, message = "您已下过单，不能重复下单")
+	})
 	@ApiImplicitParams({ @ApiImplicitParam(name = "gtId", value = "燃气交易编号", required = true),
 			@ApiImplicitParam(name = "userId", value = "买气人编号", required = true),
 			@ApiImplicitParam(name = "cpyId", value = "买气人所在公司", required = true),
@@ -90,52 +94,52 @@ public class GasTradeOrderController {
 		Integer status = 200;
 		String gtoId = "";
 		try {
-			boolean addFlag = false;
 			GasTrade gt = gtService.getEntityById(gtId);
 			if(gt.getCheckStatus() == 1 && gt.getShowStatus() == 0){//审核通过且上架的交易才能增加订单
-				if(gt.getTradeOrderId().equals("")) {//没确认订单
+				if(!gt.getTradeOrderId().equals("")) {//存在确认订单
+					status = 30003;
+				}else {
 					List<GasTradeOrder> gtoList = gtoSeriver.listComInfoByOpt(userId, gtId);
-					if(gtoList.size() == 0) {//当前用户没下过订单
-						addFlag = true;
+					if(gtoList.size() > 0) {//当前用户没下过订单
+						status = 30005;
+					}else {
+						GasTradeOrder gto = new GasTradeOrder();
+						gto.setOrderNo(CurrentTime.getRadomTime().substring(2));
+						GasTrade gasTrade = gtService.getEntityById(gtId);
+						gto.setGasTrade(gasTrade);
+						User user = uService.getEntityById(userId);
+						gto.setUser(user);
+						Company company = cpyService.getEntityById(cpyId);
+						gto.setCompany(company);
+						gto.setLxMobile(lxMobile);
+						gto.setPrice(price);
+						gto.setRemark(remark);
+						gto.setLxrProv(lxrProv);
+						gto.setLxrCity(lxrCity);
+						gto.setLxrAddress(lxrAddress);
+						gto.setLxrGpsInfo(lxrGpsInfo);
+						gto.setDistance(distance);
+						gto.setAddTime(CurrentTime.getCurrentTime());
+						gto.setOrderStatus(0);
+						gtoId = gtoSeriver.addOrUpdate(gto);
+						if(!gtoId.equals("")) {
+							//增加日志
+							GasTradeOrderLog gtoLog = new GasTradeOrderLog();
+							GasTradeOrder gasTradeOrder = gtoSeriver.getEntityById(gtoId);
+							gtoLog.setGasTradeOrder(gasTradeOrder);
+							gtoLog.setOrderStatus(0);
+							gtoLog.setOrderImgDetail("");
+							gtoLog.setOrderDetailTxt("买家已下单，等待买家付款并上传缴费凭证");
+							gtoLog.setAddTime(CurrentTime.getCurrentTime());
+							gtolService.addOrUpdate(gtoLog);
+							MessageCenter mc = new MessageCenter(user.getRealName()+"想购买您发布的"+gt.getGasFactory().getName()+"燃气", user.getRealName()+"想购买您发布的"+gt.getGasFactory().getName()+"燃气", 0, CurrentTime.getCurrentTime(), 2,
+									gtId, "gasTrade", "", gt.getAddUserId(), 0);
+							mcs.saveOrUpdate(mc);
+						}
 					}
 				}
-			}
-			if(addFlag) {
-				GasTradeOrder gto = new GasTradeOrder();
-				gto.setOrderNo(CurrentTime.getRadomTime().substring(2));
-				GasTrade gasTrade = gtService.getEntityById(gtId);
-				gto.setGasTrade(gasTrade);
-				User user = uService.getEntityById(userId);
-				gto.setUser(user);
-				Company company = cpyService.getEntityById(cpyId);
-				gto.setCompany(company);
-				gto.setLxMobile(lxMobile);
-				gto.setPrice(price);
-				gto.setRemark(remark);
-				gto.setLxrProv(lxrProv);
-				gto.setLxrCity(lxrCity);
-				gto.setLxrAddress(lxrAddress);
-				gto.setLxrGpsInfo(lxrGpsInfo);
-				gto.setDistance(distance);
-				gto.setAddTime(CurrentTime.getCurrentTime());
-				gto.setOrderStatus(0);
-				gtoId = gtoSeriver.addOrUpdate(gto);
-				if(!gtoId.equals("")) {
-					//增加日志
-					GasTradeOrderLog gtoLog = new GasTradeOrderLog();
-					GasTradeOrder gasTradeOrder = gtoSeriver.getEntityById(gtoId);
-					gtoLog.setGasTradeOrder(gasTradeOrder);
-					gtoLog.setOrderStatus(0);
-					gtoLog.setOrderImgDetail("");
-					gtoLog.setOrderDetailTxt("用户已下单，等待商家付款并上传缴费凭证");
-					gtoLog.setAddTime(CurrentTime.getCurrentTime());
-					gtolService.addOrUpdate(gtoLog);
-					MessageCenter mc = new MessageCenter(user.getRealName()+"想购买您发布的"+gt.getGasFactory().getName()+"燃气", user.getRealName()+"想购买您发布的"+gt.getGasFactory().getName()+"燃气", 0, CurrentTime.getCurrentTime(), 2,
-							gtId, "gasTrade", "", gt.getAddUserId(), 0);
-					mcs.saveOrUpdate(mc);
-				}
 			}else {
-				status = 50003;
+				status = 30003;
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -150,17 +154,20 @@ public class GasTradeOrderController {
 		@ApiResponse(code = 200, message = "成功"),
 		@ApiResponse(code = 50001, message = "数据未找到"),
 		@ApiResponse(code = 30002, message = "该交易已存在确认订单，不能再进行确认操作"),
+		@ApiResponse(code = 30003, message = "该交易审核未通过或已下架，不能进行操作"),
 		@ApiResponse(code = 10002, message = "参数为空")
 	})
 	@ApiImplicitParams({ @ApiImplicitParam(name = "gtoId", value = "燃气交易订单编号", required = true),
-			@ApiImplicitParam(name = "orderSta", value = "订单状态", required = true),
+			@ApiImplicitParam(name = "orderSta", value = "订单状态(-1-7)", required = true),
 			@ApiImplicitParam(name = "oImgDetail", value = "详情图片(买家上传缴费凭证或者上传磅单时传递)"),
-			@ApiImplicitParam(name = "oDetailTxt", value = "订单详情文字")
+			@ApiImplicitParam(name = "pjScore", value = "订单完成时评价分数(评价时传递)"),
+			@ApiImplicitParam(name = "pjContent", value = "评价内容(评价时传递)"),
 	})
 	public GenericResponse dealGasTraderOrderLog(HttpServletRequest request) {
 		String gtoId = CommonTools.getFinalStr("gtoId", request);
 		String oImgDetail = CommonTools.getFinalStr("oImgDetail", request);
-		String oDetailTxt = CommonTools.getFinalStr("oDetailTxt", request);
+		String pjContent = CommonTools.getFinalStr("pjContent", request);
+		Integer pjScore = CommonTools.getFinalInteger("pjScore", request);
 		Integer orderSta = CommonTools.getFinalInteger("orderSta", request);
 		String userId = CommonTools.getFinalStr("userId", request);
 		Integer status = 200;
@@ -176,41 +183,72 @@ public class GasTradeOrderController {
 					//获取燃气贸易
 					GasTrade gt = gasTradeOrder.getGasTrade();
 					if(gt != null) {
-						if(orderSta.equals(2)) {//商家确认订单时
-							//判断该燃气交易有无确认订单
-							if(gt.getTradeOrderId().equals("")) {//无确认订单
-								//并设置其他订单为取消状态
-								List<GasTradeOrder> gtoList = gtoSeriver.getInfoBygtId(gt.getId());
-								if(gtoList.size() > 0) {
-									for(GasTradeOrder gto : gtoList) {
-										if(!gto.getId().equals(gasTradeOrder.getId())) {
-											gto.setOrderStatus(-1);
-											//修改其他订单为取消状态
-											gtoSeriver.addOrUpdate(gto);
-											//增加订单日志
-											gtolService.addOrUpdate(new GasTradeOrderLog(gto, -1, "","订单被商家取消", currentTime));
+						if(gt.getCheckStatus() == 1 && gt.getShowStatus() == 0) {//审核通过且上架的才能进行操作
+							if(orderSta.equals(2)) {//商家确认订单时
+								//判断该燃气交易有无确认订单
+								if(gt.getTradeOrderId().equals("")) {//无确认订单
+									//并设置其他订单为取消状态
+									List<GasTradeOrder> gtoList = gtoSeriver.getInfoBygtId(gt.getId());
+									if(gtoList.size() > 0) {
+										for(GasTradeOrder gto : gtoList) {
+											if(!gto.getId().equals(gasTradeOrder.getId())) {
+												gto.setOrderStatus(-1);
+												//修改其他订单为取消状态
+												gtoSeriver.addOrUpdate(gto);
+												//增加订单日志
+												gtolService.addOrUpdate(new GasTradeOrderLog(gto, -1, "","订单被商家取消", currentTime));
+											}
 										}
 									}
+									//设置燃气交易确认订单
+									gt.setTradeOrderId(gtoId);
+									gtService.saveOrUpdate(gt);
+								}else {//已存在确认订单，不能进行操作
+									status = 30002;
 								}
-							}else {//已存在确认订单，不能进行操作
-								status = 30002;
 							}
-						}
-						if(status.equals(200)) {
-							//修改订单状态
-							gasTradeOrder.setOrderStatus(orderSta);
-							gtoSeriver.addOrUpdate(gasTradeOrder);
-							//增加订单日志
-							GasTradeOrderLog gtoLog = new GasTradeOrderLog();
-							gtoLog.setGasTradeOrder(gasTradeOrder);
-							gtoLog.setOrderStatus(orderSta);
-							//买家上传缴费凭证、上传磅单时需要上传图
-							if(orderSta.equals(1) || orderSta.equals(4) || orderSta.equals(5)) {
-								gtoLog.setOrderImgDetail(CommonTools.dealUploadDetail(userId, "", oImgDetail));
+							if(status.equals(200)) {
+								//修改订单状态
+								gasTradeOrder.setOrderStatus(orderSta);
+								if(orderSta.equals(7)) {//订单完成评价
+									gasTradeOrder.setOrderPjNumber(pjScore);
+									gasTradeOrder.setOrderPjDetail(pjContent);
+								}
+								gtoSeriver.addOrUpdate(gasTradeOrder);
+								//增加订单日志
+								GasTradeOrderLog gtoLog = new GasTradeOrderLog();
+								gtoLog.setGasTradeOrder(gasTradeOrder);
+								gtoLog.setOrderStatus(orderSta);
+								//买家上传缴费凭证、上传磅单时需要上传图
+								if(orderSta.equals(1) || orderSta.equals(4) || orderSta.equals(5)) {
+									gtoLog.setOrderImgDetail(CommonTools.dealUploadDetail(userId, "", oImgDetail));
+								}
+								String oDetailTxt = "";
+								if(orderSta.equals(-1)) {
+									oDetailTxt = "订单取消";//商户取消
+								}else if(orderSta.equals(0)) {
+									oDetailTxt = "待付款";//下单后等待付预付款0
+								}else if(orderSta.equals(1)) {
+									oDetailTxt = "待确认";//付款凭证上传后等待商家确认后状态修改为1
+								}else if(orderSta.equals(2)) {
+									oDetailTxt = "待发货";//商家确认无误后等待商家发货状态修改为2，确认有误时状态修改为0，直到确认完成
+								}else if(orderSta.equals(3)) {
+									oDetailTxt = "待收货";//商家发货后状态修改为3
+								}else if(orderSta.equals(4)) {
+									oDetailTxt = "待付款";//买家点击收货时上传磅单，状态修改为4
+								}else if(orderSta.equals(5)) {
+									oDetailTxt = "待商家确认";//买家上传尾款凭证后，状态修改为5
+								}else if(orderSta.equals(6)) {
+									oDetailTxt = "待买家评价";//商家确认后状态修改为6，确认有误时状态修改为4
+								}else if(orderSta.equals(7)) {
+									oDetailTxt = "买家已完成评价";//买家评价后状态修改为7，订单完成
+								}
+								gtoLog.setOrderDetailTxt(oDetailTxt);
+								gtoLog.setAddTime(currentTime);
+								gtolId = gtolService.addOrUpdate(gtoLog);
 							}
-							gtoLog.setOrderDetailTxt(oDetailTxt);
-							gtoLog.setAddTime(currentTime);
-							gtolId = gtolService.addOrUpdate(gtoLog);
+						}else {
+							status = 30003;
 						}
 					}else {
 						status = 50001;

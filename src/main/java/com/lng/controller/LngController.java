@@ -20,9 +20,15 @@ import com.lng.pojo.Company;
 import com.lng.pojo.GasFactory;
 import com.lng.pojo.GasFactoryCompany;
 import com.lng.pojo.LngPriceDetail;
+import com.lng.pojo.LngPriceRemark;
+import com.lng.pojo.LngPriceSubDetail;
+import com.lng.pojo.MessageCenter;
 import com.lng.service.GasFactoryCompanyService;
 import com.lng.service.GasFactoryService;
 import com.lng.service.LngPriceDetailService;
+import com.lng.service.LngPriceRemarkService;
+import com.lng.service.LngPriceSubDetailService;
+import com.lng.service.MessageCenterService;
 import com.lng.tools.CommonTools;
 import com.lng.tools.CurrentTime;
 import com.lng.util.Constants;
@@ -49,6 +55,12 @@ public class LngController {
 	private GasFactoryService gfs;
 	@Autowired
 	private GasFactoryCompanyService gfcs;
+	@Autowired
+	private MessageCenterService mcs;
+	@Autowired
+	private LngPriceRemarkService lprs;
+	@Autowired
+	private LngPriceSubDetailService lpsds;
 	
 	/**
 	 * 按照价格降序排序
@@ -235,7 +247,7 @@ public class LngController {
 					String[] remarkArr = remark.split(",");
 					String currentTime = CurrentTime.getCurrentTime();
 					String timeStr = currentTime.substring(10);
-					List<LngPriceDetail> list = new ArrayList<LngPriceDetail>();
+//					List<LngPriceDetail> list = new ArrayList<LngPriceDetail>();
 					for(int i = 0 ; i < gfIdArr.length ; i++) {
 						Map<String,Object> map_d = new HashMap<String,Object>();
 						GasFactory gf = gfs.getEntityById(gfIdArr[i]);
@@ -251,28 +263,145 @@ public class LngController {
 						List<LngPriceDetail> lpdList = lpds.listInfoByOpt(gfId, 0, priceDate);
 						if(lpdList.size() == 0) {//当天没有任何记录
 							LngPriceDetail lpd = new LngPriceDetail(gf, lngPrice, priceDate+timeStr, remark_tmp, currentTime);
-							list.add(lpd);
+							String lpdId = lpds.addOrUpdate(lpd);
+							if(!lpdId.equals("")) {
+								String lpsdId = lpsds.saveOrUpdate(new LngPriceSubDetail(lpds.getEntityById(lpdId), lngPrice, priceDate+timeStr, remark_tmp,
+										currentTime));
+								if(!lpsdId.equals("")) {
+									lprs.saveOrUpdate(new LngPriceRemark(gf, lngPrice, priceDate+timeStr, remark_tmp,
+											currentTime));
+								}
+							}
 							map_d.put("gfName", gf.getName());
 							map_d.put("price", lngPrice);
 							map_d.put("priceTime", priceDate+timeStr);
 							list_succ.add(map_d);
+							//获取昨天最后最后一条记录
+							List<LngPriceDetail> lpdList_pre = lpds.listInfoByOpt(gfId, 0, CurrentTime.getFinalDate(priceDate, -1));
+							Integer diffPrice = 0;
+							if(lpdList_pre.size() > 0) {//存在昨日价格记录
+								Integer prePrice = lpdList_pre.get(0).getPrice();
+								diffPrice = lngPrice - prePrice;
+							}else {
+								diffPrice = lngPrice;
+							}
+							if(lngPrice.equals(0)) {//停产
+								MessageCenter mc = new MessageCenter(gf.getName()+"最新燃气价格变动", 
+										gf.getName()+"已停产", 0, priceDate+timeStr, 4,
+										"", "", "", "", 0);
+								String mcsId = mcs.saveOrUpdate(mc);
+								MessageCenter mc_1 = mcs.getEntityById(mcsId);
+								mc_1.setPrimaryId(gf.getId());
+								mcs.saveOrUpdate(mc_1);
+							}else if(diffPrice > 0) {//价格上调变动
+								//发送价格变动新闻
+								MessageCenter mc = new MessageCenter(gf.getName()+"最新燃气价格变动", 
+										gf.getName()+"最新燃气价格"+lngPrice+"元，每吨上调"+diffPrice+"元", 0, priceDate+timeStr, 4,
+										"", "", "", "", 0);
+								mcs.saveOrUpdate(mc);
+								String mcsId = mcs.saveOrUpdate(mc);
+								MessageCenter mc_1 = mcs.getEntityById(mcsId);
+								mc_1.setPrimaryId(gf.getId());
+								mcs.saveOrUpdate(mc_1);
+							}else if(diffPrice < 0) {//价格下调变动
+								MessageCenter mc = new MessageCenter(gf.getName()+"最新燃气价格变动", 
+										gf.getName()+"最新燃气价格"+lngPrice+"元，每吨下调"+Math.abs(diffPrice)+"元", 0, priceDate+timeStr, 4,
+										"", "", "", "", 0);
+								mcs.saveOrUpdate(mc);
+								String mcsId = mcs.saveOrUpdate(mc);
+								MessageCenter mc_1 = mcs.getEntityById(mcsId);
+								mc_1.setPrimaryId(gf.getId());
+								mcs.saveOrUpdate(mc_1);
+							}
 						}else {//存在记录，获取最近一条记录
 							if(lngPrice.equals(lpdList.get(0).getPrice())) {//如果和最近一条记录价格相同，不能添加
 								map_d.put("gfName", gf.getName());
 								map_d.put("price", lngPrice);
 								map_d.put("priceTime", priceDate+timeStr);
 								list_exist.add(map_d);
-							}else {//如果不相同，可以添加
-								LngPriceDetail lpd = new LngPriceDetail(gf, lngPrice, priceDate+timeStr, remark_tmp, currentTime);
-								list.add(lpd);
+							}else {//如果不相同，可以修改
+								LngPriceDetail lpd = lpdList.get(0);
+								lpd.setPrice(lngPrice);
+								if(!remark_tmp.equals("")) {
+									lpd.setRemark(remark_tmp);
+								}
+								lpd.setPriceTime(priceDate+timeStr);
+								lpd.setAddTime(currentTime);
+								lpds.addOrUpdate(lpd);
+								
+								//增加lng价格明细
+								String lpsdId = lpsds.saveOrUpdate(new LngPriceSubDetail(lpd, lngPrice, priceDate+timeStr, remark_tmp,
+										currentTime));
+								if(!lpsdId.equals("")) {
+									lprs.saveOrUpdate(new LngPriceRemark(gf, lngPrice, priceDate+timeStr, remark_tmp,
+											currentTime));
+								}
+								
 								map_d.put("gfName", gf.getName());
 								map_d.put("price", lngPrice);
 								map_d.put("priceTime", priceDate+timeStr);
 								list_succ.add(map_d);
+								
+								Integer prePrice = lpdList.get(0).getPrice();
+								Integer diffPrice = lngPrice - prePrice;
+								if(lngPrice.equals(0)) {//停产
+									//存在当天的价格变动新闻就修改
+									List<MessageCenter> mcList = mcs.listMsgByOpt_1(4, gf.getId(), "", priceDate, priceDate);
+									if(mcList.size() == 0) {
+										MessageCenter mc = new MessageCenter(gf.getName()+"最新燃气价格变动", 
+												gf.getName()+"已停产", 0, priceDate+timeStr, 4,
+												"", "", "", "", 0);
+										mcs.saveOrUpdate(mc);
+										String mcsId = mcs.saveOrUpdate(mc);
+										MessageCenter mc_1 = mcs.getEntityById(mcsId);
+										mc_1.setPrimaryId(gf.getId());
+										mcs.saveOrUpdate(mc_1);
+									}else {
+										MessageCenter mc_1 = mcList.get(0);
+										mc_1.setContent(gf.getName()+"已停产");
+										mcs.saveOrUpdate(mc_1);
+									}
+								}else {
+									if(diffPrice > 0) {//价格上调变动
+										//发送价格变动新闻
+										//存在当天的价格变动新闻就修改
+										List<MessageCenter> mcList = mcs.listMsgByOpt_1(4, gf.getId(), "", priceDate, priceDate);
+										if(mcList.size() == 0) {
+											MessageCenter mc = new MessageCenter(gf.getName()+"最新燃气价格变动", 
+													gf.getName()+"最新燃气价格"+lngPrice+"元，每吨上调"+diffPrice+"元", 0, priceDate+timeStr, 4,
+													"", "", "", "", 0);
+											mcs.saveOrUpdate(mc);
+											String mcsId = mcs.saveOrUpdate(mc);
+											MessageCenter mc_1 = mcs.getEntityById(mcsId);
+											mc_1.setPrimaryId(gf.getId());
+											mcs.saveOrUpdate(mc_1);
+										}else {
+											MessageCenter mc_1 = mcList.get(0);
+											mc_1.setContent(gf.getName()+"最新燃气价格"+lngPrice+"元，每吨上调"+diffPrice+"元");
+											mcs.saveOrUpdate(mc_1);
+										}
+									}else if(diffPrice < 0) {//价格下调变动
+										List<MessageCenter> mcList = mcs.listMsgByOpt_1(4, gf.getId(), "", priceDate, priceDate);
+										if(mcList.size() == 0) {
+											MessageCenter mc = new MessageCenter(gf.getName()+"最新燃气价格变动", 
+													gf.getName()+"最新燃气价格"+lngPrice+"元，每吨下调"+Math.abs(diffPrice)+"元", 0, priceDate+timeStr, 4,
+													"", "", "", "", 0);
+											mcs.saveOrUpdate(mc);
+											String mcsId = mcs.saveOrUpdate(mc);
+											MessageCenter mc_1 = mcs.getEntityById(mcsId);
+											mc_1.setPrimaryId(gf.getId());
+											mcs.saveOrUpdate(mc_1);
+										}else {
+											MessageCenter mc_1 = mcList.get(0);
+											mc_1.setContent(gf.getName()+"最新燃气价格"+lngPrice+"元，每吨下调"+Math.abs(diffPrice)+"元");
+											mcs.saveOrUpdate(mc_1);
+										}
+									}
+								}
 							}
 						}
 					}
-					lpds.saveBatch(list);
+//					lpds.saveBatch(list);
 				}else {
 					status = 10002;
 				}
@@ -439,8 +568,12 @@ public class LngController {
 		String preDate = CurrentTime.getFinalDate(priceDate,-1);
 		String nextDate = CurrentTime.getFinalDate(priceDate,1);
 		List<Object> list_d = new ArrayList<Object>();
+		long startTime=System.currentTimeMillis();
 		try {
 			List<GasFactory> gfList = gfs.listInfoByOpt(provPy, gsId, gasTypeId,gsNamePy, 1);
+			long midTime=System.currentTimeMillis();
+			float diffTime=(float)(midTime-startTime)/1000;
+			System.out.println("查询所有液厂耗费时间--"+diffTime);
 			if(gfList.size() > 0) {
 				for(GasFactory gf : gfList) {
 					Map<String,Object> map_d = new HashMap<String,Object>();
@@ -454,50 +587,97 @@ public class LngController {
 					Integer currPrice = 0;
 					Integer nextPrice = 0;
 					
-					List<LngPriceDetail> lpdList_pre = lpds.listInfoByOpt("", gf.getId(), "", preDate, preDate,"desc");
-					if(lpdList_pre.size() > 0) {
-						prePrice = lpdList_pre.get(0).getPrice();
-						map_d.put("prePrice", prePrice);
-					}else {
-						map_d.put("prePrice", prePrice);
-					}
-					map_d.put("preDate", preDate);
-					List<LngPriceDetail> lpdList_curr = lpds.listInfoByOpt("", gf.getId(), "", priceDate, priceDate,"desc");
-					if(lpdList_curr.size() > 0) {
-						LngPriceDetail lpd = lpdList_curr.get(0);
-						currPrice = lpd.getPrice();
-						map_d.put("currPrice", currPrice);
-						if(currPrice > 0) {
-							map_d.put("diffPrice_curr", currPrice - prePrice);
-						}else {
-							map_d.put("diffPrice_curr", 0);
+					List<LngPriceDetail> lpdList = lpds.listInfoByOpt("", gf.getId(), "", preDate, nextDate,"desc");
+					if(lpdList.size() > 0) {
+						for(LngPriceDetail lpd : lpdList) {
+							Integer price = lpd.getPrice();
+							if(lpd.getPriceTime().substring(0,10).equals(preDate)) {
+								prePrice = price;
+							}else if(lpd.getPriceTime().substring(0,10).equals(priceDate)) {
+								currPrice = price;
+							}else if(lpd.getPriceTime().substring(0,10).equals(nextDate)) {
+								nextPrice = price;
+							}
 						}
+					}
+					map_d.put("prePrice", prePrice);
+					map_d.put("currPrice", currPrice);
+					map_d.put("nextPrice", nextPrice);
+					if(currPrice > 0) {
+						map_d.put("diffPrice_curr", currPrice - prePrice);
 					}else {
-						map_d.put("currPrice", currPrice);
 						map_d.put("diffPrice_curr", 0);
 					}
-					map_d.put("currDate", priceDate);
-					List<LngPriceDetail> lpdList_next = lpds.listInfoByOpt("", gf.getId(), "", nextDate, nextDate,"desc");
-					if(lpdList_next.size() > 0) {
-						nextPrice = lpdList_next.get(0).getPrice();
-						map_d.put("nextPrice", nextPrice);
-						if(nextPrice > 0) {
-							map_d.put("diffPrice_next", nextPrice - currPrice);
-						}else {
-							map_d.put("diffPrice_next", 0);
-						}
+					if(nextPrice > 0) {
+						map_d.put("diffPrice_next", nextPrice - currPrice);
 					}else {
-						map_d.put("nextPrice", nextPrice);
 						map_d.put("diffPrice_next", 0);
 					}
-					List<LngPriceDetail> lpdList_all = lpds.listInfoByOpt("", gf.getId(), "", "", "","desc");
-					for(LngPriceDetail lpd : lpdList_all) {
-						String remark_tmp = lpd.getRemark();
-						if(!remark_tmp.equals("")) {
-							remark = remark_tmp;
-							break;
-						}
+					
+					List<LngPriceRemark> lprList = lprs.listInfoByGfId(gf.getId());
+					if(lprList.size() > 0) {
+						remark = lprList.get(0).getRemark();
 					}
+					
+//					List<LngPriceDetail> lpdList_pre = lpds.listInfoByOpt("", gf.getId(), "", preDate, preDate,"desc");
+//					if(lpdList_pre.size() > 0) {
+//						LngPriceDetail lpd = lpdList_pre.get(0);
+//						prePrice = lpd.getPrice();
+//						map_d.put("prePrice", prePrice);
+//						remark = lpd.getRemark();
+//					}else {
+//						map_d.put("prePrice", prePrice);
+//					}
+					map_d.put("preDate", preDate);
+//					List<LngPriceDetail> lpdList_curr = lpds.listInfoByOpt("", gf.getId(), "", priceDate, priceDate,"desc");
+//					if(lpdList_curr.size() > 0) {
+//						LngPriceDetail lpd = lpdList_curr.get(0);
+//						currPrice = lpd.getPrice();
+//						map_d.put("currPrice", currPrice);
+//						if(currPrice > 0) {
+//							map_d.put("diffPrice_curr", currPrice - prePrice);
+//							if(!lpd.getRemark().equals("")) {
+//								remark = lpd.getRemark();
+//							}
+//						}else {
+//							map_d.put("diffPrice_curr", 0);
+//						}
+//					}else {
+//						map_d.put("currPrice", currPrice);
+//						map_d.put("diffPrice_curr", 0);
+//					}
+					map_d.put("currDate", priceDate);
+//					long sTime=System.currentTimeMillis();
+//					List<LngPriceDetail> lpdList_next = lpds.listInfoByOpt("", gf.getId(), "", nextDate, nextDate,"desc");
+//					if(lpdList_next.size() > 0) {
+//						LngPriceDetail lpd = lpdList_next.get(0);
+//						nextPrice = lpd.getPrice();
+//						map_d.put("nextPrice", nextPrice);
+//						if(nextPrice > 0) {
+//							map_d.put("diffPrice_next", nextPrice - currPrice);
+//							if(!lpd.getRemark().equals("")) {
+//								remark = lpd.getRemark();
+//							}
+//						}else {
+//							map_d.put("diffPrice_next", 0);
+//						}
+//					}else {
+//						map_d.put("nextPrice", nextPrice);
+//						map_d.put("diffPrice_next", 0);
+//					}
+//					long endTime=System.currentTimeMillis();
+//					float diffTime1=(float)(endTime-sTime)/1000;
+//					System.out.println(diffTime1);
+//					if(remark.equals("")) {
+//						List<LngPriceDetail> lpdList_all = lpds.listInfoByOpt("", gf.getId(), "", "", "","desc");
+//						for(LngPriceDetail lpd : lpdList_all) {
+//							String remark_tmp = lpd.getRemark();
+//							if(!remark_tmp.equals("")) {
+//								remark = remark_tmp;
+//								break;
+//							}
+//						}
+//					}
 					map_d.put("nextDate", nextDate);
 					map_d.put("remark", remark);
 					list_d.add(map_d);
@@ -510,6 +690,9 @@ public class LngController {
 			e.printStackTrace();
 			status = 1000;
 		}
+		long endTime=System.currentTimeMillis();
+		float excTime=(float)(endTime-startTime)/1000;
+		System.out.println("查询所有液厂价格耗费时间--"+excTime);
 		return ResponseFormat.retParam(status, list_d);
 	}
 	
@@ -915,6 +1098,56 @@ public class LngController {
 				e.printStackTrace();
 				status = 1000;
 			}
+		}
+		return ResponseFormat.retParam(status, list);
+	}
+	
+	@GetMapping("getMapData")
+	@ApiOperation(value = "获取全国液源地统计",notes = "获取全国液源地统计")
+	@ApiResponses({@ApiResponse(code = 1000, message = "服务器错误"),
+		@ApiResponse(code = 50001, message = "数据未找到"),
+		@ApiResponse(code = 10002, message = "参数为空")
+	})
+	@ApiImplicitParams({
+		@ApiImplicitParam(name = "provName", value = "省份")
+	})
+	public GenericResponse getMapData(HttpServletRequest request) {
+		Integer status = 200;
+		String provName = CommonTools.getFinalStr("provName", request);
+		List<Object> list = new ArrayList<Object>();
+		try {
+			if(provName.equals("")) {//全国按照省份统计
+				List<Object> list_obj = gfs.getTjInfo();
+				for(Object obj : list_obj) {
+					Object[] sub = (Object[]) obj;
+					Map<String,Object> map_tj = new HashMap<String,Object>();
+					map_tj.put("provName", sub[0].toString());
+					map_tj.put("gfNum", Integer.parseInt(sub[1].toString()));
+					list.add(map_tj);
+				}
+			}else {
+				List<GasFactory> gfList = gfs.listInfoByOpt("", "", "", provName, "", 1);
+				String specDate = CurrentTime.getStringDate();
+				for(GasFactory gf : gfList) {
+					Map<String,Object> map = new HashMap<String,Object>();
+					List<LngPriceDetail> lpdList = lpds.listInfoByOpt(gf.getId(), 0, specDate);
+					Integer price = 0;
+					if(lpdList.size() > 0) {
+						price = lpdList.get(0).getPrice();
+					}
+					map.put("gfId", gf.getId());
+					map.put("prov", provName);
+					map.put("city", gf.getCity());
+					map.put("county", gf.getCounty());
+					map.put("price", price);
+					map.put("specDate", specDate);
+					list.add(map);
+				}
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			status = 1000;
 		}
 		return ResponseFormat.retParam(status, list);
 	}

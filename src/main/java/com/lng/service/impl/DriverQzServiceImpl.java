@@ -63,7 +63,7 @@ public class DriverQzServiceImpl implements DriverQzService {
 					pre.getExpressions().add(cb.equal(root.get("jzYear"), jzYear));
 				}
 				if (!jzType.isEmpty()) {
-					pre.getExpressions().add(cb.equal(root.get("jzType"), jzYear));
+					pre.getExpressions().add(cb.equal(root.get("jzType"), jzType));
 				}
 				if (!wage.isEmpty()) {
 					String[] wages = wage.split("-");

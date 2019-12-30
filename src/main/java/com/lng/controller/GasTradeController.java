@@ -23,6 +23,7 @@ import com.lng.pojo.GasFactoryCompany;
 import com.lng.pojo.GasTrade;
 import com.lng.pojo.GasTradeImg;
 import com.lng.pojo.GasTradeOrder;
+import com.lng.pojo.GasTradeOrderLog;
 import com.lng.pojo.GasType;
 import com.lng.pojo.LngPriceDetail;
 import com.lng.pojo.MessageCenter;
@@ -33,6 +34,7 @@ import com.lng.service.CompanyPsrService;
 import com.lng.service.CompanyService;
 import com.lng.service.GasFactoryCompanyService;
 import com.lng.service.GasFactoryService;
+import com.lng.service.GasTradeOrderLogService;
 import com.lng.service.GasTradeOrderService;
 import com.lng.service.GasTradeService;
 import com.lng.service.GasTypeService;
@@ -62,6 +64,8 @@ public class GasTradeController {
 	private GasTradeService gts;
 	@Autowired
 	private GasTradeOrderService gtos;
+	@Autowired
+	private GasTradeOrderLogService gtols;
 	@Autowired
 	private UserService us;
 	@Autowired
@@ -545,7 +549,9 @@ public class GasTradeController {
 	@ApiOperation(value = "后台审核/前台设置上下架燃气买卖发布记录",notes = "后台审核/前台设置上下架燃气买卖发布记录")
 	@ApiResponses({@ApiResponse(code = 1000, message = "服务器错误"),
 		@ApiResponse(code = 70001, message = "无权限访问"),
-		@ApiResponse(code = 10002, message = "参数为空")
+		@ApiResponse(code = 10002, message = "参数为空"),
+		@ApiResponse(code = 80002, message = "审核通过才能进行上/下架"),
+		@ApiResponse(code = 80003, message = "存在交易订单，不能进行上/下架")
 	})
 	@ApiImplicitParams({
 		@ApiImplicitParam(name = "gasTradeId", value = "燃气买卖编号)",required = true),
@@ -577,7 +583,7 @@ public class GasTradeController {
 								if(opt.equals(1)) {
 									result = "审核通过";
 								}else if(opt.equals(2)) {
-									result = "审核未通过";
+									result = "审核未通过，请编辑后重新提交进行审核";
 								}
 								MessageCenter mc = new MessageCenter("您发布的"+gt.getGasFactory().getName()+"燃气"+result, "您发布的"+gt.getGasFactory().getName()+"燃气"+result, 0, CurrentTime.getCurrentTime(), 2,
 										gasTradeId, "gasTrade", "", gt.getAddUserId(), 0);
@@ -589,17 +595,39 @@ public class GasTradeController {
 					}else {
 						status = 10002;
 					}
-				}else {//上下架
-					if(checkStatus.equals(0) || checkStatus.equals(1)) {
-						GasTrade gt = gts.getEntityById(gasTradeId);
-						if(gt == null) {
-							status = 50001;
+				}else {//上下架（正在交易时不能操作）
+					if(checkStatus.equals(1)) {//审核通过的才能进行上下架
+						boolean flag = false;
+						List<GasTradeOrder> gtoList = gtos.listComInfoByOpt("", gasTradeId);
+						for(GasTradeOrder gto : gtoList) {
+							if(gto.getOrderStatus() >= 0) {
+								flag = true;
+								break;
+							}
+						}
+						if(!flag) {
+							GasTrade gt = gts.getEntityById(gasTradeId);
+							if(gt == null) {
+								status = 50001;
+							}else {
+								gt.setShowStatus(showStatus);
+								if(showStatus.equals(1)) {//下架操作将重置审核状态(重新上架时需要进行审核)并删除所有已取消的订单
+									gt.setCheckStatus(0);
+									//下架操作将删除所有已取消订单
+									for(GasTradeOrder gto : gtoList) {
+										gtols.delBatchLog(gtols.getGtLogList(gto.getId()));
+									}
+									gtos.delBatchOrder(gtoList);
+								}else {//上架
+									gt.setAddTime(CurrentTime.getCurrentTime());
+								}
+								gts.saveOrUpdate(gt);
+							}
 						}else {
-							gt.setShowStatus(showStatus);
-							gts.saveOrUpdate(gt);
+							status = 80003;
 						}
 					}else {
-						status = 10002;
+						status = 80002;
 					}
 				}
 			}
@@ -697,7 +725,8 @@ public class GasTradeController {
 					}else {
 						if(gt.getCheckStatus() == 1) {//审核通过的不能进行修改
 							status = 80001;
-						}else {
+						}else{
+							gt.setCheckStatus(0);//审核未通过时进行修改重置为未审核
 							GasFactory gf = gt.getGasFactory();
 							GasType gasType = gt.getGasType();
 							if(!cpyId.equals(gt.getCompany().getId())) {
@@ -736,6 +765,7 @@ public class GasTradeController {
 							gt.setBdImg(CommonTools.dealUploadDetail(userId, gt.getBdImg(), bdImg));
 							gt.setWhpImg(CommonTools.dealUploadDetail(userId, gt.getWhpImg(), whpImg));
 							gt.setTructsImg(CommonTools.dealUploadDetail(userId, gt.getTructsImg(), tructsImg));
+							gt.setAddTime(CurrentTime.getCurrentTime());
 							gts.saveOrUpdate(gt);
 							//获取详情图
 							String otherImg_db = "";

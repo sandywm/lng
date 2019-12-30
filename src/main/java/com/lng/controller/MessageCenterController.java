@@ -1,5 +1,10 @@
 package com.lng.controller;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +16,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.lng.pojo.MessageCenter;
+import com.lng.pojo.User;
 import com.lng.service.MessageCenterService;
+import com.lng.service.UserService;
 import com.lng.tools.CommonTools;
 import com.lng.tools.CurrentTime;
 import com.lng.util.Constants;
@@ -33,8 +40,10 @@ public class MessageCenterController {
 
 	@Autowired
 	private MessageCenterService mcService;
+	@Autowired
+	private UserService us;
 
-	@GetMapping("/getMsgCenterPage")
+	@GetMapping("/getMsgCenterPageList")
 	@ApiOperation(value = "分页获取消息中心列表", notes = "分页获取消息中心列表")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
 			@ApiResponse(code = 50001, message = "数据未找到") })
@@ -73,6 +82,57 @@ public class MessageCenterController {
 		return ResponseFormat.getPageJson(limit, page, count, status, mcs.getContent());
 	}
 
+	@GetMapping("/getSpecMsgDetail")
+	@ApiOperation(value = "获取指定消息详情", notes = "获取指定消息详情")
+	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
+			@ApiResponse(code = 50001, message = "数据未找到") })
+	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "消息编号")})
+	public GenericResponse getSpecMsgDetail(HttpServletRequest request) {
+		String id =  CommonTools.getFinalStr("id", request);
+		Integer status = 200;
+		List<Object> list = new ArrayList<Object>();
+		try {
+			MessageCenter mc = mcService.getEntityById(id);
+			if (mc == null) {
+				status = 50001;
+			}else {
+				Map<String,Object> map = new HashMap<String,Object>();
+				map.put("id", id);
+				map.put("title", mc.getTitle());
+				map.put("content", mc.getContent());
+				map.put("addTime", mc.getAddTime());
+				Integer msgType = mc.getMessageType();
+				map.put("msgType", msgType);
+				map.put("primaryId", mc.getPrimaryId());
+				map.put("primaryType", mc.getPrimaryType());
+				String addUserId = mc.getAddUserId();
+				String toUserId = mc.getToUserId();
+				String addUserName = "";
+				String toUserName = "";
+				if(msgType.equals(2) || msgType.equals(3)) {
+					map.put("addUserId", addUserId);
+					User user = us.getEntityById(addUserId);
+					if(user != null) {
+						addUserName = user.getRealName();
+					}
+					User toUser = us.getEntityById(toUserId);
+					if(toUser != null) {
+						toUserName = toUser.getRealName();
+					}
+				}
+				map.put("addUserId", addUserId);
+				map.put("toUserId", toUserId);
+				map.put("addUserName", addUserName);
+				map.put("toUserName", toUserName);
+				list.add(map);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			status = 1000;
+		}
+		return ResponseFormat.retParam(status, list);
+	}
+	
 	@PostMapping("/sendMessage")
 	@ApiOperation(value = "发送消息", notes = "发送消息")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), 
@@ -172,7 +232,7 @@ public class MessageCenterController {
 			@ApiImplicitParam(name = "content", value = "标题）", required = true),
 			@ApiImplicitParam(name = "showSta", value = "显示状态（0：默认显示，1：隐藏）", required = true)
 		 })
-	public GenericResponse updateBasicInfoById(HttpServletRequest request) {
+	public GenericResponse updateByshowSta(HttpServletRequest request) {
 		String id = CommonTools.getFinalStr("id",request);
 		String title = CommonTools.getFinalStr("title", request);
 		String content =  CommonTools.getFinalStr("content", request);
@@ -192,6 +252,41 @@ public class MessageCenterController {
 							mc.setTitle(title);
 							mc.setShowStatus(showStatus);
 							mcService.saveOrUpdate(mc);
+						}
+					}else {
+						status = 70001;
+					}
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				status = 1000;
+			}
+		return ResponseFormat.retParam(status, "");
+	}
+	
+	@PutMapping("/delSpecMsg")
+	@ApiOperation(value = "删除指定新闻--新闻资讯用", notes = "删除指定新闻--新闻资讯用")
+	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), 
+			 @ApiResponse(code = 200, message = "成功"),
+			 @ApiResponse(code = 50001, message = "数据未找到"),
+			 @ApiResponse(code = 70001, message = "无权限访问"),
+			 @ApiResponse(code = 10002, message = "参数为空")
+	})
+	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "消息中心编号", required = true)})
+	public GenericResponse delSpecMsg(HttpServletRequest request) {
+		String id = CommonTools.getFinalStr("id",request);
+		Integer status = 200;
+			try {
+				if(id.equals("") ) {
+					status = 10002;
+				}else {
+					//需要判断权限
+					if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request), Constants.DEL_MSG)) {
+						MessageCenter mc = mcService.getEntityById(id);
+						if (mc == null) {
+							status = 50001;
+						} else {
+							mcService.delMsgById(id);
 						}
 					}else {
 						status = 70001;
