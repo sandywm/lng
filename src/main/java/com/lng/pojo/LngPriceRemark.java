@@ -26,15 +26,14 @@ public class LngPriceRemark  implements java.io.Serializable {
 	private GasFactory gf;
 	@ApiModelProperty(value = "备注")
 	private String remark;
-	@ApiModelProperty(value = "添加时间")
+	@ApiModelProperty(value = "备注时间")
 	private String addTime;
 	
 	public LngPriceRemark() {
 		
 	}
 	
-	public LngPriceRemark(GasFactory gf, int price, String priceTime, String remark,
-			String addTime) {
+	public LngPriceRemark(GasFactory gf, String remark,String addTime) {
 		this.gf = gf;
 		this.remark = remark;
 		this.addTime = addTime;
@@ -70,7 +69,7 @@ public class LngPriceRemark  implements java.io.Serializable {
 		this.remark = remark;
 	}
 
-	@Column(name = "add_time", nullable = false, columnDefinition = "varchar(50) COMMENT '添加时间'")
+	@Column(name = "add_time", nullable = false, columnDefinition = "varchar(50) COMMENT '备注时间'")
 	public String getAddTime() {
 		return addTime;
 	}

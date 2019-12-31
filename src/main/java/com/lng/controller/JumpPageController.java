@@ -247,4 +247,10 @@ public class JumpPageController {
 	public ModelAndView goDriverQzPage(){
 		return new ModelAndView("driverQz/driverQzList");
 	}
+	
+	@ApiOperation("新闻中心管理")
+	@GetMapping("goNewsCenPage") 
+	public ModelAndView goNewsCenPage(){
+		return new ModelAndView("newsCen/newsCenList");
+	}
 }

@@ -9,13 +9,10 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
-import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,16 +29,18 @@ import com.lng.pojo.GasFactoryCompany;
 import com.lng.pojo.GasType;
 import com.lng.pojo.HqProvinceOrder;
 import com.lng.pojo.LngPriceDetail;
+import com.lng.pojo.LngPriceRemark;
+import com.lng.pojo.LngPriceSubDetail;
 import com.lng.pojo.MessageCenter;
-import com.lng.pojo.User;
 import com.lng.service.CommonProvinceOrderService;
 import com.lng.service.GasFactoryCompanyService;
 import com.lng.service.GasFactoryService;
 import com.lng.service.GasTypeService;
 import com.lng.service.HqProvinceOrderService;
 import com.lng.service.LngPriceDetailService;
+import com.lng.service.LngPriceRemarkService;
+import com.lng.service.LngPriceSubDetailService;
 import com.lng.service.MessageCenterService;
-import com.lng.service.UserService;
 import com.lng.tools.CommonTools;
 import com.lng.tools.CurrentTime;
 import com.lng.util.Constants;
@@ -79,6 +78,10 @@ public class GasFactoryController {
 	private MessageCenterService mcs;
 	@Autowired
 	private LngPriceDetailService lpds;
+	@Autowired
+	private LngPriceSubDetailService lpsds;
+	@Autowired
+	private LngPriceRemarkService lprs;
 	
 	@PostMapping("addGasFactory")
 	@ApiOperation(value = "增加液厂--后台人员",notes = "后台人员增加液厂信息时使用")
@@ -347,8 +350,12 @@ public class GasFactoryController {
 		                
 		                List<GasFactory> gfList = gfs.listInfoByOpt(gfName, "", "", "", "", 1);
 	                	if(gfList.size() > 0) {
+	                		//原始数据库一个液厂一天就一条记录
 	                		String lpdId = lpds.addOrUpdate(new LngPriceDetail(gfList.get(0), price, priceTime, "", CurrentTime.getCurrentTime()));
 	                		if(!lpdId.equals("")) {
+	                			//增加价格明细子表
+	                			lpsds.saveOrUpdate(new LngPriceSubDetail(lpds.getEntityById(lpdId), price, priceTime, "",
+	                					CurrentTime.getCurrentTime()));
 	                			CommonTools.addCellData(lpdId, gfName, priceTime, String.valueOf(price), "", "", "", "", "", row, style);
 	                		}
 	                	}else {
@@ -424,9 +431,8 @@ public class GasFactoryController {
 		                    break;   
 		                String gfName = sheet.getCell(4,i).getContents().replace(" ", "").replace("\t", "");//液厂名称
 		                String date = sheet.getCell(2,i).getContents().replace(" ", "").replace("\t", "");//时间
-		                String remark = sheet.getCell(3,i).getContents().replace(" ", "").replace("\t", "");//时间
+		                String remark = sheet.getCell(3,i).getContents().replace(" ", "").replace("\t", "");//备注
 		                row = sheet1.createRow(i);
-		                
 		                List<GasFactory> gfList = gfs.listInfoByOpt(gfName, "", "", "", "", 1);
 	                	if(gfList.size() > 0) {
 	                		String gfId = gfList.get(0).getId();
@@ -435,6 +441,7 @@ public class GasFactoryController {
 	                			LngPriceDetail lpd = lpdList.get(0);
 	                			lpd.setRemark(remark);
 	                			String lpdId = lpds.addOrUpdate(lpd);
+	                			lprs.saveOrUpdate(new LngPriceRemark(lpd.getGf(), remark,date+" 08:08:08"));
 	                			CommonTools.addCellData(lpdId, gfName, lpd.getPriceTime(), remark, "", "", "", "", "", row, style);
 	                		}
 	                	}else {

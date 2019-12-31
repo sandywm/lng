@@ -55,9 +55,9 @@ public interface LngPriceDetailDao   extends BaseDao<LngPriceDetail, Object> {
 	 * @param eDay 结束日
 	 * @return
 	 */
-	@Query(value = "select lpd.priceTime,lpd.price from LngPriceDetail lpd where"
-			+ " lpd.gf.id = ?1 and lpd.priceTime >= ?2 and lpd.priceTime <= ?3"
-			+ " order by lpd.priceTime asc",
+	@Query(value = "select lpsd.priceTime,lpsd.price from LngPriceSubDetail lpsd where"
+			+ " lpsd.lpd.gf.id = ?1 and lpsd.priceTime >= ?2 and lpsd.priceTime <= ?3"
+			+ " order by lpsd.priceTime asc",
 		nativeQuery = false
 		)
 	List<Object> findTjDayInfoByGfId(String gfId,String sDay,String eDay);

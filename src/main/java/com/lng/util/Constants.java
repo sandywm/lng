@@ -12,10 +12,18 @@ public class Constants {
 	
 	public static final String WX_URL = "https://api.weixin.qq.com/sns/jscode2session";
 	public static final String GRANT_TYPE = "authorization_code";
-	public static final String APP_ID = "wxad6b9d382c5bb7ad";
-	public static final String SECRET_KEY = "b36e07ee227904f868a0b513da0340f9";
+	public static final String APP_ID = "wxedb3f1be6bd71c8a";
+	public static final String SECRET_KEY = "f39358e9d1c2ada983a452f6ba9a7e6d";
 	
 	public static final String UPLOAD_PATH = "D:/lngWeb/resources/";
+	
+	public static final String URL = "jdbc:mysql://127.0.0.1:3306/lng?serverTimezone=UTC";
+	public static final String DRIVER = "com.mysql.jdbc.Driver";
+	public static final String USER_NAME = "root";
+	public static final String PASSWORD = "123456";
+	
+	public static final String LNG_WEB_URL = "d:/lngWeb/resources/";
+//	public static final String PASSWORD = "123456";
 	
 //	系统配置管理
 	/**
