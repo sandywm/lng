@@ -12,6 +12,7 @@
 	<groupId>com.lng</groupId>
 	<artifactId>lng</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
+	<packaging>jar</packaging><!-- 默认为jar -->
 	<name>lng</name>
 	<description>lng-天然气项目</description>
 
@@ -28,9 +29,13 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
-			<!-- 取消内置tomcat 当生成war包时使用，jar包时不需要 -->
-			<!--exclusions> <exclusion> <groupId>org.springframework.boot</groupId> 
-				<artifactId>spring-boot-starter-tomcat</artifactId> </exclusion> </exclusions -->
+			<!-- 取消内置tomcat 当生成war包时使用，jar包时不需要 >
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-tomcat</artifactId>
+				</exclusion>
+			</exclusions-->
 		</dependency>
 
 		<dependency>
@@ -44,9 +49,12 @@
 			<scope>test</scope>
 		</dependency>
 
-		<!-- war包时使用 -->
-		<!--ependency> <groupId>javax.servlet</groupId> <artifactId>javax.servlet-api</artifactId> 
-			<scope>provided</scope> </dependency -->
+		<!-- war包时使用>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+			<scope>provided</scope>
+		</dependency -->
 
 		<!-- hibernate JPA -->
 		<dependency>
@@ -142,10 +150,11 @@
 
 		<!-- 百度富文本 -->
 		<dependency>
-		    <groupId>com.baidu</groupId>
+		    <groupId>com.gitee.qdbp.thirdparty</groupId>
 		    <artifactId>ueditor</artifactId>
-		    <version>1.1.1</version>
+		    <version>1.4.3.3</version>
 		</dependency>
+
 		
 		<!-- 百度文本识别 -->
 		<dependency>
@@ -162,6 +171,11 @@
 					<artifactId>slf4j-simple</artifactId>
 				</exclusion>
 			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-configuration-processor</artifactId>
+			<optional>true</optional>
 		</dependency>
 	</dependencies>
 

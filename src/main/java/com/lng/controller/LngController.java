@@ -689,10 +689,13 @@ public class LngController {
 			pageSize = 20;
 		}
 		long count = 0;
+		List<Object> list = new ArrayList<Object>();
 		List<Object> list_d = new ArrayList<Object>();
 		try {
 			Page<GasFactory> gfList = gfs.listInfoByOpt(provPy, gtId, gsNamePy, pageIndex, pageSize);
 			count = gfList.getTotalElements();
+			Map<String,Object> map = new HashMap<String,Object>();
+			map.put("dateTitle", preDate.substring(5)+":"+priceDate.substring(5)+":"+nextDate.substring(5));
 			if(count > 0) {
 				for(GasFactory gf : gfList) {
 					Map<String,Object> map_d = new HashMap<String,Object>();
@@ -759,6 +762,8 @@ public class LngController {
 				}
 				SortClass sort = new SortClass();
 				Collections.sort(list_d, sort);//list_d中currPrice降序排列
+				map.put("lngPriceList", list_d);
+				list.add(map);
 			}else {
 				status = 50001;
 			}
@@ -767,7 +772,7 @@ public class LngController {
 			e.printStackTrace();
 			status = 1000;
 		}
-		return ResponseFormat.getPageJson(pageSize,pageIndex,count,status, list_d);
+		return ResponseFormat.getPageJson(pageSize,pageIndex,count,status, list);
 	}
 	
 	@GetMapping("getLngPriceDetail")

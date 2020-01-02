@@ -1,20 +1,23 @@
 package com.lng.tools;
 
-import com.lng.util.Constants;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 public class AutoCreateTable {
 
+	@Autowired
+	private ContantsProperties cp;
+	
 	public void createTable() throws ClassNotFoundException, SQLException {
 		//连接数据库
-		Class.forName(Constants.DRIVER);
-		String url = Constants.URL + "&useSSL=false";
-		Connection conn = DriverManager.getConnection(url, Constants.USER_NAME, Constants.PASSWORD);
+		Class.forName(cp.getDriver());
+		String url = cp.getUrl() + "&useSSL=false";
+		Connection conn = DriverManager.getConnection(url, cp.getUsername(), cp.getPassword());
 		Statement stat = conn.createStatement();
 		String tableName = "lng_price_detail_"+CurrentTime.getSimpleTime();
 		//获取数据库表名

@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.Base64.Decoder;
 
+import javax.annotation.PostConstruct;
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
@@ -24,13 +25,25 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.lng.util.Constants;
 
+@Component//申明为spring组件
 public class WxTools {
 
+	@Autowired
+	private ContantsProperties cp;
+	
+	private static WxTools wt;
+	
+	@PostConstruct//注解@PostConstruct，这样方法就会在Bean初始化之后被Spring容器执行
+    public void init() {
+		wt = this;
+	}
+	
 	/**
 	 * @description 自定义发送https请求
 	 * @author wm
@@ -180,9 +193,9 @@ public class WxTools {
 	 * @return
 	 */
 	public static JSONObject code2sessionKey(String code) {
-		String stringToken = Constants.WX_URL+"?appid="+Constants.APP_ID
-				+"&secret="+Constants.SECRET_KEY
-				+"&js_code="+code+"&grant_type="+Constants.GRANT_TYPE;
+		String stringToken = wt.cp.getWxUrl()+"?appid="+wt.cp.getAppId()
+				+"&secret="+wt.cp.getSecretKey()
+				+"&js_code="+code+"&grant_type="+wt.cp.getGrantType();
 		String response = WxTools.httpsRequestToString(stringToken, "GET", null);
 		return JSON.parseObject(response);
 	}

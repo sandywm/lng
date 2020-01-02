@@ -40,6 +40,8 @@ public class CommonTools {
 	private ActSuperService ass;
 	@Autowired
 	private SysConfigService scs;
+	@Autowired
+	private ContantsProperties cp;
 	
 	public static CommonTools ct;
 	
@@ -331,7 +333,7 @@ public class CommonTools {
 		String finalPath = "";
 		if(!upFileStr.equals("") && !loingUserId.equals("")) {
 			String[] upFileArr = upFileStr.split(",");
-			String imagePath = Constants.UPLOAD_PATH + loingUserId;
+			String imagePath = ct.cp.getWeburl() + loingUserId;
 			File filePath = new File(imagePath);
 			if(!filePath.exists()) {
 				filePath.mkdirs();
@@ -339,7 +341,7 @@ public class CommonTools {
 			if(upFileDb.equals("")) {//新增时上传
 				for(int i = 0 ; i < upFileArr.length ; i++) {
 					//复制原图
-					FileOpration.copyFile(Constants.UPLOAD_PATH+"temp/"+upFileArr[i], imagePath+"/"+upFileArr[i]);
+					FileOpration.copyFile(ct.cp.getWeburl()+"temp/"+upFileArr[i], imagePath+"/"+upFileArr[i]);
 					Integer lastIndex = upFileArr[i].lastIndexOf(".");
 					String suffix = upFileArr[i].substring(lastIndex+1);
 					String newFileNamePre = upFileArr[i].substring(0, lastIndex);
@@ -351,7 +353,7 @@ public class CommonTools {
 						finalPath += loingUserId + "/" + newFileName + ",";
 					}
 					//删除临时文件夹图片
-					FileOpration.deleteFile(Constants.UPLOAD_PATH+"temp/"+upFileArr[i]);
+					FileOpration.deleteFile(ct.cp.getWeburl()+"temp/"+upFileArr[i]);
 				}
 			}else {//编辑时上传
 				for(int i = 0 ; i < upFileArr.length ; i++) {
@@ -363,7 +365,7 @@ public class CommonTools {
 						String newFileNamePre = upFileArr[i].substring(0, lastIndex);
 						finalPath += newFileNamePre+"_small."+suffix + ",";
 					}else {//新增加的图
-						FileOpration.copyFile(Constants.UPLOAD_PATH+"temp/"+upFileArr[i], imagePath+"/"+upFileArr[i]);
+						FileOpration.copyFile(ct.cp.getWeburl()+"temp/"+upFileArr[i], imagePath+"/"+upFileArr[i]);
 						Integer lastIndex = upFileArr[i].lastIndexOf(".");
 						String suffix = upFileArr[i].substring(lastIndex+1);
 						String newFileNamePre = upFileArr[i].substring(0, lastIndex);
@@ -375,7 +377,7 @@ public class CommonTools {
 							finalPath += loingUserId + "/" + newFileName + ",";
 						}
 						//删除临时文件夹图片
-						FileOpration.deleteFile(Constants.UPLOAD_PATH+"temp/"+upFileArr[i]);
+						FileOpration.deleteFile(ct.cp.getWeburl()+"temp/"+upFileArr[i]);
 					}
 				}
 			}

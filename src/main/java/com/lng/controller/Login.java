@@ -10,14 +10,12 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import javax.servlet.http.HttpUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.lng.pojo.Department;
 import com.lng.pojo.SuperDep;
@@ -174,7 +172,8 @@ public class Login {
 	})
 	@GetMapping("wxAuth")
 	@ApiResponses({@ApiResponse(code = 10002, message = "参数为空"),
-			@ApiResponse(code = 1000, message = "服务器错误")
+			@ApiResponse(code = 1000, message = "服务器错误"),
+			@ApiResponse(code = 20008, message = "授权失败")
 	})
 	public GenericResponse wxAuth(HttpServletRequest request) {
 		Integer status = 40001;
@@ -189,13 +188,19 @@ public class Login {
 				String sessionKey = jsonObject.getString("session_key");// 密钥
 				// 满足UnionID下发条件的情况下，返回
 				String unionId = jsonObject.getString("unionid");
-				Map<String,String> map = new HashMap<String,String>();
-				map.put("openId", openId);
-				map.put("sessionKey", sessionKey);
-				//关于unionId,这里需要说明一下,如果应用只限于小程序内则不需要unionId,直接通过openId可以确定用户身份,
-				//但是如果需要跨应用 如:网页应用,app应用时则需要使用到unionId作为身份标识
-				map.put("unionId", unionId);
-				list_d.add(map);
+				if(openId == null) {
+					status = 20008;
+				}else {
+					Map<String,String> map = new HashMap<String,String>();
+					map.put("openId", openId);
+					map.put("sessionKey", sessionKey);
+					//关于unionId,这里需要说明一下,如果应用只限于小程序内则不需要unionId,直接通过openId可以确定用户身份,
+					//但是如果需要跨应用 如:网页应用,app应用时则需要使用到unionId作为身份标识
+					map.put("unionId", unionId);
+					list_d.add(map);
+					status = 200;
+				}
+				status = 200;
 			} catch (Exception e) {
 				// TODO: handle exception
 				e.printStackTrace();
@@ -209,7 +214,9 @@ public class Login {
 	@ApiImplicitParams({
 		@ApiImplicitParam(name = "code", value = "临时登录凭证", required = true),
 		@ApiImplicitParam(name = "encryptedData", value = "包括敏感数据在内的完整用户信息的加密数据(头像、昵称等)", required = true),
-		@ApiImplicitParam(name = "iv", value = "加密算法的初始向量", required = true)
+		@ApiImplicitParam(name = "iv", value = "加密算法的初始向量", required = true),
+		@ApiImplicitParam(name = "sessionKey", value = "sessionKey"),
+		@ApiImplicitParam(name = "openId", value = "openId")
 	})
 	@GetMapping("wxUserLogin")
 	@ApiResponses({@ApiResponse(code = 20002, message = "账号不存在错误"),
@@ -222,58 +229,66 @@ public class Login {
 		String code = CommonTools.getFinalStr("code", request);
 		String encryptedData = CommonTools.getFinalStr("encryptedData", request);
 		String iv = CommonTools.getFinalStr("iv", request);
+		String sessionKey = CommonTools.getFinalStr("sessionKey", request);
+		String wxOpenId = CommonTools.getFinalStr("openId", request);
 		List<Object> list_d = new ArrayList<Object>();
 		if(code.equals("") || encryptedData.equals("") || iv.equals("")) {
 			status = 10002;
 		}else {
 				try {
 					String currTime = CurrentTime.getCurrentTime();
-					JSONObject jsonObject = WxTools.code2sessionKey(code);
-					String wxOpenId = jsonObject.getString("openid");// 用户唯一标识
-					String sessionKey = jsonObject.getString("session_key");// 密钥
-					// 解密encryptedData,获取unionId相关信息
-					JSONObject json = WxTools.decryptionUserInfo(encryptedData, sessionKey, iv);
-					String nickName = json.getString("nickName");//昵称
-					String sex = json.getString("gender");//性别
-					String prov = json.getString("province");//省
-					String city = json.getString("country");//市
-					String headImg = json.getString("avatarUrl");//头像
-					User user = us.getEntityByWxOpenId(wxOpenId);
-					if(user != null) {
-						if(user.getAccountStatus().equals(1)) {
-							//修改登录次数和最后登录时间
-							user.setLastLoginTime(currTime);
-							Integer loginStatus = user.getLoginStatus();
-							if(loginStatus < 50) {
-								loginStatus++;
-							}else {
-								loginStatus = 0;
+					if(sessionKey.equals("") || wxOpenId.equals("")) {
+						JSONObject jsonObject = WxTools.code2sessionKey(code);
+						wxOpenId = jsonObject.getString("openid");// 用户唯一标识
+						sessionKey = jsonObject.getString("session_key");// 密钥
+					}else {
+						// 解密encryptedData,获取unionId相关信息
+						JSONObject json = WxTools.decryptionUserInfo(encryptedData, sessionKey, iv);
+						String nickName = json.getString("nickName");//昵称
+						String sex = json.getString("gender");//性别
+						String prov = json.getString("province");//省
+						String city = json.getString("country");//市
+						String headImg = json.getString("avatarUrl");//头像
+						User user = us.getEntityByWxOpenId(wxOpenId);
+						if(user != null) {
+							if(user.getAccountStatus().equals(1)) {
+								//修改登录次数和最后登录时间
+								user.setLastLoginTime(currTime);
+								Integer loginStatus = user.getLoginStatus();
+								if(loginStatus < 50) {
+									loginStatus++;
+								}else {
+									loginStatus = 0;
+								}
+								user.setLoginTimes(user.getLoginStatus()+1);
+								user.setLoginStatus(loginStatus);
+								us.saveAndUpdate(user);
+								Map<String,String> map = new HashMap<String,String>();
+								map.put("userId", user.getId());
+								map.put("wxOpenId", user.getAccount());
+								map.put("wxName", user.getWxName());
+								list_d.add(map);
+								status = 200;
+							}else{
+								status = 20003;
 							}
-							user.setLoginTimes(user.getLoginStatus()+1);
-							user.setLoginStatus(loginStatus);
-							us.saveAndUpdate(user);
+						}else {
+							//首次授权，注册账号
+							String userId = us.saveAndUpdate(new User(wxOpenId, "E10ADC3949BA59ABBE56E057F20F883E", nickName, nickName, sex, "",
+									CurrentTime.getCurrentTime(), currTime, 1, 1, 1,"wx", headImg, ""));
+							System.out.println("头像："+headImg.length());
 							Map<String,String> map = new HashMap<String,String>();
-							map.put("userId", user.getId());
-							map.put("wxOpenId", user.getAccount());
-							map.put("wxName", user.getWxName());
+							map.put("userId", userId);
+							map.put("wxOpenId", wxOpenId);
+							map.put("wxName", nickName);
 							list_d.add(map);
 							status = 200;
-						}else{
-							status = 20003;
 						}
-					}else {
-						//首次授权，注册账号
-						String userId = us.saveAndUpdate(new User(wxOpenId, "E10ADC3949BA59ABBE56E057F20F883E", nickName, nickName, sex, "",
-								CurrentTime.getCurrentTime(), currTime, 1, 1, 1,"wx", headImg, ""));
-						Map<String,String> map = new HashMap<String,String>();
-						map.put("userId", userId);
-						map.put("wxOpenId", wxOpenId);
-						map.put("wxName", nickName);
-						list_d.add(map);
-						status = 200;
 					}
 				} catch (Exception e) {
 					// TODO: handle exception
+					e.printStackTrace();
+					status = 40001;
 				}			
 		}
 		return ResponseFormat.retParam(status, list_d);

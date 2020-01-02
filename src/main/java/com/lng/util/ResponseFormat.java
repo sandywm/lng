@@ -34,6 +34,7 @@ public class ResponseFormat {
         messageMap.put(20005, "用户已存在");
         messageMap.put(20006, "验证码错误");
         messageMap.put(20007, "密码错误");
+        messageMap.put(20008, "授权失败");
 
         /* 业务错误：30001-39999 */
         messageMap.put(30001, "某业务出现问题");

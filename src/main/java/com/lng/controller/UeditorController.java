@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FilenameUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,14 +17,17 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import com.alibaba.fastjson.JSONObject;
 import com.baidu.ueditor.ActionEnter;
 import com.lng.tools.CommonTools;
+import com.lng.tools.ContantsProperties;
 import com.lng.tools.CurrentTime;
-import com.lng.util.Constants;
 
 import io.swagger.annotations.ApiOperation;
 
 @Controller
 public class UeditorController {
 
+	@Autowired
+	private ContantsProperties cp;
+	
 	@ApiOperation("百度富文本配置")
 	@RequestMapping("ueditorConfig")
 	public void ueditorConfig(HttpServletRequest request,HttpServletResponse response){
@@ -32,15 +36,15 @@ public class UeditorController {
 			response.setContentType("application/json");
 			request.setCharacterEncoding( "utf-8" );
 			response.setHeader("Content-Type" , "text/html");
-			String rootPath = System.getProperty("user.dir") + "\\src\\main\\resources";
+			String rootPath = System.getProperty("user.dir") + "\\src\\main\\resources";//开发电脑用
+//			String rootPath = request.getServletContext().getRealPath("/WEB-INF/classes");//window服务器上用
 			if(action.equals("config")) {//初始配置
-				System.out.println("路径："+rootPath);
 				response.getWriter().write( new ActionEnter( request, rootPath ).exec() );
 			}else if("uploadimage".equals(action) || "uploadvideo".equals(action) || "uploadfile".equals(action)){//如果是上传图片、视频、和其他文件
 				 try {
 	                    MultipartHttpServletRequest multipartHttpServletRequest = (MultipartHttpServletRequest) request;
 	        			List<MultipartFile> multipartFiles = multipartHttpServletRequest.getFiles("upfile");
-	        			String filePath_tmp = Constants.LNG_WEB_URL + "file/ueditor/";
+	        			String filePath_tmp = cp.getWeburl() + "file/ueditor/";
 	        			File filePath = new File(filePath_tmp);
 	        			if(!filePath.exists()) {
 	        				filePath.mkdirs();

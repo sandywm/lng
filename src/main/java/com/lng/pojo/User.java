@@ -103,7 +103,7 @@ public class User implements java.io.Serializable {
 		this.account = account;
 	}
 
-	@Column(name = "password", nullable = false, columnDefinition = "varchar(30) COMMENT '密码'")
+	@Column(name = "password", nullable = false, columnDefinition = "varchar(50) COMMENT '密码'")
 	public String getPassword() {
 		return this.password;
 	}
@@ -130,7 +130,7 @@ public class User implements java.io.Serializable {
 		this.realName = realName;
 	}
 
-	@Column(name = "sex",columnDefinition = "varchar(3100) COMMENT '性别'")
+	@Column(name = "sex",columnDefinition = "varchar(10) COMMENT '性别'")
 	public String getSex() {
 		return this.sex;
 	}
@@ -157,7 +157,7 @@ public class User implements java.io.Serializable {
 		this.signDate = signDate;
 	}
 
-	@Column(name = "last_login_time", columnDefinition = "varchar(5100) COMMENT '上次登录时间'")
+	@Column(name = "last_login_time", columnDefinition = "varchar(50) COMMENT '上次登录时间'")
 	public String getLastLoginTime() {
 		return this.lastLoginTime;
 	}
@@ -202,7 +202,7 @@ public class User implements java.io.Serializable {
 		this.accountType = accountType;
 	}
 
-	@Column(name = "user_portrait",columnDefinition = "varchar(100) COMMENT '用户头像'")
+	@Column(name = "user_portrait",columnDefinition = "varchar(256) COMMENT '用户头像'")
 	public String getUserPortrait() {
 		return this.userPortrait;
 	}

@@ -5,13 +5,25 @@ server:
   #servlet:
     #项目访问前缀
     #context-path: /springboot
- 
+    
+sysconfig:
+  driver: com.mysql.jdbc.Driver
+  url : jdbc:mysql://127.0.0.1:3306/lng?serverTimezone=UTC
+  username : root
+  password: 123456
+  weburl : d:/lngWeb/resources/
+  wxUrl : https://api.weixin.qq.com/sns/jscode2session
+  grantType : authorization_code
+  appId : wxedb3f1be6bd71c8a
+  secretKey : f39358e9d1c2ada983a452f6ba9a7e6d
+  
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://127.0.0.1:3306/lng?serverTimezone=UTC
     username: root
     password: 123456
+    
   thymeleaf:
     #html页面有改动的时候，我们只需要用快捷键crtl+F9或者点击如图的编译按钮，重新编译下就可以在页面看结果，而不需要再次启动Tomcat服务了。
     cache: false

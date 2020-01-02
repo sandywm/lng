@@ -10,20 +10,10 @@ public class Constants {
 	public static final String LOGIN_USER_ROLE_NAME = "login_user_role_name";
 	public static final String SUPER_DEP_ABILITY = "超级管理员";
 	
-	public static final String WX_URL = "https://api.weixin.qq.com/sns/jscode2session";
-	public static final String GRANT_TYPE = "authorization_code";
-	public static final String APP_ID = "wxedb3f1be6bd71c8a";
-	public static final String SECRET_KEY = "f39358e9d1c2ada983a452f6ba9a7e6d";
-	
-	public static final String UPLOAD_PATH = "D:/lngWeb/resources/";
-	
-	public static final String URL = "jdbc:mysql://127.0.0.1:3306/lng?serverTimezone=UTC";
-	public static final String DRIVER = "com.mysql.jdbc.Driver";
-	public static final String USER_NAME = "root";
-	public static final String PASSWORD = "123456";
-	
-	public static final String LNG_WEB_URL = "d:/lngWeb/resources/";
-//	public static final String PASSWORD = "123456";
+//	public static final String WX_URL = "https://api.weixin.qq.com/sns/jscode2session";
+//	public static final String GRANT_TYPE = "authorization_code";
+//	public static final String APP_ID = "wxedb3f1be6bd71c8a";
+//	public static final String SECRET_KEY = "f39358e9d1c2ada983a452f6ba9a7e6d";
 	
 //	系统配置管理
 	/**

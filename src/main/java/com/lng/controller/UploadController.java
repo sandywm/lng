@@ -17,10 +17,10 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.lng.pojo.SystemInfo;
 import com.lng.service.SysConfigService;
+import com.lng.tools.ContantsProperties;
 import com.lng.tools.CurrentTime;
 import com.lng.tools.FileOpration;
 import com.lng.tools.JunitImage;
-import com.lng.util.Constants;
 import com.lng.util.GenericResponse;
 import com.lng.util.ResponseFormat;
 
@@ -36,6 +36,8 @@ public class UploadController {
 
 	@Autowired
 	private SysConfigService scs;
+	@Autowired
+	private ContantsProperties cp;
 	
 	@ApiOperation("单个图片上传接口")
 	@PostMapping("uploadSingle")
@@ -43,7 +45,7 @@ public class UploadController {
 	public GenericResponse upload(MultipartFile file,HttpServletRequest request) throws Exception {
 		String newFileNamePre = "";
 		Integer status = 200;
-		File filePath = new File(Constants.UPLOAD_PATH + "temp");
+		File filePath = new File(cp.getWeburl() + "temp");
 		if(!filePath.exists()) {
 			filePath.mkdirs();
 		}
@@ -76,7 +78,7 @@ public class UploadController {
 	public GenericResponse uploadMuti(HttpServletRequest request) throws Exception {
 		Integer status = 200;
 		List<String> list_d = new ArrayList<String>();
-		File filePath = new File(Constants.UPLOAD_PATH + "temp");
+		File filePath = new File(cp.getWeburl() + "temp");
 		if(!filePath.exists()) {
 			filePath.mkdirs();
 		}

@@ -361,6 +361,7 @@ public class CommonController {
 			List<Object> list_1 = new ArrayList<Object>();// 燃气贸易
 			for (GasTrade gt : gtList) {
 				Map<String, Object> map_d = new HashMap<String, Object>();
+				map_d.put("headImg", gt.getHeadImg());
 				map_d.put("gasTradeId", gt.getId());
 				String addUserId = gt.getAddUserId();
 				User user = us.getEntityById(addUserId);
