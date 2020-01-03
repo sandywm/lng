@@ -892,7 +892,6 @@ public class LngController {
 					for(Object obj : hpdList) {
 						Object[] sub = (Object[]) obj;
 						Map<String,Object> map_tj = new HashMap<String,Object>();
-						System.out.println(sub[0].toString());
 						if(specTjDate.length() == 4){
 							map_tj.put("priceDate", sub[0].toString().substring(0,7));//2019-12
 						}else if(specTjDate.length() == 7) {

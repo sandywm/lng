@@ -222,7 +222,8 @@ public class Login {
 	@ApiResponses({@ApiResponse(code = 20002, message = "账号不存在错误"),
 				   @ApiResponse(code = 10002, message = "参数为空"),
 				   @ApiResponse(code = 40001, message = "系统繁忙，请稍后重试"),
-				   @ApiResponse(code = 20003, message = "账号已被禁用")
+				   @ApiResponse(code = 20003, message = "账号已被禁用"),
+				   @ApiResponse(code = 20008, message = "授权失败")
 	})
 	public GenericResponse wxUserLogin(HttpServletRequest request) {
 		Integer status = 40001;
@@ -238,9 +239,10 @@ public class Login {
 				try {
 					String currTime = CurrentTime.getCurrentTime();
 					if(sessionKey.equals("") || wxOpenId.equals("")) {
-						JSONObject jsonObject = WxTools.code2sessionKey(code);
-						wxOpenId = jsonObject.getString("openid");// 用户唯一标识
-						sessionKey = jsonObject.getString("session_key");// 密钥
+//						JSONObject jsonObject = WxTools.code2sessionKey(code);
+//						wxOpenId = jsonObject.getString("openid");// 用户唯一标识
+//						sessionKey = jsonObject.getString("session_key");// 密钥
+						status = 20008;
 					}else {
 						// 解密encryptedData,获取unionId相关信息
 						JSONObject json = WxTools.decryptionUserInfo(encryptedData, sessionKey, iv);

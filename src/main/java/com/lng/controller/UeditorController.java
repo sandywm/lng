@@ -20,16 +20,25 @@ import com.lng.tools.CommonTools;
 import com.lng.tools.ContantsProperties;
 import com.lng.tools.CurrentTime;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 
 @Controller
+@Api(tags = "百度富文本配置相关接口")
 public class UeditorController {
 
 	@Autowired
 	private ContantsProperties cp;
 	
-	@ApiOperation("百度富文本配置")
 	@RequestMapping("ueditorConfig")
+	@ApiOperation(value = "百度富文本配置", notes = "百度富文本配置")
+	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功")})
+	@ApiImplicitParams({
+			@ApiImplicitParam(name = "action", value = "动作类型") })
 	public void ueditorConfig(HttpServletRequest request,HttpServletResponse response){
 		String action = CommonTools.getFinalStr("action", request);
 		try {

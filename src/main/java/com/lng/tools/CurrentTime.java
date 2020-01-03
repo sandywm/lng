@@ -374,20 +374,22 @@ public class CurrentTime {
         String tEnddate = "";
         c.set(c.YEAR, sYear);
         c.set(c.MONTH, sMonth);
-        Integer firstDay = c.getActualMaximum(c.DAY_OF_MONTH);
-        String firstDayStr = "";
-        if(firstDay < 10) {
-        	firstDayStr = "0"+firstDay;
+        Integer firstDay = c.getMinimum(Calendar.DATE);//获取上个月的第一天
+        c.set(c.DAY_OF_MONTH, firstDay - 1);
+        Integer lastDay = c.getActualMaximum(c.DAY_OF_MONTH);
+        String lastDayStr = "";
+        if(lastDay < 10) {
+        	lastDayStr = "0"+lastDay;
         }else {
-        	firstDayStr = firstDay+"";
+        	lastDayStr = lastDay+"";
         }
         String month = "";
         if(sMonth < 10) {
-        	month = "0"+month;
+        	month = "0"+sMonth;
         }else {
         	month = sMonth + "";
         }
-        tEnddate = String.valueOf(sYear) + "-" + String.valueOf(month) + "-" + firstDayStr;
+        tEnddate = String.valueOf(sYear) + "-" + String.valueOf(month) + "-" + lastDayStr;
         return tEnddate;
     }
 

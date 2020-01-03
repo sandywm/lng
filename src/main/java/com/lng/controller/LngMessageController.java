@@ -64,7 +64,7 @@ public class LngMessageController {
 			pageNo = 1;
 		}
 		if(pageSize.equals(0)) {
-			pageSize = 20;
+			pageSize = 50;
 		}
 		try {
 			Page<LngMessage> page = lms.listPageMsgInfoByOpt("", 1, 0, pageNo, pageSize);
@@ -79,7 +79,7 @@ public class LngMessageController {
 					map_d.put("content", lm.getContent());
 					map_d.put("addTime", lm.getAddTime());
 					map_d.put("zcTimes", lm.getZcTimes());
-					map_d.put("replyNumber", lms.listReplyMsgByMsdId(lm.getId(), 1, 0).size());
+					map_d.put("replyNumber", lms.listReplyMsgByMsdId(lm.getId(), 1, 0,1,100000).getTotalElements());
 					list.add(map_d);
 				}
 			} else {
@@ -147,37 +147,71 @@ public class LngMessageController {
 		return ResponseFormat.retParam(status, id);
 	}
 	
-	@GetMapping("/getLngMsgRep")
-	@ApiOperation(value = "获取lng留言回复列表", notes = "获取lng留言回复列表")
+	@GetMapping("/getLngMsgRepPageList")
+	@ApiOperation(value = "分页获取lng留言回复列表", notes = "分页获取lng留言回复列表")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), 
 			@ApiResponse(code = 200, message = "成功"),
 			@ApiResponse(code = 50001, message = "数据未找到") })
 	@ApiImplicitParams({ 
 		@ApiImplicitParam(name = "msgId", value = "LNG留言编号", required = true),
-		@ApiImplicitParam(name = "checkStatus", value = "审核状态(0:未审核,1:审核通过,2:审核未通过)"),
-		@ApiImplicitParam(name = "showStatus", value = "显示状态（0：显示，1：隐藏）")
+//		@ApiImplicitParam(name = "checkStatus", value = "审核状态(0:未审核,1:审核通过,2:审核未通过)"),
+//		@ApiImplicitParam(name = "showStatus", value = "显示状态（0：显示，1：隐藏）"),
+		@ApiImplicitParam(name = "limit", value = "显示记录条数"),
+		@ApiImplicitParam(name = "page", value = "页码")
 	})
-	public GenericResponse getLngMsgRep(HttpServletRequest request) {
+	public GenericResponse getLngMsgRepPageList(HttpServletRequest request) {
 		String msgId = CommonTools.getFinalStr("msgId", request);
-		Integer checkStatus = CommonTools.getFinalInteger("checkStatus", request);
-		Integer showStatus = CommonTools.getFinalInteger("showStatus", request);
+//		Integer checkStatus = CommonTools.getFinalInteger("checkStatus", request);
+//		Integer showStatus = CommonTools.getFinalInteger("showStatus", request);
+		Integer pageNo = CommonTools.getFinalInteger("page", request);
+		Integer pageSize = CommonTools.getFinalInteger("limit", request);
 		List<Object> list = new ArrayList<Object>();
 		Integer status = 200;
+		long count = 0;
 		try {
-			List<LngMessageReply> lmList = lms.listReplyMsgByMsdId(msgId, checkStatus, showStatus);
-			if (lmList.size() == 0) {
-				status = 50001;
-			}else {
-				for(LngMessageReply lm : lmList) {
-					Map<String,String> map_d = new HashMap<String,String>();
-					User user = lm.getUser();
-					map_d.put("headImg", user.getUserPortrait());
-					map_d.put("userName", user.getWxName());
-					map_d.put("content", lm.getContent());
-					map_d.put("addTime", lm.getAddTime());
-					list.add(map_d);
-				}
+			if(pageNo.equals(0)) {
+				pageNo = 1;
 			}
+			if(pageSize.equals(0)) {
+				pageSize = 50;
+			}
+			List<Object> list_main = new ArrayList<Object>();
+			Map<String,Object> map_main = new HashMap<String,Object>();
+			LngMessage lsg = lms.getEntityById(msgId);
+			Map<String,Object> map = new HashMap<String,Object>();
+			User user_tmp = lsg.getUser();
+			map.put("headImg", user_tmp.getUserPortrait());
+			map.put("userName", user_tmp.getRealName());
+			map.put("content", lsg.getContent());
+			map.put("addTime", lsg.getAddTime());
+			map.put("zcTimes", lsg.getZcTimes());
+			long lsgLen = lms.listReplyMsgByMsdId(msgId, 1, 0,1,100000).getTotalElements();
+			map.put("replyNumber", lsgLen);
+			list_main.add(map);
+			map_main.put("mainList", list_main);
+			
+			if(lsgLen > 0) {
+				List<Object> list_reply = new ArrayList<Object>();
+				Page<LngMessageReply> lmList = lms.listReplyMsgByMsdId(msgId, 1, 0,pageNo,pageSize);
+				count = lmList.getTotalElements();
+				if (count > 0) {
+					for(LngMessageReply lm : lmList) {
+						Map<String,String> map_d = new HashMap<String,String>();
+						User user = lm.getUser();
+						map_d.put("headImg", user.getUserPortrait());
+						map_d.put("userName", user.getWxName());
+						map_d.put("content", lm.getContent());
+						map_d.put("addTime", lm.getAddTime());
+						list_reply.add(map_d);
+					}
+					map_main.put("replyList", list_reply);
+				}else {
+					status = 50001;
+				}
+			}else {
+				status = 50001;
+			}
+			list.add(map_main);
 		} catch (Exception e) {
 			e.printStackTrace();
 			status = 1000;

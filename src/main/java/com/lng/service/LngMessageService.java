@@ -68,7 +68,9 @@ public interface LngMessageService {
 	 * @param msgId 留言编号
 	 * @param checkStatus 审核状态(0:未审核,1:审核通过,2:审核未通过)
 	 * @param showStatus 显示状态（0：显示，1：隐藏）
+	 * @param page
+	 * @param limit
 	 * @return
 	 */
-	List<LngMessageReply> listReplyMsgByMsdId(String msgId,Integer checkStatus,Integer showStatus);
+	Page<LngMessageReply> listReplyMsgByMsdId(String msgId,Integer checkStatus,Integer showStatus,Integer page,Integer limit);
 }

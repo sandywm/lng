@@ -72,7 +72,7 @@ public class LngMessageServiceImpl implements LngMessageService {
 	}
 
 	@Override
-	public List<LngMessageReply> listReplyMsgByMsdId(String msgId, Integer checkStatus, Integer showStatus) {
+	public Page<LngMessageReply> listReplyMsgByMsdId(String msgId, Integer checkStatus, Integer showStatus,Integer page,Integer limit) {
 		// TODO Auto-generated method stub
 		Specification<LngMessageReply> spec = new Specification<LngMessageReply>() {
 			private static final long serialVersionUID = 1L;
@@ -94,7 +94,8 @@ public class LngMessageServiceImpl implements LngMessageService {
 			}
 		};
 		Sort sort = Sort.by(Sort.Direction.DESC, "addTime");// 同一天价格时间降序排列
-		return lmrDao.findAll(spec, sort);
+		Pageable pageable = PageRequest.of(page - 1, limit, sort);
+		return lmrDao.findAll(spec, pageable);
 	}
 
 	@Override
