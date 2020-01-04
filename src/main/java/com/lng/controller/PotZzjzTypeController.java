@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.lng.pojo.PotZzjzType;
 import com.lng.service.PotZzjzTypeService;
 import com.lng.tools.CommonTools;
+import com.lng.tools.CurrentTime;
 import com.lng.util.Constants;
 import com.lng.util.GenericResponse;
 import com.lng.util.ResponseFormat;
@@ -37,21 +38,27 @@ public class PotZzjzTypeController {
 	@PostMapping("/addPotZzjzType")
 	@ApiOperation(value = "添加装载介质类型", notes = "添加装载介质类型信息")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
-			@ApiResponse(code = 50003, message = "数据已存在"), @ApiResponse(code = 70001, message = "无权限访问") })
+			@ApiResponse(code = 50003, message = "数据已存在"), @ApiResponse(code = 70001, message = "无权限访问"),
+			@ApiResponse(code = 10002, message = "参数为空")
+	})
 	@ApiImplicitParams({ @ApiImplicitParam(name = "name", value = "装载介质类型名称", defaultValue = "液氮", required = true) })
 	public GenericResponse addPotZzjzType(HttpServletRequest request, String name) {
 		Integer status = 200;
 		String jzId = "";
 		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),CommonTools.getLoginRoleName(request), Constants.ZZJZ_ABILITY)) {
 			try {
-				if (potZzjztypeService.getPotZzjzTypeByNameList(name).size() == 0) {
-					PotZzjzType jzType = new PotZzjzType();
-					jzType.setName(CommonTools.getFinalStr(name));
-					jzId = potZzjztypeService.saveOrUpdate(jzType);
-				} else {
-					status = 50003;
+				if(!name.equals("")) {
+					if (potZzjztypeService.getPotZzjzTypeByNameList(name).size() == 0) {
+						PotZzjzType jzType = new PotZzjzType();
+						jzType.setName(CommonTools.getFinalStr(name));
+						jzType.setAddTime(CurrentTime.getCurrentTime());
+						jzId = potZzjztypeService.saveOrUpdate(jzType);
+					} else {
+						status = 50003;
+					}
+				}else {
+					status = 10002;
 				}
-
 			} catch (Exception e) {
 				e.printStackTrace();
 				status = 1000;

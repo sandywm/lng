@@ -238,23 +238,21 @@ public class Login {
 		}else {
 				try {
 					String currTime = CurrentTime.getCurrentTime();
-					if(sessionKey.equals("") || wxOpenId.equals("")) {
-//						JSONObject jsonObject = WxTools.code2sessionKey(code);
-//						wxOpenId = jsonObject.getString("openid");// 用户唯一标识
-//						sessionKey = jsonObject.getString("session_key");// 密钥
+					// 解密encryptedData,获取unionId相关信息
+					JSONObject json = WxTools.decryptionUserInfo(encryptedData, sessionKey, iv);
+					if(json == null) {
 						status = 20008;
 					}else {
-						// 解密encryptedData,获取unionId相关信息
-						JSONObject json = WxTools.decryptionUserInfo(encryptedData, sessionKey, iv);
 						String nickName = json.getString("nickName");//昵称
 						String sex = json.getString("gender");//性别
-						String prov = json.getString("province");//省
-						String city = json.getString("country");//市
+//						String prov = json.getString("province");//省
+//						String city = json.getString("country");//市
 						String headImg = json.getString("avatarUrl");//头像
 						User user = us.getEntityByWxOpenId(wxOpenId);
 						if(user != null) {
 							if(user.getAccountStatus().equals(1)) {
 								//修改登录次数和最后登录时间
+								user.setUserPortrait(headImg);
 								user.setLastLoginTime(currTime);
 								Integer loginStatus = user.getLoginStatus();
 								if(loginStatus < 50) {

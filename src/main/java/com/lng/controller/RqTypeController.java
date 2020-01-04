@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.lng.pojo.RqDevType1;
 import com.lng.service.RqDevType1Service;
 import com.lng.tools.CommonTools;
+import com.lng.tools.CurrentTime;
 import com.lng.util.Constants;
 import com.lng.util.GenericResponse;
 import com.lng.util.ResponseFormat;
@@ -45,12 +46,17 @@ public class RqTypeController {
 		String rqId = "";
 		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.RQLX_ABILITY)) {
 			try {
-				if (rqTypeService.getRqDevType1ByNameList(name).size() == 0) {
-					RqDevType1 rqType = new RqDevType1();
-					rqType.setName(CommonTools.getFinalStr(name));
-					rqId = rqTypeService.saveOrUpdate(rqType);
-				} else {
-					status = 50003;
+				if(!name.equals("")) {
+					if (rqTypeService.getRqDevType1ByNameList(name).size() == 0) {
+						RqDevType1 rqType = new RqDevType1();
+						rqType.setName(CommonTools.getFinalStr(name));
+						rqType.setAddTime(CurrentTime.getCurrentTime());
+						rqId = rqTypeService.saveOrUpdate(rqType);
+					} else {
+						status = 50003;
+					}
+				}else {
+					status = 10002;
 				}
 
 			} catch (Exception e) {

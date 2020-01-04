@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.lng.pojo.QyType;
 import com.lng.service.QyTypeService;
 import com.lng.tools.CommonTools;
+import com.lng.tools.CurrentTime;
 import com.lng.util.Constants;
 import com.lng.util.GenericResponse;
 import com.lng.util.ResponseFormat;
@@ -47,6 +48,7 @@ public class QyTypeController {
 				if (qytypeService.getQyTypeByNameList(name).size() == 0) {
 					QyType qyType = new QyType();
 					qyType.setName(CommonTools.getFinalStr(name));
+					qyType.setAddTime(CurrentTime.getCurrentTime());
 					qyId = qytypeService.saveOrUpdate(qyType);
 				} else {
 					status = 50003;

@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.lng.pojo.TrucksHeadPp;
 import com.lng.service.TrucksHeadPpService;
 import com.lng.tools.CommonTools;
+import com.lng.tools.CurrentTime;
 import com.lng.util.Constants;
 import com.lng.util.GenericResponse;
 import com.lng.util.ResponseFormat;
@@ -46,6 +47,7 @@ public class TrucksHeadPpController {
 				if (thppService.getTrucksHeadPpByNameList(name).size() == 0) {
 					TrucksHeadPp thpp = new TrucksHeadPp();
 					thpp.setName(CommonTools.getFinalStr(name));
+					thpp.setAddTime(CurrentTime.getCurrentTime());
 					thppId = thppService.saveOrUpdate(thpp);
 				} else {
 					status = 50003;
@@ -78,7 +80,7 @@ public class TrucksHeadPpController {
 				if (thpp== null) {
 					status = 50001;
 				} else {
-					if(!name.equals(thpp.getName())) {
+					if(!name.equals("") && !name.equals(thpp.getName())) {
 						if (thppService.getTrucksHeadPpByNameList(name).size() == 0) {
 							thpp.setName(name);
 							thppService.saveOrUpdate(thpp);

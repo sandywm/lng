@@ -21,17 +21,22 @@ import io.swagger.annotations.ApiModelProperty;
 @ApiModel("槽车储罐品牌--TrucksPotPp")
 public class TrucksPotPp implements java.io.Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private String id;
 	@ApiModelProperty(value = "槽车罐品牌")
 	private String name;
-
+	@ApiModelProperty(value = "创建时间")
+	private String addTime;
 
 	public TrucksPotPp() {
 	}
 
-	public TrucksPotPp(String id, String name) {
-		this.id = id;
+	public TrucksPotPp(String name,String addTime) {
 		this.name = name;
+		this.addTime = addTime;
 	}
 
 	
@@ -55,5 +60,13 @@ public class TrucksPotPp implements java.io.Serializable {
 	public void setName(String name) {
 		this.name = name;
 	}
+	
+	@Column(name = "add_time", nullable = false, columnDefinition = "varchar(50) COMMENT '创建时间'")
+	public String getAddTime() {
+		return addTime;
+	}
 
+	public void setAddTime(String addTime) {
+		this.addTime = addTime;
+	}
 }

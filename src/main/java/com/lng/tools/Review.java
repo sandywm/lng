@@ -15,11 +15,23 @@ public class Review {
 		AipContentCensor client = new AipContentCensor(APP_ID, API_KEY, SECRET_KEY);
 		String result = "";
 		JSONObject outJson = client.antiSpam(content, null);
-		JSONArray json = outJson.getJSONObject("result").getJSONArray("reject");
-		if (json.length() != 0) {
-			for (int i = 0; i < json.length(); i++) {
-				JSONObject rejects = json.getJSONObject(i);
+		JSONArray rejectJson = outJson.getJSONObject("result").getJSONArray("reject");
+		JSONArray reviewJson = outJson.getJSONObject("result").getJSONArray("review");
+		if (rejectJson.length() != 0) {
+			for (int i = 0; i < rejectJson.length(); i++) {
+				JSONObject rejects = rejectJson.getJSONObject(i);
 				JSONArray hits = (JSONArray) rejects.get("hit");
+				if (hits.length() != 0) {
+					for (int j = 0; j < hits.length(); j++) {
+						result += hits.get(j) + ",";
+					}
+				}
+			}
+		}
+		if(reviewJson.length() !=0) {
+			for (int i = 0; i < reviewJson.length(); i++) {
+				JSONObject review = reviewJson.getJSONObject(i);
+				JSONArray hits = (JSONArray) review.get("hit");
 				if (hits.length() != 0) {
 					for (int j = 0; j < hits.length(); j++) {
 						result += hits.get(j) + ",";
@@ -35,6 +47,11 @@ public class Review {
 			}
 		}
 		return content;
+	}
+	
+	public static void main(String[] args) {
+		String content="你是不是练法轮功的 你那里有毒品吗,你他妈的";
+		System.out.println(textReview(content));
 	}
 
 }

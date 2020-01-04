@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.lng.pojo.WqPfbz;
 import com.lng.service.WqPfbzService;
 import com.lng.tools.CommonTools;
+import com.lng.tools.CurrentTime;
 import com.lng.util.Constants;
 import com.lng.util.GenericResponse;
 import com.lng.util.ResponseFormat;
@@ -36,19 +37,26 @@ public class WqPfbzController {
 	@PostMapping("/addWqPfbz")
 	@ApiOperation(value = "添加尾气排放标准", notes = "添加尾气排放标准信息")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
-			@ApiResponse(code = 50003, message = "数据已存在"), @ApiResponse(code = 70001, message = "无权限访问") })
+			@ApiResponse(code = 50003, message = "数据已存在"), @ApiResponse(code = 70001, message = "无权限访问"),
+			@ApiResponse(code = 10002, message = "参数为空")
+	})
 	@ApiImplicitParams({ @ApiImplicitParam(name = "name", value = "尾气排放标准名称", defaultValue = "尾气排放标准测试", required = true) })
 	public GenericResponse addWqPfbz(HttpServletRequest request, String name) {
 		Integer status = 200;
 		String pfbzId = "";
 		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.WQPP_ABILITY)) {
 			try {
-				if (pfbzService.getWqPfbzByNameList(name).size() == 0) {
-					WqPfbz pfbz = new WqPfbz();
-					pfbz.setName(CommonTools.getFinalStr(name));
-					pfbzId = pfbzService.saveOrUpdate(pfbz);
-				} else {
-					status = 50003;
+				if(!name.equals("")) {
+					if (pfbzService.getWqPfbzByNameList(name).size() == 0) {
+						WqPfbz pfbz = new WqPfbz();
+						pfbz.setName(CommonTools.getFinalStr(name));
+						pfbz.setAddTime(CurrentTime.getCurrentTime());
+						pfbzId = pfbzService.saveOrUpdate(pfbz);
+					} else {
+						status = 50003;
+					}
+				}else {
+					status = 10002;
 				}
 
 			} catch (Exception e) {

@@ -152,7 +152,8 @@ public class UserController {
 						user.setSex(sex);
 					}
 					if (!userPortrait.isEmpty() && !userPortrait.equals(user.getUserPortrait())) {
-						user.setUserPortrait(CommonTools.dealUploadDetail(loginUserId,user.getUserPortrait(), userPortrait));
+//						user.setUserPortrait(CommonTools.dealUploadDetail(loginUserId,user.getUserPortrait(), userPortrait));
+						user.setUserPortrait(userPortrait);
 					}
 					
 					userService.saveAndUpdate(user);

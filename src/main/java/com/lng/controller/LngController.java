@@ -23,12 +23,14 @@ import com.lng.pojo.LngPriceDetail;
 import com.lng.pojo.LngPriceRemark;
 import com.lng.pojo.LngPriceSubDetail;
 import com.lng.pojo.MessageCenter;
+import com.lng.pojo.User;
 import com.lng.service.GasFactoryCompanyService;
 import com.lng.service.GasFactoryService;
 import com.lng.service.LngPriceDetailService;
 import com.lng.service.LngPriceRemarkService;
 import com.lng.service.LngPriceSubDetailService;
 import com.lng.service.MessageCenterService;
+import com.lng.service.UserService;
 import com.lng.tools.AutoCreateTable;
 import com.lng.tools.CommonTools;
 import com.lng.tools.CurrentTime;
@@ -62,6 +64,8 @@ public class LngController {
 	private LngPriceRemarkService lprs;
 	@Autowired
 	private LngPriceSubDetailService lpsds;
+	@Autowired
+	private UserService us;
 	
 	/**
 	 * 按照价格降序排序
@@ -663,7 +667,7 @@ public class LngController {
 	})
 	@ApiImplicitParams({
 		@ApiImplicitParam(name = "provPy", value = "省份首字母（可单可组合）"),
-		@ApiImplicitParam(name = "gtId", value = "液质类型编号"),
+		@ApiImplicitParam(name = "gtId", value = "液质类型编号（可单可组合）"),
 		@ApiImplicitParam(name = "gsNamePy", value = "液厂名称首字母"),
 		@ApiImplicitParam(name = "priceDate", value = "价格时间(yyyy-mm-dd)"),
 		@ApiImplicitParam(name = "page", value = "页码"),
@@ -942,11 +946,19 @@ public class LngController {
 				//获取统计图数据
 				if(gf != null) {
 					String zzImg = gf.getYzbgImg();
-					String[] zzImgArr = zzImg.split(",");
-					for(int i = 0 ; i < zzImgArr.length ; i++) {
-						Map<String,String> map = new HashMap<String,String>();
-						map.put("imgPath", zzImgArr[i]);
-						list.add(map);
+					if(zzImg == null || zzImg.equals("")) {
+						status = 50001;
+					}else {
+						String[] zzImgArr = zzImg.split(",");
+						if(zzImgArr.length > 0) {
+							for(int i = 0 ; i < zzImgArr.length ; i++) {
+								Map<String,String> map = new HashMap<String,String>();
+								map.put("imgPath", zzImgArr[i]);
+								list.add(map);
+							}
+						}else {
+							status = 50001;
+						}
 					}
 				}else {
 					status = 50001;
@@ -983,14 +995,30 @@ public class LngController {
 				//获取统计图数据
 				if(gf != null) {
 					List<GasFactoryCompany> gfcList = gfcs.listCompanyByGfId(gfId, "", checkStatus);
-					for(GasFactoryCompany gfc : gfcList) {
-						Map<String,Object> map_d = new HashMap<String,Object>();
-						Company cpy = gfc.getCompany();
-						map_d.put("cpyName", cpy.getName());
-						map_d.put("lxName", cpy.getLxName());
-						map_d.put("lxTel", cpy.getLxTel());
-						list.add(map_d);
+					if(gfcList.size() > 0) {
+						for(GasFactoryCompany gfc : gfcList) {
+							Map<String,Object> map_d = new HashMap<String,Object>();
+							Company cpy = gfc.getCompany();
+							String createUserId = cpy.getOwerUserId();
+							if(!createUserId.equals("")) {
+								User user = us.getEntityById(createUserId);
+								if(user != null) {
+									map_d.put("userPortrait", user.getUserPortrait());
+								}else {
+									map_d.put("userPortrait", "");
+								}
+							}else {
+								map_d.put("userPortrait", "");
+							}
+							map_d.put("cpyName", cpy.getName());
+							map_d.put("lxName", cpy.getLxName());
+							map_d.put("lxTel", cpy.getLxTel());
+							list.add(map_d);
+						}
+					}else {
+						status = 50001;
 					}
+					
 				}else {
 					status = 50001;
 				}

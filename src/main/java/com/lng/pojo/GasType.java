@@ -30,11 +30,15 @@ public class GasType implements java.io.Serializable {
 	private String name;
 	@ApiModelProperty(value = "液质图")
 	private String yzImg;
+	@ApiModelProperty(value = "创建时间")
+	private String addTime;
+	
 	public GasType() {
 	}
 
-	public GasType(String name) {
+	public GasType(String name,String addTime) {
 		this.name = name;
+		this.addTime = addTime;
 	}
 
 	@Id
@@ -64,5 +68,14 @@ public class GasType implements java.io.Serializable {
 
 	public void setYzImg(String yzImg) {
 		this.yzImg = yzImg;
+	}
+	
+	@Column(name = "add_time", nullable = false, columnDefinition = "varchar(50) COMMENT '创建时间'")
+	public String getAddTime() {
+		return addTime;
+	}
+
+	public void setAddTime(String addTime) {
+		this.addTime = addTime;
 	}
 }

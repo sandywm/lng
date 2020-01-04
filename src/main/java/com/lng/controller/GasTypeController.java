@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.lng.pojo.GasType;
 import com.lng.service.GasTypeService;
 import com.lng.tools.CommonTools;
+import com.lng.tools.CurrentTime;
 import com.lng.util.Constants;
 import com.lng.util.GenericResponse;
 import com.lng.util.ResponseFormat;
@@ -36,7 +37,9 @@ public class GasTypeController {
 	@PostMapping("/addGasType")
 	@ApiOperation(value = "添加液质类型", notes = "添加液质类型信息")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
-			@ApiResponse(code = 50003, message = "数据已存在"), @ApiResponse(code = 70001, message = "无权限访问") })
+			@ApiResponse(code = 50003, message = "数据已存在"), @ApiResponse(code = 70001, message = "无权限访问"),
+			@ApiResponse(code = 10002, message = "参数为空")
+	})
 	@ApiImplicitParams({ @ApiImplicitParam(name = "name", value = "液质类型名称", defaultValue = "天然气", required = true),
 			@ApiImplicitParam(name = "yzImg", value = "液质图片", required = true) })
 	public GenericResponse addGasType(HttpServletRequest request) {
@@ -47,17 +50,21 @@ public class GasTypeController {
 		String loginUserId = CommonTools.getLoginUserId(request);
 		if (CommonTools.checkAuthorization(loginUserId, CommonTools.getLoginRoleName(request),Constants.YZLX_ABILITY)) {
 			try {
-				if (gTypeService.getGasTypeByNameList(name).size() == 0) {
-					GasType gType = new GasType();
-					gType.setName(name);
-					if(!yzImg.equals("")) {//上传图
-						gType.setYzImg(CommonTools.dealUploadDetail(loginUserId,"", yzImg));
+				if(name.equals("") || yzImg.equals("")) {
+					status = 10002;
+				}else {
+					if (gTypeService.getGasTypeByNameList(name).size() == 0) {
+						GasType gType = new GasType();
+						gType.setName(name);
+						gType.setAddTime(CurrentTime.getCurrentTime());
+						if(!yzImg.equals("")) {//上传图
+							gType.setYzImg(CommonTools.dealUploadDetail(loginUserId,"", yzImg));
+						}
+						gtId = gTypeService.saveOrUpdate(gType);
+					} else {
+						status = 50003;
 					}
-					gtId = gTypeService.saveOrUpdate(gType);
-				} else {
-					status = 50003;
 				}
-
 			} catch (Exception e) {
 				e.printStackTrace();
 				status = 1000;

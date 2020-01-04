@@ -87,7 +87,6 @@ public class QualificationController {
 					if(name.equals(qual.getName())) {
 						if (!validstatus.equals(qual.getValidStatus())) {
 							qual.setValidStatus(validstatus);
-							qual.setAddTime(CurrentTime.getCurrentTime());
 							quaService.edit(qual);
 						}
 					}else {
@@ -96,7 +95,6 @@ public class QualificationController {
 							if (!validstatus.equals(qual.getValidStatus())) {
 								qual.setValidStatus(validstatus);
 							}
-							qual.setAddTime(CurrentTime.getCurrentTime());
 							quaService.edit(qual);
 						} else {
 							status = 50003;

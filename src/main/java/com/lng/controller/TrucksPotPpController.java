@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.lng.pojo.TrucksPotPp;
 import com.lng.service.TrucksPotPpService;
 import com.lng.tools.CommonTools;
+import com.lng.tools.CurrentTime;
 import com.lng.util.Constants;
 import com.lng.util.GenericResponse;
 import com.lng.util.ResponseFormat;
@@ -46,6 +47,7 @@ public class TrucksPotPpController {
 				if (tpppService.getTrucksPotPpByNameList(name).size() == 0) {
 					TrucksPotPp tppp = new TrucksPotPp();
 					tppp.setName(CommonTools.getFinalStr(name));
+					tppp.setAddTime(CurrentTime.getCurrentTime());
 					tpppId = tpppService.saveOrUpdate(tppp);
 				} else {
 					status = 50003;
@@ -78,7 +80,7 @@ public class TrucksPotPpController {
 				if (tppp== null) {
 					status = 50001;
 				} else {
-					if(!name.equals(tppp.getName())) {
+					if(!name.equals("") && !name.equals(tppp.getName())) {
 						if (tpppService.getTrucksPotPpByNameList(name).size() == 0) {
 							tppp.setName(name);
 							tpppService.saveOrUpdate(tppp);

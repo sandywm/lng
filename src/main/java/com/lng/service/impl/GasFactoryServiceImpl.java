@@ -178,17 +178,46 @@ public class GasFactoryServiceImpl implements GasFactoryService{
 				// TODO Auto-generated method stub
 				Predicate pre = cb.conjunction();
 				if(!provPy.isEmpty()) {
-					pre.getExpressions().add(cb.like(root.get("provincePy"), "%"+provPy+"%"));
+					String[] provPyArr = provPy.split(",");
+					if(provPyArr.length > 1) {
+						List<Predicate> predicateList = new ArrayList<Predicate>();
+						Predicate [] p = new Predicate[provPyArr.length];
+						for(int i = 0 ; i < provPyArr.length ; i++) {
+							predicateList.add(cb.equal(root.get("provincePy"), provPyArr[i]));
+						}
+						predicateList.toArray(p);
+						pre.getExpressions().add(cb.or(p));
+					}else {
+						pre.getExpressions().add(cb.equal(root.get("provincePy"), provPy));
+					}
 				}
 				if(!gtId.isEmpty()) {
-					pre.getExpressions().add(cb.equal(root.get("gasType").get("id"), gtId));
+					String[] gtIdArr = gtId.split(",");
+					if(gtIdArr.length > 1) {
+						List<Predicate> predicateList = new ArrayList<Predicate>();
+						Predicate [] p = new Predicate[gtIdArr.length];
+						for(int i = 0 ; i < gtIdArr.length ; i++) {
+							predicateList.add(cb.equal(root.get("gasType").get("id"), gtIdArr[i]));
+						}
+						predicateList.toArray(p);
+						pre.getExpressions().add(cb.or(p));
+					}else {
+						pre.getExpressions().add(cb.equal(root.get("gasType").get("id"), gtId));
+					}
 				}
 				if(!gsNamePy.isEmpty()) {
 					pre.getExpressions().add(cb.like(root.get("namePy"), "%"+gsNamePy+"%"));
 				}
 				return pre;
 		}};
-		Sort sort = Sort.by(Sort.Direction.DESC, "hot");//降序排列
+		Sort.Order sort1 = new Sort.Order(Sort.Direction.ASC, "orderNo");//升序排列
+		Sort.Order sort2 = new Sort.Order(Sort.Direction.ASC, "orderSubNo");//升序排列
+		Sort.Order sort3 = new Sort.Order(Sort.Direction.DESC, "hot");//升序排列
+		List<Sort.Order> list = new ArrayList<Sort.Order>();
+		list.add(sort1);
+		list.add(sort2);
+		list.add(sort3);
+		Sort sort = Sort.by(list);
 		Pageable pageable = PageRequest.of(pageIndex-1, pageSize, sort);
 		return gfDao.findAll(spec, pageable);
 	}

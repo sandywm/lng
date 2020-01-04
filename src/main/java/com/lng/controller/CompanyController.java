@@ -80,7 +80,7 @@ public class CompanyController {
 
 	@PostMapping("/addCompany")
 	@ApiOperation(value = "添加公司", notes = "添加公司")
-	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
+	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"), @ApiResponse(code = 20001, message = "用户未登录"),
 			@ApiResponse(code = 50003, message = "数据已存在"), @ApiResponse(code = 70001, message = "无权限访问") })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "name", value = "公司名称", defaultValue = "公司名称测试", required = true),
 			@ApiImplicitParam(name = "typeId", value = "公司类型编号", defaultValue = "97ce2488-1027-4bfe-9eef-335cb1391d6", required = true),
@@ -113,6 +113,9 @@ public class CompanyController {
 			} else if (cilentInfo.equals("wxApp")) {
 				userType =2;
 				loginUserId = CommonTools.getFinalStr("owerUserId", request);
+				if(loginUserId.isEmpty()) {
+					status=20001;
+				}
 			} else {
 				status = 70001;
 			}

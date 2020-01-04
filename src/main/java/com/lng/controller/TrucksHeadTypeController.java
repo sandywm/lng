@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.lng.pojo.TrucksHeadType;
 import com.lng.service.TrucksHeadTypeService;
 import com.lng.tools.CommonTools;
+import com.lng.tools.CurrentTime;
 import com.lng.util.Constants;
 import com.lng.util.GenericResponse;
 import com.lng.util.ResponseFormat;
@@ -46,6 +47,7 @@ public class TrucksHeadTypeController {
 				if (thtService.getTrucksHeadTypeByNameList(name).size() == 0) {
 					TrucksHeadType tht = new TrucksHeadType();
 					tht.setName(CommonTools.getFinalStr(name));
+					tht.setAddTime(CurrentTime.getCurrentTime());
 					thtId = thtService.saveOrUpdate(tht);
 				} else {
 					status = 50003;
@@ -78,7 +80,7 @@ public class TrucksHeadTypeController {
 				if (tht== null) {
 					status = 50001;
 				} else {
-					if(!name.equals(tht.getName())) {
+					if(!name.equals("") && !name.equals(tht.getName())) {
 						if (thtService.getTrucksHeadTypeByNameList(name).size() == 0) {
 							tht.setName(name);
 							thtService.saveOrUpdate(tht);

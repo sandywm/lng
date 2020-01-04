@@ -9,6 +9,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -55,7 +56,8 @@ public class TrucksPotPpServiceImpl implements TrucksPotPpService {
 			};
 			return trucksPotPpDao.findAll(spec);
 		}
-		return trucksPotPpDao.findAll();
+		Sort sort = Sort.by(Sort.Direction.DESC, "addTime");//同一天价格时间降序排列
+		return trucksPotPpDao.findAll(sort);
 	}
 
 }

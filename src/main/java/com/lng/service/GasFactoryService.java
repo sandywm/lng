@@ -88,8 +88,8 @@ public interface GasFactoryService {
 	 * @Version : 版本
 	 * @ModifiedBy : 修改人
 	 * @date  2019年12月14日 上午10:49:15
-	 * @param provPy 省份拼音(""不查询)
-	 * @param gtId 液资编号(""不查询)
+	 * @param provPy 省份拼音(""不查询)(多个用逗号隔开)
+	 * @param gtId 液资编号(""不查询)(多个用逗号隔开)
 	 * @param gsNamePy 液厂拼音(""不查询)
 	 * @param pageIndex 页码
 	 * @param pageSize 每页记录条数

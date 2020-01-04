@@ -16,16 +16,22 @@ import io.swagger.annotations.ApiModelProperty;
 @GenericGenerator(name = "system-uuid", strategy = "org.hibernate.id.UUIDGenerator")
 @ApiModel("尾气排放标准--WqPfbz")
 public class WqPfbz implements java.io.Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private String id;
 	@ApiModelProperty(value = "尾气排放类型")
 	private String name;
-
+	@ApiModelProperty(value = "创建时间")
+	private String addTime;
+	
 	public WqPfbz() {
 	}
 
-	public WqPfbz(String id, String name) {
-		this.id = id;
+	public WqPfbz(String name,String addTime) {
 		this.name = name;
+		this.addTime = addTime;
 	}
 
 	@Id
@@ -46,5 +52,14 @@ public class WqPfbz implements java.io.Serializable {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+	
+	@Column(name = "add_time", nullable = false, columnDefinition = "varchar(50) COMMENT '创建时间'")
+	public String getAddTime() {
+		return addTime;
+	}
+
+	public void setAddTime(String addTime) {
+		this.addTime = addTime;
 	}
 }

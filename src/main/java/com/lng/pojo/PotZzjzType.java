@@ -28,12 +28,15 @@ public class PotZzjzType implements java.io.Serializable {
 	private String id;
 	@ApiModelProperty(value = "装载介质类型")
 	private String name;
+	@ApiModelProperty(value = "创建时间")
+	private String addTime;
 
 	public PotZzjzType() {
 	}
 
-	public PotZzjzType(String name) {
+	public PotZzjzType(String name,String addTime) {
 		this.name = name;
+		this.addTime = addTime;
 	}
 
 	@Id
@@ -56,4 +59,12 @@ public class PotZzjzType implements java.io.Serializable {
 		this.name = name;
 	}
 
+	@Column(name = "add_time", nullable = false, columnDefinition = "varchar(50) COMMENT '创建时间'")
+	public String getAddTime() {
+		return addTime;
+	}
+
+	public void setAddTime(String addTime) {
+		this.addTime = addTime;
+	}
 }
