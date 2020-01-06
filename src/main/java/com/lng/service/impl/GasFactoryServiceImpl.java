@@ -168,7 +168,7 @@ public class GasFactoryServiceImpl implements GasFactoryService{
 	}
 
 	@Override
-	public Page<GasFactory> listInfoByOpt(String provPy, String gtId, String gsNamePy,Integer pageIndex,Integer pageSize) {
+	public Page<GasFactory> listInfoByOpt(String provName, String gtId, String gsNamePy,Integer pageIndex,Integer pageSize) {
 		// TODO Auto-generated method stub
 		Specification<GasFactory> spec = new Specification<GasFactory>() {
 			private static final long serialVersionUID = 1L;
@@ -177,18 +177,18 @@ public class GasFactoryServiceImpl implements GasFactoryService{
 			public Predicate toPredicate(Root<GasFactory> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
 				// TODO Auto-generated method stub
 				Predicate pre = cb.conjunction();
-				if(!provPy.isEmpty()) {
-					String[] provPyArr = provPy.split(",");
+				if(!provName.isEmpty()) {
+					String[] provPyArr = provName.split(",");
 					if(provPyArr.length > 1) {
 						List<Predicate> predicateList = new ArrayList<Predicate>();
 						Predicate [] p = new Predicate[provPyArr.length];
 						for(int i = 0 ; i < provPyArr.length ; i++) {
-							predicateList.add(cb.equal(root.get("provincePy"), provPyArr[i]));
+							predicateList.add(cb.equal(root.get("province"), provPyArr[i]));
 						}
 						predicateList.toArray(p);
 						pre.getExpressions().add(cb.or(p));
 					}else {
-						pre.getExpressions().add(cb.equal(root.get("provincePy"), provPy));
+						pre.getExpressions().add(cb.equal(root.get("province"), provName));
 					}
 				}
 				if(!gtId.isEmpty()) {

@@ -65,6 +65,8 @@ public class GasTrade implements java.io.Serializable {
 	private int hot;
 	@ApiModelProperty(value = "槽车车牌号")
 	private String cpNo;
+	@ApiModelProperty(value = "挂车车牌号")
+	private String gcNo;
 	@ApiModelProperty(value = "驾驶员姓名")
 	private String jsyName;
 	@ApiModelProperty(value = "驾驶员联系方式")
@@ -104,7 +106,7 @@ public class GasTrade implements java.io.Serializable {
 	public GasTrade(Company company, GasFactory gasFactory, GasType gasType, String headImg, int gasVolume,
 			double gasPrice, String zcDate, String lxName, String lxTel, String psArea,int checkStatus,
 			String checkTime, int showStatus, String addUserId, String addTime, int userType, int hot, String cpNo,
-			String jsyName, String jsyMobile, String yyrName, String yyrMobile, String qfText1, String qfText2,
+			String gcNo,String jsyName, String jsyMobile, String yyrName, String yyrMobile, String qfText1, String qfText2,
 			String qfText3, String qfImg1, String qfImg2, String qfImg3, String remark, String gpsInfo, String bdImg,
 			String whpImg, String tructsImg, String tradeOrderId) {
 		this.company = company;
@@ -125,6 +127,7 @@ public class GasTrade implements java.io.Serializable {
 		this.userType = userType;
 		this.hot = hot;
 		this.cpNo = cpNo;
+		this.gcNo = gcNo;
 		this.jsyName = jsyName;
 		this.jsyMobile = jsyMobile;
 		this.yyrName = yyrName;
@@ -462,4 +465,14 @@ public class GasTrade implements java.io.Serializable {
 	public void setTradeOrderId(String tradeOrderId) {
 		this.tradeOrderId = tradeOrderId;
 	}
+
+	@Column(name = "gc_no",columnDefinition = "varchar(100) COMMENT '挂车车牌号'")
+	public String getGcNo() {
+		return gcNo;
+	}
+
+	public void setGcNo(String gcNo) {
+		this.gcNo = gcNo;
+	}
+	
 }

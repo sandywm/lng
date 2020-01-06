@@ -88,14 +88,14 @@ public interface GasFactoryService {
 	 * @Version : 版本
 	 * @ModifiedBy : 修改人
 	 * @date  2019年12月14日 上午10:49:15
-	 * @param provPy 省份拼音(""不查询)(多个用逗号隔开)
+	 * @param provName 省份(""不查询)(多个用逗号隔开)
 	 * @param gtId 液资编号(""不查询)(多个用逗号隔开)
 	 * @param gsNamePy 液厂拼音(""不查询)
 	 * @param pageIndex 页码
 	 * @param pageSize 每页记录条数
 	 * @return
 	 */
-	Page<GasFactory> listInfoByOpt(String provPy,String gtId,String gsNamePy,Integer pageIndex,Integer pageSize);
+	Page<GasFactory> listInfoByOpt(String provName,String gtId,String gsNamePy,Integer pageIndex,Integer pageSize);
 	
 	/**
 	 * @description 按照全国省份统计液厂数量（审核通过）

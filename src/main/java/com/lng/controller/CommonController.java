@@ -2,6 +2,7 @@ package com.lng.controller;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -29,6 +30,7 @@ import com.lng.pojo.PotTrade;
 import com.lng.pojo.RqDevTrade;
 import com.lng.pojo.TrucksTrade;
 import com.lng.pojo.User;
+import com.lng.pojo.UserCompany;
 import com.lng.service.CommonProvinceOrderService;
 import com.lng.service.CompanyService;
 import com.lng.service.DriverQzService;
@@ -108,20 +110,40 @@ public class CommonController {
 		Integer status = 200;
 		List<CommonProvinceOrder> cpList = new ArrayList<CommonProvinceOrder>();
 		List<HqProvinceOrder> hpList = new ArrayList<HqProvinceOrder>();
+		List<Object> list = new ArrayList<Object>();
 		try {
 			if (gsType.equals(0)) {
 				cpList = cpos.listAllInfo("asc");
+				for(CommonProvinceOrder cp : cpList) {
+					Map<String, Object> map_d = new HashMap<String, Object>();
+					map_d.put("id", cp.getId());
+					map_d.put("province", cp.getProvince());
+					map_d.put("provincePy", cp.getProvincePy());
+					map_d.put("orderNo", cp.getOrderNo());
+					map_d.put("state",0);
+					list.add(map_d);
+				}
+				
 			} else {
 				hpList = hpos.listAllInfo("asc");
+				for(HqProvinceOrder hp : hpList) {
+					Map<String, Object> map_d = new HashMap<String, Object>();
+					map_d.put("id", hp.getId());
+					map_d.put("province", hp.getProvince());
+					map_d.put("provincePy", hp.getProvincePy());
+					map_d.put("orderNo", hp.getOrderNo());
+					map_d.put("state",0);
+					list.add(map_d);
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			status = 1000;
 		}
 		if (gsType.equals(0)) {
-			return ResponseFormat.retParam(status, cpList);
+			return ResponseFormat.retParam(status, list);
 		} else {
-			return ResponseFormat.retParam(status, hpList);
+			return ResponseFormat.retParam(status, list);
 		}
 	}
 

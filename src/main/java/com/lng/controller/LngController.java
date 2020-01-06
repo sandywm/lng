@@ -666,7 +666,7 @@ public class LngController {
 		@ApiResponse(code = 50001, message = "数据未找到")
 	})
 	@ApiImplicitParams({
-		@ApiImplicitParam(name = "provPy", value = "省份首字母（可单可组合）"),
+		@ApiImplicitParam(name = "provName", value = "省份（可单可组合）"),
 		@ApiImplicitParam(name = "gtId", value = "液质类型编号（可单可组合）"),
 		@ApiImplicitParam(name = "gsNamePy", value = "液厂名称首字母"),
 		@ApiImplicitParam(name = "priceDate", value = "价格时间(yyyy-mm-dd)"),
@@ -675,7 +675,7 @@ public class LngController {
 	})
 	public PageResponse getPageLngPriceData(HttpServletRequest request) {
 		Integer status = 200;
-		String provPy = CommonTools.getFinalStr("provPy", request);
+		String provName = CommonTools.getFinalStr("provName", request);
 		String gtId = CommonTools.getFinalStr("gtId", request);
 		String gsNamePy = CommonTools.getFinalStr("gsNamePy", request);
 		String priceDate = CommonTools.getFinalStr("priceDate", request);
@@ -696,7 +696,7 @@ public class LngController {
 		List<Object> list = new ArrayList<Object>();
 		List<Object> list_d = new ArrayList<Object>();
 		try {
-			Page<GasFactory> gfList = gfs.listInfoByOpt(provPy, gtId, gsNamePy, pageIndex, pageSize);
+			Page<GasFactory> gfList = gfs.listInfoByOpt(provName, gtId, gsNamePy, pageIndex, pageSize);
 			count = gfList.getTotalElements();
 			Map<String,Object> map = new HashMap<String,Object>();
 			map.put("dateTitle", preDate.substring(5)+":"+priceDate.substring(5)+":"+nextDate.substring(5));

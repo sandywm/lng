@@ -1,7 +1,9 @@
 package com.lng.controller;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -130,22 +132,37 @@ public class GasTypeController {
 	public GenericResponse queryGasType(String id) {
 		id = CommonTools.getFinalStr(id);
 		Integer status = 200;
-		List<GasType> gtList = new ArrayList<GasType>();
+		List<Object> list = new ArrayList<Object>();
 		try {
 			if (id.equals("")) {
-				gtList = gTypeService.getGasTypeList();
+				List<GasType> gtList = gTypeService.getGasTypeList();
+				for(GasType gt : gtList) {
+					Map<String,Object> map = new HashMap<String,Object>();
+					map.put("id", gt.getId());
+					map.put("name", gt.getName());
+					map.put("yzImg", gt.getYzImg());
+					map.put("addTime", gt.getAddTime());
+					map.put("state", 0);
+					list.add(map);
+				}
 			} else {
 				GasType gt = gTypeService.findById(id);
 				if (gt == null) {
 					status = 50001;
 				} else {
-					gtList.add(gt);
+					Map<String,Object> map = new HashMap<String,Object>();
+					map.put("id", gt.getId());
+					map.put("name", gt.getName());
+					map.put("yzImg", gt.getYzImg());
+					map.put("addTime", gt.getAddTime());
+					map.put("state", 0);
+					list.add(map);
 				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			status = 1000;
 		}
-		return ResponseFormat.retParam(status, gtList);
+		return ResponseFormat.retParam(status, list);
 	}
 }

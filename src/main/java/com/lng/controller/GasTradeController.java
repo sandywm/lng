@@ -23,9 +23,7 @@ import com.lng.pojo.GasFactoryCompany;
 import com.lng.pojo.GasTrade;
 import com.lng.pojo.GasTradeImg;
 import com.lng.pojo.GasTradeOrder;
-import com.lng.pojo.GasTradeOrderLog;
 import com.lng.pojo.GasType;
-import com.lng.pojo.LngPriceDetail;
 import com.lng.pojo.MessageCenter;
 import com.lng.pojo.User;
 import com.lng.pojo.UserCompany;
@@ -104,6 +102,7 @@ public class GasTradeController {
 		@ApiImplicitParam(name = "lxTel", value = "联系电话", required = true),
 		@ApiImplicitParam(name = "addUserId", value = "上传人"),
 		@ApiImplicitParam(name = "cpNo", value = "槽车车牌号"),
+		@ApiImplicitParam(name = "gcNo", value = "挂车车牌号"),
 		@ApiImplicitParam(name = "jsyName", value = "驾驶员姓名"),
 		@ApiImplicitParam(name = "jsyMobile", value = "驾驶员电话"),
 		@ApiImplicitParam(name = "yyrName", value = "押运员姓名"),
@@ -137,6 +136,7 @@ public class GasTradeController {
 		String lxName = CommonTools.getFinalStr("lxName", request);
 		String lxTel = CommonTools.getFinalStr("lxTel", request);
 		String cpNo = CommonTools.getFinalStr("cpNo", request);
+		String gcNo = CommonTools.getFinalStr("gcNo", request);
 		String jsyName = CommonTools.getFinalStr("jsyName", request);
 		String jsyMobile = CommonTools.getFinalStr("jsyMobile", request);
 		String yyrName = CommonTools.getFinalStr("yyrName", request);
@@ -182,7 +182,7 @@ public class GasTradeController {
 						GasTrade gt = new GasTrade(cpy, gf, gasType, 
 								CommonTools.dealUploadDetail(userId, "", headImg), gasVolume,
 								Double.parseDouble(gasPrice), zcDate,lxName, lxTel, psArea,checkStatus,
-								currentTime, 0, userId, currentTime, userType, 0, cpNo,
+								currentTime, 0, userId, currentTime, userType, 0, cpNo,gcNo,
 								jsyName, jsyMobile, yyrName, yyrMobile, qfTxt1, qfTxt2,
 								qfTxt3, CommonTools.dealUploadDetail(userId, "", qfImg1), CommonTools.dealUploadDetail(userId, "", qfImg2)
 								, CommonTools.dealUploadDetail(userId, "", qfImg3), remark, gpsInfo, CommonTools.dealUploadDetail(userId, "", bdImg),
@@ -255,7 +255,11 @@ public class GasTradeController {
 					Map<String,Object> map_d = new HashMap<String,Object>();
 					map_d.put("id", gt.getId());
 					map_d.put("cpyName", gt.getCompany().getName());
-					map_d.put("headImg", gt.getHeadImg());
+					String headImg = gt.getHeadImg();
+					if(headImg == null || headImg.equals("")) {
+						headImg = gt.getGasType().getYzImg();
+					}
+					map_d.put("headImg", headImg);
 					map_d.put("gasTypeName", gt.getGasType().getName());
 					String pubUserId = gt.getAddUserId();
 					Integer userType = gt.getUserType();
@@ -449,6 +453,7 @@ public class GasTradeController {
 					map.put("addTime", gt.getAddTime());
 					map.put("userType", gt.getUserType());
 					map.put("cpNo", gt.getCpNo());
+					map.put("gcNo", gt.getGcNo());
 					//获取公司驾驶员押运人
 					List<CompanyPsr> cpyPsrList = cps.getCompanyPsrList(cpyId);
 					List<Object> list_jsr = new ArrayList<Object>();
@@ -659,6 +664,7 @@ public class GasTradeController {
 		@ApiImplicitParam(name = "lxName", value = "联系人", required = true),
 		@ApiImplicitParam(name = "lxTel", value = "联系电话", required = true),
 		@ApiImplicitParam(name = "cpNo", value = "槽车车牌号"),
+		@ApiImplicitParam(name = "gcNo", value = "挂车车牌号"),
 		@ApiImplicitParam(name = "jsyName", value = "驾驶员姓名"),
 		@ApiImplicitParam(name = "jsyMobile", value = "驾驶员电话"),
 		@ApiImplicitParam(name = "yyrName", value = "押运员姓名"),
@@ -691,6 +697,7 @@ public class GasTradeController {
 		String lxName = CommonTools.getFinalStr("lxName", request);
 		String lxTel = CommonTools.getFinalStr("lxTel", request);
 		String cpNo = CommonTools.getFinalStr("cpNo", request);
+		String gcNo = CommonTools.getFinalStr("gcNo", request);
 		String jsyName = CommonTools.getFinalStr("jsyName", request);
 		String jsyMobile = CommonTools.getFinalStr("jsyMobile", request);
 		String yyrName = CommonTools.getFinalStr("yyrName", request);
@@ -750,6 +757,7 @@ public class GasTradeController {
 							gt.setLxName(lxName);
 							gt.setLxTel(lxTel);
 							gt.setCpNo(cpNo);
+							gt.setGcNo(gcNo);
 							gt.setJsyName(jsyName);
 							gt.setJsyMobile(jsyMobile);
 							gt.setYyrName(yyrName);
