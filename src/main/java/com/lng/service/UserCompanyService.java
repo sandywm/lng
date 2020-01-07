@@ -36,9 +36,10 @@ public interface UserCompanyService {
 	 * @date  2019年12月16日 下午3:57:35
 	 * @param compId 公司编号
 	 * @param userId 用户编号
+	 * @param checkStatus 审核状态(0:未审核,1:审核通过,2:审核未通过,-1为全部)
 	 * @return
 	 */
-	List<UserCompany> getUserCompanyList(String compId,String userId);
+	List<UserCompany> getUserCompanyList(String compId,String userId,Integer checkStatus);
 	
 	/**
 	 * @description 根据条件获取公司列表
@@ -48,7 +49,7 @@ public interface UserCompanyService {
 	 * @date  2019年12月23日 下午5:18:20
 	 * @param typeId 公司类型编号
 	 * @param typeName 公司类型名称
-	 * @param checkStatus 审核状态(0:未审核,1:审核通过,2:审核未通过)
+	 * @param checkStatus 公司审核状态(0:未审核,1:审核通过,2:审核未通过)
 	 * @param userId 用户编号
 	 * @return
 	 */

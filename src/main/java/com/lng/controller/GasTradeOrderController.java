@@ -265,22 +265,41 @@ public class GasTradeOrderController {
 	}
 
 	@PutMapping("/cancelTradeOrder")
-	@ApiOperation(value = "商家手动取消订单", notes = "商家手动取消订单")
+	@ApiOperation(value = "商/买家手动取消订单", notes = "商/买家手动取消订单，商家在买家下单0或者买家上传缴费凭证1时可以取消")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
-			@ApiResponse(code = 50001, message = "数据未找到"), @ApiResponse(code = 70001, message = "无权限访问") })
-	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "燃气交易订单编号", required = true)})
+			@ApiResponse(code = 50001, message = "数据未找到"), @ApiResponse(code = 70001, message = "无权限访问"),
+			@ApiResponse(code = 30006, message = "不能删除已确认订单")
+	})
+	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "燃气交易订单编号", required = true),
+			@ApiImplicitParam(name = "userId", value = "当前登录用户编号", required = true)
+	})
 	public GenericResponse cancelTradeOrder(HttpServletRequest request) {
 		String id = CommonTools.getFinalStr("id",request);
+		String userId = CommonTools.getFinalStr("userId", request);
 		Integer status = 200;
 		try {
 			GasTradeOrder gto = gtoSeriver.getEntityById(id);
 			if (gto == null) {
 				status = 50001;
-			} else {
-				gto.setOrderStatus(-1);
-				gtoSeriver.addOrUpdate(gto);
-				//增加订单日志
-				gtolService.addOrUpdate(new GasTradeOrderLog(gto, -1, "","订单被商家取消", CurrentTime.getCurrentTime()));
+			} else if(gto.getOrderStatus() >= 2){//订单确认后不能删除
+				status = 30006;
+			}else {
+				String buyUserId = gto.getUser().getId();//买方用户编号
+				String sellUserId = gto.getGasTrade().getAddUserId();//商家用户编号
+				if(buyUserId.equals(userId) || sellUserId.equals(userId)) {
+					gto.setOrderStatus(-1);
+					gtoSeriver.addOrUpdate(gto);
+					//增加订单日志
+					String content = "";
+					if(buyUserId.equals(userId)){//买家
+						content = "订单被买家取消";
+					}else {//商家
+						content = "订单被商家取消";
+					}
+					gtolService.addOrUpdate(new GasTradeOrderLog(gto, -1, "",content, CurrentTime.getCurrentTime()));
+				}else {
+					status = 50001;
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

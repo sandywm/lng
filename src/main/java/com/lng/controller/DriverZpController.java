@@ -18,11 +18,13 @@ import org.springframework.web.bind.annotation.RestController;
 import com.lng.pojo.Company;
 import com.lng.pojo.DriverQz;
 import com.lng.pojo.DriverZp;
+import com.lng.pojo.User;
 import com.lng.pojo.UserFocus;
 import com.lng.service.CompanyService;
 import com.lng.service.DriverQzService;
 import com.lng.service.DriverZpService;
 import com.lng.service.UserFocusService;
+import com.lng.service.UserService;
 import com.lng.tools.CommonTools;
 import com.lng.tools.CurrentTime;
 import com.lng.util.Constants;
@@ -49,6 +51,8 @@ public class DriverZpController {
 	private DriverZpService zpService;
 	@Autowired
 	private UserFocusService ufService;
+	@Autowired
+	private UserService us;
 
 	@PostMapping("/addDriverQz")
 	@ApiOperation(value = "添加司机求职", notes = "添加司机求职")
@@ -769,6 +773,55 @@ public class DriverZpController {
 		return ResponseFormat.getPageJson(limit, page, zps.getTotalElements(), status, list);
 	}
 
+	@GetMapping("/getSelfDriverZp")
+	@ApiOperation(value = "获取自己发布的招聘信息", notes = "获取自己发布的招聘信息")
+	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
+			@ApiResponse(code = 50001, message = "数据未找到"),
+			@ApiResponse(code = 10002, message = "参数为空")
+	})
+	@ApiImplicitParams({ @ApiImplicitParam(name = "userId", value = "当前登录用编号"),
+			@ApiImplicitParam(name = "checkSta", value = "审核状态(0:未审核,1:审核通过,2:审核未通过,-1：全部)"),
+			@ApiImplicitParam(name = "showSta", value = "上/下架状态（0：上架，1：下架，-1：全部）"),
+	})
+	public GenericResponse getSelfDriverZp(HttpServletRequest request) {
+		String userId = CommonTools.getFinalStr("userId", request);
+		Integer checkStatus = CommonTools.getFinalInteger("checkSta", request);
+		Integer showSta = CommonTools.getFinalInteger("showSta", request);
+		Integer status = 200;
+		Page<DriverZp> zps = null;
+		List<Object> list = new ArrayList<Object>();
+		try {
+			if(userId.equals("")) {
+				status = 10002;
+			}else {
+				List<DriverZp> zpList = zpService.listDriverZpByOpt(userId, checkStatus, showSta);
+				if(zpList.size() > 0) {
+					for (DriverZp zp : zpList) {
+						Map<String, Object> map = new HashMap<String, Object>();
+						map.put("zpId", zp.getId());
+						map.put("companyName", zp.getCompany().getName());
+						map.put("age", zp.getSjAgeRange());
+						map.put("jlYear", zp.getJlYearRange());
+						map.put("province", zp.getProvince());
+						map.put("num", zp.getNum());
+						map.put("lxName", zp.getLxName());
+						map.put("lxTel", zp.getLxTel());
+						map.put("addTime", zp.getAddTime());
+						map.put("checkStatus", zp.getCheckStatus());
+						map.put("showStatus", zp.getShowStatus());
+						list.add(map);
+					}
+				}else {
+					status = 50001;
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			status = 1000;
+		}
+		return ResponseFormat.retParam(status, list);
+	}
+	
 	@GetMapping("/getDriverZpById")
 	@ApiOperation(value = "根据主键获取司机招聘详细信息", notes = "根据主键获取司机招聘详细信息")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),

@@ -72,4 +72,17 @@ public interface DriverZpService {
 	 * @return
 	 */
 	List<DriverZp> listDriverZpByOpt(String sDate,String eDate,Integer checkSta, Integer showSta);
+	
+	/**
+	 * @description 根据创建人，审核状态，上下架状态获取发布招聘信息列表
+	 * @author wm
+	 * @Version : 1.0
+	 * @ModifiedBy : 修改人
+	 * @date  2020年1月7日 下午1:28:25
+	 * @param addUserId 发布人
+	 * @param checkSta 审核状态（0:未审核,1:审核通过,2:审核未通过，-1：全部）
+	 * @param showSta 上下架状态（0：上架，1：下架，-1：全部）
+	 * @return
+	 */
+	List<DriverZp> listDriverZpByOpt(String addUserId,Integer checkSta, Integer showSta);
 }

@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -48,7 +49,6 @@ public class CompanyServiceImpl implements CompanyService {
 	@SuppressWarnings("serial")
 	@Override
 	public Page<Company> getCompanyList(String name, String typeId, int checkSta, Integer pageNo, Integer pageSize) {
-		Pageable pageable = PageRequest.of(pageNo, pageSize);
 
 		Specification<Company> spec = new Specification<Company>() {
 
@@ -67,6 +67,8 @@ public class CompanyServiceImpl implements CompanyService {
 				return pre;
 			}
 		};
+		Sort sort = Sort.by(Sort.Direction.DESC, "addTime");
+		Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
 		return companyDao.findAll(spec, pageable);
 	}
 

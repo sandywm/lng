@@ -38,7 +38,7 @@ public class UserCompanyServiceImpl implements UserCompanyService {
 
 	@SuppressWarnings("serial")
 	@Override
-	public List<UserCompany> getUserCompanyList(String compId, String userId) {
+	public List<UserCompany> getUserCompanyList(String compId, String userId,Integer checkStatus) {
 		Specification<UserCompany> spec = new Specification<UserCompany>() {
 			@Override
 			public Predicate toPredicate(Root<UserCompany> root, CriteriaQuery<?> query,
@@ -49,6 +49,9 @@ public class UserCompanyServiceImpl implements UserCompanyService {
 				}
 				if(!userId.isEmpty()) {
 					pre.getExpressions().add((cb.equal(root.get("user").get("id"), userId)));
+				}
+				if (checkStatus != -1) { //checkSta  等于 -1  全部
+					pre.getExpressions().add(cb.equal(root.get("checkStatus"), checkStatus));
 				}
 				return pre;
 			}

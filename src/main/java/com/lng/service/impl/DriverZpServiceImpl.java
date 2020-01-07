@@ -127,4 +127,29 @@ public class DriverZpServiceImpl implements DriverZpService {
 		};
 		return driverZpDao.findAll(spec, sort);
 	}
+
+	@SuppressWarnings("serial")
+	@Override
+	public List<DriverZp> listDriverZpByOpt(String addUserId, Integer checkSta, Integer showSta) {
+		// TODO Auto-generated method stub
+		Sort sort = Sort.by(Sort.Direction.DESC, "addTime");// 降序排列
+		Specification<DriverZp> spec = new Specification<DriverZp>() {
+
+			@Override
+			public Predicate toPredicate(Root<DriverZp> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+				Predicate pre = cb.conjunction();
+				if (!addUserId.isEmpty()) {
+					pre.getExpressions().add(cb.equal(root.get("addUserId"), addUserId));
+				}
+				if (checkSta != -1) {
+					pre.getExpressions().add(cb.equal(root.get("checkStatus"), checkSta));
+				}
+				if (showSta != -1) {
+					pre.getExpressions().add(cb.equal(root.get("showStatus"), showSta));
+				}
+				return pre;
+			}
+		};
+		return driverZpDao.findAll(spec, sort);
+	}
 }

@@ -100,7 +100,7 @@ public class GasTradeController {
 		@ApiImplicitParam(name = "psArea", value = "配送区域"),
 		@ApiImplicitParam(name = "lxName", value = "联系人", required = true),
 		@ApiImplicitParam(name = "lxTel", value = "联系电话", required = true),
-		@ApiImplicitParam(name = "addUserId", value = "上传人"),
+		@ApiImplicitParam(name = "userId", value = "上传人"),
 		@ApiImplicitParam(name = "cpNo", value = "槽车车牌号"),
 		@ApiImplicitParam(name = "gcNo", value = "挂车车牌号"),
 		@ApiImplicitParam(name = "jsyName", value = "驾驶员姓名"),
@@ -157,13 +157,13 @@ public class GasTradeController {
 		String currentTime = CurrentTime.getCurrentTime();
 		String gasTradeId = "";
 		try {
-			if(cpyId.equals("") || gasTypeId.equals("") || gasFactotyId.equals("") || gasVolume.equals(0)) {
+			if(cpyId.equals("") || gasTypeId.equals("") || gasFactotyId.equals("") || gasVolume.equals(0) || userId.equals("")) {
 				status = 10002;
 			}else {
-				if(CommonTools.checkAuthorization(userId, CommonTools.getLoginRoleName(request),Constants.ADD_GAS_TRADE)) {
-					checkStatus = 1;
-				}else if(cilentInfo.equals("wxApp")){
+				if(cilentInfo.equals("wxApp")){
 					userType = 2;
+				}else if(CommonTools.checkAuthorization(userId, CommonTools.getLoginRoleName(request),Constants.ADD_GAS_TRADE)) {
+					checkStatus = 1;
 				}else {
 					status = 70001;
 				}
@@ -221,7 +221,7 @@ public class GasTradeController {
 	})
 	@ApiImplicitParams({
 		@ApiImplicitParam(name = "cpyId", value = "发布人员所在公司编号)"),
-		@ApiImplicitParam(name = "addUserId", value = "发布人员"),
+		@ApiImplicitParam(name = "userId", value = "发布人员"),
 		@ApiImplicitParam(name = "gasTypeId", value = "液质编号"),
 		@ApiImplicitParam(name = "gfId", value = "液厂编号"),
 		@ApiImplicitParam(name = "checkStatus", value = "审核状态(-1:全部,0:未审核,1:审核通过,2:审核未通过)",dataType = "integer"),
@@ -235,7 +235,7 @@ public class GasTradeController {
 	public PageResponse getPageGasTradeList(HttpServletRequest request) {
 		Integer status = 200;
 		String cpyId = CommonTools.getFinalStr("cpyId", request);
-		String addUserId = CommonTools.getFinalStr("addUserId", request);
+		String addUserId = CommonTools.getFinalStr("userId", request);
 		String gasTypeId = CommonTools.getFinalStr("gasTypeId", request);//有可能是海气，也可能是其他气
 		String gfId = CommonTools.getFinalStr("gfId", request);
 		Integer checkStatus = CommonTools.getFinalInteger("checkStatus", request);
@@ -317,7 +317,7 @@ public class GasTradeController {
 	@ApiImplicitParams({
 		@ApiImplicitParam(name = "gasTradeId", value = "燃气买卖编号)",required = true),
 		@ApiImplicitParam(name = "opt", value = "用途（0：审核用，1：前台使用）", dataType = "integer"),
-		@ApiImplicitParam(name = "userId", value = "前台用户编号（前台时传递）",required = true)
+		@ApiImplicitParam(name = "userId", value = "前台用户编号（前台时传递）")
 	})
 	public GenericResponse getSpecGasTradeDetail(HttpServletRequest request) {
 		Integer status = 200;
@@ -717,10 +717,10 @@ public class GasTradeController {
 		String userId = CommonTools.getLoginUserId(request);
 		String cilentInfo = CommonTools.getCilentInfo_new(request);
 		try {
-			if(!gasTradeId.equals("")){
-				if(CommonTools.checkAuthorization(userId, CommonTools.getLoginRoleName(request),Constants.UP_GAS_TRADE)) {
+			if(!gasTradeId.equals("")  && !userId.equals("")){
+				if(cilentInfo.equals("wxApp")){
 					
-				}else if(cilentInfo.equals("wxApp")){
+				}else if(CommonTools.checkAuthorization(userId, CommonTools.getLoginRoleName(request),Constants.UP_GAS_TRADE)) {
 					
 				}else {
 					status = 70001;
@@ -811,6 +811,8 @@ public class GasTradeController {
 						}
 					}
 				}
+			}else {
+				status = 10002;
 			}
 		} catch (Exception e) {
 			// TODO: handle exception

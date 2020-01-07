@@ -95,7 +95,7 @@ public class CompanyController {
 			@ApiImplicitParam(name = "bankName", value = "公司银行名称", defaultValue = "华龙区银行"),
 			@ApiImplicitParam(name = "bankNo", value = "公司银行卡号", defaultValue = "4565445445452218997"),
 			@ApiImplicitParam(name = "bankAcc", value = "公司银行账户", defaultValue = "4565445445452218"),
-			//@ApiImplicitParam(name = "userType", value = "上传人员类型（1：后台管理人员，2：普通用户）"),
+//			@ApiImplicitParam(name = "userType", value = "上传人员类型（1：后台管理人员，2：普通用户）"),
 			@ApiImplicitParam(name = "zzImg", value = "公司资质图片") })
 	public GenericResponse addCompany(HttpServletRequest request, String name, String typeId, String owerUserId,
 			String province, String city, String county, String address, String lxname, String lxtel, String yyzzImg,
@@ -164,7 +164,11 @@ public class CompanyController {
 						zzService.saveOrUpdateBatch(zzList);
 					}
 					//将自己加入到公司员工关联
-					ucs.addOrUpdate(new UserCompany(comp, us.getEntityById(loginUserId), CurrentTime.getCurrentTime(),1,CurrentTime.getCurrentTime()));
+					if (userType.equals(1)) {
+						ucs.addOrUpdate(new UserCompany(comp, us.getEntityById("1b3a1729-ef34-469b-b864-39aa0d5c125e"), CurrentTime.getCurrentTime(),1,CurrentTime.getCurrentTime()));
+					}else {
+						ucs.addOrUpdate(new UserCompany(comp, us.getEntityById(loginUserId), CurrentTime.getCurrentTime(),1,CurrentTime.getCurrentTime()));
+					}
 				} else {
 					status = 50003;
 				}
@@ -427,38 +431,38 @@ public class CompanyController {
 		return ResponseFormat.retParam(status, list);
 	}
 	
-	@GetMapping("/queryCompanyEmployee")
-	@ApiOperation(value = "获取公司员工", notes = "获取公司员工")
-	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
-			@ApiResponse(code = 50001, message = "数据未找到") })
-	@ApiImplicitParams({ @ApiImplicitParam(name = "compId", value = "公司编号") })
-	public GenericResponse queryCompanyEmployee(HttpServletRequest request) {
-		Integer status = 200;
-		String compId = CommonTools.getFinalStr("compId", request);
-		List<Object> list = new ArrayList<Object>();
-		try {
-			List<UserCompany> ucList = ucs.getUserCompanyList(compId, "");
-			if (ucList.size() == 0) {
-				status = 50001;
-			} else {
-				for (UserCompany uc : ucList) {
-					Map<String, String> map_d = new HashMap<String, String>();
-					User user = uc.getUser();
-					map_d.put("userId", user.getId());
-					map_d.put("userHead", user.getUserPortrait());
-					map_d.put("wxName", user.getWxName());
-					map_d.put("sex", user.getSex());
-					map_d.put("userName", user.getRealName());
-					map_d.put("userMobile", user.getMobile());
-					list.add(map_d);
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			status = 1000;
-		}
-		return ResponseFormat.retParam(status, list);
-	}
+//	@GetMapping("/queryCompanyEmployee")
+//	@ApiOperation(value = "获取公司员工", notes = "获取公司员工")
+//	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
+//			@ApiResponse(code = 50001, message = "数据未找到") })
+//	@ApiImplicitParams({ @ApiImplicitParam(name = "compId", value = "公司编号") })
+//	public GenericResponse queryCompanyEmployee(HttpServletRequest request) {
+//		Integer status = 200;
+//		String compId = CommonTools.getFinalStr("compId", request);
+//		List<Object> list = new ArrayList<Object>();
+//		try {
+//			List<UserCompany> ucList = ucs.getUserCompanyList(compId, "");
+//			if (ucList.size() == 0) {
+//				status = 50001;
+//			} else {
+//				for (UserCompany uc : ucList) {
+//					Map<String, String> map_d = new HashMap<String, String>();
+//					User user = uc.getUser();
+//					map_d.put("userId", user.getId());
+//					map_d.put("userHead", user.getUserPortrait());
+//					map_d.put("wxName", user.getWxName());
+//					map_d.put("sex", user.getSex());
+//					map_d.put("userName", user.getRealName());
+//					map_d.put("userMobile", user.getMobile());
+//					list.add(map_d);
+//				}
+//			}
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//			status = 1000;
+//		}
+//		return ResponseFormat.retParam(status, list);
+//	}
 	
 	@GetMapping("/queryCompanyPsr")
 	@ApiOperation(value = "获取公司押运人", notes = "获取公司押运人信息")

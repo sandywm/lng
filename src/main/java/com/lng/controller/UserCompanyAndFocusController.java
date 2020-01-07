@@ -2,6 +2,7 @@ package com.lng.controller;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -38,7 +39,6 @@ import com.lng.service.UserFocusService;
 import com.lng.service.UserService;
 import com.lng.tools.CommonTools;
 import com.lng.tools.CurrentTime;
-import com.lng.util.Constants;
 import com.lng.util.GenericResponse;
 import com.lng.util.PageResponse;
 import com.lng.util.ResponseFormat;
@@ -52,7 +52,7 @@ import io.swagger.annotations.ApiResponses;
 
 @RestController
 @Api(tags = "用户公司和关注相关接口")
-@RequestMapping("/company")
+@RequestMapping("/userCompany")
 public class UserCompanyAndFocusController {
 	@Autowired
 	private UserCompanyService ucService;
@@ -77,7 +77,9 @@ public class UserCompanyAndFocusController {
 	@PostMapping("/addUserCompany")
 	@ApiOperation(value = "添加用户公司关联", notes = "添加用户公司关联信息")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
-			@ApiResponse(code = 50003, message = "数据已存在")})
+			@ApiResponse(code = 50003, message = "数据已存在"),
+			@ApiResponse(code = 50001, message = "数据未找到")
+	})
 	@ApiImplicitParams({ @ApiImplicitParam(name = "userId", value = "用户编号", required = true),
 			@ApiImplicitParam(name = "compId", value = "公司编号", required = true) })
 	public GenericResponse addUserCompany(HttpServletRequest request, String userId, String compId) {
@@ -86,19 +88,23 @@ public class UserCompanyAndFocusController {
 		Integer status = 200;
 		String ucId = "";
 		try {
-			if (ucService.getUserCompanyList(compId, userId).size() == 0) {
+			if (ucService.getUserCompanyList(compId, userId,-1).size() == 0) {
 				UserCompany uc = new UserCompany();
 				User user = uService.getEntityById(userId);
 				uc.setUser(user);
 				Company company = cService.getEntityById(compId);
-				uc.setCompany(company);
-				uc.setAddTime(CurrentTime.getCurrentTime());
-				uc.setCheckStatus(0);
-				uc.setCheckTime("");
-				ucId = ucService.addOrUpdate(uc);
-				MessageCenter mc = new MessageCenter(user.getRealName()+"申请加入"+company.getName()+"您的公司", user.getRealName()+"申请加入"+company.getName()+"您的公司", 0, CurrentTime.getCurrentTime(), 2,
-						ucId, "joinCpy", "", uc.getUser().getId(), 0);
-				mcs.saveOrUpdate(mc);
+				if(company != null && company.getCheckStatus() == 1) {
+					uc.setCompany(company);
+					uc.setAddTime(CurrentTime.getCurrentTime());
+					uc.setCheckStatus(0);
+					uc.setCheckTime("");
+					ucId = ucService.addOrUpdate(uc);
+					MessageCenter mc = new MessageCenter(user.getRealName()+"申请加入"+company.getName()+"您的公司", user.getRealName()+"申请加入"+company.getName()+"您的公司", 0, CurrentTime.getCurrentTime(), 2,
+							ucId, "joinCpy", "", uc.getUser().getId(), 0);
+					mcs.saveOrUpdate(mc);
+				}else {
+					status = 50001;
+				}
 			} else {
 				status = 50003;
 			}
@@ -177,28 +183,79 @@ public class UserCompanyAndFocusController {
 		}
 		return ResponseFormat.retParam(status, "");
 	}
+	
+	@DeleteMapping("/delSpecUserCompany")
+	@ApiOperation(value = "用户公司关联信息审核", notes = "用户公司关联信息审核状态")
+	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
+			@ApiResponse(code = 50001, message = "数据未找到"), @ApiResponse(code = 70001, message = "无权限访问") })
+	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "用户公司关联编号", required = true),
+			@ApiImplicitParam(name = "userId", value = "操作用户编号", required = true)
+	})
+	public GenericResponse delSpecUserCompany(HttpServletRequest request) {
+		String id = CommonTools.getFinalStr("id",request);
+		String currUserId = CommonTools.getFinalStr("userId", request);
+		Integer status = 200;
+		try {
+			UserCompany uc = ucService.getEntityId(id);
+			if (uc == null) {
+				status = 50001;
+			} else {
+				if(uc.getCompany().getOwerUserId().equals(currUserId)) {//只有公司创立人才能踢人
+					Integer checkSta = uc.getCheckStatus();
+					if (checkSta.equals(1)) {//审核通过的员工才能被踢出
+						mcs.delMsgById(id);
+					}else {
+						status = 50001;
+					}
+				}else {
+					status = 70001;
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			status = 1000;
+		}
+		return ResponseFormat.retParam(status, "");
+	}
 
 	@GetMapping("/queryUserCompany")
 	@ApiOperation(value = "获取用户公司关联", notes = "获取用户公司关联信息")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
 			@ApiResponse(code = 50001, message = "数据未找到") })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "compId", value = "公司编号"),
-			@ApiImplicitParam(name = "userId", value = "用户编号") })
-	public GenericResponse queryUserCompany(String compId, String userId) {
-		compId = CommonTools.getFinalStr(compId);
-		userId = CommonTools.getFinalStr(userId);
+			@ApiImplicitParam(name = "userId", value = "用户编号"),
+			@ApiImplicitParam(name = "checkStatus", value = "用户审核状态（0:未审核,1:审核通过,2:审核未通过,-1为全部）")
+	})
+	public GenericResponse queryUserCompany(HttpServletRequest request) {
+		String compId = CommonTools.getFinalStr("compId", request);
+		String userId = CommonTools.getFinalStr("userId", request);
+		Integer checkStatus = CommonTools.getFinalInteger("checkStatus", request);
 		Integer status = 200;
-		List<UserCompany> ucs = null;
+		List<Object> list = new ArrayList<Object>();
 		try {
-			ucs = ucService.getUserCompanyList(compId, userId);
-			if (ucs == null) {
+			List<UserCompany> ucs = ucService.getUserCompanyList(compId, userId,checkStatus);
+			if (ucs.size() == 0) {
 				status = 50001;
+			}else {
+				for (UserCompany uc : ucs) {
+					Map<String, Object> map_d = new HashMap<String, Object>();
+					Company cpy = uc.getCompany();
+					map_d.put("cpyName", cpy.getName());
+					map_d.put("addTime", cpy.getAddTime());
+					map_d.put("checkStatus", cpy.getCheckStatus());
+					User user = uc.getUser();
+					map_d.put("userId", user.getId());
+					map_d.put("userHead", user.getUserPortrait());
+					map_d.put("userName", user.getRealName());
+					map_d.put("userMobile", user.getMobile());
+					list.add(map_d);
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			status = 1000;
 		}
-		return ResponseFormat.retParam(status, ucs);
+		return ResponseFormat.retParam(status, list);
 	}
 
 	@GetMapping("/queryUserFocus")
