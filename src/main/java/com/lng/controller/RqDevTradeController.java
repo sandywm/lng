@@ -55,7 +55,7 @@ public class RqDevTradeController {
 	private RqDevTradeService rdtService;
 	@Autowired
 	private RqDevTradeImgService rdtiService;
-	@Autowired	
+	@Autowired
 	private UserFocusService ufService;
 
 	@PostMapping("/addRqDevTrade")
@@ -104,10 +104,11 @@ public class RqDevTradeController {
 		String rdtId = "";
 
 		try {
-			if (CommonTools.checkAuthorization(loginUserId, CommonTools.getLoginRoleName(request), Constants.ADD_RDT)) {
-
-			} else if (cilentInfo.equals("wxApp")) {
+			if (cilentInfo.equals("wxApp")) {
 				userType = 2;
+			} else if (CommonTools.checkAuthorization(loginUserId, CommonTools.getLoginRoleName(request),
+					Constants.ADD_RDT)) {
+
 			} else {
 				status = 70001;
 			}
@@ -177,10 +178,10 @@ public class RqDevTradeController {
 		Integer status = 200;
 
 		try {
-			if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),
-					CommonTools.getLoginRoleName(request), Constants.CHECK_RDT)) {
+			if (cilentInfo.equals("wxApp")) {
 
-			} else if (cilentInfo.equals("wxApp")) {
+			} else if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),
+					CommonTools.getLoginRoleName(request), Constants.CHECK_RDT)) {
 
 			} else {
 				status = 70001;
@@ -218,9 +219,10 @@ public class RqDevTradeController {
 		Integer status = 200;
 		String cilentInfo = CommonTools.getCilentInfo_new(request);
 		try {
-			if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),
+			if (cilentInfo.equals("wxApp")) {
+
+			} else if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),
 					CommonTools.getLoginRoleName(request), Constants.UP_RDT)) {
-			} else if (cilentInfo.equals("wxApp")) {
 
 			} else {
 				status = 70001;
@@ -285,9 +287,10 @@ public class RqDevTradeController {
 		Integer status = 200;
 		String cilentInfo = CommonTools.getCilentInfo_new(request);
 		try {
-			if (CommonTools.checkAuthorization(loginUserId, CommonTools.getLoginRoleName(request), Constants.UP_RDT)) {
+			if (cilentInfo.equals("wxApp")) {
 
-			} else if (cilentInfo.equals("wxApp")) {
+			} else if (CommonTools.checkAuthorization(loginUserId, CommonTools.getLoginRoleName(request),
+					Constants.UP_RDT)) {
 
 			} else {
 				status = 70001;
@@ -302,7 +305,7 @@ public class RqDevTradeController {
 					if (!mainImg.equals(rdt.getMainImg())) {
 						rdt.setMainImg(CommonTools.dealUploadDetail(loginUserId, rdt.getMainImg(), mainImg));
 					}
-					if(!compId.isEmpty() && ! compId.equals(rdt.getCompany().getId())) {
+					if (!compId.isEmpty() && !compId.equals(rdt.getCompany().getId())) {
 						Company company = companyService.getEntityById(compId);
 						rdt.setCompany(company);
 					}
@@ -403,14 +406,14 @@ public class RqDevTradeController {
 			if (showSta == null) {
 				showSta = -1;
 			}
-			rdt = rdtService.getRqDevTradeList(compId, lmId, zlId, checkSta, showSta, addUserId, page-1, limit);
+			rdt = rdtService.getRqDevTradeList(compId, lmId, zlId, checkSta, showSta, addUserId, page - 1, limit);
 			if (rdt.getTotalElements() == 0) {
 				status = 50001;
 			} else {
 				List<RqDevTrade> rdtList = rdt.getContent();
 				for (RqDevTrade rdts : rdtList) {
 					Map<String, Object> map = new HashMap<String, Object>();
-					map.put("rdtId",rdts.getId());
+					map.put("rdtId", rdts.getId());
 					map.put("cpyName", rdts.getCompany().getName());
 					map.put("devName", rdts.getDevName());
 					map.put("lmName", rdts.getRqDevType().getName());
@@ -433,10 +436,8 @@ public class RqDevTradeController {
 	@ApiOperation(value = "根据主键获取燃气设备买卖详细信息", notes = "根据主键获取燃气设备买卖详细信息")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
 			@ApiResponse(code = 10002, message = "参数为空"), @ApiResponse(code = 50001, message = "数据未找到") })
-	@ApiImplicitParams({
-		@ApiImplicitParam(name = "userId", value = "用户编号"), 
-		@ApiImplicitParam(name = "id", value = "燃气设备买卖编号", required = true) 
-	})
+	@ApiImplicitParams({ @ApiImplicitParam(name = "userId", value = "用户编号"),
+			@ApiImplicitParam(name = "id", value = "燃气设备买卖编号", required = true) })
 	public GenericResponse getRqDevTradeById(HttpServletRequest request) {
 		Integer status = 200;
 		String rdtId = CommonTools.getFinalStr("id", request);

@@ -240,14 +240,15 @@ public class UserCompanyAndFocusController {
 				for (UserCompany uc : ucs) {
 					Map<String, Object> map_d = new HashMap<String, Object>();
 					Company cpy = uc.getCompany();
+					map_d.put("cpyId", cpy.getId());
 					map_d.put("cpyName", cpy.getName());
-					map_d.put("addTime", cpy.getAddTime());
-					map_d.put("checkStatus", cpy.getCheckStatus());
 					User user = uc.getUser();
 					map_d.put("userId", user.getId());
 					map_d.put("userHead", user.getUserPortrait());
 					map_d.put("userName", user.getRealName());
 					map_d.put("userMobile", user.getMobile());
+					map_d.put("addTime", uc.getAddTime());
+					map_d.put("checkStatus",uc.getCheckStatus());
 					list.add(map_d);
 				}
 			}

@@ -111,14 +111,15 @@ public class PotTradeController {
 		String ptId = "";
 
 		try {
-			if (CommonTools.checkAuthorization(loginUserId, CommonTools.getLoginRoleName(request), Constants.ADD_PT)) {
-
-			} else if (cilentInfo.equals("wxApp")) {
+			if (cilentInfo.equals("wxApp")) {
 				userType = 2;
 				loginUserId = CommonTools.getFinalStr("userId", request);
 				if (loginUserId.isEmpty()) {
 					status = 20001;
 				}
+			} else if (CommonTools.checkAuthorization(loginUserId, CommonTools.getLoginRoleName(request),
+					Constants.ADD_PT)) {
+
 			} else {
 				status = 70001;
 			}
@@ -193,10 +194,10 @@ public class PotTradeController {
 		Integer status = 200;
 
 		try {
-			if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),
-					CommonTools.getLoginRoleName(request), Constants.CHECK_PT)) {
+			if (cilentInfo.equals("wxApp")) {
 
-			} else if (cilentInfo.equals("wxApp")) {
+			} else if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),
+					CommonTools.getLoginRoleName(request), Constants.CHECK_PT)) {
 
 			} else {
 				status = 70001;
@@ -236,10 +237,10 @@ public class PotTradeController {
 		Integer status = 200;
 
 		try {
-			if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),
-					CommonTools.getLoginRoleName(request), Constants.UP_PT)) {
+			if (cilentInfo.equals("wxApp")) {
 
-			} else if (cilentInfo.equals("wxApp")) {
+			} else if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),
+					CommonTools.getLoginRoleName(request), Constants.UP_PT)) {
 
 			} else {
 				status = 70001;
@@ -310,13 +311,14 @@ public class PotTradeController {
 		Integer status = 200;
 
 		try {
-			if (CommonTools.checkAuthorization(loginUserId, CommonTools.getLoginRoleName(request), Constants.UP_PT)) {
-
-			} else if (cilentInfo.equals("wxApp")) {
+			if (cilentInfo.equals("wxApp")) {
 				loginUserId = CommonTools.getFinalStr("userId", request);
-				if(loginUserId.isEmpty()) {
-					status =20001;
+				if (loginUserId.isEmpty()) {
+					status = 20001;
 				}
+			} else if (CommonTools.checkAuthorization(loginUserId, CommonTools.getLoginRoleName(request),
+					Constants.UP_PT)) {
+
 			} else {
 
 			}

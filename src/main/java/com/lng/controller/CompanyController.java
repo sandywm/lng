@@ -107,15 +107,15 @@ public class CompanyController {
 		String comId = "";
 		Integer userType =1;
 		try {
-			if (!CommonTools.checkAuthorization(loginUserId, CommonTools.getLoginRoleName(request),
-					Constants.ADD_COMPANY)) {
-				
-			} else if (cilentInfo.equals("wxApp")) {
+			 if (cilentInfo.equals("wxApp")) {
 				userType =2;
 				loginUserId = CommonTools.getFinalStr("owerUserId", request);
 				if(loginUserId.isEmpty()) {
 					status=20001;
 				}
+			}else if (CommonTools.checkAuthorization(loginUserId, CommonTools.getLoginRoleName(request),
+					Constants.ADD_COMPANY)) {
+				
 			} else {
 				status = 70001;
 			}
@@ -290,10 +290,10 @@ public class CompanyController {
 		String zzImgPath = "";
 
 		try {
-			if (CommonTools.checkAuthorization(loginUserId, CommonTools.getLoginRoleName(request),
-					Constants.ADD_COMPANY)) {
+			if (cilentInfo.equals("wxApp")) {
 
-			} else if (cilentInfo.equals("wxApp")) {
+			} else if (CommonTools.checkAuthorization(loginUserId, CommonTools.getLoginRoleName(request),
+					Constants.ADD_COMPANY)) {
 
 			} else {
 				status = 70001;
@@ -621,9 +621,10 @@ public class CompanyController {
 		Integer status = 200;
 
 		try {
-			if (CommonTools.checkAuthorization(loginUserId, CommonTools.getLoginRoleName(request),
+			if (cilentInfo.equals("wxApp")) {
+				
+			} else if (CommonTools.checkAuthorization(loginUserId, CommonTools.getLoginRoleName(request),
 					Constants.UP_COMPANY)) {
-			} else if (cilentInfo.equals("wxApp")) {
 
 			} else {
 				status = 70001;

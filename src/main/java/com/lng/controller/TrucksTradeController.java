@@ -76,8 +76,8 @@ public class TrucksTradeController {
 
 	@PostMapping("/addTrucksTrade")
 	@ApiOperation(value = "添加货车租卖", notes = "添加货车租卖")
-	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"), @ApiResponse(code = 20001, message = "用户未登录"),
-			@ApiResponse(code = 70001, message = "无权限访问") })
+	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
+			@ApiResponse(code = 20001, message = "用户未登录"), @ApiResponse(code = 70001, message = "无权限访问") })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "compId", value = "公司编号"),
 			@ApiImplicitParam(name = "mainImg", value = "车辆主图", required = true),
 			@ApiImplicitParam(name = "trucksNo", value = "车牌号码", required = true),
@@ -149,15 +149,14 @@ public class TrucksTradeController {
 		String ttId = "";
 
 		try {
-			if (CommonTools.checkAuthorization(loginUserId, CommonTools.getLoginRoleName(request),
-					Constants.ADD_TRTR)) {
-
-			} else if (cilentInfo.equals("wxApp")) {
+			if (cilentInfo.equals("wxApp")) {
 				userType = 2;
 				loginUserId = CommonTools.getFinalStr("userId", request);
-				if(loginUserId.isEmpty()) {
-					status =20001;
+				if (loginUserId.isEmpty()) {
+					status = 20001;
 				}
+			} else if (CommonTools.checkAuthorization(loginUserId, CommonTools.getLoginRoleName(request),
+					Constants.ADD_TRTR)) {
 			} else {
 				status = 70001;
 			}
@@ -274,11 +273,10 @@ public class TrucksTradeController {
 		Integer status = 200;
 
 		try {
-			if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),
+			if (cilentInfo.equals("wxApp")) {
+
+			} else if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),
 					CommonTools.getLoginRoleName(request), Constants.CHECK_TRTR)) {
-
-			} else if (cilentInfo.equals("wxApp")) {
-
 			} else {
 				status = 70001;
 			}
@@ -318,11 +316,10 @@ public class TrucksTradeController {
 		Integer status = 200;
 
 		try {
-			if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),
+			if (cilentInfo.equals("wxApp")) {
+
+			} else if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),
 					CommonTools.getLoginRoleName(request), Constants.UP_TRTR)) {
-
-			} else if (cilentInfo.equals("wxApp")) {
-
 			} else {
 				status = 70001;
 			}
@@ -418,11 +415,9 @@ public class TrucksTradeController {
 		Integer status = 200;
 
 		try {
-			if (CommonTools.checkAuthorization(loginUserId, CommonTools.getLoginRoleName(request), Constants.UP_TRTR)) {
+		 if (cilentInfo.equals("wxApp")) {
 
-			} else if (cilentInfo.equals("wxApp")) {
-
-			} else {
+			}else if(CommonTools.checkAuthorization(loginUserId, CommonTools.getLoginRoleName(request), Constants.UP_TRTR)) {} else {
 				status = 70001;
 			}
 
