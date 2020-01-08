@@ -75,7 +75,7 @@ public class RqDevTradeController {
 			@ApiImplicitParam(name = "lxName", value = "联系人", defaultValue = "小黑"),
 			@ApiImplicitParam(name = "lxTel", value = "联系电话", defaultValue = "13956487523"),
 			@ApiImplicitParam(name = "showStatus", value = "上/下架状态（0：上架，1：下架）", required = true, defaultValue = "0"),
-			@ApiImplicitParam(name = "addUserId", value = "上传人员", required = true),
+			@ApiImplicitParam(name = "userId", value = "上传人员", required = true),
 			/*
 			 * @ApiImplicitParam(name = "userType", value = "上传人员类型（1：后台管理人员，2：普通用户）",
 			 * required = true)
@@ -265,7 +265,9 @@ public class RqDevTradeController {
 			@ApiImplicitParam(name = "lxName", value = "联系人", defaultValue = "小黑"),
 			@ApiImplicitParam(name = "detailImg", value = "燃气设备详情图"),
 			@ApiImplicitParam(name = "lxTel", value = "联系电话", defaultValue = "13956487523"),
-			@ApiImplicitParam(name = "showStatus", value = "上/下架状态（0：上架，1：下架）", required = true, defaultValue = "0"), })
+			@ApiImplicitParam(name = "showStatus", value = "上/下架状态（0：上架，1：下架）", required = true, defaultValue = "0"), 
+			@ApiImplicitParam(name = "userId", value = "用户编号", required = true)
+	})
 	public GenericResponse updateRqDevTrade(HttpServletRequest request) {
 
 		String id = CommonTools.getFinalStr("id", request);
@@ -421,6 +423,9 @@ public class RqDevTradeController {
 					map.put("checkStatus", rdts.getCheckStatus());
 					map.put("showStatus", rdts.getShowStatus());
 					map.put("devPrice", rdts.getDevPrice());
+					map.put("factory", rdts.getDevPp());
+					map.put("devNo", rdts.getDevNo());
+					map.put("mainImg", rdts.getMainImg());
 					map.put("addTime", rdts.getAddTime());
 					list.add(map);
 				}
@@ -487,7 +492,9 @@ public class RqDevTradeController {
 					String ufId = "";
 					if (!userId.isEmpty()) {
 						List<UserFocus> ufList = ufService.getUserFocusList(userId, rdtId, "rqsb");
-						ufId = ufList.get(0).getId();
+						if(ufList.size() > 0) {
+							ufId = ufList.get(0).getId();
+						}
 					}
 					map.put("ufId", ufId);
 					map.put("detailImg", rdtilist);

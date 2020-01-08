@@ -27,6 +27,7 @@ import com.lng.pojo.GasType;
 import com.lng.pojo.MessageCenter;
 import com.lng.pojo.User;
 import com.lng.pojo.UserCompany;
+import com.lng.pojo.UserFocus;
 import com.lng.service.CommonProvinceOrderService;
 import com.lng.service.CompanyPsrService;
 import com.lng.service.CompanyService;
@@ -38,6 +39,7 @@ import com.lng.service.GasTradeService;
 import com.lng.service.GasTypeService;
 import com.lng.service.MessageCenterService;
 import com.lng.service.UserCompanyService;
+import com.lng.service.UserFocusService;
 import com.lng.service.UserService;
 import com.lng.tools.CommonTools;
 import com.lng.tools.CurrentTime;
@@ -82,6 +84,9 @@ public class GasTradeController {
 	private CompanyPsrService cps;
 	@Autowired
 	private MessageCenterService mcs;
+	@Autowired
+	private UserFocusService ufs;
+
 	
 	@PostMapping("addGasTrade")
 	@ApiOperation(value = "增加燃气买卖记录",notes = "发布燃气买卖记录,配送区域最多能选五个")
@@ -342,6 +347,11 @@ public class GasTradeController {
 						userId = CommonTools.getFinalStr("userId", request);
 						//获取自己的所有贸易公司
 						List<UserCompany> ucList = ucs.getUserCompanyListByOpt("", "LNG贸易商", 1, userId);
+						if(ucList.size() > 0) {
+							map.put("userHead", ucList.get(0).getUser().getUserPortrait());
+						}else {
+							map.put("userHead", "");
+						}
 						for(UserCompany uc : ucList) {
 							Map<String, Object> map_d = new HashMap<String, Object>();
 							Company cpy_tmp = uc.getCompany();
@@ -353,6 +363,15 @@ public class GasTradeController {
 								map_d.put("selFlag", false);
 							}
 							list_cpy.add(map_d);
+						}
+						//获取用户关注(前台)
+						List<UserFocus> ufList = ufs.getUserFocusList(userId, gasTradeId, "rqmm");
+						if(ufList.size() > 0) {
+							map.put("userFocus", true);
+							map.put("ufId", ufList.get(0).getId());
+						}else {
+							map.put("userFocus", false);
+							map.put("ufId", "");
 						}
 					}else {//后台--获取所有贸易商公司
 						List<Company> cList = cs.listSpecCpy("","LNG贸易商");
