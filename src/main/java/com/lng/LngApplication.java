@@ -6,8 +6,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
+@EnableScheduling//开启定时任务
 //打war时集成
 public class LngApplication  /**extends SpringBootServletInitializer*/{
 	private static Logger logger = LoggerFactory.getLogger(LngApplication.class);

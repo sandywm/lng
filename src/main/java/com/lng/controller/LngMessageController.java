@@ -118,7 +118,7 @@ public class LngMessageController {
 					status = 50001;
 				} else {
 					content = EmojiDealUtil.changeEmojiToHtml(content);
-					LngMessage lmsg = new LngMessage(user, Review.textReview(content), CurrentTime.getCurrentTime(), 1,
+					LngMessage lmsg = new LngMessage(user, content, CurrentTime.getCurrentTime(), 1,
 							"", 0, 0);
 					lms.addOrUpdateLngMsg(lmsg);
 				}
@@ -159,7 +159,7 @@ public class LngMessageController {
 				} else {
 					content = EmojiDealUtil.changeEmojiToHtml(content);
 					LngMessage lmsg = lms.getEntityById(msgId);
-					LngMessageReply lmr = new LngMessageReply(lmsg, user, Review.textReview(content),
+					LngMessageReply lmr = new LngMessageReply(lmsg, user, content,
 							CurrentTime.getCurrentTime(), 1, "", 0);
 					lms.addOrUpdateLngMsg(lmr);
 				}

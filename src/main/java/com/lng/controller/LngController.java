@@ -34,6 +34,7 @@ import com.lng.service.UserService;
 import com.lng.tools.AutoCreateTable;
 import com.lng.tools.CommonTools;
 import com.lng.tools.CurrentTime;
+import com.lng.tools.EmojiDealUtil;
 import com.lng.util.Constants;
 import com.lng.util.GenericResponse;
 import com.lng.util.PageResponse;
@@ -263,7 +264,7 @@ public class LngController {
 						}
 						String remark_tmp = "";
 						if(!remarkArr[i].equals("")) {
-							remark_tmp = priceDate+timeStr+" : "+remarkArr[i];
+							remark_tmp = priceDate+timeStr+" : "+EmojiDealUtil.changeEmojiToHtml(remarkArr[i]);
 						}
 						//获取指定液厂当天的所有价格明细
 						List<LngPriceDetail> lpdList = lpds.listInfoByOpt(gfId, 0, priceDate);

@@ -20,6 +20,7 @@ import com.lng.pojo.PotTrade;
 import com.lng.pojo.PotTradeImg;
 import com.lng.pojo.PotZzjzType;
 import com.lng.pojo.TrucksPotPp;
+import com.lng.pojo.User;
 import com.lng.pojo.UserFocus;
 import com.lng.service.CompanyService;
 import com.lng.service.PotTradeImgService;
@@ -27,8 +28,10 @@ import com.lng.service.PotTradeService;
 import com.lng.service.PotZzjzTypeService;
 import com.lng.service.TrucksPotPpService;
 import com.lng.service.UserFocusService;
+import com.lng.service.UserService;
 import com.lng.tools.CommonTools;
 import com.lng.tools.CurrentTime;
+import com.lng.tools.EmojiDealUtil;
 import com.lng.util.Constants;
 import com.lng.util.GenericResponse;
 import com.lng.util.PageResponse;
@@ -58,6 +61,8 @@ public class PotTradeController {
 	private PotTradeImgService ptiService;
 	@Autowired
 	private UserFocusService ufService;
+	@Autowired
+	private UserService us;
 
 	@PostMapping("/addPotTrade")
 	@ApiOperation(value = "添加储罐租卖", notes = "添加储罐租卖")
@@ -141,7 +146,7 @@ public class PotTradeController {
 				pt.setCity(city);
 				pt.setLeasePrice(leasePrice);
 				pt.setSellPrice(sellPrice);
-				pt.setRemark(remark);
+				pt.setRemark(EmojiDealUtil.changeEmojiToHtml(remark));
 				pt.setLxName(lxName);
 				pt.setLxTel(lxTel);
 				if (userType.equals(1)) {
@@ -368,10 +373,10 @@ public class PotTradeController {
 						pt.setSellPrice(sellPrice);
 					}
 					if (!remark.isEmpty() && !remark.equals(pt.getRemark())) {
-						pt.setRemark(remark);
+						pt.setRemark(EmojiDealUtil.changeEmojiToHtml(remark));
 					}
 					if (!lxName.isEmpty() && !lxName.equals(pt.getLxName())) {
-						pt.setLxName(lxName);
+						pt.setLxName(EmojiDealUtil.changeEmojiToHtml(lxName));
 					}
 					if (!lxTel.isEmpty() && !lxTel.equals(pt.getLxTel())) {
 						pt.setLxTel(lxTel);
@@ -473,6 +478,8 @@ public class PotTradeController {
 					map.put("sellPrice", pt.getSellPrice());
 					map.put("checkStatus", pt.getCheckStatus());
 					map.put("showStatus", pt.getShowStatus());
+					map.put("mainImg", pt.getMainImg());
+					map.put("buyYear", pt.getBuyYear());
 					list.add(map);
 				}
 			}
@@ -518,8 +525,8 @@ public class PotTradeController {
 					map.put("city", pt.getCity());
 					map.put("leasePrice", pt.getLeasePrice());
 					map.put("sellPrice", pt.getSellPrice());
-					map.put("reMark", pt.getRemark());
-					map.put("lxName", pt.getLxName());
+					map.put("reMark", EmojiDealUtil.changeStrToEmoji(pt.getRemark()));
+					map.put("lxName",  EmojiDealUtil.changeStrToEmoji(pt.getLxName()));
 					map.put("lxTel", pt.getLxTel());
 					map.put("checkStatus", pt.getCheckStatus());
 					map.put("checkTime", pt.getCheckTime());
@@ -538,10 +545,21 @@ public class PotTradeController {
 						}
 					}
 					String ufId = "";
+					String userHead = "";
 					if (!userId.isEmpty()) {
 						List<UserFocus> ufList = ufService.getUserFocusList(userId, ptId, "cgzm");
-						ufId = ufList.get(0).getId();
+						if(ufList.size() > 0) {
+							ufId = ufList.get(0).getId();
+							userHead = ufList.get(0).getUser().getUserPortrait();
+						}
 					}
+					if(userHead.equals("")) {
+						User user = us.getEntityById(userId);
+						if(user != null) {
+							userHead = user.getUserPortrait();
+						}
+					}
+					map.put("userHead", userHead);
 					map.put("ufId", ufId);
 					map.put("detailImg", ptilist);
 					list.add(map);

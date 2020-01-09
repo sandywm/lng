@@ -5,6 +5,13 @@ import org.json.JSONObject;
 
 import com.baidu.aip.contentcensor.AipContentCensor;
 
+/**
+   *   敏感词屏蔽
+ * @author wm
+ * @Version : 1.0
+ * @ModifiedBy : 修改人
+ * @date  2020年1月9日 上午10:17:27
+ */
 public class Review {
 	// 设置APPID/AK/SK
 	public static final String APP_ID = "18127380";
@@ -50,7 +57,7 @@ public class Review {
 	}
 	
 	public static void main(String[] args) {
-		String content="你是不是练法轮功的 你那里有毒品吗,你他妈的";
+		String content="你是不是练法轮功的 你那里有毒品吗,你他妈的,你好吗,***";
 		System.out.println(textReview(content));
 	}
 

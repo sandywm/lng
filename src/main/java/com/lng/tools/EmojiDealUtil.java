@@ -58,7 +58,7 @@ public class EmojiDealUtil  extends EmojiParser{
 	}
 
 	/**
-	 * @description 将字符串转换为html数据存入数据库
+	 * @description 将字符串转换为html数据存入数据库,同时加入敏感词替换
 	 * @author wm
 	 * @Version : 1.0
 	 * @ModifiedBy : 修改人
@@ -69,9 +69,9 @@ public class EmojiDealUtil  extends EmojiParser{
 	public static String changeEmojiToHtml(String emoji){
       if(!EmojiDealUtil.getEmojiUnicodeString(emoji).trim().equals("")){
 	       String hexadecimal = EmojiParser.parseToHtmlHexadecimal(emoji);
-	       return hexadecimal;
+	       return Review.textReview(hexadecimal);
 	  }else {
-	      return emoji;
+	      return Review.textReview(emoji);
 	  }
     }
 	
@@ -92,7 +92,7 @@ public class EmojiDealUtil  extends EmojiParser{
     }
 	
 	public static void main(String[] args) {
-		System.out.println(EmojiDealUtil.changeEmojiToHtml("opicContentto腐败picContent腐败\uD83D\uDE0A"));
+		System.out.println(EmojiDealUtil.changeEmojiToHtml("opicContentto腐败麻蛋去你妈的，去你码的picContent腐败\uD83D\uDE0A"));
 		System.out.println(EmojiDealUtil.changeStrToEmoji("opicContentto腐败picContent腐败\uD83D\uDE0A"));
 	}
 }

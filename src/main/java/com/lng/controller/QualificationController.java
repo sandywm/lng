@@ -1,7 +1,9 @@
 package com.lng.controller;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -119,17 +121,28 @@ public class QualificationController {
 	})
 	public GenericResponse queryQual(Integer validSta) {
 		Integer status = 200;
-		List<Qualification> qualList = new ArrayList<Qualification>();
+		List<Object> list = new ArrayList<Object>();
 		try {
 			if(validSta== null) {
 				validSta = -1;
 			}
-			qualList = quaService.getQualificationList(validSta);
+			List<Qualification> qualList = quaService.getQualificationList(validSta);
+			if(qualList.size() > 0) {
+				for(Qualification qua : qualList) {
+					Map<String,Object> map = new HashMap<String,Object>();
+					map.put("id", qua.getId());
+					map.put("name", qua.getName());
+					map.put("validStatus", qua.getValidStatus());
+					map.put("addTime", qua.getAddTime());
+					map.put("state", 0);
+					list.add(map);
+				}
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			status = 1000;
 		}
-		return ResponseFormat.retParam(status, qualList);
+		return ResponseFormat.retParam(status, list);
 	}
 
 	@DeleteMapping("/delQualById")

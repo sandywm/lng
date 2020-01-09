@@ -20,6 +20,7 @@ import com.lng.pojo.RqDevTrade;
 import com.lng.pojo.RqDevTradeImg;
 import com.lng.pojo.RqDevType;
 import com.lng.pojo.RqDevType1;
+import com.lng.pojo.User;
 import com.lng.pojo.UserFocus;
 import com.lng.service.CompanyService;
 import com.lng.service.RqDevTradeImgService;
@@ -27,6 +28,7 @@ import com.lng.service.RqDevTradeService;
 import com.lng.service.RqDevType1Service;
 import com.lng.service.RqDevTypeService;
 import com.lng.service.UserFocusService;
+import com.lng.service.UserService;
 import com.lng.tools.CommonTools;
 import com.lng.tools.CurrentTime;
 import com.lng.util.Constants;
@@ -57,6 +59,8 @@ public class RqDevTradeController {
 	private RqDevTradeImgService rdtiService;
 	@Autowired
 	private UserFocusService ufService;
+	@Autowired
+	private UserService us;
 
 	@PostMapping("/addRqDevTrade")
 	@ApiOperation(value = "添加燃气设备买卖", notes = "添加燃气设备买卖")
@@ -448,9 +452,8 @@ public class RqDevTradeController {
 		String rdtId = CommonTools.getFinalStr("id", request);
 		String userId = CommonTools.getFinalStr("userId", request);
 		List<Object> list = new ArrayList<Object>();
-
 		try {
-			if (rdtId.equals("")) {
+			if (rdtId.equals("") || userId.equals("")) {
 				status = 10002;
 			} else {
 				RqDevTrade rdt = rdtService.getEntityById(rdtId);
@@ -479,7 +482,12 @@ public class RqDevTradeController {
 					map.put("addTime", rdt.getAddTime());
 					map.put("userType", rdt.getUserType());
 					map.put("hot", rdt.getHot());
-
+					User user = us.getEntityById(userId);
+					if(user != null) {
+						map.put("userHead", user.getUserPortrait());
+					}else {
+						map.put("userHead", "");
+					}
 					List<RqDevTradeImg> rdti = rdtiService.getRdtImgByRdtId(rdtId);
 					List<Object> rdtilist = new ArrayList<Object>();
 					if (!rdti.isEmpty()) {
