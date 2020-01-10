@@ -19,21 +19,25 @@ import com.lng.pojo.Company;
 import com.lng.pojo.Qualification;
 import com.lng.pojo.TrucksHeadPp;
 import com.lng.pojo.TrucksHeadType;
+import com.lng.pojo.TrucksPotPp;
 import com.lng.pojo.TrucksTrade;
 import com.lng.pojo.TrucksTradeQualification;
 import com.lng.pojo.TrucksType;
 import com.lng.pojo.TructsTradeZz;
+import com.lng.pojo.User;
 import com.lng.pojo.UserFocus;
 import com.lng.pojo.WqPfbz;
 import com.lng.service.CompanyService;
 import com.lng.service.QualificationService;
 import com.lng.service.TrucksHeadPpService;
 import com.lng.service.TrucksHeadTypeService;
+import com.lng.service.TrucksPotPpService;
 import com.lng.service.TrucksTradeQualService;
 import com.lng.service.TrucksTradeService;
 import com.lng.service.TrucksTypeService;
 import com.lng.service.TructsTradeZzService;
 import com.lng.service.UserFocusService;
+import com.lng.service.UserService;
 import com.lng.service.WqPfbzService;
 import com.lng.tools.CommonTools;
 import com.lng.tools.CurrentTime;
@@ -73,6 +77,10 @@ public class TrucksTradeController {
 	private TructsTradeZzService ttzzService;
 	@Autowired
 	private UserFocusService ufService;
+	@Autowired
+	private TrucksPotPpService tpps;
+	@Autowired
+	private UserService us;
 
 	@PostMapping("/addTrucksTrade")
 	@ApiOperation(value = "添加货车租卖", notes = "添加货车租卖")
@@ -80,7 +88,8 @@ public class TrucksTradeController {
 			@ApiResponse(code = 20001, message = "用户未登录"), @ApiResponse(code = 70001, message = "无权限访问") })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "compId", value = "公司编号"),
 			@ApiImplicitParam(name = "mainImg", value = "车辆主图", required = true),
-			@ApiImplicitParam(name = "trucksNo", value = "车牌号码", required = true),
+			@ApiImplicitParam(name = "trucksNo", value = "车头车牌号码", required = true),
+			@ApiImplicitParam(name = "trucksGcNo", value = "挂车车牌号码（可选）"),
 			@ApiImplicitParam(name = "spYear", value = "车头上牌年月", required = true),
 			@ApiImplicitParam(name = "potPpId", value = "储罐品牌（危货）"),
 			@ApiImplicitParam(name = "potVol", value = "储罐容积（危货）"),
@@ -113,6 +122,7 @@ public class TrucksTradeController {
 		String compId = CommonTools.getFinalStr("compId", request);
 		String mainImg = CommonTools.getFinalStr("mainImg", request);
 		String trucksNo = CommonTools.getFinalStr("trucksNo", request);
+		String trucksGcNo = CommonTools.getFinalStr("trucksGcNo",request);
 		String spYear = CommonTools.getFinalStr("spYear", request);
 		String potPpId = CommonTools.getFinalStr("potPpId", request);
 		Integer potVol = CommonTools.getFinalInteger("potVol", request);
@@ -169,6 +179,7 @@ public class TrucksTradeController {
 					trtr.setMainImg(CommonTools.dealUploadDetail(loginUserId, "", mainImg));
 				}
 				trtr.setTrucksNo(trucksNo);
+				trtr.setTrucksGcNo(trucksGcNo);
 				trtr.setSpYear(spYear);
 				trtr.setSpYearPot(spYearPot);
 				trtr.setPotPpId(potPpId);
@@ -583,52 +594,77 @@ public class TrucksTradeController {
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
 			@ApiResponse(code = 50001, message = "数据未找到") })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "checkSta", value = "审核状态(0:未审核,1:审核通过,2:审核未通过)"),
-			@ApiImplicitParam(name = "addUserId", value = "上传人员"),
+			@ApiImplicitParam(name = "userId", value = "上传人员"),
 			@ApiImplicitParam(name = "tradeType", value = "贸易类型（1：租赁，2：买卖）"),
 			@ApiImplicitParam(name = "showStatus", value = "上/下架状态（0：上架，1：下架）"),
-			@ApiImplicitParam(name = "page", value = "第几页"), @ApiImplicitParam(name = "limit", value = "每页多少条") })
-	public PageResponse queryTrucksTrade(Integer checkSta, String addUserId, Integer tradeType, Integer showStatus,
-			Integer page, Integer limit) {
+			@ApiImplicitParam(name = "spYear", value = "上牌年份"),
+			@ApiImplicitParam(name = "potPpId", value = "储罐品牌"),
+			@ApiImplicitParam(name = "headPpId", value = "车头品牌"),
+			@ApiImplicitParam(name = "page", value = "第几页"), 
+			@ApiImplicitParam(name = "limit", value = "每页多少条") })
+	public PageResponse queryTrucksTrade(HttpServletRequest request) {
+		Integer checkSta = CommonTools.getFinalInteger("checkSta", request);
+		String addUserId = CommonTools.getFinalStr("userId", request);
+		Integer tradeType = CommonTools.getFinalInteger("tradeType", request);
+		Integer showStatus = CommonTools.getFinalInteger("showStatus", request);
+		String spYear = CommonTools.getFinalStr("spYear", request);
+		String potPpId = CommonTools.getFinalStr("potPpId", request);
+		String headPpId = CommonTools.getFinalStr("headPpId", request);
+		Integer page = CommonTools.getFinalInteger("page", request);
+		Integer limit = CommonTools.getFinalInteger("limit", request);
 		Integer status = 200;
 		Page<TrucksTrade> tts = null;
+		long count = 0;
 		List<Object> list = new ArrayList<Object>();
 		try {
-			addUserId = CommonTools.getFinalStr(addUserId);
-
-			if (page == null) {
+			if (page == 0) {
 				page = 1;
 			}
-			if (limit == null) {
+			if (limit == 0) {
 				limit = 10;
 			}
-			if (checkSta == null) {
+			if (checkSta == 0) {
 				checkSta = -1;
 			}
-			if (tradeType == null) {
+			if (tradeType == 0) {
 				tradeType = -1;
 			}
-			if (showStatus == null) {
+			if (showStatus == 0) {
 				showStatus = -1;
 			}
-			tts = trucksTradeService.getTrucksTradeByOption(checkSta, addUserId, tradeType, showStatus, page - 1,
-					limit);
-			if (tts.getTotalElements() == 0) {
+			tts = trucksTradeService.getTrucksTradeByOption(checkSta, addUserId, tradeType, showStatus,
+					spYear,potPpId,headPpId,page - 1,limit);
+			count = tts.getTotalElements();
+			if (count == 0) {
 				status = 50001;
 			} else {
 				List<TrucksTrade> ttList = tts.getContent();
 				for (TrucksTrade tt : ttList) {
 					Map<String, Object> map = new HashMap<String, Object>();
+					map.put("mainImg", tt.getMainImg());
 					map.put("ttId", tt.getId());
-					if (tt.getTradeType() == 1) {
-						map.put("TradeTypeName", "租赁");
-					} else if (tt.getTradeType() == 2) {
-						map.put("TradeTypeName", "买卖");
+					Integer tadeType = tt.getTradeType();
+					Integer price = tt.getPrice();
+					if(price.equals(0)) {
+						map.put("price", "面议");
+					}else {
+						if (tadeType.equals(1)) {
+							map.put("TradeTypeName", "租赁");
+							map.put("price", price);
+						} else if (tadeType.equals(2)) {
+							map.put("TradeTypeName", "买卖");
+							map.put("price", price / 10000.0);
+						}
 					}
 					if (!tt.getCompanyId().isEmpty()) {
 						Company cpy = comService.getEntityById(tt.getCompanyId());
 						map.put("CompanyName", cpy.getName());
+					}else {
+						map.put("CompanyName", "个人");
 					}
-					TrucksType trucksType = typeService.findById(tt.getTrucksType().getId());
+					TrucksType trucksType = tt.getTrucksType();
+					map.put("title", tt.getTrucksHeadPp().getName() + trucksType.getName());
+					map.put("regPlace", tt.getRegPlace());
 					map.put("trucksTypeName", trucksType.getName());
 					if (trucksType.getType() == 1) {
 						map.put("trucksTypes", "普货车");
@@ -642,6 +678,7 @@ public class TrucksTradeController {
 					map.put("spYear", tt.getSpYear());
 					map.put("checkStatus", tt.getCheckStatus());
 					map.put("showStatus", tt.getShowStatus());
+					map.put("area", tt.getArea());
 					list.add(map);
 				}
 			}
@@ -650,7 +687,7 @@ public class TrucksTradeController {
 			e.printStackTrace();
 			status = 1000;
 		}
-		return ResponseFormat.getPageJson(limit, page, tts.getTotalElements(), status, list);
+		return ResponseFormat.getPageJson(limit, page, count, status, list);
 	}
 
 	@GetMapping("/getSpecTrucksTrade")
@@ -676,27 +713,69 @@ public class TrucksTradeController {
 					// 获取该租卖的进港资质
 					Map<String, Object> map = new HashMap<String, Object>();
 					map.put("companyId", tt.getCompanyId());
+					map.put("title", tt.getTrucksHeadPp().getName() + tt.getTrucksType().getName());
 					map.put("mainImg", tt.getMainImg());
 					map.put("trucksNo", tt.getTrucksNo());
+					map.put("trucksGcNo", tt.getTrucksGcNo());
 					map.put("spYear", tt.getSpYear());
-					map.put("potPpId", tt.getPotPpId());
+					String potPpId = tt.getPotPpId();
+					String potPpName = "";
+					map.put("potPpId", potPpId);
+					if(potPpId.equals("")) {
+						TrucksPotPp tpp = tpps.findById(potPpId);
+						if(tpp != null) {
+							potPpName = tpp.getName();
+						}
+					}
+					map.put("potPpName", potPpName);
 					map.put("potVol", tt.getPotVolume());
 					map.put("spYearPot", tt.getSpYearPot());
 					map.put("buyYear", tt.getBuyYear());
 					map.put("headTypeId", tt.getTrucksHeadType().getId());
+					map.put("headTypeName", tt.getTrucksHeadType().getName());
 					map.put("headPpId", tt.getTrucksHeadPp().getId());
-					map.put("trucksTypeId", tt.getTrucksType().getId());
-					map.put("trucksTypes", tt.getTrucksType().getType());
+					map.put("headPpName", tt.getTrucksHeadPp().getName());
+					TrucksType trucksType  = tt.getTrucksType();
+					map.put("trucksTypeId", trucksType.getId());
+					map.put("trucksTypes", trucksType.getType());
+					map.put("trucksTypeName", trucksType.getName());
 					map.put("xsDistance", tt.getXsDistance());
-					map.put("price", tt.getPrice());
+					if (!tt.getCompanyId().isEmpty()) {
+						Company cpy = comService.getEntityById(tt.getCompanyId());
+						map.put("CompanyName", cpy.getName());
+					}else {
+						map.put("CompanyName", "个人");
+					}
+					Integer tadeType = tt.getTradeType();
+					Integer price = tt.getPrice();
+					if(price.equals(0)) {
+						map.put("price", "面议");
+					}else {
+						if (tadeType.equals(1)) {
+							map.put("TradeTypeName", "租赁");
+							map.put("price", price);
+						} else if (tadeType.equals(2)) {
+							map.put("TradeTypeName", "买卖");
+							map.put("price", price / 10000.0);
+						}
+					}
 					map.put("regPlace", tt.getRegPlace());
 					map.put("remark", tt.getRemark());
 					map.put("lxName", tt.getLxName());
 					map.put("lxTel", tt.getLxTel());
+					String addUserId = tt.getAddUserId();
+					String userHead = "";
+					if(!addUserId.equals("")) {
+						User user = us.getEntityById(addUserId);
+						if(user != null) {
+							userHead = user.getUserPortrait();
+						}
+					}
+					map.put("userHead", userHead);
 					map.put("checkStatus", tt.getCheckStatus());
 					map.put("checkTime", tt.getCheckTime());
 					map.put("showStatus", tt.getShowStatus());
-					map.put("addUserId", tt.getAddUserId());
+					map.put("addUserId", addUserId);
 					map.put("addTime", tt.getAddTime());
 					map.put("userType", tt.getUserType());
 					map.put("hot", tt.getHot());
@@ -704,6 +783,7 @@ public class TrucksTradeController {
 					map.put("area", tt.getArea());
 					map.put("qyTypeId", tt.getQyTypeId());
 					map.put("pfbzId", tt.getWqPfbz().getId());
+					map.put("pfbzName", tt.getWqPfbz().getName());
 					map.put("accidentFlag", tt.getAccidentFlag());
 					map.put("tructsHeadxsz", tt.getTrucksHeadxsz());
 					map.put("gcXsz", tt.getGcXsz());
@@ -733,7 +813,9 @@ public class TrucksTradeController {
 					String ufId = "";
 					if (!userId.isEmpty()) {
 						List<UserFocus> ufList = ufService.getUserFocusList(userId, ttId, "cczm");
-						ufId = ufList.get(0).getId();
+						if(ufList.size() > 0) {
+							ufId = ufList.get(0).getId();
+						}
 					}
 					map.put("ufId", ufId);
 					map.put("zzlist", zzlist);

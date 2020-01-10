@@ -41,12 +41,15 @@ public interface TrucksTradeService {
 	 * @param addUserId 上传人员
 	 * @param tradeType 贸易类型
 	 * @param showStatus  上/下架状态
+	 * @param spYear  上牌年份
+	 * @param potPpId  储罐品牌
+	 * @param headPpId  车头品牌
 	 * @param pageNo 第几页
 	 * @param pageSize 每页多少条
 	 * @return
 	 */
-	Page<TrucksTrade> getTrucksTradeByOption(Integer checkSta, String addUserId, Integer tradeType,Integer showStatus, Integer pageNo,
-			Integer pageSize);
+	Page<TrucksTrade> getTrucksTradeByOption(Integer checkSta, String addUserId, Integer tradeType,Integer showStatus, 
+			String spYear,String potPpId,String headPpId,Integer pageNo,Integer pageSize);
 	
 	/**
 	 * @description 根据条件获取货车租卖记录列表

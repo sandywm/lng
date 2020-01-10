@@ -39,8 +39,10 @@ public class TrucksTrade implements java.io.Serializable {
 	private String companyId;
 	@ApiModelProperty(value = "车辆主图")
 	private String mainImg;
-	@ApiModelProperty(value = "车牌号码")
+	@ApiModelProperty(value = "车头车牌号码")
 	private String trucksNo;
+	@ApiModelProperty(value = "挂车车牌号码")
+	private String trucksGcNo;
 	@ApiModelProperty(value = "上牌年份")
 	private String spYear;
 	@ApiModelProperty(value = "储罐容积")
@@ -102,7 +104,7 @@ public class TrucksTrade implements java.io.Serializable {
 	}
 
 	public TrucksTrade(TrucksHeadPp trucksHeadPp, TrucksHeadType trucksHeadType, TrucksType trucksType,
-			String companyId, String mainImg, String trucksNo, String spYear, int potVolume, String spYearPot,
+			String companyId, String mainImg, String trucksNo, String trucksGcNo,String spYear, int potVolume, String spYearPot,
 			String potPpId, String buyYear, int xsDistance, int price, String regPlace, String remark, String lxName, String lxTel, int checkStatus,
 			String checkTime, int showStatus, String addUserId, String addTime, int userType, int hot, int tradeType,
 			String area, String qyTypeId, WqPfbz wqPfbz, int accidentFlag, String trucksHeadxsz, String gcXsz,
@@ -112,6 +114,7 @@ public class TrucksTrade implements java.io.Serializable {
 		this.trucksType = trucksType;
 		this.companyId = companyId;
 		this.mainImg = mainImg;
+		this.trucksGcNo = trucksGcNo;
 		this.trucksNo = trucksNo;
 		this.spYear = spYear;
 		this.potVolume = potVolume;
@@ -207,7 +210,7 @@ public class TrucksTrade implements java.io.Serializable {
 		this.mainImg = mainImg;
 	}
 
-	@Column(name = "trucks_no", nullable = false, columnDefinition = "varchar(50) COMMENT '车辆号码'")
+	@Column(name = "trucks_no", nullable = false, columnDefinition = "varchar(50) COMMENT '车头车牌号码'")
 	public String getTrucksNo() {
 		return this.trucksNo;
 	}
@@ -458,6 +461,15 @@ public class TrucksTrade implements java.io.Serializable {
 
 	public void setAqfBg(String aqfBg) {
 		this.aqfBg = aqfBg;
+	}
+
+	@Column(name = "trucks_gc_no",columnDefinition = "varchar(50) COMMENT'挂车车牌号码'")
+	public String getTrucksGcNo() {
+		return trucksGcNo;
+	}
+
+	public void setTrucksGcNo(String trucksGcNo) {
+		this.trucksGcNo = trucksGcNo;
 	}
 	
 	

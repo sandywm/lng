@@ -47,7 +47,7 @@ public class TrucksTradeServiceImpl implements TrucksTradeService {
 	@SuppressWarnings("serial")
 	@Override
 	public Page<TrucksTrade> getTrucksTradeByOption(Integer checkSta, String addUserId, Integer tradeType,Integer showStatus,
-			Integer pageNo, Integer pageSize) {
+			String spYear,String potPpId,String headPpId,Integer pageNo, Integer pageSize) {
 		Sort sort = Sort.by(Sort.Direction.DESC, "addTime");// 降序排列
 		Pageable pageable = PageRequest.of(pageNo, pageSize,sort);
 		Specification<TrucksTrade> spec = new Specification<TrucksTrade>() {
@@ -65,6 +65,16 @@ public class TrucksTradeServiceImpl implements TrucksTradeService {
 				}
 				if (showStatus != -1) {
 					pre.getExpressions().add(cb.equal(root.get("showStatus"), showStatus));
+				}
+				if(!spYear.isEmpty()) {
+					pre.getExpressions().add(cb.greaterThanOrEqualTo(root.get("spYear"), spYear + "-01"));
+					pre.getExpressions().add(cb.lessThanOrEqualTo(root.get("spYear"), spYear + "-12"));
+				}
+				if(!potPpId.isEmpty()) {
+					pre.getExpressions().add(cb.equal(root.get("potPpId"), potPpId));				
+				}
+				if(!headPpId.isEmpty()) {
+					pre.getExpressions().add(cb.equal(root.get("trucksHeadPp").get("id"), headPpId));
 				}
 				return pre;
 			}

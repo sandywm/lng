@@ -530,7 +530,15 @@ public class PotTradeController {
 					map.put("lxTel", pt.getLxTel());
 					map.put("checkStatus", pt.getCheckStatus());
 					map.put("checkTime", pt.getCheckTime());
-					map.put("addUserId", pt.getAddUserId());
+					String addUserId = pt.getAddUserId();
+					String userHead = "";
+					if(!addUserId.equals("")) {
+						User user = us.getEntityById(addUserId);
+						if(user != null) {
+							userHead = user.getUserPortrait();
+						}
+					}
+					map.put("userHead", userHead);
 					map.put("addTime", pt.getAddTime());
 					map.put("userType", pt.getUserType());
 					map.put("hot", pt.getHot());
@@ -545,21 +553,6 @@ public class PotTradeController {
 						}
 					}
 					String ufId = "";
-					String userHead = "";
-					if (!userId.isEmpty()) {
-						List<UserFocus> ufList = ufService.getUserFocusList(userId, ptId, "cgzm");
-						if(ufList.size() > 0) {
-							ufId = ufList.get(0).getId();
-							userHead = ufList.get(0).getUser().getUserPortrait();
-						}
-					}
-					if(userHead.equals("")) {
-						User user = us.getEntityById(userId);
-						if(user != null) {
-							userHead = user.getUserPortrait();
-						}
-					}
-					map.put("userHead", userHead);
 					map.put("ufId", ufId);
 					map.put("detailImg", ptilist);
 					list.add(map);

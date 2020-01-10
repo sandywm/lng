@@ -468,12 +468,30 @@ public class CommonTools {
 		String b = "台湾省,安徽省";
 //		System.out.println(a.indexOf(b));
 //		System.out.println(CommonTools.getFirstSpell("我们的家"));
-		Map<String,Object> map_d = new HashMap<String,Object>();
-		List<Object> list_tj = new ArrayList<Object>();
-		map_d.put("priceDate", "2019-12-15");
-		map_d.put("price", 120);
-		list_tj.add(map_d);
-		System.out.print(list_tj.get(0).toString());
+//		Map<String,Object> map_d = new HashMap<String,Object>();
+//		List<Object> list_tj = new ArrayList<Object>();
+//		map_d.put("priceDate", "2019-12-15");
+//		map_d.put("price", 120);
+//		list_tj.add(map_d);
+//		System.out.print(list_tj.get(0).toString());
+		String aa = "255.255.255.0";
+		String[] ipmasksStrings = aa.split("\\.");
+		int number = 0;
+		String temp = "";
+
+		if(ipmasksStrings != null && ipmasksStrings.length == 4){
+			for (String string : ipmasksStrings) {
+				temp += Integer.toBinaryString(Integer.parseInt(string));
+			}
+			char[] chars = temp.toCharArray();
+			char c = '1';
+			for(int i = 0; i < chars.length; i++){
+				if(c == chars[i]){
+					number++;
+				}
+			}
+		}
+		System.out.println(number);
 //		CommonTools.autoCheckMsg("");
 	}
 }
