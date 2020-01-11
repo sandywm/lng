@@ -131,6 +131,7 @@ public class Login {
 							loginTimes = 0;
 						}
 						su.setLoginTimes(loginTimes);
+						sess.setAttribute(Constants.LOGIN_TIMES, loginTimes);
 						ss.addOrUpUser(su);
 						//获取该用户所有身份列表
 						List<SuperDep> sdList = sds.listSpecInfoByUserId(su.getId());

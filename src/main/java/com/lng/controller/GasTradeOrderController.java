@@ -132,7 +132,7 @@ public class GasTradeOrderController {
 							gtoLog.setOrderDetailTxt("买家已下单，等待买家付款并上传缴费凭证");
 							gtoLog.setAddTime(CurrentTime.getCurrentTime());
 							gtolService.addOrUpdate(gtoLog);
-							MessageCenter mc = new MessageCenter(user.getRealName()+"想购买您发布的"+gt.getGasFactory().getName()+"燃气", user.getRealName()+"想购买您发布的"+gt.getGasFactory().getName()+"燃气", 0, CurrentTime.getCurrentTime(), 2,
+							MessageCenter mc = new MessageCenter("",user.getRealName()+"想购买您发布的"+gt.getGasFactory().getName()+"燃气", user.getRealName()+"想购买您发布的"+gt.getGasFactory().getName()+"燃气", 0, CurrentTime.getCurrentTime(), 2,
 									gtId, "gasTrade", "", gt.getAddUserId(), 0);
 							mcs.saveOrUpdate(mc);
 						}

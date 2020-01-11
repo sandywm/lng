@@ -609,7 +609,7 @@ public class GasTradeController {
 								}else if(opt.equals(2)) {
 									result = "审核未通过，请编辑后重新提交进行审核";
 								}
-								MessageCenter mc = new MessageCenter("您发布的"+gt.getGasFactory().getName()+"燃气"+result, "您发布的"+gt.getGasFactory().getName()+"燃气"+result, 0, CurrentTime.getCurrentTime(), 2,
+								MessageCenter mc = new MessageCenter("","您发布的"+gt.getGasFactory().getName()+"燃气"+result, "您发布的"+gt.getGasFactory().getName()+"燃气"+result, 0, CurrentTime.getCurrentTime(), 2,
 										gasTradeId, "gasTrade", "", gt.getAddUserId(), 0);
 								mcs.saveOrUpdate(mc);
 							}

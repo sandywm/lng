@@ -453,7 +453,7 @@ public class RqDevTradeController {
 		String userId = CommonTools.getFinalStr("userId", request);
 		List<Object> list = new ArrayList<Object>();
 		try {
-			if (rdtId.equals("") || userId.equals("")) {
+			if (rdtId.equals("")) {
 				status = 10002;
 			} else {
 				RqDevTrade rdt = rdtService.getEntityById(rdtId);

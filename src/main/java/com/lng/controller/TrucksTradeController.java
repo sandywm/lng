@@ -647,15 +647,23 @@ public class TrucksTradeController {
 					Integer price = tt.getPrice();
 					if(price.equals(0)) {
 						map.put("price", "面议");
-					}else {
-						if (tadeType.equals(1)) {
-							map.put("TradeTypeName", "租赁");
+					}
+					if (tadeType.equals(1)) {
+						map.put("TradeTypeName", "租赁");
+						if(price.equals(0)) {
+							map.put("price", "面议");
+						}else {
 							map.put("price", price);
-						} else if (tadeType.equals(2)) {
-							map.put("TradeTypeName", "买卖");
+						}
+					} else if (tadeType.equals(2)) {
+						map.put("TradeTypeName", "买卖");
+						if(price.equals(0)) {
+							map.put("price", "面议");
+						}else {
 							map.put("price", price / 10000.0);
 						}
 					}
+					
 					if (!tt.getCompanyId().isEmpty()) {
 						Company cpy = comService.getEntityById(tt.getCompanyId());
 						map.put("CompanyName", cpy.getName());

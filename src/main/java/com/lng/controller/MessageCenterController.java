@@ -16,10 +16,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.lng.pojo.MessageCenter;
+import com.lng.pojo.SuperUser;
 import com.lng.pojo.User;
 import com.lng.service.MessageCenterService;
+import com.lng.service.SuperService;
 import com.lng.service.UserService;
 import com.lng.tools.CommonTools;
+import com.lng.tools.ContantsProperties;
 import com.lng.tools.CurrentTime;
 import com.lng.util.Constants;
 import com.lng.util.GenericResponse;
@@ -42,6 +45,10 @@ public class MessageCenterController {
 	private MessageCenterService mcService;
 	@Autowired
 	private UserService us;
+	@Autowired
+	private SuperService sus;
+	@Autowired
+	private ContantsProperties cp;
 
 	@GetMapping("/getMsgCenterPageList")
 	@ApiOperation(value = "分页获取消息中心列表", notes = "分页获取消息中心列表")
@@ -69,17 +76,57 @@ public class MessageCenterController {
 			limit = 10;
 		}
 		Page<MessageCenter> mcs = null;
+		List<Object> list = new ArrayList<Object>();
 		try {
 			mcs = mcService.getMessageCenterByOption(msgTypeId,toUserId, showStatus, readSta, page - 1, limit);
 			count = mcs.getTotalElements();
 			if (count == 0) {
 				status = 50001;
+			}else {
+				for(MessageCenter mc : mcs) {
+					Map<String,Object> map = new HashMap<String,Object>();
+					map.put("id", mc.getId());
+					map.put("title", mc.getTitle());
+					map.put("content", mc.getContent());
+					map.put("addTime", mc.getAddTime());
+					Integer msgType = mc.getMessageType();
+					map.put("msgType", msgType);
+					map.put("primaryId", mc.getPrimaryId());
+					map.put("primaryType", mc.getPrimaryType());
+					map.put("showStatus", mc.getShowStatus());
+					map.put("readSta", mc.getReadStatus());
+					String addUserId = mc.getAddUserId();
+					String toUserId_tmp = mc.getToUserId();
+					String addUserName = "";
+					String toUserName = "";
+					if(msgType.equals(2) || msgType.equals(3)) {
+						map.put("addUserId", addUserId);
+						User user = us.getEntityById(addUserId);
+						if(user != null) {
+							addUserName = user.getRealName();
+						}
+						User toUser = us.getEntityById(toUserId_tmp);
+						if(toUser != null) {
+							toUserName = toUser.getRealName();
+						}
+					}else if(msgType.equals(1)) {
+						SuperUser user = sus.getEntityById(addUserId);
+						if(user != null) {
+							addUserName = user.getRealName();
+						}
+					}
+					map.put("addUserId", addUserId);
+					map.put("toUserId", toUserId);
+					map.put("addUserName", addUserName);
+					map.put("toUserName", toUserName);
+					list.add(map);
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			status = 1000;
 		}
-		return ResponseFormat.getPageJson(limit, page, count, status, mcs.getContent());
+		return ResponseFormat.getPageJson(limit, page, count, status, list);
 	}
 
 	@GetMapping("/getSpecMsgDetail")
@@ -98,6 +145,14 @@ public class MessageCenterController {
 			}else {
 				Map<String,Object> map = new HashMap<String,Object>();
 				map.put("id", id);
+				String mainImg = mc.getMainImg();
+				if(mc.getMessageType() == 1) {
+					if(mainImg.equals("")) {
+						map.put("mainImg", cp.getDefaultNewsImg());
+					}else {
+						map.put("mainImg", mc.getMainImg());
+					}
+				}
 				map.put("title", mc.getTitle());
 				map.put("content", mc.getContent());
 				map.put("addTime", mc.getAddTime());
@@ -145,7 +200,9 @@ public class MessageCenterController {
 			@ApiImplicitParam(name = "primaryId", value = "主键类型-新闻资讯时无需传递"),
 			@ApiImplicitParam(name = "primaryType", value = "主键类型-新闻资讯时无需传递"),
 			@ApiImplicitParam(name = "addUserId", value = "发布人员编号-留言回复时传递"),
-			@ApiImplicitParam(name = "toUserId", value = "接收人编号-新闻资讯时无需传递") })
+			@ApiImplicitParam(name = "toUserId", value = "接收人编号-新闻资讯时无需传递"),
+			@ApiImplicitParam(name = "mainImg", value = "新闻封面图-新闻资讯时需传递")
+	})
 	public GenericResponse sendMessage(HttpServletRequest request) {
 		String title = CommonTools.getFinalStr("title", request);
 		String content = CommonTools.getFinalStr("content", request);
@@ -154,6 +211,7 @@ public class MessageCenterController {
 		String addUserId = "";
 		String toUserId = CommonTools.getFinalStr("toUserId", request);
 		Integer msgType = CommonTools.getFinalInteger("msgType", request);
+		String mainImg = CommonTools.getFinalStr("mainImg", request);
 		Integer status = 200;
 		String mcId = "";
 		boolean flag = true;
@@ -169,6 +227,11 @@ public class MessageCenterController {
 			}
 			if(flag) {
 				MessageCenter mc = new MessageCenter();
+				if(msgType.equals(1) && !mainImg.equals("")) {
+					mc.setMainImg(CommonTools.dealUploadDetail(addUserId, "", mainImg));
+				}else {
+					mc.setMainImg("");
+				}
 				mc.setTitle(title);
 				mc.setContent(content);
 				mc.setShowStatus(0);
@@ -228,15 +291,49 @@ public class MessageCenterController {
 			 @ApiResponse(code = 10002, message = "参数为空")
 	})
 	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "消息中心编号", required = true),
-			@ApiImplicitParam(name = "title", value = "标题）", required = true),
-			@ApiImplicitParam(name = "content", value = "标题）", required = true),
 			@ApiImplicitParam(name = "showSta", value = "显示状态（0：默认显示，1：隐藏）", required = true)
 		 })
 	public GenericResponse updateByshowSta(HttpServletRequest request) {
 		String id = CommonTools.getFinalStr("id",request);
+		Integer showStatus =  CommonTools.getFinalInteger("showSta", request);
+		Integer status = 200;
+			try {
+				if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request), Constants.UP_MSG)) {
+					MessageCenter mc = mcService.getEntityById(id);
+					if (mc == null) {
+						status = 50001;
+					} else {
+						mc.setShowStatus(showStatus);
+						mcService.saveOrUpdate(mc);
+					}
+				}else {
+					status = 70001;
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				status = 1000;
+			}
+		return ResponseFormat.retParam(status, "");
+	}
+	
+	@PutMapping("/updateDetailById")
+	@ApiOperation(value = "修改消息中心明细", notes = "修改消息中心明细")
+	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), 
+			 @ApiResponse(code = 200, message = "成功"),
+			 @ApiResponse(code = 50001, message = "数据未找到"),
+			 @ApiResponse(code = 70001, message = "无权限访问"),
+			 @ApiResponse(code = 10002, message = "参数为空")
+	})
+	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "消息中心编号", required = true),
+			@ApiImplicitParam(name = "title", value = "标题）", required = true),
+			@ApiImplicitParam(name = "content", value = "标题）", required = true),
+			@ApiImplicitParam(name = "mainImg", value = "新闻封面图-新闻资讯时需传递")
+	})
+	public GenericResponse updateDetailById(HttpServletRequest request) {
+		String id = CommonTools.getFinalStr("id",request);
 		String title = CommonTools.getFinalStr("title", request);
 		String content =  CommonTools.getFinalStr("content", request);
-		Integer showStatus =  CommonTools.getFinalInteger("showSta", request);
+		String mainImg = CommonTools.getFinalStr("mainImg", request);
 		Integer status = 200;
 			try {
 				if(title.equals("") || content.equals("")) {
@@ -248,9 +345,15 @@ public class MessageCenterController {
 						if (mc == null) {
 							status = 50001;
 						} else {
+							if(mc.getMessageType() == 1) {
+								if(mainImg.equals("")) {
+									mc.setMainImg("");
+								}else if(!mainImg.equals(mc.getMainImg())) {//图片不相同
+									mc.setMainImg(CommonTools.dealUploadDetail(CommonTools.getLoginUserId(request), mc.getMainImg(), mainImg));
+								}
+							}
 							mc.setContent(content);
 							mc.setTitle(title);
-							mc.setShowStatus(showStatus);
 							mcService.saveOrUpdate(mc);
 						}
 					}else {

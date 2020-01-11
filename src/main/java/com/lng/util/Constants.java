@@ -8,6 +8,7 @@ public class Constants {
 	public static final String LOGIN_ACCOUNT = "login_account";
 	public static final String LOGIN_REAL_NAME = "login_real_name";
 	public static final String LOGIN_USER_ROLE_NAME = "login_user_role_name";
+	public static final String LOGIN_TIMES = "login_times";
 	public static final String SUPER_DEP_ABILITY = "超级管理员";
 	
 //	public static final String WX_URL = "https://api.weixin.qq.com/sns/jscode2session";

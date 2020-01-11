@@ -851,7 +851,7 @@ public class GasFactoryController {
 						if(checkStatus.equals(1)) {
 							result = "审核通过";
 						}
-						MessageCenter mc = new MessageCenter("您提交的加入"+gfc.getGasFactory().getName()+"贸易商的申请"+result, "您提交的加入"+gfc.getGasFactory().getName()+"贸易商的申请"+result, 0, CurrentTime.getCurrentTime(), 2,
+						MessageCenter mc = new MessageCenter("","您提交的加入"+gfc.getGasFactory().getName()+"贸易商的申请"+result, "您提交的加入"+gfc.getGasFactory().getName()+"贸易商的申请"+result, 0, CurrentTime.getCurrentTime(), 2,
 								gfcId, "joinGf", "", gfc.getAddUserId(), 0);
 						mcs.saveOrUpdate(mc);
 					}

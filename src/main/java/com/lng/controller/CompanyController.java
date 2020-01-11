@@ -571,7 +571,7 @@ public class CompanyController {
 						if(checkSta.equals(1)) {
 							result = "审核通过";
 						}
-						MessageCenter mc = new MessageCenter("您提交的"+comp.getName()+"公司的申请"+result, "您提交的"+comp.getName()+"公司的申请"+result, 0, CurrentTime.getCurrentTime(), 2,
+						MessageCenter mc = new MessageCenter("","您提交的"+comp.getName()+"公司的申请"+result, "您提交的"+comp.getName()+"公司的申请"+result, 0, CurrentTime.getCurrentTime(), 2,
 								id, "addCpy", "", comp.getOwerUserId(), 0);
 						mcs.saveOrUpdate(mc);
 					}

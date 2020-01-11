@@ -13,6 +13,11 @@
       "sourceType": "com.lng.tools.ContantsProperties"
     },
     {
+      "name": "sysconfig.default-news-img",
+      "type": "java.lang.String",
+      "sourceType": "com.lng.tools.ContantsProperties"
+    },
+    {
       "name": "sysconfig.driver",
       "type": "java.lang.String",
       "sourceType": "com.lng.tools.ContantsProperties"

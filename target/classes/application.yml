@@ -16,6 +16,7 @@ sysconfig:
   grantType : authorization_code
   appId : wxedb3f1be6bd71c8a
   secretKey : f39358e9d1c2ada983a452f6ba9a7e6d
+  defaultNewsImg: images/defaultNewsImg.jpg
   
 spring:
   datasource:
@@ -53,7 +54,7 @@ spring:
     default-encoding: UTF-8
   jpa:
     database: MYSQL
-    show-sql: true
+    show-sql: false
     open-in-view: false #忽略警告
     hibernate:
       ddl-auto: update

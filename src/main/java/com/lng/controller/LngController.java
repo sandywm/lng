@@ -295,7 +295,7 @@ public class LngController {
 								diffPrice = lngPrice;
 							}
 							if(lngPrice.equals(0)) {//停产
-								MessageCenter mc = new MessageCenter(gf.getName()+"最新燃气价格变动", 
+								MessageCenter mc = new MessageCenter("",gf.getName()+"最新燃气价格变动", 
 										gf.getName()+"已停产", 0, priceDate+timeStr, 4,
 										"", "", "", "", 0);
 								String mcsId = mcs.saveOrUpdate(mc);
@@ -306,11 +306,11 @@ public class LngController {
 								MessageCenter mc = null;
 								if(diffPrice > 0) {//价格上调变动
 									//发送价格变动新闻
-									mc = new MessageCenter(gf.getName()+"最新燃气价格变动", 
+									mc = new MessageCenter("",gf.getName()+"最新燃气价格变动", 
 											gf.getName()+"最新燃气价格"+lngPrice+"元，每吨上调"+diffPrice+"元", 0, priceDate+timeStr, 4,
 											"", "", "", "", 0);
 								}else if(diffPrice < 0) {//价格下调变动
-									mc = new MessageCenter(gf.getName()+"最新燃气价格变动", 
+									mc = new MessageCenter("",gf.getName()+"最新燃气价格变动", 
 											gf.getName()+"最新燃气价格"+lngPrice+"元，每吨下调"+Math.abs(diffPrice)+"元", 0, priceDate+timeStr, 4,
 											"", "", "", "", 0);
 								}
@@ -355,7 +355,7 @@ public class LngController {
 									//存在当天的价格变动新闻就修改
 									List<MessageCenter> mcList = mcs.listMsgByOpt_1(4, gf.getId(), "", priceDate, priceDate);
 									if(mcList.size() == 0) {
-										MessageCenter mc = new MessageCenter(gf.getName()+"最新燃气价格变动", 
+										MessageCenter mc = new MessageCenter("",gf.getName()+"最新燃气价格变动", 
 												gf.getName()+"已停产", 0, priceDate+timeStr, 4,
 												"", "", "", "", 0);
 										mcs.saveOrUpdate(mc);
@@ -374,7 +374,7 @@ public class LngController {
 										//存在当天的价格变动新闻就修改
 										List<MessageCenter> mcList = mcs.listMsgByOpt_1(4, gf.getId(), "", priceDate, priceDate);
 										if(mcList.size() == 0) {
-											MessageCenter mc = new MessageCenter(gf.getName()+"最新燃气价格变动", 
+											MessageCenter mc = new MessageCenter("",gf.getName()+"最新燃气价格变动", 
 													gf.getName()+"最新燃气价格"+lngPrice+"元，每吨上调"+diffPrice+"元", 0, priceDate+timeStr, 4,
 													"", "", "", "", 0);
 											mcs.saveOrUpdate(mc);
@@ -390,7 +390,7 @@ public class LngController {
 									}else if(diffPrice < 0) {//价格下调变动
 										List<MessageCenter> mcList = mcs.listMsgByOpt_1(4, gf.getId(), "", priceDate, priceDate);
 										if(mcList.size() == 0) {
-											MessageCenter mc = new MessageCenter(gf.getName()+"最新燃气价格变动", 
+											MessageCenter mc = new MessageCenter("",gf.getName()+"最新燃气价格变动", 
 													gf.getName()+"最新燃气价格"+lngPrice+"元，每吨下调"+Math.abs(diffPrice)+"元", 0, priceDate+timeStr, 4,
 													"", "", "", "", 0);
 											mcs.saveOrUpdate(mc);
@@ -765,8 +765,8 @@ public class LngController {
 					map_d.put("remark", remark);
 					list_d.add(map_d);
 				}
-				SortClass sort = new SortClass();
-				Collections.sort(list_d, sort);//list_d中currPrice降序排列
+//				SortClass sort = new SortClass();
+//				Collections.sort(list_d, sort);//list_d中currPrice降序排列
 				map.put("lngPriceList", list_d);
 				list.add(map);
 			}else {

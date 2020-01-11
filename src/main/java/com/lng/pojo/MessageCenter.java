@@ -21,6 +21,8 @@ public class MessageCenter implements java.io.Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 	private String id;
+	@ApiModelProperty(value = "主图")
+	private String mainImg;
 	@ApiModelProperty(value = "标题")
 	private String title;
 	@ApiModelProperty(value = "内容")
@@ -48,8 +50,9 @@ public class MessageCenter implements java.io.Serializable {
 	
 	
 
-	public MessageCenter(String title, String content, int showStatus, String addTime, int messageType,
+	public MessageCenter(String mainImg,String title, String content, int showStatus, String addTime, int messageType,
 			String primaryId, String primaryType, String addUserId, String toUserId, int readStatus) {
+		this.mainImg = mainImg;
 		this.title = title;
 		this.content = content;
 		this.showStatus = showStatus;
@@ -76,6 +79,15 @@ public class MessageCenter implements java.io.Serializable {
 		this.id = id;
 	}
 
+	@Column(name = "main_img", columnDefinition = "varchar(150) COMMENT '主图（新闻资讯时存在）'")
+	public String getMainImg() {
+		return mainImg;
+	}
+
+	public void setMainImg(String mainImg) {
+		this.mainImg = mainImg;
+	}
+	
 	@Column(name = "title", nullable = false, columnDefinition = "varchar(100) COMMENT '标题'")
 	public String getTitle() {
 		return this.title;
@@ -181,5 +193,4 @@ public class MessageCenter implements java.io.Serializable {
 		this.readStatus = readStatus;
 	}
 
-	
 }

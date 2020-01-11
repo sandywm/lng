@@ -99,7 +99,7 @@ public class UserCompanyAndFocusController {
 					uc.setCheckStatus(0);
 					uc.setCheckTime("");
 					ucId = ucService.addOrUpdate(uc);
-					MessageCenter mc = new MessageCenter(user.getRealName()+"申请加入"+company.getName()+"您的公司", user.getRealName()+"申请加入"+company.getName()+"您的公司", 0, CurrentTime.getCurrentTime(), 2,
+					MessageCenter mc = new MessageCenter("",user.getRealName()+"申请加入"+company.getName()+"您的公司", user.getRealName()+"申请加入"+company.getName()+"您的公司", 0, CurrentTime.getCurrentTime(), 2,
 							ucId, "joinCpy", "", uc.getUser().getId(), 0);
 					mcs.saveOrUpdate(mc);
 				}else {
@@ -171,7 +171,7 @@ public class UserCompanyAndFocusController {
 						result = "审核通过";
 					}
 					Company cpy = uc.getCompany();
-					MessageCenter mc = new MessageCenter("您提交的加入"+cpy.getName()+"公司的申请"+result, "您提交的加入"+cpy.getName()+"公司的申请"+result, 0, CurrentTime.getCurrentTime(), 2,
+					MessageCenter mc = new MessageCenter("","您提交的加入"+cpy.getName()+"公司的申请"+result, "您提交的加入"+cpy.getName()+"公司的申请"+result, 0, CurrentTime.getCurrentTime(), 2,
 							id, "joinCpy", "", uc.getUser().getId(), 0);
 					mcs.saveOrUpdate(mc);
 				}

@@ -16,6 +16,7 @@ public class ContantsProperties {
 	String grantType;//微信授权类型
 	String appId;//微信APPID
 	String secretKey;//微信密钥
+	String defaultNewsImg;//新闻默认图片
 	
 	public ContantsProperties() {
 		
@@ -84,6 +85,14 @@ public class ContantsProperties {
 
 	public void setSecretKey(String secretKey) {
 		this.secretKey = secretKey;
+	}
+
+	public String getDefaultNewsImg() {
+		return defaultNewsImg;
+	}
+
+	public void setDefaultNewsImg(String defaultNewsImg) {
+		this.defaultNewsImg = defaultNewsImg;
 	}
 	
 	

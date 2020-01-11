@@ -364,7 +364,7 @@ public class CommonController {
 			if(xwLimit.equals(0)) {
 				xwLimit = 2;
 			}
-			Page<MessageCenter> mcList_xw = mcs.getMessageCenterByOption(1, "", 1, -1, 1, xwLimit);
+			Page<MessageCenter> mcList_xw = mcs.getMessageCenterByOption(1, "", 0, -1, 1, xwLimit);
 			// 获取最近一周最近一条司机求职的记录
 			List<DriverQz> qzList = dqzs.listQzInfoByOpt(sDate, currentDate, 1, -1);
 			// 获取最近一周最近一条招聘司机的记录
