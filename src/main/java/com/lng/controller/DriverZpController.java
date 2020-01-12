@@ -18,13 +18,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.lng.pojo.Company;
 import com.lng.pojo.DriverQz;
 import com.lng.pojo.DriverZp;
-import com.lng.pojo.User;
 import com.lng.pojo.UserFocus;
 import com.lng.service.CompanyService;
 import com.lng.service.DriverQzService;
 import com.lng.service.DriverZpService;
 import com.lng.service.UserFocusService;
-import com.lng.service.UserService;
 import com.lng.tools.CommonTools;
 import com.lng.tools.CurrentTime;
 import com.lng.util.Constants;
@@ -51,13 +49,56 @@ public class DriverZpController {
 	private DriverZpService zpService;
 	@Autowired
 	private UserFocusService ufService;
-	@Autowired
-	private UserService us;
 
+	@GetMapping("/getPubNum")
+	@ApiOperation(value = "获取发布求职/招聘信息数量", notes = "获取发布求职/招聘数量")
+	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), 
+			@ApiResponse(code = 200, message = "成功"),
+			@ApiResponse(code = 10002, message = "参数为空"), 
+			@ApiResponse(code = 50005, message = "超过最大数量")
+	})
+	@ApiImplicitParams({ @ApiImplicitParam(name = "compId", value = "公司编号（公司发布招聘信息时用）"),
+			@ApiImplicitParam(name = "userId", value = "用户编号",required = true),
+			@ApiImplicitParam(name = "opt", value = "参数变量（0：获取求职简历数量，1：获取公司招聘信息数量）",required = true)
+	})
+	public GenericResponse getPubNum(HttpServletRequest request) {
+		Integer status = 200;
+		String compId = CommonTools.getFinalStr("compId", request);
+		String userId = CommonTools.getFinalStr("userId", request);
+		Integer opt = CommonTools.getFinalInteger("opt", request);
+		status = 1000;
+		try {
+			if (userId.equals("")) {
+				status = 10002;
+			}else if(opt.equals(1) && compId.equals("")) {
+				status = 10002;
+			} else {
+				if(opt.equals(0)) {
+					if (qzService.getDriverQzByUserId(userId).size() > 0) {
+						status = 50005;
+					}else {
+						status = 200;
+					}
+				}else {
+					if (zpService.getDriverZpList(compId).size() >= 5) {
+						status = 50005;
+					}else {
+						status = 200;
+					}
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			status = 1000;
+		}
+		return ResponseFormat.retParam(status, "");
+	}
+	
+	
 	@PostMapping("/addDriverQz")
 	@ApiOperation(value = "添加司机求职", notes = "添加司机求职")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
-			@ApiResponse(code = 50003, message = "数据已存在") })
+			@ApiResponse(code = 50005, message = "超过最大数量") })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "userId", value = "用户编号"),
 			@ApiImplicitParam(name = "userName", value = "用户姓名", required = true),
 			@ApiImplicitParam(name = "userMobile", value = "联系电话", required = true),
@@ -136,7 +177,7 @@ public class DriverZpController {
 				qz.setHot(hot);
 				qzId = qzService.saveOrUpdate(qz);
 			} else {
-				status = 50003;
+				status = 50005;
 			}
 
 		} catch (Exception e) {
@@ -399,7 +440,7 @@ public class DriverZpController {
 			@ApiImplicitParam(name = "checkSta", value = "审核状态(0:未审核,1:审核通过,2:审核未通过)"),
 			@ApiImplicitParam(name = "showSta", value = "上/下架状态（0：上架，1：下架）"),
 			@ApiImplicitParam(name = "page", value = "第几页"), @ApiImplicitParam(name = "limit", value = "每页多少条") })
-	public PageResponse queryDriverQz(String userId, Integer jzYear, String jzType, String wage, Integer checkSta,
+	public PageResponse queryDriverQz(String userId, String jzYear, String jzType, String wage, Integer checkSta,
 			Integer showSta, Integer page, Integer limit) {
 		Integer status = 200;
 		Page<DriverQz> qzs = null;
@@ -408,7 +449,7 @@ public class DriverZpController {
 			userId = CommonTools.getFinalStr(userId);
 			jzType = CommonTools.getFinalStr(jzType);
 			wage = CommonTools.getFinalStr(wage);
-
+			jzYear = CommonTools.getFinalStr(jzYear);
 			if (page == null) {
 				page = 1;
 			}
@@ -420,9 +461,6 @@ public class DriverZpController {
 			}
 			if (showSta == null) {
 				showSta = -1;
-			}
-			if (jzYear == null) {
-				jzYear = -1;
 			}
 			qzs = qzService.getDriverQzByOption(userId, jzYear, jzType, wage, checkSta, showSta, page - 1, limit);
 			if (qzs.getTotalElements() == 0) {
@@ -439,6 +477,11 @@ public class DriverZpController {
 					map.put("jzType", qz.getJzType());
 					map.put("checkStatus", qz.getCheckStatus());
 					map.put("showStatus", qz.getShowStatus());
+					map.put("education", qz.getEducation());
+					map.put("sex", qz.getSex());
+					map.put("age", qz.getAge());
+					map.put("prov", qz.getProvince());
+					map.put("city", qz.getCity());
 					list.add(map);
 				}
 			}

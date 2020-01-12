@@ -46,7 +46,7 @@ public class DriverQzServiceImpl implements DriverQzService {
 
 	@SuppressWarnings("serial")
 	@Override
-	public Page<DriverQz> getDriverQzByOption(String userId, Integer jzYear, String jzType, String wage,
+	public Page<DriverQz> getDriverQzByOption(String userId, String jzYear, String jzType, String wage,
 			Integer checkSta, Integer showSta, Integer pageNo, Integer pageSize) {
 		Sort sort = Sort.by(Sort.Direction.DESC, "addTime");// 降序排列
 		Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
@@ -59,8 +59,16 @@ public class DriverQzServiceImpl implements DriverQzService {
 				if (!userId.isEmpty()) {
 					pre.getExpressions().add(cb.equal(root.get("userId"), userId));
 				}
-				if (jzYear != -1) {
-					pre.getExpressions().add(cb.equal(root.get("jzYear"), jzYear));
+				if (!jzYear.isEmpty()) {
+					String[] jzYearArr = jzYear.split("-");
+					Integer jzYear1 = Integer.parseInt(jzYearArr[0]);
+					Integer jzYear2 = null;
+					if (jzYearArr.length == 1) {
+						jzYear2 = jzYear1;
+					} else {
+						jzYear2 = Integer.parseInt(jzYearArr[1]);
+					}
+					pre.getExpressions().add(cb.between(root.get("jzYear"), jzYear1, jzYear2));
 				}
 				if (!jzType.isEmpty()) {
 					pre.getExpressions().add(cb.equal(root.get("jzType"), jzType));

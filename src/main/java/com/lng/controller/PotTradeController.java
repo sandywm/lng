@@ -146,7 +146,11 @@ public class PotTradeController {
 				pt.setCity(city);
 				pt.setLeasePrice(leasePrice);
 				pt.setSellPrice(sellPrice);
-				pt.setRemark(EmojiDealUtil.changeEmojiToHtml(remark));
+				if (!remark.isEmpty()) {
+					pt.setRemark(EmojiDealUtil.changeEmojiToHtml(remark));
+				}else {
+					pt.setRemark(remark);
+				}
 				pt.setLxName(lxName);
 				pt.setLxTel(lxTel);
 				if (userType.equals(1)) {
@@ -526,15 +530,15 @@ public class PotTradeController {
 					map.put("leasePrice", pt.getLeasePrice());
 					map.put("sellPrice", pt.getSellPrice());
 					map.put("reMark", EmojiDealUtil.changeStrToEmoji(pt.getRemark()));
-					map.put("lxName",  EmojiDealUtil.changeStrToEmoji(pt.getLxName()));
+					map.put("lxName", EmojiDealUtil.changeStrToEmoji(pt.getLxName()));
 					map.put("lxTel", pt.getLxTel());
 					map.put("checkStatus", pt.getCheckStatus());
 					map.put("checkTime", pt.getCheckTime());
 					String addUserId = pt.getAddUserId();
 					String userHead = "";
-					if(!addUserId.equals("")) {
+					if (!addUserId.equals("")) {
 						User user = us.getEntityById(addUserId);
-						if(user != null) {
+						if (user != null) {
 							userHead = user.getUserPortrait();
 						}
 					}

@@ -59,7 +59,7 @@ public interface DriverQzService {
 	 * @param pageSize 每页多少条
 	 * @return
 	 */
-	Page<DriverQz> getDriverQzByOption(String userId, Integer jzYear, String jzType, String wage, Integer checkSta,
+	Page<DriverQz> getDriverQzByOption(String userId, String jzYear, String jzType, String wage, Integer checkSta,
 			Integer showSta, Integer pageNo, Integer pageSize);
 	
 	/**

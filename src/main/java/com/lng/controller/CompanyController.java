@@ -405,6 +405,7 @@ public class CompanyController {
 						Map<String, String> map_d = new HashMap<String, String>();
 						map_d.put("cpyId", cpy.getId());
 						map_d.put("cpyName", cpy.getName());
+						map_d.put("address", cpy.getAddress());
 						list.add(map_d);
 					}
 				}else {
@@ -418,6 +419,7 @@ public class CompanyController {
 						Company cpy = uc.getCompany();
 						map_d.put("cpyId", cpy.getId());
 						map_d.put("cpyName", cpy.getName());
+						map_d.put("address", cpy.getAddress());
 						list.add(map_d);
 					}
 				}else {
