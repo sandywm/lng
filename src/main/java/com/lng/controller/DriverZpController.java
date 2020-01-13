@@ -18,11 +18,14 @@ import org.springframework.web.bind.annotation.RestController;
 import com.lng.pojo.Company;
 import com.lng.pojo.DriverQz;
 import com.lng.pojo.DriverZp;
+import com.lng.pojo.User;
 import com.lng.pojo.UserFocus;
 import com.lng.service.CompanyService;
 import com.lng.service.DriverQzService;
 import com.lng.service.DriverZpService;
+import com.lng.service.SuperService;
 import com.lng.service.UserFocusService;
+import com.lng.service.UserService;
 import com.lng.tools.CommonTools;
 import com.lng.tools.CurrentTime;
 import com.lng.util.Constants;
@@ -49,6 +52,8 @@ public class DriverZpController {
 	private DriverZpService zpService;
 	@Autowired
 	private UserFocusService ufService;
+	@Autowired
+	private UserService us;
 
 	@GetMapping("/getPubNum")
 	@ApiOperation(value = "获取发布求职/招聘信息数量", notes = "获取发布求职/招聘数量")
@@ -416,7 +421,9 @@ public class DriverZpController {
 					String ufId = "";
 					if (!userId.isEmpty()) {
 						List<UserFocus> ufList = ufService.getUserFocusList(userId, qzId, "sjqz");
-						ufId = ufList.get(0).getId();
+						if(ufList.size() > 0) {
+							ufId = ufList.get(0).getId();
+						}
 					}
 					map.put("ufId", ufId);
 					list.add(map);
@@ -759,12 +766,13 @@ public class DriverZpController {
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
 			@ApiResponse(code = 50001, message = "数据未找到") })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "compId", value = " 公司编号"),
+			@ApiImplicitParam(name = "jzYear", value = "驾龄"),
 			@ApiImplicitParam(name = "jzType", value = "驾照类型（C2,C1,B...）"),
 			@ApiImplicitParam(name = "wage", value = "薪资"),
 			@ApiImplicitParam(name = "checkSta", value = "审核状态(0:未审核,1:审核通过,2:审核未通过)"),
 			@ApiImplicitParam(name = "showSta", value = "上/下架状态（0：上架，1：下架）"),
 			@ApiImplicitParam(name = "page", value = "第几页"), @ApiImplicitParam(name = "limit", value = "每页多少条") })
-	public PageResponse queryDriverZp(String compId, String jzType, String wage, Integer checkSta, Integer showSta,
+	public PageResponse queryDriverZp(String compId, String jzType, String wage, String jzYear,Integer checkSta, Integer showSta,
 			Integer page, Integer limit) {
 		Integer status = 200;
 		Page<DriverZp> zps = null;
@@ -773,7 +781,7 @@ public class DriverZpController {
 			compId = CommonTools.getFinalStr(compId);
 			jzType = CommonTools.getFinalStr(jzType);
 			wage = CommonTools.getFinalStr(wage);
-
+			jzYear = CommonTools.getFinalStr(jzYear);
 			if (page == null) {
 				page = 1;
 			}
@@ -786,7 +794,7 @@ public class DriverZpController {
 			if (showSta == null) {
 				showSta = -1;
 			}
-			zps = zpService.getDriverQzByOption(compId, jzType, checkSta, showSta, wage, page - 1, limit);
+			zps = zpService.getDriverQzByOption(compId, jzType, jzYear,checkSta, showSta, wage, page - 1, limit);
 			if (zps.getTotalElements() == 0) {
 				status = 50001;
 			} else {
@@ -801,7 +809,7 @@ public class DriverZpController {
 					map.put("jzType", zp.getJzType());
 					map.put("city", zp.getCity());
 					map.put("education", zp.getEducation());
-					map.put("welfare", zp.getWelfare());
+					map.put("welfare", zp.getWelfare().split(","));
 					map.put("wage", zp.getWage());
 					map.put("addTime", zp.getAddTime());
 					map.put("checkStatus", zp.getCheckStatus());
@@ -897,18 +905,31 @@ public class DriverZpController {
 					map.put("checkTime", zp.getCheckTime());
 					map.put("showStatus", zp.getShowStatus());
 					map.put("userType", zp.getUserType());
-					map.put("adduserId", zp.getAddUserId());
 					map.put("hot", zp.getHot());
 					map.put("lxName", zp.getLxName());
 					map.put("lxTel", zp.getLxTel());
 					map.put("education",zp.getEducation());
 					map.put("workYear", zp.getWorkYear());
 					map.put("num", zp.getNum());
-					map.put("welftare", zp.getWelfare());
+					map.put("welftare", zp.getWelfare().split(","));
+					map.put("wage", zp.getWage());
+					map.put("remark", zp.getRemark());
+					String addUserId = zp.getAddUserId();
+					map.put("adduserId", addUserId);
+					if(!addUserId.equals("") && zp.getUserType() == 2) {
+						User user = us.getEntityById(addUserId);
+						if(user != null) {
+							map.put("userHead", user.getUserPortrait());
+						}
+					}else {
+						map.put("userHead", "");
+					}
 					String ufId = "";
 					if (!userId.isEmpty()) {
 						List<UserFocus> ufList = ufService.getUserFocusList(userId, zpId, "sjzp");
-						ufId = ufList.get(0).getId();
+						if(ufList.size() > 0) {
+							ufId = ufList.get(0).getId();
+						}
 					}
 					map.put("ufId", ufId);
 					list.add(map);

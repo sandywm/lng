@@ -97,7 +97,7 @@ public class MessageCenter implements java.io.Serializable {
 		this.title = title;
 	}
 
-	@Column(name = "content", nullable = false, columnDefinition = "varchar(65535) COMMENT '内容'")
+	@Column(name = "content", columnDefinition = "varchar(65535) COMMENT '内容'")
 	public String getContent() {
 		return this.content;
 	}

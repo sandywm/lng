@@ -49,6 +49,7 @@ public interface DriverZpService {
 	 * @date  2019年12月13日 下午4:50:19
 	 * @param compId 公司编号
 	 * @param jzType 驾照类型
+	 * @param jzYear 驾龄
 	 * @param checkSta 审核状态
 	 * @param showSta 上下架状态
 	 * @param wage 薪资范围
@@ -56,7 +57,7 @@ public interface DriverZpService {
 	 * @param pageSize 每页多少条
 	 * @return
 	 */
-	Page<DriverZp> getDriverQzByOption(String compId, String jzType, Integer checkSta, Integer showSta, String wage,
+	Page<DriverZp> getDriverQzByOption(String compId, String jzType, String jzYear,Integer checkSta, Integer showSta, String wage,
 			Integer pageNo, Integer pageSize);
 	
 	/**

@@ -38,6 +38,8 @@ public class User implements java.io.Serializable {
 	private String sex;
 	@ApiModelProperty(value = "手机号")
 	private String mobile;
+	@ApiModelProperty(value = "生日")
+	private String birthday;
 	@ApiModelProperty(value = "注册时间")
 	private String signDate;
 	@ApiModelProperty(value = "上次登录时间")
@@ -65,7 +67,7 @@ public class User implements java.io.Serializable {
 	}
 
 	public User(String account, String password, String wxName, String realName, String sex, String mobile,
-			String signDate, String lastLoginTime, Integer loginTimes, Integer loginStatus, Integer accountStatus,
+			String signDate, String birthday,String lastLoginTime, Integer loginTimes, Integer loginStatus, Integer accountStatus,
 			String accountType, String userPortrait, String specFun) {
 		this.account = account;
 		this.password = password;
@@ -74,6 +76,7 @@ public class User implements java.io.Serializable {
 		this.sex = sex;
 		this.mobile = mobile;
 		this.signDate = signDate;
+		this.birthday = birthday;
 		this.lastLoginTime = lastLoginTime;
 		this.loginTimes = loginTimes;
 		this.loginStatus = loginStatus;
@@ -218,6 +221,15 @@ public class User implements java.io.Serializable {
 
 	public void setSpecFun(String specFun) {
 		this.specFun = specFun;
+	}
+
+	@Column(name = "birthday",columnDefinition = "varchar(30) COMMENT '生日'")
+	public String getBirthday() {
+		return birthday;
+	}
+
+	public void setBirthday(String birthday) {
+		this.birthday = birthday;
 	}
 
 }

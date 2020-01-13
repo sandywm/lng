@@ -213,7 +213,7 @@ public class DriverZp implements java.io.Serializable {
 	public void setNum(int num) {
 		this.num = num;
 	}
-	@Column(name = "welfare",  columnDefinition = "varchar(100) COMMENT '福利待遇'")
+	@Column(name = "welfare",  columnDefinition = "varchar(200) COMMENT '福利待遇'")
 	public String getWelfare() {
 		return welfare;
 	}

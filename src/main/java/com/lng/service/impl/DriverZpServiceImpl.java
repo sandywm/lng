@@ -46,7 +46,7 @@ public class DriverZpServiceImpl implements DriverZpService {
 
 	@SuppressWarnings("serial")
 	@Override
-	public Page<DriverZp> getDriverQzByOption(String compId, String jzType, Integer checkSta, Integer showSta,
+	public Page<DriverZp> getDriverQzByOption(String compId, String jzType, String jzYear,Integer checkSta, Integer showSta,
 			String wage, Integer pageNo, Integer pageSize) {
 		Sort sort = Sort.by(Sort.Direction.DESC, "addTime");// 降序排列
 		Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
@@ -61,6 +61,9 @@ public class DriverZpServiceImpl implements DriverZpService {
 
 				if (!jzType.isEmpty()) {
 					pre.getExpressions().add(cb.equal(root.get("jzType"), jzType));
+				}
+				if (!jzYear.isEmpty()) {
+					pre.getExpressions().add(cb.equal(root.get("jlYearRange"), jzYear));
 				}
 				if (checkSta != -1) {
 					pre.getExpressions().add(cb.equal(root.get("checkStatus"), checkSta));

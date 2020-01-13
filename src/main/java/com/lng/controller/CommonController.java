@@ -402,6 +402,7 @@ public class CommonController {
 			for (MessageCenter mc : mcList_xw) {
 				Map<String, Object> map_d = new HashMap<String, Object>();
 				map_d.put("newId", mc.getId());
+				map_d.put("mainImg", mc.getMainImg());
 				map_d.put("newTitle", mc.getTitle());
 				map_d.put("addTime", mc.getAddTime());
 				list_news.add(map_d);

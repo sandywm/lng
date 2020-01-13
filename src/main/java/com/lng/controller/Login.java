@@ -276,8 +276,7 @@ public class Login {
 						}else {
 							//首次授权，注册账号
 							String userId = us.saveAndUpdate(new User(wxOpenId, "E10ADC3949BA59ABBE56E057F20F883E", nickName, nickName, sex, "",
-									CurrentTime.getCurrentTime(), currTime, 1, 1, 1,"wx", headImg, ""));
-							System.out.println("头像："+headImg.length());
+									currTime, "",currTime, 1, 1, 1,"wx", headImg, ""));
 							Map<String,String> map = new HashMap<String,String>();
 							map.put("userId", userId);
 							map.put("wxOpenId", wxOpenId);

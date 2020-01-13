@@ -85,12 +85,23 @@ public class MessageCenterController {
 			}else {
 				for(MessageCenter mc : mcs) {
 					Map<String,Object> map = new HashMap<String,Object>();
+					if(mc.getMessageType() == 1) {
+						String mainImg = mc.getMainImg();
+						if(mainImg.equals("")) {
+							map.put("mainImg", cp.getDefaultNewsImg());
+						}else {
+							map.put("mainImg", mc.getMainImg());
+						}
+					}else {
+						map.put("mainImg", "");
+					}
 					map.put("id", mc.getId());
 					map.put("title", mc.getTitle());
 					map.put("content", mc.getContent());
 					map.put("addTime", mc.getAddTime());
 					Integer msgType = mc.getMessageType();
 					map.put("msgType", msgType);
+					boolean goPageFlag = false;
 					map.put("primaryId", mc.getPrimaryId());
 					map.put("primaryType", mc.getPrimaryType());
 					map.put("showStatus", mc.getShowStatus());
@@ -109,12 +120,19 @@ public class MessageCenterController {
 						if(toUser != null) {
 							toUserName = toUser.getRealName();
 						}
+						if(msgType.equals(2)) {//系统通知
+							String primaryType = mc.getPrimaryType();
+							if(primaryType.equals("joinCpy") || primaryType.equals("gasTradeOrder")) {//申请加入公司和燃气贸易中客户下单
+								goPageFlag = true;
+							}
+						}
 					}else if(msgType.equals(1)) {
 						SuperUser user = sus.getEntityById(addUserId);
 						if(user != null) {
 							addUserName = user.getRealName();
 						}
 					}
+					map.put("goPageFlag", goPageFlag);
 					map.put("addUserId", addUserId);
 					map.put("toUserId", toUserId);
 					map.put("addUserName", addUserName);

@@ -374,7 +374,7 @@ public class GasTradeController {
 							map.put("ufId", "");
 						}
 					}else {//后台--获取所有贸易商公司
-						List<Company> cList = cs.listSpecCpy("","LNG贸易商");
+						List<Company> cList = cs.listSpecCpy("","LNG贸易商","");
 						for(Company cpy_tmp : cList) {
 							Map<String, Object> map_d = new HashMap<String, Object>();
 							map_d.put("cpyId", cpy_tmp.getId());
@@ -607,7 +607,7 @@ public class GasTradeController {
 								if(opt.equals(1)) {
 									result = "审核通过";
 								}else if(opt.equals(2)) {
-									result = "审核未通过，请编辑后重新提交进行审核";
+									result = "审核未通过";
 								}
 								MessageCenter mc = new MessageCenter("","您发布的"+gt.getGasFactory().getName()+"燃气"+result, "您发布的"+gt.getGasFactory().getName()+"燃气"+result, 0, CurrentTime.getCurrentTime(), 2,
 										gasTradeId, "gasTrade", "", gt.getAddUserId(), 0);

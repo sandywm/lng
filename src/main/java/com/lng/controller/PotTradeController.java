@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.lng.pojo.Company;
+import com.lng.pojo.MessageCenter;
 import com.lng.pojo.PotTrade;
 import com.lng.pojo.PotTradeImg;
 import com.lng.pojo.PotZzjzType;
@@ -23,6 +24,7 @@ import com.lng.pojo.TrucksPotPp;
 import com.lng.pojo.User;
 import com.lng.pojo.UserFocus;
 import com.lng.service.CompanyService;
+import com.lng.service.MessageCenterService;
 import com.lng.service.PotTradeImgService;
 import com.lng.service.PotTradeService;
 import com.lng.service.PotZzjzTypeService;
@@ -63,6 +65,8 @@ public class PotTradeController {
 	private UserFocusService ufService;
 	@Autowired
 	private UserService us;
+	@Autowired
+	private MessageCenterService mcs;
 
 	@PostMapping("/addPotTrade")
 	@ApiOperation(value = "添加储罐租卖", notes = "添加储罐租卖")
@@ -221,6 +225,13 @@ public class PotTradeController {
 						pt.setCheckStatus(checkSta);
 						pt.setCheckTime(CurrentTime.getCurrentTime());
 					}
+					String result = "未审核通过";
+					if(checkSta.equals(1)) {
+						result = "审核通过";
+					}
+					MessageCenter mc = new MessageCenter("","您发布的储罐租卖信息("+pt.getTrucksPotPp().getName()+")"+result, "您发布的储罐租卖信息("+pt.getTrucksPotPp().getName()+")"+result, 0, CurrentTime.getCurrentTime(), 2,
+							id, "pot", "", pt.getAddUserId(), 0);
+					mcs.saveOrUpdate(mc);
 					if (showSta != null && !showSta.equals(pt.getShowStatus())) {
 						pt.setShowStatus(showSta);
 					}

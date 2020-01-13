@@ -399,7 +399,7 @@ public class CompanyController {
 		List<Object> list = new ArrayList<Object>();
 		try {
 			if(opt.equals(0)) {
-				List<Company> cList = companyService.listSpecCpy(cpyTypeId, cpyTypeName);
+				List<Company> cList = companyService.listSpecCpy(cpyTypeId, cpyTypeName,"");
 				if(cList.size() > 0) {
 					for(Company cpy : cList) {
 						Map<String, String> map_d = new HashMap<String, String>();
@@ -415,16 +415,73 @@ public class CompanyController {
 				List<UserCompany> ucList = ucs.getUserCompanyListByOpt(cpyTypeId, cpyTypeName, checkStatus, userId);
 				if(ucList.size() > 0) {
 					for(UserCompany uc : ucList) {
-						Map<String, String> map_d = new HashMap<String, String>();
+						Map<String, Object> map_d = new HashMap<String, Object>();
 						Company cpy = uc.getCompany();
 						map_d.put("cpyId", cpy.getId());
 						map_d.put("cpyName", cpy.getName());
 						map_d.put("address", cpy.getAddress());
+						map_d.put("state", 0);
 						list.add(map_d);
 					}
 				}else {
 					status = 50001;
 				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			status = 1000;
+		}
+		return ResponseFormat.retParam(status, list);
+	}
+	
+	
+	@GetMapping("/getOwerCompanyList")
+	@ApiOperation(value = "获取我创建的审核通过的公司列表", notes = "获取我创建的审核通过的公司列表")
+	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), 
+		@ApiResponse(code = 200, message = "成功"),
+		@ApiResponse(code = 50001, message = "数据未找到") 
+	})
+	@ApiImplicitParams({ @ApiImplicitParam(name = "typeId", value = "公司类型编号"),
+		@ApiImplicitParam(name = "typeName", value = "公司类型名称"),
+		@ApiImplicitParam(name = "userId", value = "公司创建人员编号"),
+		@ApiImplicitParam(name = "gfId", value = "液厂编号(加入液厂时传递)"),
+	})
+	public GenericResponse getOwerCompanyList(HttpServletRequest request) {
+		Integer status = 200;
+		String cpyTypeId = CommonTools.getFinalStr("typeId", request);
+		String cpyTypeName = CommonTools.getFinalStr("typeName", request);
+		String owerUserId = CommonTools.getFinalStr("userId", request);
+		String gfId = CommonTools.getFinalStr("gfId", request);
+		List<Object> list = new ArrayList<Object>();
+		try {
+			List<Company> cList = companyService.listSpecCpy(cpyTypeId, cpyTypeName,owerUserId);
+			if(cList.size() > 0) {
+				if(gfId.equals("")) {
+					for(Company cpy : cList) {
+						Map<String, Object> map_d = new HashMap<String, Object>();
+						map_d.put("cpyId", cpy.getId());
+						map_d.put("cpyName", cpy.getName());
+						map_d.put("state", 0);
+						list.add(map_d);
+					}
+				}else {
+					for(Company cpy : cList) {
+						Map<String, Object> map_d = new HashMap<String, Object>();
+						String cpyId = cpy.getId();
+						List<GasFactoryCompany> gfcList = gfcs.listCompanyByGfId(gfId, cpyId, 1);
+						if(gfcList.size() > 0) {
+							map_d.put("disabled", true);
+						}else {
+							map_d.put("disabled", false);
+						}
+						map_d.put("cpyId", cpyId);
+						map_d.put("cpyName", cpy.getName());
+						map_d.put("state", 0);
+						list.add(map_d);
+					}
+				}
+			}else {
+				status = 50001;
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -553,12 +610,18 @@ public class CompanyController {
 	@PutMapping("/updateCompByStatus")
 	@ApiOperation(value = "更新公司审核状态", notes = "更新公司审核状态")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
-			@ApiResponse(code = 50001, message = "数据未找到"), @ApiResponse(code = 70001, message = "无权限访问") })
+			@ApiResponse(code = 50001, message = "数据未找到"), 
+			@ApiResponse(code = 70001, message = "无权限访问") 
+	})
 	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "公司编号", required = true),
-			@ApiImplicitParam(name = "checkSta", value = "审核状态(0:未审核,1:审核通过,2:审核未通过)", required = true) })
-	public GenericResponse updateCompByStatus(HttpServletRequest request, String id, Integer checkSta) {
-		id = CommonTools.getFinalStr(id);
+			@ApiImplicitParam(name = "checkSta", value = "审核状态(0:未审核,1:审核通过,2:审核未通过)", required = true)
+//			@ApiImplicitParam(name = "reason", value = "未通过 原因")
+	})
+	public GenericResponse updateCompByStatus(HttpServletRequest request) {
+		String id = CommonTools.getFinalStr("id", request);
+		Integer checkSta = CommonTools.getFinalInteger("checkStatus", request);
 		Integer status = 200;
+//		String reason = CommonTools.getFinalStr("reason", request);
 		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),
 				Constants.CHECK_CPY_APPLY)) {
 			try {
@@ -992,7 +1055,17 @@ public class CompanyController {
 					GasFactory gf = gfs.getEntityById(gfId);
 					if(c != null || gf != null) {
 						if(c.getCheckStatus() == 1 && gf.getCheckStatus() == 1) {
-							gfcId = gfcs.saveOrUpdate(new GasFactoryCompany(c, gf, userId,CurrentTime.getCurrentTime(),0,""));
+							List<GasFactoryCompany> gfcList = gfcs.listCompanyByGfId(gfId, compId, -1);
+							if(gfcList.size() == 0) {
+								gfcId = gfcs.saveOrUpdate(new GasFactoryCompany(c, gf, userId,CurrentTime.getCurrentTime(),0,""));
+							}else {
+								//存在一条未审核或者审核不通过的记录
+								GasFactoryCompany gfc = gfcList.get(0);
+								gfc.setCheckStatus(0);
+								gfc.setAddTime(CurrentTime.getCurrentTime());
+								gfc.setCheckTime("");
+								gfcId = gfcs.saveOrUpdate(gfc);
+							}
 						}else {
 							status = 50001;
 						}

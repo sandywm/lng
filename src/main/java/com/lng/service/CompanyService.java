@@ -59,15 +59,16 @@ public interface CompanyService {
 	List<Company> getCompanyByName(String name);
 	
 	/**
-	 * @description 根据公司类型编号、公司类型名称获取公司列表(审核通过)
+	 * @description 根据公司类型编号、公司类型名称、公司创建人获取公司列表(审核通过)
 	 * @author wm
 	 * @Version : 1.0
 	 * @ModifiedBy : 修改人
 	 * @date  2019年12月24日 上午8:18:24
 	 * @param typeId 公司类型（""不查询）
 	 * @param typeName 公司类型名称（""不查询）
+	 * @param owerUserId 公司创建人
 	 * @return
 	 */
-	List<Company> listSpecCpy(String typeId,String typeName);
+	List<Company> listSpecCpy(String typeId,String typeName,String owerUserId);
 	
 }
