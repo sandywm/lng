@@ -219,7 +219,7 @@ public class UserCompanyAndFocusController {
 	}
 
 	@GetMapping("/queryUserCompany")
-	@ApiOperation(value = "获取用户公司关联", notes = "获取用户公司关联信息")
+	@ApiOperation(value = "获取用户公司关联", notes = "获取用户公司关联信息，dealNum大于等于0时表示公司创建人需要处理的申请，-1时表示公司员工")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
 			@ApiResponse(code = 50001, message = "数据未找到") })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "compId", value = "公司编号"),
@@ -259,6 +259,44 @@ public class UserCompanyAndFocusController {
 		return ResponseFormat.retParam(status, list);
 	}
 
+	@GetMapping("/getSelfJoinCompanyList")
+	@ApiOperation(value = "获取我加入的公司列表", notes = "获取我加入的公司列表")
+	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
+			@ApiResponse(code = 50001, message = "数据未找到") })
+	@ApiImplicitParams({
+			@ApiImplicitParam(name = "userId", value = "用户编号"),
+			@ApiImplicitParam(name = "checkStatus", value = "用户审核状态（0:未审核,1:审核通过,2:审核未通过,-1为全部）")
+	})
+	public GenericResponse getSelfJoinCompanyList(HttpServletRequest request) {
+		String userId = CommonTools.getFinalStr("userId", request);
+		Integer checkStatus = CommonTools.getFinalInteger("checkStatus", request);
+		Integer status = 200;
+		List<Object> list = new ArrayList<Object>();
+		try {
+			List<UserCompany> ucs = ucService.getUserCompanyList("", userId,checkStatus);
+			if (ucs.size() == 0) {
+				status = 50001;
+			}else {
+				for (UserCompany uc : ucs) {
+					User user = uc.getUser();
+					Company cpy = uc.getCompany();
+					if(!user.getId().equals(cpy.getOwerUserId())) {
+						Map<String, Object> map_d = new HashMap<String, Object>();
+						map_d.put("cpyId", cpy.getId());
+						map_d.put("cpyName", cpy.getName());
+						map_d.put("addTime", uc.getAddTime());
+						map_d.put("checkStatus",uc.getCheckStatus());
+						list.add(map_d);
+					}
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			status = 1000;
+		}
+		return ResponseFormat.retParam(status, list);
+	}
+	
 	@GetMapping("/queryUserFocus")
 	@ApiOperation(value = "获取用户关注", notes = "获取用户关注")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),

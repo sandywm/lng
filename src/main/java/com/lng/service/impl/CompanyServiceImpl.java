@@ -92,7 +92,7 @@ public class CompanyServiceImpl implements CompanyService {
 
 	@SuppressWarnings("serial")
 	@Override
-	public List<Company> listSpecCpy(String typeId, String typeName,String owerUserId) {
+	public List<Company> listSpecCpy(String typeId, String typeName,String owerUserId,Integer checkStatus) {
 		// TODO Auto-generated method stub
 		Specification<Company> spec = new Specification<Company>() {
 
@@ -108,7 +108,9 @@ public class CompanyServiceImpl implements CompanyService {
 				if(!owerUserId.isEmpty()) {
 					pre.getExpressions().add(cb.equal(root.get("owerUserId"), owerUserId));
 				}
-				pre.getExpressions().add(cb.equal(root.get("checkStatus"), 1));
+				if(checkStatus >= 0) {
+					pre.getExpressions().add(cb.equal(root.get("checkStatus"), checkStatus));
+				}
 				return pre;
 			}
 		};

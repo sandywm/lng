@@ -77,6 +77,7 @@ public class CompanyController {
 	private GasFactoryService gfs;
 	@Autowired
 	private MessageCenterService mcs;
+	
 
 	@PostMapping("/addCompany")
 	@ApiOperation(value = "添加公司", notes = "添加公司")
@@ -185,24 +186,50 @@ public class CompanyController {
 	@PostMapping("/addCompanyPsr")
 	@ApiOperation(value = "添加公司司机押运人", notes = "添加公司司机押运人")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
-			@ApiResponse(code = 70001, message = "无权限访问") })
+			@ApiResponse(code = 70001, message = "无权限访问"),
+			@ApiResponse(code = 10002, message = "参数为空")
+	})
 	@ApiImplicitParams({ @ApiImplicitParam(name = "compId", value = "公司编号", required = true),
 			@ApiImplicitParam(name = "name", value = "姓名", defaultValue = "小哈哈", required = true),
 			@ApiImplicitParam(name = "sex", value = "性别", defaultValue = "男", required = true),
-			@ApiImplicitParam(name = "mobile", value = "电话", defaultValue = "0393-8563425", required = true) })
+			@ApiImplicitParam(name = "mobile", value = "电话", defaultValue = "0393-8563425", required = true),
+			@ApiImplicitParam(name = "userId", value = "当前人员编号（前台用户登录时传递）")
+	})
 	public GenericResponse addCompanyPsr(HttpServletRequest request, String compId, String name, String sex,
 			String mobile) {
 		compId = CommonTools.getFinalStr(compId);
+		String userId = CommonTools.getLoginUserId(request);
 		Integer status = 200;
 		String psrId = "";
 		try {
-			CompanyPsr psr = new CompanyPsr();
-			Company company = companyService.getEntityById(compId);
-			psr.setCompany(company);
-			psr.setName(CommonTools.getFinalStr(name));
-			psr.setSex(CommonTools.getFinalStr(sex));
-			psr.setMobile(CommonTools.getFinalStr(mobile));
-			psrId = psrService.saveOrUpdate(psr);
+			if(userId.equals("") || compId.equals("")) {
+				status = 10002;
+			}else {
+				CompanyPsr psr = new CompanyPsr();
+				Company company = companyService.getEntityById(compId);
+				if(company != null) {
+					String cilentInfo = CommonTools.getCilentInfo_new(request);
+					boolean flag = false;
+					if(cilentInfo.equals("pc")) {
+						flag = true;
+					}else {
+						if(company.getOwerUserId().equals(userId)) {
+							flag = true;
+						}
+					}
+					if(flag) {
+						psr.setCompany(company);
+						psr.setName(CommonTools.getFinalStr(name));
+						psr.setSex(CommonTools.getFinalStr(sex));
+						psr.setMobile(CommonTools.getFinalStr(mobile));
+						psrId = psrService.saveOrUpdate(psr);
+					}else {
+						status = 70001;
+					}
+				}else {
+					status = 10002;
+				}
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			status = 1000;
@@ -213,27 +240,49 @@ public class CompanyController {
 	@PostMapping("/addTrucksGcCp")
 	@ApiOperation(value = "添加挂车车牌", notes = "添加挂车车牌")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
-			@ApiResponse(code = 50003, message = "数据已存在"), @ApiResponse(code = 70001, message = "无权限访问") })
+			@ApiResponse(code = 50003, message = "数据已存在"), @ApiResponse(code = 70001, message = "无权限访问"),
+			@ApiResponse(code = 10002, message = "参数为空")
+	})
 	@ApiImplicitParams({ @ApiImplicitParam(name = "compId", value = "公司编号", required = true),
-			@ApiImplicitParam(name = "gch", value = "挂车车牌号", defaultValue = "豫jkl228", required = true) })
-	public GenericResponse addTrucksGcCp(HttpServletRequest request, String compId, String gch) {
-		compId = CommonTools.getFinalStr(compId);
+			@ApiImplicitParam(name = "gch", value = "挂车车牌号", defaultValue = "豫jkl228", required = true),
+			@ApiImplicitParam(name = "userId", value = "当前人员编号（前台用户登录时传递）")
+	})
+	public GenericResponse addTrucksGcCp(HttpServletRequest request) {
+		String compId = CommonTools.getFinalStr("compId",request);
+		String gch = CommonTools.getFinalStr("gch", request);
 		Integer status = 200;
 		String gcId = "";
+		String userId = CommonTools.getLoginUserId(request);
 		try {
-			gch = CommonTools.getFinalStr(gch);
-			if (tructsGcCpService.getGcCpByName(gch.toUpperCase()).size() == 0) {
-				CompanyTructsGcCp gccp = new CompanyTructsGcCp();
+			if(userId.equals("") || compId.equals("") || gch.equals("")) {
+				status = 10002;
+			}else {
+				String cilentInfo = CommonTools.getCilentInfo_new(request);
+				boolean flag = false;
 				Company company = companyService.getEntityById(compId);
-				gccp.setCompany(company);
-				if (!CommonTools.getFinalStr(gch).equals("")) {
-					gccp.setTrucksGch(gch.toUpperCase());
-				} else {
-					gccp.setTrucksGch("");
+				if(cilentInfo.equals("pc")) {
+					flag = true;
+				}else {
+					if(company.getOwerUserId().equals(userId)) {
+						flag = true;
+					}
 				}
-				gcId = tructsGcCpService.saveOrUpdate(gccp);
-			} else {
-				status = 50003;
+				if(flag) {
+					if (tructsGcCpService.getGcCpByName(gch.toUpperCase()).size() == 0) {
+						CompanyTructsGcCp gccp = new CompanyTructsGcCp();
+						gccp.setCompany(company);
+						if (!CommonTools.getFinalStr(gch).equals("")) {
+							gccp.setTrucksGch(gch.toUpperCase());
+						} else {
+							gccp.setTrucksGch("");
+						}
+						gcId = tructsGcCpService.saveOrUpdate(gccp);
+					} else {
+						status = 50003;
+					}
+				}else {
+					status = 70001;
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -245,27 +294,49 @@ public class CompanyController {
 	@PostMapping("/addTrucksHeadCp")
 	@ApiOperation(value = "添加车头车牌", notes = "添加车头车牌")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
-			@ApiResponse(code = 50003, message = "数据已存在"), @ApiResponse(code = 70001, message = "无权限访问") })
+			@ApiResponse(code = 50003, message = "数据已存在"), @ApiResponse(code = 70001, message = "无权限访问"),
+			@ApiResponse(code = 10002, message = "参数为空")
+	})
 	@ApiImplicitParams({ @ApiImplicitParam(name = "compId", value = "公司编号", required = true),
-			@ApiImplicitParam(name = "cp", value = "车头车牌号", defaultValue = "豫jkl258", required = true) })
-	public GenericResponse addTrucksHeadCp(HttpServletRequest request, String compId, String cp) {
-		compId = CommonTools.getFinalStr(compId);
+			@ApiImplicitParam(name = "cp", value = "车头车牌号", defaultValue = "豫jkl258", required = true),
+			@ApiImplicitParam(name = "userId", value = "当前人员编号（前台用户登录时传递）")
+	})
+	public GenericResponse addTrucksHeadCp(HttpServletRequest request) {
+		String compId = CommonTools.getFinalStr("compId",request);
+		String cp = CommonTools.getFinalStr("cp", request);
+		String userId = CommonTools.getLoginUserId(request);
 		Integer status = 200;
 		String cId = "";
 		try {
-			cp = CommonTools.getFinalStr(cp);
-			if (tructsHeadCpService.getHeadCpList(cp.toUpperCase()).size() == 0) {
-				CompanyTructsHeadCp headCp = new CompanyTructsHeadCp();
+			if(userId.equals("") || compId.equals("") || cp.equals("")) {
+				status = 10002;
+			}else {
+				String cilentInfo = CommonTools.getCilentInfo_new(request);
+				boolean flag = false;
 				Company company = companyService.getEntityById(compId);
-				headCp.setCompany(company);
-				if (!CommonTools.getFinalStr(cp).equals("")) {
-					headCp.setTrucksCp(cp.toUpperCase());
-				} else {
-					headCp.setTrucksCp("");
+				if(cilentInfo.equals("pc")) {
+					flag = true;
+				}else {
+					if(company.getOwerUserId().equals(userId)) {
+						flag = true;
+					}
 				}
-				cId = tructsHeadCpService.saveOrUpdate(headCp);
-			} else {
-				status = 50003;
+				if(flag) {
+					if (tructsHeadCpService.getHeadCpList(cp.toUpperCase()).size() == 0) {
+						CompanyTructsHeadCp headCp = new CompanyTructsHeadCp();
+						headCp.setCompany(company);
+						if (!CommonTools.getFinalStr(cp).equals("")) {
+							headCp.setTrucksCp(cp.toUpperCase());
+						} else {
+							headCp.setTrucksCp("");
+						}
+						cId = tructsHeadCpService.saveOrUpdate(headCp);
+					} else {
+						status = 50003;
+					}
+				}else {
+					status = 70001;
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -277,9 +348,13 @@ public class CompanyController {
 	@PostMapping("/addOrUpdateCompanyZz")
 	@ApiOperation(value = "添加公司资质", notes = "添加公司资质")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
-			@ApiResponse(code = 70001, message = "无权限访问") })
+			@ApiResponse(code = 70001, message = "无权限访问"),
+			@ApiResponse(code = 10002, message = "参数为空")
+	})
 	@ApiImplicitParams({ @ApiImplicitParam(name = "compId", value = "公司编号", required = true),
-			@ApiImplicitParam(name = "zzimg", value = "公司资质图片(多张图片逗号分隔)", defaultValue = "haha.img,tt.img,", required = true) })
+			@ApiImplicitParam(name = "zzimg", value = "公司资质图片(多张图片逗号分隔)", defaultValue = "haha.img,tt.img,", required = true),
+			@ApiImplicitParam(name = "userId", value = "当前人员编号（前台用户登录时传递）")
+	})
 	public GenericResponse addOrUpdateCompanyZz(HttpServletRequest request, String compId, String zzimg) {
 		compId = CommonTools.getFinalStr(compId);
 		zzimg = CommonTools.getFinalStr(zzimg);
@@ -299,23 +374,39 @@ public class CompanyController {
 				status = 70001;
 			}
 			if (status.equals(200)) {
-				List<CompanyZz> zzs = zzService.getCompanyZzList(compId);
-				if (zzs != null) {
-					zzService.deleteBatch(zzs);
-				}
-				Company company = companyService.getEntityById(compId);
-				if (!zzimg.equals("")) {
-					zzImgPath = CommonTools.dealUploadDetail(loginUserId, "", zzimg);
-					String[] pathLen = zzImgPath.split(",");
-					List<CompanyZz> zzList = new ArrayList<>();
-					for (int i = 0; i < pathLen.length; i++) {
-						CompanyZz zz = new CompanyZz();
-						zz.setCompany(company);
-						String zzi = pathLen[i];
-						zz.setCompanyZzImg(zzi);
-						zzList.add(zz);
+				if(loginUserId.equals("") || compId.equals("")) {
+					status = 10002;
+				}else {
+					boolean flag = false;
+					Company company = companyService.getEntityById(compId);
+					if(cilentInfo.equals("pc")) {
+						flag = true;
+					}else {
+						if(company.getOwerUserId().equals(loginUserId)) {
+							flag = true;
+						}
 					}
-					zzService.saveOrUpdateBatch(zzList);
+					if(flag) {
+						List<CompanyZz> zzs = zzService.getCompanyZzList(compId);
+						if (zzs != null) {
+							zzService.deleteBatch(zzs);
+						}
+						if (!zzimg.equals("")) {
+							zzImgPath = CommonTools.dealUploadDetail(loginUserId, "", zzimg);
+							String[] pathLen = zzImgPath.split(",");
+							List<CompanyZz> zzList = new ArrayList<>();
+							for (int i = 0; i < pathLen.length; i++) {
+								CompanyZz zz = new CompanyZz();
+								zz.setCompany(company);
+								String zzi = pathLen[i];
+								zz.setCompanyZzImg(zzi);
+								zzList.add(zz);
+							}
+							zzService.saveOrUpdateBatch(zzList);
+						}
+					}else {
+						status = 70001;
+					}
 				}
 			}
 		} catch (Exception e) {
@@ -399,7 +490,7 @@ public class CompanyController {
 		List<Object> list = new ArrayList<Object>();
 		try {
 			if(opt.equals(0)) {
-				List<Company> cList = companyService.listSpecCpy(cpyTypeId, cpyTypeName,"");
+				List<Company> cList = companyService.listSpecCpy(cpyTypeId, cpyTypeName,"",checkStatus);
 				if(cList.size() > 0) {
 					for(Company cpy : cList) {
 						Map<String, String> map_d = new HashMap<String, String>();
@@ -436,7 +527,7 @@ public class CompanyController {
 	
 	
 	@GetMapping("/getOwerCompanyList")
-	@ApiOperation(value = "获取我创建的审核通过的公司列表", notes = "获取我创建的审核通过的公司列表")
+	@ApiOperation(value = "获取我创建的审核通过的公司列表", notes = "获取我创建的审核通过的公司列表--申请加入液厂时使用")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), 
 		@ApiResponse(code = 200, message = "成功"),
 		@ApiResponse(code = 50001, message = "数据未找到") 
@@ -454,7 +545,7 @@ public class CompanyController {
 		String gfId = CommonTools.getFinalStr("gfId", request);
 		List<Object> list = new ArrayList<Object>();
 		try {
-			List<Company> cList = companyService.listSpecCpy(cpyTypeId, cpyTypeName,owerUserId);
+			List<Company> cList = companyService.listSpecCpy(cpyTypeId, cpyTypeName,owerUserId,1);
 			if(cList.size() > 0) {
 				if(gfId.equals("")) {
 					for(Company cpy : cList) {
@@ -479,6 +570,44 @@ public class CompanyController {
 						map_d.put("state", 0);
 						list.add(map_d);
 					}
+				}
+			}else {
+				status = 50001;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			status = 1000;
+		}
+		return ResponseFormat.retParam(status, list);
+	}
+	
+	@GetMapping("/getSelfCreateCompanyList")
+	@ApiOperation(value = "获取我创建的公司列表", notes = "获取我创建的公司列表")
+	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), 
+		@ApiResponse(code = 200, message = "成功"),
+		@ApiResponse(code = 50001, message = "数据未找到") 
+	})
+	@ApiImplicitParams({@ApiImplicitParam(name = "userId", value = "公司创建人员编号"),
+		@ApiImplicitParam(name = "checkStatus", value = "审核状态(0:未审核,1:审核通过,2:审核未通过)", required = true)
+	})
+	public GenericResponse getSelfCreateCompanyList(HttpServletRequest request) {
+		Integer status = 200;
+		String owerUserId = CommonTools.getFinalStr("userId", request);
+		Integer checkStatus = CommonTools.getFinalInteger("checkStatus", request);
+		List<Object> list = new ArrayList<Object>();
+		try {
+			List<Company> cList = companyService.listSpecCpy("", "", owerUserId, checkStatus);
+			if(cList.size() > 0) {
+				for(Company cpy : cList) {
+					Map<String, Object> map_d = new HashMap<String, Object>();
+					map_d.put("cpyId", cpy.getId());
+					map_d.put("cpyName", cpy.getName());
+					map_d.put("addTime", cpy.getAddTime());
+					//获取待处理的信息
+					if(checkStatus.equals(1)) {
+						map_d.put("dealNum", ucs.getUserCompanyList(cpy.getId(), "",0).size());
+					}
+					list.add(map_d);
 				}
 			}else {
 				status = 50001;
@@ -701,39 +830,48 @@ public class CompanyController {
 				} else if(comp.getCheckStatus()==1){
 					status = 80001;
 				}else {
-					CompanyType ct = ctService.findById(CommonTools.getFinalStr(typeId));
-					comp.setCompanyType(ct);
-					if (!province.equals("") && !province.equals(comp.getProvince())) {
-						comp.setProvince(province);
+					if(comp.getOwerUserId().equals(loginUserId)) {//只有公司创建人才能进行基本信息修改
+						CompanyType ct = ctService.findById(CommonTools.getFinalStr(typeId));
+						comp.setCompanyType(ct);
+						if (!province.equals("") && !province.equals(comp.getProvince())) {
+							comp.setProvince(province);
+						}
+						if (!city.equals("") && !city.equals(comp.getCity())) {
+							comp.setCity(city);
+						}
+						if (!county.equals("") && !county.equals(comp.getCounty())) {
+							comp.setCounty(county);
+						}
+						if (!address.equals("") && !address.equals(comp.getAddress())) {
+							comp.setAddress(address);
+						}
+						if (!lxname.equals("") && !lxname.equals(comp.getLxName())) {
+							comp.setLxName(lxname);
+						}
+						if (!lxtel.equals("") && !lxtel.equals(comp.getLxTel())) {
+							comp.setLxTel(lxtel);
+						}
+						if (!yyzzImg.isEmpty() && !yyzzImg.equals(comp.getYyzzImg()) && comp.getCheckStatus() == 1) {
+							comp.setYyzzImg(CommonTools.dealUploadDetail(loginUserId, "", yyzzImg));
+						}
+						if (!bankName.equals("") && !bankName.equals(comp.getBankName())) {
+							comp.setBankName(bankName);
+						}
+						if (!bankNo.equals("") && !bankNo.equals(comp.getBankNo())) {
+							comp.setBankNo(bankNo);
+						}
+						if (!bankAcc.equals("") && !bankAcc.equals(comp.getBankAccount())) {
+							comp.setBankAccount(bankAcc);
+						}
+						if(comp.getCheckStatus() == 2) {//审核未通过时撤回修改
+							comp.setAddTime(CurrentTime.getCurrentTime());
+							comp.setCheckStatus(0);
+							comp.setCheckTime("");
+						}
+						companyService.saveOrUpdate(comp);
+					}else {
+						status = 70001;
 					}
-					if (!city.equals("") && !city.equals(comp.getCity())) {
-						comp.setCity(city);
-					}
-					if (!county.equals("") && !county.equals(comp.getCounty())) {
-						comp.setCounty(county);
-					}
-					if (!address.equals("") && !address.equals(comp.getAddress())) {
-						comp.setAddress(address);
-					}
-					if (!lxname.equals("") && !lxname.equals(comp.getLxName())) {
-						comp.setLxName(lxname);
-					}
-					if (!lxtel.equals("") && !lxtel.equals(comp.getLxTel())) {
-						comp.setLxTel(lxtel);
-					}
-					if (!yyzzImg.isEmpty() && !yyzzImg.equals(comp.getYyzzImg()) && comp.getCheckStatus() == 1) {
-						comp.setYyzzImg(CommonTools.dealUploadDetail(loginUserId, "", yyzzImg));
-					}
-					if (!bankName.equals("") && !bankName.equals(comp.getBankName())) {
-						comp.setBankName(bankName);
-					}
-					if (!bankNo.equals("") && !bankNo.equals(comp.getBankNo())) {
-						comp.setBankNo(bankNo);
-					}
-					if (!bankAcc.equals("") && !bankAcc.equals(comp.getBankAccount())) {
-						comp.setBankAccount(bankAcc);
-					}
-					companyService.saveOrUpdate(comp);
 				}
 			}
 		} catch (Exception e) {
@@ -1032,11 +1170,9 @@ public class CompanyController {
 	@ApiOperation(value = "贸易公司申请加入液厂贸易商", notes = "贸易公司申请加入液厂贸易商(必须是审核通过的贸易商和液厂才能进行申请)")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), 
 			@ApiResponse(code = 200, message = "成功"),
-			@ApiResponse(code = 50001, message = "数据未找到"),
-			@ApiResponse(code = 10002, message = "参数为空"),
-			@ApiResponse(code = 50003, message = "数据已存在")
+			@ApiResponse(code = 10002, message = "参数为空")
 	})
-	@ApiImplicitParams({ @ApiImplicitParam(name = "compId", value = "公司编号", required = true),
+	@ApiImplicitParams({ @ApiImplicitParam(name = "compId", value = "公司编号（多个公司逗号隔开）", required = true),
 			@ApiImplicitParam(name = "gfId", value = "液厂编号", required = true),
 			@ApiImplicitParam(name = "userId", value = "申请人", required = true)
 	})
@@ -1046,40 +1182,68 @@ public class CompanyController {
 		String compId = CommonTools.getFinalStr("compId", request);
 		String gfId = CommonTools.getFinalStr("gfId", request);
 		String userId = CommonTools.getFinalStr("userId", request);
-		if(compId.equals("") || gfId.equals("")) {
+		List<Object> list_succ = new ArrayList<Object>();
+		List<Object> list_error = new ArrayList<Object>();
+		List<Object> list_exist = new ArrayList<Object>();
+		List<Object> list = new ArrayList<Object>();
+		Map<String,Object> map = new HashMap<String,Object>();
+		if(compId.equals("") || gfId.equals("") || userId.equals("")) {
 			status = 10002;
 		}else {
 			try {
-				if(gfcs.listCompanyByGfId(gfId, compId, 1).size() == 0) {
-					Company c = companyService.getEntityById(compId);
-					GasFactory gf = gfs.getEntityById(gfId);
-					if(c != null || gf != null) {
-						if(c.getCheckStatus() == 1 && gf.getCheckStatus() == 1) {
-							List<GasFactoryCompany> gfcList = gfcs.listCompanyByGfId(gfId, compId, -1);
-							if(gfcList.size() == 0) {
-								gfcId = gfcs.saveOrUpdate(new GasFactoryCompany(c, gf, userId,CurrentTime.getCurrentTime(),0,""));
+				String[] compIdArr = compId.split(",");
+				for(int i = 0 ; i < compIdArr.length ; i++) {
+					String cpyId = compIdArr[i];
+					List<GasFactoryCompany> gfcList = gfcs.listCompanyByGfId(gfId, cpyId, -1);
+					if(gfcList.size() == 0) {
+						//判断该公司类型必须为贸易商
+						Company cpy = companyService.getEntityById(cpyId);
+						GasFactory gf = gfs.getEntityById(gfId);
+						if(gf != null) {
+							if(cpy.getCompanyType().getName().equalsIgnoreCase("LNG贸易商")) {//只有贸易商才能代理液厂
+								gfcId = gfcs.saveOrUpdate(new GasFactoryCompany(cpy, gf, userId,CurrentTime.getCurrentTime(),0,""));
+								Map<String,Object> map_d = new HashMap<String,Object>();
+								map_d.put("cpyId", cpy.getId());
+								map_d.put("cpyName", cpy.getName());
+								list_succ.add(map_d);
 							}else {
-								//存在一条未审核或者审核不通过的记录
-								GasFactoryCompany gfc = gfcList.get(0);
-								gfc.setCheckStatus(0);
-								gfc.setAddTime(CurrentTime.getCurrentTime());
-								gfc.setCheckTime("");
-								gfcId = gfcs.saveOrUpdate(gfc);
+								Map<String,Object> map_d = new HashMap<String,Object>();
+								map_d.put("cpyId", cpy.getId());
+								map_d.put("cpyName", cpy.getName());
+								list_error.add(map_d);
 							}
-						}else {
-							status = 50001;
 						}
 					}else {
-						status = 50001;
+						GasFactoryCompany gfc = gfcList.get(0);
+						Company cpy = gfc.getCompany();
+						if(gfc.getCheckStatus() == 1) {
+							//审核通过,不能申请
+							Map<String,Object> map_d = new HashMap<String,Object>();
+							map_d.put("cpyId", cpy.getId());
+							map_d.put("cpyName", cpy.getName());
+							list_exist.add(map_d);
+						}else {
+							//存在一条未审核或者审核不通过的记录,可以申请
+							gfc.setCheckStatus(0);
+							gfc.setAddTime(CurrentTime.getCurrentTime());
+							gfc.setCheckTime("");
+							gfcId = gfcs.saveOrUpdate(gfc);
+							Map<String,Object> map_d = new HashMap<String,Object>();
+							map_d.put("cpyId", cpy.getId());
+							map_d.put("cpyName", cpy.getName());
+							list_succ.add(map_d);
+						}
 					}
-				}else {//已存在审核通过的申请，不能再进行申请
-					status = 50003;
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
 				status = 1000;
 			}
 		}
-		return ResponseFormat.retParam(status, gfcId);
+		map.put("succList", list_succ);
+		map.put("existList", list_exist);
+		map.put("errorList", list_error);
+		list.add(map);
+		return ResponseFormat.retParam(status, list);
 	}
 }

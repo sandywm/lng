@@ -374,7 +374,7 @@ public class GasTradeController {
 							map.put("ufId", "");
 						}
 					}else {//后台--获取所有贸易商公司
-						List<Company> cList = cs.listSpecCpy("","LNG贸易商","");
+						List<Company> cList = cs.listSpecCpy("","LNG贸易商","",1);
 						for(Company cpy_tmp : cList) {
 							Map<String, Object> map_d = new HashMap<String, Object>();
 							map_d.put("cpyId", cpy_tmp.getId());
