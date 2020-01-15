@@ -687,6 +687,7 @@ public class TrucksTradeController {
 					map.put("checkStatus", tt.getCheckStatus());
 					map.put("showStatus", tt.getShowStatus());
 					map.put("area", tt.getArea());
+					map.put("userType", tt.getUserType());
 					list.add(map);
 				}
 			}

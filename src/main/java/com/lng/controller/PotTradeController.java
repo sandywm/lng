@@ -495,6 +495,7 @@ public class PotTradeController {
 					map.put("showStatus", pt.getShowStatus());
 					map.put("mainImg", pt.getMainImg());
 					map.put("buyYear", pt.getBuyYear());
+					map.put("userType", pt.getUserType());
 					list.add(map);
 				}
 			}

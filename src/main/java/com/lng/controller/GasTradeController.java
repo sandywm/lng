@@ -300,6 +300,7 @@ public class GasTradeController {
 						map_d.put("hpRate","暂无");
 					}
 					map_d.put("tradeNum", tradeNum);
+					map_d.put("userType", gt.getUserType());
 					list.add(map_d);
 				}
 			}else {
@@ -347,10 +348,14 @@ public class GasTradeController {
 						userId = CommonTools.getFinalStr("userId", request);
 						//获取自己的所有贸易公司
 						List<UserCompany> ucList = ucs.getUserCompanyListByOpt("", "LNG贸易商", 1, userId);
-						if(ucList.size() > 0) {
-							map.put("userHead", ucList.get(0).getUser().getUserPortrait());
-						}else {
-							map.put("userHead", "");
+						String addUserId = gt.getAddUserId();
+						if(!addUserId.equals("")) {
+							User user = us.getEntityById(addUserId);
+							if(user != null) {
+								map.put("userHead", user.getUserPortrait());
+							}else {
+								map.put("userHead", "");
+							}
 						}
 						for(UserCompany uc : ucList) {
 							Map<String, Object> map_d = new HashMap<String, Object>();

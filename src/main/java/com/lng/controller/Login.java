@@ -275,6 +275,11 @@ public class Login {
 							}
 						}else {
 							//首次授权，注册账号
+							if(sex.equals("1")) {
+								sex = "男";
+							}else {
+								sex = "女";
+							}
 							String userId = us.saveAndUpdate(new User(wxOpenId, "E10ADC3949BA59ABBE56E057F20F883E", nickName, nickName, sex, "",
 									currTime, "",currTime, 1, 1, 1,"wx", headImg, ""));
 							Map<String,String> map = new HashMap<String,String>();

@@ -332,7 +332,7 @@ public class DriverZpController {
 				if (age != null && !age.equals(qz.getAge())) {
 					qz.setAge(age);
 				}
-				if (!education.isEmpty() && !education.equals(qz.getAge())) {
+				if (!education.isEmpty() && !education.equals(qz.getEducation())) {
 					qz.setEducation(education);
 				}
 				if (!sex.isEmpty() && !sex.equals(qz.getSex())) {

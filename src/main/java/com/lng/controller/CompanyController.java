@@ -748,7 +748,7 @@ public class CompanyController {
 	})
 	public GenericResponse updateCompByStatus(HttpServletRequest request) {
 		String id = CommonTools.getFinalStr("id", request);
-		Integer checkSta = CommonTools.getFinalInteger("checkStatus", request);
+		Integer checkSta = CommonTools.getFinalInteger("checkSta", request);
 		Integer status = 200;
 //		String reason = CommonTools.getFinalStr("reason", request);
 		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),
@@ -761,6 +761,7 @@ public class CompanyController {
 					if (checkSta != null && !checkSta.equals(comp.getCheckStatus())) {
 						comp.setCheckStatus(checkSta);
 						comp.setCheckTime(CurrentTime.getCurrentTime());
+						companyService.saveOrUpdate(comp);
 						String result = "未审核通过";
 						if(checkSta.equals(1)) {
 							result = "审核通过";
@@ -769,7 +770,6 @@ public class CompanyController {
 								id, "addCpy", "", comp.getOwerUserId(), 0);
 						mcs.saveOrUpdate(mc);
 					}
-					companyService.saveOrUpdate(comp);
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -786,6 +786,7 @@ public class CompanyController {
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),@ApiResponse(code = 80001, message = "审核通过不能修改"),
 			@ApiResponse(code = 50001, message = "数据未找到"), @ApiResponse(code = 70001, message = "无权限访问") })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "公司编号", required = true),
+			@ApiImplicitParam(name = "name", value = "公司名称"),
 			@ApiImplicitParam(name = "typeId", value = "公司类型编号", required = true),
 			@ApiImplicitParam(name = "province", value = "省", defaultValue = "河南"),
 			@ApiImplicitParam(name = "city", value = "市", defaultValue = "濮阳"),
@@ -796,10 +797,14 @@ public class CompanyController {
 			@ApiImplicitParam(name = "yyzzImg", value = "营业执照图"),
 			@ApiImplicitParam(name = "bankName", value = "公司银行名称", defaultValue = "华龙区银行"),
 			@ApiImplicitParam(name = "bankNo", value = "公司银行卡号", defaultValue = "4565445445452218997"),
-			@ApiImplicitParam(name = "bankAcc", value = "公司银行账户", defaultValue = "4565445445452218"), })
+			@ApiImplicitParam(name = "bankAcc", value = "公司银行账户", defaultValue = "4565445445452218"),
+			@ApiImplicitParam(name = "owerUserId", value = "公司所属人编号（前台时传递）", defaultValue = "公司所属人编号"),
+			@ApiImplicitParam(name = "zzImg", value = "公司资质图片(多张图片逗号分隔)", defaultValue = "demo.img")
+	})
 	public GenericResponse updateCompany(HttpServletRequest request, String id, String typeId, String province,
 			String city, String county, String address, String lxname, String lxtel, String yyzzImg, String bankName,
 			String bankNo, String bankAcc) {
+		String name = CommonTools.getFinalStr("name", request);
 		id = CommonTools.getFinalStr(id);
 		province = CommonTools.getFinalStr(province);
 		city = CommonTools.getFinalStr(city);
@@ -810,13 +815,14 @@ public class CompanyController {
 		bankName = CommonTools.getFinalStr(bankName);
 		bankNo = CommonTools.getFinalStr(bankNo);
 		bankAcc = CommonTools.getFinalStr(bankAcc);
+		String zzImg = CommonTools.getFinalStr("zzImg", request);
 		String loginUserId = CommonTools.getLoginUserId(request);
 		String cilentInfo = CommonTools.getCilentInfo_new(request);
 		Integer status = 200;
 
 		try {
 			if (cilentInfo.equals("wxApp")) {
-				
+				loginUserId = CommonTools.getFinalStr("owerUserId", request);
 			} else if (CommonTools.checkAuthorization(loginUserId, CommonTools.getLoginRoleName(request),
 					Constants.UP_COMPANY)) {
 
@@ -833,6 +839,9 @@ public class CompanyController {
 					if(comp.getOwerUserId().equals(loginUserId)) {//只有公司创建人才能进行基本信息修改
 						CompanyType ct = ctService.findById(CommonTools.getFinalStr(typeId));
 						comp.setCompanyType(ct);
+						if(!name.equals("") && !name.equals(comp.getName())) {
+							comp.setName(name);
+						}
 						if (!province.equals("") && !province.equals(comp.getProvince())) {
 							comp.setProvince(province);
 						}
@@ -851,8 +860,8 @@ public class CompanyController {
 						if (!lxtel.equals("") && !lxtel.equals(comp.getLxTel())) {
 							comp.setLxTel(lxtel);
 						}
-						if (!yyzzImg.isEmpty() && !yyzzImg.equals(comp.getYyzzImg()) && comp.getCheckStatus() == 1) {
-							comp.setYyzzImg(CommonTools.dealUploadDetail(loginUserId, "", yyzzImg));
+						if (!yyzzImg.isEmpty() && !yyzzImg.equals(comp.getYyzzImg())) {
+							comp.setYyzzImg(CommonTools.dealUploadDetail(loginUserId, comp.getYyzzImg(), yyzzImg));
 						}
 						if (!bankName.equals("") && !bankName.equals(comp.getBankName())) {
 							comp.setBankName(bankName);
@@ -867,6 +876,31 @@ public class CompanyController {
 							comp.setAddTime(CurrentTime.getCurrentTime());
 							comp.setCheckStatus(0);
 							comp.setCheckTime("");
+						}
+						List<CompanyZz>  zzList = zzService.getCompanyZzList(id);
+						List<CompanyZz> zzlist_new = new ArrayList<CompanyZz>();
+						if(zzList.size() == 0) {//没有资质文件
+							String[] zzArr = CommonTools.dealUploadDetail(loginUserId, "", zzImg).split(",");
+							for(int i = 0 ; i < zzArr.length ; i++) {
+								zzlist_new.add(new CompanyZz(comp, zzArr[i]));
+							}
+							zzService.saveOrUpdateBatch(zzlist_new);
+						}else {//数据库有图
+							if(!zzImg.equals("")) {
+								String zz_db = "";
+								for(CompanyZz zz : zzList) {
+									zz_db += zz.getCompanyZzImg() + ",";
+								}
+								if(!zz_db.equals("")) {
+									zz_db = zz_db.substring(0, zz_db.length() - 1);
+									String[] zz_new_arr = CommonTools.dealUploadDetail(loginUserId, zz_db, zzImg).split(",");
+									zzService.deleteBatch(zzList);
+									for(int i = 0 ; i < zz_new_arr.length ; i++) {
+										zzlist_new.add(new CompanyZz(comp, zz_new_arr[i]));
+									}
+									zzService.saveOrUpdateBatch(zzlist_new);
+								}
+							}
 						}
 						companyService.saveOrUpdate(comp);
 					}else {
@@ -1028,6 +1062,7 @@ public class CompanyController {
 					Map<String, Object> map_d = new HashMap<String, Object>();
 					map_d.put("compId", cpy.getId());
 					map_d.put("cpyName", cpy.getName());
+					map_d.put("cpyTypeId", cpy.getCompanyType().getId());
 					map_d.put("cptTypeName", cpy.getCompanyType().getName());
 					map_d.put("provName", cpy.getProvince());
 					map_d.put("city", cpy.getCity());

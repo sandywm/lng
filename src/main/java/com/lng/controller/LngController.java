@@ -803,7 +803,7 @@ public class LngController {
 				for(Object obj : hpdList) {
 					Object[] sub = (Object[]) obj;
 					Map<String,Object> map_tj = new HashMap<String,Object>();
-					map_tj.put("priceDate", sub[0].toString().substring(8));
+					map_tj.put("priceDate", Integer.parseInt(sub[0].toString().substring(8)));
 					Integer price = Integer.parseInt(sub[1].toString().substring(0,sub[1].toString().indexOf(".")));
 					map_tj.put("price", price);
 					list_tj.add(map_tj);
