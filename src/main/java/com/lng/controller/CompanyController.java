@@ -511,6 +511,8 @@ public class CompanyController {
 						map_d.put("cpyId", cpy.getId());
 						map_d.put("cpyName", cpy.getName());
 						map_d.put("address", cpy.getAddress());
+						map_d.put("lxName", cpy.getLxName());
+						map_d.put("lxTel", cpy.getLxTel());
 						map_d.put("state", 0);
 						list.add(map_d);
 					}
@@ -698,6 +700,7 @@ public class CompanyController {
 			} else {
 				for (CompanyTructsGcCp cp : cpyGccpList) {
 					Map<String, String> map_d = new HashMap<String, String>();
+					map_d.put("id", cp.getId());
 					map_d.put("cph", cp.getTrucksGch());
 					list.add(map_d);
 				}
@@ -725,6 +728,7 @@ public class CompanyController {
 			} else {
 				for (CompanyTructsHeadCp cp : headCpList) {
 					Map<String, String> map_d = new HashMap<String, String>();
+					map_d.put("id", cp.getId());
 					map_d.put("cph", cp.getTrucksCp());
 					list.add(map_d);
 				}
@@ -936,13 +940,13 @@ public class CompanyController {
 			if (psr == null) {
 				status = 50001;
 			} else {
-				if (!name.isEmpty() && !name.equals(psr.getName())) {
+				if (!name.isEmpty()) {
 					psr.setName(name);
 				}
-				if (!sex.isEmpty() && !sex.equals(psr.getSex())) {
+				if (!sex.isEmpty()) {
 					psr.setSex(sex);
 				}
-				if (mobile.isEmpty() && !mobile.equals(psr.getMobile())) {
+				if (!mobile.isEmpty()) {
 					psr.setMobile(mobile);
 				}
 				psrService.saveOrUpdate(psr);

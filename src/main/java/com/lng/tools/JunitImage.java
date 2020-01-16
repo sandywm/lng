@@ -30,6 +30,7 @@ public class JunitImage {
      * @param formaName 图片后缀
      */
     public static void markImageByText(String logoText, String srcImgPath,String newImagePath,Integer degree,Color color,String formaName) {
+    	long startTime=System.currentTimeMillis();
         InputStream is = null;
         OutputStream os = null;
         try {
@@ -84,6 +85,9 @@ public class JunitImage {
                 e.printStackTrace();
             }
         }
+        long endTime=System.currentTimeMillis();
+		float excTime=(float)(endTime-startTime)/1000;
+		System.out.println("制作水印耗费时间--"+excTime);
     }
     
     /**

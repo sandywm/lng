@@ -239,10 +239,12 @@ public class TrucksTradeController {
 						String[] qualArr = qualId.split(",");
 						for (int i = 0; i < qualArr.length; i++) {
 							Qualification qual = qualService.findById(qualArr[i]);
-							TrucksTradeQualification ttQual = new TrucksTradeQualification();
-							ttQual.setQualification(qual);
-							ttQual.setTrucksTrade(trtr);
-							ttQualService.addOrUpdate(ttQual);
+							if(qual != null) {
+								TrucksTradeQualification ttQual = new TrucksTradeQualification();
+								ttQual.setQualification(qual);
+								ttQual.setTrucksTrade(trtr);
+								ttQualService.addOrUpdate(ttQual);
+							}
 						}
 
 					}

@@ -155,8 +155,9 @@ public class UserCompanyAndFocusController {
 			@ApiResponse(code = 50001, message = "数据未找到"), @ApiResponse(code = 70001, message = "无权限访问") })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "用户公司关联编号", required = true),
 			@ApiImplicitParam(name = "checkSta", value = "审核状态(0:未审核,1:审核通过,2:审核未通过)", required = true) })
-	public GenericResponse updateUserCompanyBySta(HttpServletRequest request, String id, Integer checkSta) {
-		id = CommonTools.getFinalStr(id);
+	public GenericResponse updateUserCompanyBySta(HttpServletRequest request) {
+		String id = CommonTools.getFinalStr("id",request);
+		Integer checkSta = CommonTools.getFinalInteger("checkSta", request);
 		Integer status = 200;
 		try {
 			UserCompany uc = ucService.getEntityId(id);
@@ -233,13 +234,14 @@ public class UserCompanyAndFocusController {
 		Integer status = 200;
 		List<Object> list = new ArrayList<Object>();
 		try {
-			List<UserCompany> ucs = ucService.getUserCompanyList(compId, userId,checkStatus);
+			List<UserCompany> ucs = ucService.getUserCompanyList(compId, "",checkStatus);
 			if (ucs.size() == 0) {
 				status = 50001;
 			}else {
 				for (UserCompany uc : ucs) {
 					Map<String, Object> map_d = new HashMap<String, Object>();
 					Company cpy = uc.getCompany();
+					map_d.put("id", uc.getId());
 					map_d.put("cpyId", cpy.getId());
 					map_d.put("cpyName", cpy.getName());
 					User user = uc.getUser();
@@ -249,6 +251,11 @@ public class UserCompanyAndFocusController {
 					map_d.put("userMobile", user.getMobile());
 					map_d.put("addTime", uc.getAddTime());
 					map_d.put("checkStatus",uc.getCheckStatus());
+					if(userId.equals(cpy.getOwerUserId())) {
+						map_d.put("selfCpyFlag", true);
+					}else {
+						map_d.put("selfCpyFlag", false);
+					}
 					list.add(map_d);
 				}
 			}

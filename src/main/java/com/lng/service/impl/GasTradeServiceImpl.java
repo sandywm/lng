@@ -66,7 +66,19 @@ public class GasTradeServiceImpl implements GasTradeService{
 					pre.getExpressions().add(cb.equal(root.get("addUserId"), addUserId));
 				}
 				if(!gtId.isEmpty()) {
-					pre.getExpressions().add(cb.equal(root.get("gasType").get("id"), gtId));
+					String[] gtIdArr = gtId.split(",");
+					if(gtIdArr.length == 1) {
+						pre.getExpressions().add(cb.equal(root.get("gasType").get("id"), gtId));
+					}else {
+						List<Predicate> predicateList = new ArrayList<Predicate>();
+						Predicate [] p = new Predicate[gtIdArr.length];
+						for(int i = 0 ; i < gtIdArr.length ; i++) {
+							predicateList.add(cb.equal(root.get("gasType").get("id"), gtIdArr[i]));
+						}
+						predicateList.toArray(p);
+						pre.getExpressions().add(cb.or(p));
+					}
+					
 				}
 				if(!gfId.isEmpty()) {
 					pre.getExpressions().add(cb.equal(root.get("gasFactory").get("id"), gfId));

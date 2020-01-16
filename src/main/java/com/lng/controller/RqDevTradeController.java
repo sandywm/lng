@@ -431,6 +431,7 @@ public class RqDevTradeController {
 					map.put("devNo", rdts.getDevNo());
 					map.put("mainImg", rdts.getMainImg());
 					map.put("addTime", rdts.getAddTime());
+					map.put("userType", rdts.getUserType());
 					list.add(map);
 				}
 			}
@@ -482,7 +483,7 @@ public class RqDevTradeController {
 					map.put("addTime", rdt.getAddTime());
 					map.put("userType", rdt.getUserType());
 					map.put("hot", rdt.getHot());
-					User user = us.getEntityById(userId);
+					User user = us.getEntityById(rdt.getAddUserId());
 					if(user != null) {
 						map.put("userHead", user.getUserPortrait());
 					}else {

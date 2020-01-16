@@ -609,9 +609,9 @@ public class GasTradeController {
 								gts.saveOrUpdate(gt);
 								//给发布人发送一条消息
 								String result = "";
-								if(opt.equals(1)) {
+								if(checkStatus.equals(1)) {
 									result = "审核通过";
-								}else if(opt.equals(2)) {
+								}else if(checkStatus.equals(2)) {
 									result = "审核未通过";
 								}
 								MessageCenter mc = new MessageCenter("","您发布的"+gt.getGasFactory().getName()+"燃气"+result, "您发布的"+gt.getGasFactory().getName()+"燃气"+result, 0, CurrentTime.getCurrentTime(), 2,

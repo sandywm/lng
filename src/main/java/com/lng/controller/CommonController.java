@@ -364,7 +364,7 @@ public class CommonController {
 			if(xwLimit.equals(0)) {
 				xwLimit = 2;
 			}
-			Page<MessageCenter> mcList_xw = mcs.getMessageCenterByOption(1, "", 0, -1, 1, xwLimit);
+			Page<MessageCenter> mcList_xw = mcs.getMessageCenterByOption(1, "", 0, -1, 0, xwLimit);
 			// 获取最近一周最近一条司机求职的记录
 			List<DriverQz> qzList = dqzs.listQzInfoByOpt(sDate, currentDate, 1, -1);
 			// 获取最近一周最近一条招聘司机的记录
@@ -383,7 +383,11 @@ public class CommonController {
 			List<Object> list_1 = new ArrayList<Object>();// 燃气贸易
 			for (GasTrade gt : gtList) {
 				Map<String, Object> map_d = new HashMap<String, Object>();
-				map_d.put("headImg", gt.getHeadImg());
+				String headImg = gt.getHeadImg();
+				if(headImg == null || headImg.equals("")) {
+					headImg = gt.getGasType().getYzImg();
+				}
+				map_d.put("headImg", headImg);
 				map_d.put("gasTradeId", gt.getId());
 				String addUserId = gt.getAddUserId();
 				User user = us.getEntityById(addUserId);
@@ -422,7 +426,7 @@ public class CommonController {
 			}
 			map.put("qzList", list_qz);
 			List<Object> list_zp = new ArrayList<Object>();// 招聘
-			if (qzList.size() > 0) {
+			if (zpList.size() > 0) {
 				DriverZp zp = zpList.get(0);
 				Map<String, Object> map_zp = new HashMap<String, Object>();
 				map_zp.put("qzId", zp.getId());

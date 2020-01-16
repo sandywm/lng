@@ -108,6 +108,7 @@ public class FileOpration {
 	  * @throws Exception
 	  */
 	 public static void makeImage(String url, Double rate, String newUrl, String formatName)throws Exception{
+		 long startTime=System.currentTimeMillis();
 		 //读取图片
 	     BufferedImage bi = ImageIO.read(new File(url));
 	     Integer width_old = bi.getWidth();//原始尺寸
@@ -125,6 +126,9 @@ public class FileOpration {
 	     ImageIO.write(bi1, formatName, fos);
 	     fos.flush();
 	     fos.close();
+	     long endTime=System.currentTimeMillis();
+			float excTime=(float)(endTime-startTime)/1000;
+			System.out.println("等比压缩耗费时间--"+excTime);
 	 }
 	 
 	 /**

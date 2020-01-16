@@ -43,7 +43,9 @@ public class UploadController {
 	@PostMapping("uploadSingle")
 	@ApiResponses({@ApiResponse(code = 1000, message = "服务器错误")})
 	public GenericResponse upload(MultipartFile file,HttpServletRequest request) throws Exception {
+		long startTime=System.currentTimeMillis();
 		String newFileNamePre = "";
+		String newFileNamePre_small = "";
 		Integer status = 200;
 		File filePath = new File(cp.getWeburl() + "temp");
 		if(!filePath.exists()) {
@@ -55,20 +57,26 @@ public class UploadController {
 			String suffix = fileName.substring(lastIndex+1);
 			String currentTime = CurrentTime.getRadomTime();
 			newFileNamePre = currentTime + "." + suffix;
+			newFileNamePre_small = currentTime + "_small." + suffix;
 			String newFilePath = filePath+File.separator+newFileNamePre;
+			String newSmallFilePath = filePath+File.separator+newFileNamePre_small;
 			file.transferTo(new File(newFilePath));
 			String formatName = FileOpration.getImageFormat(suffix);
-			List<SystemInfo> sList = scs.findInfo();
-			String waterMark = "";
-			if(sList.size() > 0) {
-				waterMark = sList.get(0).getWaterMark();
-			}
-			JunitImage.markImageByText(waterMark,newFilePath,newFilePath,45,new Color(0,0,0),formatName);
+//			List<SystemInfo> sList = scs.findInfo();
+//			String waterMark = "";
+//			if(sList.size() > 0) {
+//				waterMark = sList.get(0).getWaterMark();
+//			}
+//			JunitImage.markImageByText(waterMark,newFilePath,newFilePath,45,new Color(0,0,0),formatName);
+			FileOpration.makeImage(newFilePath, 0.5, newSmallFilePath, formatName);
 		} catch (IllegalStateException | IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			status = 1000;
 		}
+		long endTime=System.currentTimeMillis();
+		float excTime=(float)(endTime-startTime)/1000;
+		System.out.println("上传单个文件耗费时间--"+excTime);
 		return ResponseFormat.retParam(status, newFileNamePre);
 	}
 	
@@ -91,15 +99,18 @@ public class UploadController {
 				String suffix = fileName.substring(lastIndex+1);
 				String currentTime = CurrentTime.getRadomTime();
 				String newFileNamePre = currentTime + "." + suffix;
+				String newFileNamePre_small = currentTime + "_small." + suffix;
 				String newFilePath = filePath+File.separator+newFileNamePre;
+				String newSmallFilePath = filePath+File.separator+newFileNamePre_small;
 				file.transferTo(new File(newFilePath));
 				String formatName = FileOpration.getImageFormat(suffix);
-				List<SystemInfo> sList = scs.findInfo();
-				String waterMark = "";
-				if(sList.size() > 0) {
-					waterMark = sList.get(0).getWaterMark();
-				}
-				JunitImage.markImageByText(waterMark,newFilePath,newFilePath,45,new Color(0,0,0),formatName);
+//				List<SystemInfo> sList = scs.findInfo();
+//				String waterMark = "";
+//				if(sList.size() > 0) {
+//					waterMark = sList.get(0).getWaterMark();
+//				}
+//				JunitImage.markImageByText(waterMark,newFilePath,newFilePath,45,new Color(0,0,0),formatName);
+				FileOpration.makeImage(newFilePath, 0.5, newSmallFilePath, formatName);
 	        	list_d.add(newFileNamePre);
 	        }
 		} catch (IllegalStateException | IOException e) {
