@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,6 +24,7 @@ import com.lng.service.SuperService;
 import com.lng.tools.CommonTools;
 import com.lng.tools.CurrentTime;
 import com.lng.tools.MD5;
+import com.lng.util.Constants;
 import com.lng.util.GenericResponse;
 import com.lng.util.ResponseFormat;
 
@@ -121,6 +123,8 @@ public class SuperController {
 					
 				}else {
 					user.setRealName(realName);
+					HttpSession sess = request.getSession(false);
+					sess.setAttribute(Constants.LOGIN_REAL_NAME, realName);
 				}
 				if(mobile == null || mobile.equals("")) {
 					

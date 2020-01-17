@@ -34,9 +34,10 @@ public interface CompanyTypeService {
 	 * @Version : 1.0
 	 * @ModifiedBy : 
 	 * @date  2019年12月6日 上午11:55:27
+	 * @param status 状态（0：全部，1：加入公司展示）
 	 * @return  公司列表
 	 */
-	List<CompanyType> getCompanyTypeList();
+	List<CompanyType> getCompanyTypeList(Integer status);
 	/**
 	 * 
 	 * @description 根据公司类型名称获取公司类型信息

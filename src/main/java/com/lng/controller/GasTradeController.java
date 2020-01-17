@@ -535,6 +535,7 @@ public class GasTradeController {
 					}
 					map.put("otherImgList", list_d);
 					List<Object> list_d1 = new ArrayList<Object>();
+					boolean addFlag = false;
 					if(opt.equals(1)) {
 						//获取燃气买卖订单列表
 						List<GasTradeOrder> gtoList = gtos.getInfoBygtId(gasTradeId);
@@ -547,6 +548,13 @@ public class GasTradeController {
 								map_d.put("buyPrice", gto.getPrice());
 								list_d1.add(map_d);
 							}
+						}
+						//获取当前用户有无下单记录
+						List<GasTradeOrder> gtoList_1 = gtos.listComInfoByOpt(userId, gasTradeId);
+						if(gtoList_1.size() > 0) {//已下单
+							addFlag = false;
+						}else {//无下单记录
+							addFlag = true;
 						}
 					}
 					//从燃气交易中获取好评度
@@ -563,6 +571,7 @@ public class GasTradeController {
 					}
 					map.put("tradeNum", tradeNum);
 					map.put("tradeOrderList", list_d1);
+					map.put("addFlag", addFlag);
 					list.add(map);
 				}
 			} catch (Exception e) {

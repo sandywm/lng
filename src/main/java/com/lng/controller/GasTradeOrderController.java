@@ -31,6 +31,7 @@ import com.lng.service.MessageCenterService;
 import com.lng.service.UserService;
 import com.lng.tools.CommonTools;
 import com.lng.tools.CurrentTime;
+import com.lng.tools.EmojiDealUtil;
 import com.lng.util.GenericResponse;
 import com.lng.util.PageResponse;
 import com.lng.util.ResponseFormat;
@@ -113,10 +114,10 @@ public class GasTradeOrderController {
 						gto.setCompany(company);
 						gto.setLxMobile(lxMobile);
 						gto.setPrice(price);
-						gto.setRemark(remark);
-						gto.setLxrProv(lxrProv);
-						gto.setLxrCity(lxrCity);
-						gto.setLxrAddress(lxrAddress);
+						gto.setRemark(EmojiDealUtil.changeEmojiToHtml(remark));
+						gto.setLxrProv(EmojiDealUtil.changeEmojiToHtml(lxrProv));
+						gto.setLxrCity(EmojiDealUtil.changeEmojiToHtml(lxrCity));
+						gto.setLxrAddress(EmojiDealUtil.changeEmojiToHtml(lxrAddress));
 						gto.setLxrGpsInfo(lxrGpsInfo);
 						gto.setDistance(distance);
 						gto.setAddTime(CurrentTime.getCurrentTime());
@@ -212,7 +213,7 @@ public class GasTradeOrderController {
 								gasTradeOrder.setOrderStatus(orderSta);
 								if(orderSta.equals(7)) {//订单完成评价
 									gasTradeOrder.setOrderPjNumber(pjScore);
-									gasTradeOrder.setOrderPjDetail(pjContent);
+									gasTradeOrder.setOrderPjDetail(EmojiDealUtil.changeEmojiToHtml(pjContent));
 								}
 								gtoSeriver.addOrUpdate(gasTradeOrder);
 								//增加订单日志
@@ -309,7 +310,7 @@ public class GasTradeOrderController {
 	}
 
 	@PutMapping("/addGtOrderByPj")
-	@ApiOperation(value = "提交燃气交易订单评价", notes = "提交燃气交易订单评价")
+	@ApiOperation(value = "提交燃气交易订单评价--不启用", notes = "提交燃气交易订单评价--不启用")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), 
 		@ApiResponse(code = 200, message = "成功"),
 		@ApiResponse(code = 50001, message = "数据未找到"), 
@@ -333,6 +334,7 @@ public class GasTradeOrderController {
 					gto.setOrderPjNumber(pjNum);
 					gto.setOrderStatus(7);
 					gtoSeriver.addOrUpdate(gto);
+					pjDetail = EmojiDealUtil.changeEmojiToHtml(pjDetail);
 					//增加订单日志
 					gtolService.addOrUpdate(new GasTradeOrderLog(gto, -1, "",pjDetail, CurrentTime.getCurrentTime()));
 				}else {
@@ -390,7 +392,7 @@ public class GasTradeOrderController {
 					GasTrade gt = gto.getGasTrade();
 					GasFactory gf = gt.getGasFactory();
 					GasType gasType = gt.getGasType();
-//					map.put("gasTradeId", gt.getId());
+					map.put("gasTradeId", gt.getId());
 					map.put("headImg", gt.getHeadImg());
 					map.put("orderNo", gto.getOrderNo());
 					map.put("title", gf.getProvince()+gf.getName()+gasType.getName());

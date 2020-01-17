@@ -60,9 +60,6 @@ public class LoginIntercept {
 	        		response.setHeader("CONTEXTPATH", "/loginOut");
 	                // FORBIDDEN，forbidden。也就是禁止、403
 	        		response.setStatus(HttpServletResponse.SC_FORBIDDEN); 
-	        		String url = "window.top.location.href = '"+CommonTools.getWebAddress(request)+"/loginOut'";
-					String authorizeScript = "由于您60分钟内没上线，系统已强制您下线，请重新登录！";
-					Ability.PrintAuthorizeScript(url,authorizeScript, response);
 	            }else {
 	            	// 如果不是 ajax 请求，则直接跳转即可
 //	            	System.out.println("session丢失，拦截(不是ajax请求)---" + uri);
@@ -77,14 +74,15 @@ public class LoginIntercept {
 	        	if(userList.size() > 0) {
 	        		Integer loginTimesDb = userList.get(0).getLoginTimes();
 	        		if(!loginTimes.equals(loginTimesDb)) {
-	        			String url = "window.top.location.href = '"+CommonTools.getWebAddress(request)+"/loginOut'";
-	        			String authorizeScript = "该账号已在别处登录，请重新登录！";
 	        			if (request.getHeader("x-requested-with") != null && request.getHeader("x-requested-with").equalsIgnoreCase("XMLHttpRequest")){
-	        				response.setHeader("SESSIONSTATUS", "TIMEOUT");
+	        				response.setHeader("SESSIONSTATUS", "BASY");
 	    	        		response.setHeader("CONTEXTPATH", "/loginOut");
 	    	        		response.setStatus(HttpServletResponse.SC_FORBIDDEN); 
+	        			}else {
+	        				String url = "window.top.location.href = '"+CommonTools.getWebAddress(request)+"/loginOut'";
+		        			String authorizeScript = "该账号已在别处登录，请重新登录！";
+		        			Ability.PrintAuthorizeScript(url,authorizeScript, response);
 	        			}
-	        			Ability.PrintAuthorizeScript(url,authorizeScript, response);
 	        			return null;
 	        		}
 	        	}

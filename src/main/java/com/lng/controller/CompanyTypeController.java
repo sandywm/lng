@@ -38,9 +38,12 @@ public class CompanyTypeController {
 	@ApiOperation(value = "添加公司类型", notes = "添加公司类型信息")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
 			@ApiResponse(code = 50003, message = "数据已存在"), @ApiResponse(code = 70001, message = "无权限访问") })
-	@ApiImplicitParams({ @ApiImplicitParam(name = "name", value = "公司类型名称", defaultValue = "LNG贸易商", required = true) })
+	@ApiImplicitParams({ @ApiImplicitParam(name = "name", value = "公司类型名称", defaultValue = "LNG贸易商", required = true),
+		@ApiImplicitParam(name = "status", value = "状态（0：全部，1：加入公司展示）")
+	})
 	public GenericResponse addComType(HttpServletRequest request, String name) {
 		Integer status = 200;
+		Integer typeStatus = CommonTools.getFinalInteger("status", request);
 		String ctId = "";
 		if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.GSLX_ABILITY)) {
 			try {
@@ -48,6 +51,7 @@ public class CompanyTypeController {
 					CompanyType cType = new CompanyType();
 					cType.setName(CommonTools.getFinalStr(name));
 					cType.setAddTime(CurrentTime.getCurrentTime());
+					cType.setStatus(typeStatus);
 					ctId = cTypeService.saveOrUpdate(cType);
 				} else {
 					status = 50003;
@@ -105,14 +109,17 @@ public class CompanyTypeController {
 	@ApiOperation(value = "获取公司类型", notes = "获取公司类型信息")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
 			@ApiResponse(code = 50001, message = "数据未找到") })
-	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "公司类型编号") })
-	public GenericResponse queryComType(String id) {
-		id = CommonTools.getFinalStr(id);
+	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "公司类型编号"),
+		@ApiImplicitParam(name = "status", value = "状态（0：全部，1：加入公司展示）")
+	})
+	public GenericResponse queryComType(HttpServletRequest request) {
+		String id = CommonTools.getFinalStr("id",request);
+		Integer typeStatus = CommonTools.getFinalInteger("status", request);
 		Integer status = 200;
 		List<CompanyType> ctList = new ArrayList<CompanyType>();
 		try {
 			if (id.equals("")) {
-				ctList = cTypeService.getCompanyTypeList();
+				ctList = cTypeService.getCompanyTypeList(typeStatus);
 			} else {
 				CompanyType ct = cTypeService.findById(id);
 				if (ct == null) {

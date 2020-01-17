@@ -371,6 +371,7 @@ public class CommonTools {
 				}
 			}else {//编辑时上传
 				for(int i = 0 ; i < upFileArr.length ; i++) {
+					System.out.println(upFileArr[i]);
 					//复制原图
 					upFileDb = upFileDb.replaceAll("_small", "");
 					if(upFileDb.contains(upFileArr[i])) {//旧图
@@ -379,24 +380,30 @@ public class CommonTools {
 						String newFileNamePre = upFileArr[i].substring(0, lastIndex);
 						finalPath += newFileNamePre+"_small."+suffix + ",";
 					}else {//新增加的图
-						FileOpration.copyFile(ct.cp.getWeburl()+"temp/"+upFileArr[i], imagePath+"/"+upFileArr[i]);
-						Integer lastIndex = upFileArr[i].lastIndexOf(".");
-						String suffix = upFileArr[i].substring(lastIndex+1);
-						String newFileNamePre = upFileArr[i].substring(0, lastIndex);
-						String formatName = FileOpration.getImageFormat(suffix);
-						if(!formatName.equals("")) {
-//							String newFileName = newFileNamePre+"_small."+suffix;
-//							String newUrl = imagePath+"/"+newFileName;
-//							FileOpration.makeImage(imagePath+"/"+upFileArr[i], 0.5, newUrl, formatName);
-//							finalPath += loingUserId + "/" + newFileName + ",";
-							String newFileName = newFileNamePre+"_small."+suffix;
-							FileOpration.copyFile(ct.cp.getWeburl()+"temp/"+newFileName, imagePath+"/"+newFileName);
-							finalPath += loingUserId + "/" + newFileName + ",";
-							//删除临时文件夹缩略图
-							FileOpration.deleteFile(ct.cp.getWeburl()+"temp/"+newFileName);
+						boolean flag = FileOpration.copyFile(ct.cp.getWeburl()+"temp/"+upFileArr[i], imagePath+"/"+upFileArr[i]);
+						if(flag) {
+							Integer lastIndex = upFileArr[i].lastIndexOf(".");
+							String suffix = upFileArr[i].substring(lastIndex+1);
+							String newFileNamePre = upFileArr[i].substring(0, lastIndex);
+							String formatName = FileOpration.getImageFormat(suffix);
+							if(!formatName.equals("")) {
+//								String newFileName = newFileNamePre+"_small."+suffix;
+//								String newUrl = imagePath+"/"+newFileName;
+//								FileOpration.makeImage(imagePath+"/"+upFileArr[i], 0.5, newUrl, formatName);
+//								finalPath += loingUserId + "/" + newFileName + ",";
+								String newFileName = newFileNamePre+"_small."+suffix;
+								flag = FileOpration.copyFile(ct.cp.getWeburl()+"temp/"+newFileName, imagePath+"/"+newFileName);
+								if(flag) {
+									finalPath += loingUserId + "/" + newFileName + ",";
+									//删除临时文件夹缩略图
+									FileOpration.deleteFile(ct.cp.getWeburl()+"temp/"+newFileName);
+								}
+							}
+							if(flag) {
+								//删除临时文件夹图片
+								FileOpration.deleteFile(ct.cp.getWeburl()+"temp/"+upFileArr[i]);
+							}
 						}
-						//删除临时文件夹图片
-						FileOpration.deleteFile(ct.cp.getWeburl()+"temp/"+upFileArr[i]);
 					}
 				}
 			}

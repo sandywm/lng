@@ -72,6 +72,16 @@ public interface CompanyService {
 	 */
 	List<Company> listSpecCpy(String typeId,String typeName,String owerUserId,Integer checkStatus);
 	
-	
-	
+	/**
+	 * @description 加入公司时获取的公司列表
+	 * @author wm
+	 * @Version : 1.0
+	 * @ModifiedBy : 修改人
+	 * @date  2020年1月17日 下午5:06:24
+	 * @param cpyTypeId 公司类型编号
+	 * @param checkStatus 审核状态
+	 * @param userId 用户编号
+	 * @return
+	 */
+	List<Company> getCpyList(String cpyTypeId,Integer checkStatus,String userId);
 }

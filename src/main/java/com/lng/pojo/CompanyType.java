@@ -30,11 +30,13 @@ public class CompanyType implements java.io.Serializable {
 	private String name;
 	@ApiModelProperty(value = "添加时间")
 	private String addTime;
+	@ApiModelProperty(value = "状态")
+	private Integer status;
 
 	public CompanyType() {
 	}
 
-	public CompanyType(String id, String name) {
+	public CompanyType(String id, String name,Integer status) {
 		this.id = id;
 		this.name = name;
 	}
@@ -66,6 +68,15 @@ public class CompanyType implements java.io.Serializable {
 
 	public void setAddTime(String addTime) {
 		this.addTime = addTime;
+	}
+
+	@Column(name = "status", nullable = false, columnDefinition = "int(11) COMMENT '（0：全部，1：加入公司展示）'")
+	public Integer getStatus() {
+		return status;
+	}
+
+	public void setStatus(Integer status) {
+		this.status = status;
 	}
 
 }

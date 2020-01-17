@@ -527,6 +527,43 @@ public class CompanyController {
 		return ResponseFormat.retParam(status, list);
 	}
 	
+	@GetMapping("getPageCpyList")
+	@ApiOperation(value = "分页获取公司列表", notes = "分页获取公司列表")
+	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), 
+		@ApiResponse(code = 200, message = "成功"),
+		@ApiResponse(code = 50001, message = "数据未找到") })
+	@ApiImplicitParams({ @ApiImplicitParam(name = "typeId", value = "公司类型编号"),
+		@ApiImplicitParam(name = "checkStatus", value = "审核状态(,-1：全部,0:未审核,1:审核通过,2:审核未通过)"),
+		@ApiImplicitParam(name = "userId", value = "用户编号（前台传递）")
+	})
+	public GenericResponse getPageCpyList(HttpServletRequest request) {
+		Integer status = 200;
+		String cpyTypeId = CommonTools.getFinalStr("typeId", request);
+		Integer checkStatus = CommonTools.getFinalInteger("checkStatus", request);
+		String userId = CommonTools.getFinalStr("userId", request);
+		Integer opt = CommonTools.getFinalInteger("opt", request);
+		List<Object> list = new ArrayList<Object>();
+		try {
+			List<Company> cList = companyService.getCpyList(cpyTypeId, checkStatus, userId);
+			if (cList.size() > 0) {
+				for (Company cpy : cList) {
+					Map<String, Object> map_d = new HashMap<String, Object>();
+					map_d.put("id", cpy.getId());
+					map_d.put("cpyName", cpy.getName());
+					map_d.put("address", cpy.getAddress());
+					list.add(map_d);
+				}
+			} else {
+				status = 50001;
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			status = 1000;
+		}
+		return ResponseFormat.retParam(status, list);
+	}
+	
 	
 	@GetMapping("/getOwerCompanyList")
 	@ApiOperation(value = "获取我创建的审核通过的公司列表", notes = "获取我创建的审核通过的公司列表--申请加入液厂时使用")
@@ -1161,14 +1198,17 @@ public class CompanyController {
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 50001, message = "数据未找到") })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "gfName", value = "液厂名称"),
 			@ApiImplicitParam(name = "gfNamePy", value = "液厂名称首字母"),
-			@ApiImplicitParam(name = "checkStatus", value = "审核状态(0:未审核,1:审核通过,2:审核未通过)"), })
+			@ApiImplicitParam(name = "checkStatus", value = "审核状态(0:未审核,1:审核通过,2:审核未通过)"), 
+			@ApiImplicitParam(name = "limit", value = "显示记录条数"),
+			@ApiImplicitParam(name = "page", value = "页码")
+	})
 	public PageResponse getPageFactoryCpy(HttpServletRequest request) {
 		Integer status = 200;
 		String gfName = CommonTools.getFinalStr("gfName", request);
 		String gfNamePy = CommonTools.getFinalStr("gfNamePy", request);
 		Integer checkStatus = CommonTools.getFinalInteger("checkStatus", request);
-		Integer pageNo = CommonTools.getFinalInteger("pageNo", request);
-		Integer pageSize = CommonTools.getFinalInteger("pageSize", request);
+		Integer pageNo = CommonTools.getFinalInteger("page", request);
+		Integer pageSize = CommonTools.getFinalInteger("limit", request);
 		if (pageNo.equals(0)) {
 			pageNo = 1;
 		}

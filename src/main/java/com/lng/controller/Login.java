@@ -122,6 +122,7 @@ public class Login {
 					if(su.getAccountStatus().equals(1)) {
 						sess.setAttribute(Constants.LOGIN_ACCOUNT, account);
 						sess.setAttribute(Constants.LOGIN_USER_ID, su.getId());
+						sess.setAttribute(Constants.LOGIN_REAL_NAME, su.getRealName());
 						//修改登录次数和最后登录时间
 						su.setLastLoginTime(CurrentTime.getCurrentTime());
 						Integer loginTimes = su.getLoginTimes();

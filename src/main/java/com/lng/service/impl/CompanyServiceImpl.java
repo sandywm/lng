@@ -114,7 +114,14 @@ public class CompanyServiceImpl implements CompanyService {
 				return pre;
 			}
 		};
-		return companyDao.findAll(spec);
+		Sort sort = Sort.by(Sort.Direction.DESC, "addTime");
+		return companyDao.findAll(spec,sort);
+	}
+
+	@Override
+	public List<Company> getCpyList(String cpyTypeId, Integer checkStatus, String userId) {
+		// TODO Auto-generated method stub
+		return companyDao.findCpyList(cpyTypeId, checkStatus, userId);
 	}
 
 }

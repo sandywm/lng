@@ -40,10 +40,23 @@ public class CompanyTypeServiceImpl implements CompanyTypeService {
 		
 	}
 
+	@SuppressWarnings("serial")
 	@Override
-	public List<CompanyType> getCompanyTypeList() {
-		
-		return cTypeDao.findAll();
+	public List<CompanyType> getCompanyTypeList(Integer status) {
+		if(status.equals(0)) {
+			return cTypeDao.findAll();
+		}else {
+			Specification<CompanyType> spec = new Specification<CompanyType>() {
+
+				@Override
+				public Predicate toPredicate(Root<CompanyType> root, CriteriaQuery<?> query,
+						CriteriaBuilder cb) {
+					Predicate pre = cb.conjunction();
+					pre.getExpressions().add(cb.equal(root.get("status"), status));
+					return pre;
+				}};
+				return cTypeDao.findAll(spec); 
+		}
 	}
 
 	@SuppressWarnings("serial")
