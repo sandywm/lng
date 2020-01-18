@@ -9,6 +9,9 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -528,24 +531,35 @@ public class CompanyController {
 	}
 	
 	@GetMapping("getPageCpyList")
-	@ApiOperation(value = "分页获取公司列表", notes = "分页获取公司列表")
+	@ApiOperation(value = "分页获取公司列表--加入公司时使用", notes = "分页获取公司列表--加入公司时使用")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), 
 		@ApiResponse(code = 200, message = "成功"),
 		@ApiResponse(code = 50001, message = "数据未找到") })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "typeId", value = "公司类型编号"),
-		@ApiImplicitParam(name = "checkStatus", value = "审核状态(,-1：全部,0:未审核,1:审核通过,2:审核未通过)"),
-		@ApiImplicitParam(name = "userId", value = "用户编号（前台传递）")
+		@ApiImplicitParam(name = "userId", value = "用户编号（前台传递）"),
+		@ApiImplicitParam(name = "page", value = "第几页"),
+		@ApiImplicitParam(name = "limit", value = "每页多少条")
 	})
-	public GenericResponse getPageCpyList(HttpServletRequest request) {
+	public PageResponse getPageCpyList(HttpServletRequest request) {
 		Integer status = 200;
 		String cpyTypeId = CommonTools.getFinalStr("typeId", request);
-		Integer checkStatus = CommonTools.getFinalInteger("checkStatus", request);
 		String userId = CommonTools.getFinalStr("userId", request);
-		Integer opt = CommonTools.getFinalInteger("opt", request);
+		Integer page = CommonTools.getFinalInteger("page", request);
+		Integer limit = CommonTools.getFinalInteger("limit", request);
 		List<Object> list = new ArrayList<Object>();
+		long count = 0;
 		try {
-			List<Company> cList = companyService.getCpyList(cpyTypeId, checkStatus, userId);
-			if (cList.size() > 0) {
+			if(page.equals(0)) {
+				page = 1;
+			}
+			if(limit.equals(0)) {
+				limit = 20;
+			}
+			Sort sort = Sort.by(Sort.Direction.DESC, "addTime");// 降序排列
+			Pageable pageable = PageRequest.of(page-1, limit, sort);
+			Page<Company> cList = companyService.getPageCpyList(cpyTypeId, userId, pageable);
+			count = cList.getTotalElements();
+			if (count > 0) {
 				for (Company cpy : cList) {
 					Map<String, Object> map_d = new HashMap<String, Object>();
 					map_d.put("id", cpy.getId());
@@ -561,7 +575,7 @@ public class CompanyController {
 			e.printStackTrace();
 			status = 1000;
 		}
-		return ResponseFormat.retParam(status, list);
+		return ResponseFormat.getPageJson(limit, page, count, status, list);
 	}
 	
 	

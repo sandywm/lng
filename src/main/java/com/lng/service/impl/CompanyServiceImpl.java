@@ -119,9 +119,9 @@ public class CompanyServiceImpl implements CompanyService {
 	}
 
 	@Override
-	public List<Company> getCpyList(String cpyTypeId, Integer checkStatus, String userId) {
+	public Page<Company> getPageCpyList(String cpyTypeId, String userId,Pageable pageable) {
 		// TODO Auto-generated method stub
-		return companyDao.findCpyList(cpyTypeId, checkStatus, userId);
+		return companyDao.findPageCpyList(cpyTypeId,userId,pageable);
 	}
 
 }

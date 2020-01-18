@@ -88,27 +88,45 @@ public class UserCompanyAndFocusController {
 		Integer status = 200;
 		String ucId = "";
 		try {
-			if (ucService.getUserCompanyList(compId, userId,-1).size() == 0) {
-				UserCompany uc = new UserCompany();
-				User user = uService.getEntityById(userId);
-				uc.setUser(user);
-				Company company = cService.getEntityById(compId);
-				if(company != null && company.getCheckStatus() == 1) {
-					uc.setCompany(company);
-					uc.setAddTime(CurrentTime.getCurrentTime());
-					uc.setCheckStatus(0);
-					uc.setCheckTime("");
-					ucId = ucService.addOrUpdate(uc);
-					MessageCenter mc = new MessageCenter("",user.getRealName()+"申请加入"+company.getName()+"您的公司", user.getRealName()+"申请加入"+company.getName()+"您的公司", 0, CurrentTime.getCurrentTime(), 2,
-							ucId, "joinCpy", "", uc.getUser().getId(), 0);
-					mcs.saveOrUpdate(mc);
+			Company company = cService.getEntityById(compId);
+			if(company != null) {
+				if(company.getCheckStatus() == 1) {
+					List<UserCompany> ucList =  ucService.getUserCompanyList(compId, userId,-1);
+					if (ucList.size() == 0) {//没申请记录
+						UserCompany uc = new UserCompany();
+						User user = uService.getEntityById(userId);
+						uc.setUser(user);
+						uc.setCompany(company);
+						uc.setAddTime(CurrentTime.getCurrentTime());
+						uc.setCheckStatus(0);
+						uc.setCheckTime("");
+						ucId = ucService.addOrUpdate(uc);
+						MessageCenter mc = new MessageCenter("",user.getRealName()+"申请加入"+company.getName()+"您的公司", user.getRealName()+"申请加入"+company.getName()+"您的公司", 0, CurrentTime.getCurrentTime(), 2,
+								ucId, "joinCpy", "", uc.getUser().getId(), 0);
+						mcs.saveOrUpdate(mc);
+					}else {
+						UserCompany uc = ucList.get(0);
+						if(uc.getCheckStatus() != 1) {
+							User user = uService.getEntityById(userId);
+							uc.setUser(user);
+							uc.setCompany(company);
+							uc.setAddTime(CurrentTime.getCurrentTime());
+							uc.setCheckStatus(0);
+							uc.setCheckTime("");
+							ucId = ucService.addOrUpdate(uc);
+							MessageCenter mc = new MessageCenter("",user.getRealName()+"申请加入"+company.getName()+"您的公司", user.getRealName()+"申请加入"+company.getName()+"您的公司", 0, CurrentTime.getCurrentTime(), 2,
+									ucId, "joinCpy", "", uc.getUser().getId(), 0);
+							mcs.saveOrUpdate(mc);
+						}else {
+							status = 50001;
+						}
+					}
 				}else {
 					status = 50001;
 				}
-			} else {
-				status = 50003;
+			}else {
+				status = 50001;
 			}
-
 		} catch (Exception e) {
 			e.printStackTrace();
 			status = 1000;
