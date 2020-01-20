@@ -67,13 +67,15 @@ public class GasFactory implements java.io.Serializable {
 	private Integer orderSubNo;
 	@ApiModelProperty(value = "热度")
 	private Integer hot;
+	@ApiModelProperty(value = "液厂自定义排序")
+	private Integer orderSelfNo;
 
 	public GasFactory() {
 	}
 
 	public GasFactory( GasType gasType, String name, String namePy, String facImage, String province, String provincePy,String city,
 			String county, String address, String lxName, String lxTel, String addTime, String yzbgImg, int checkStatus,
-			String checkTime,String owerUserId,Integer orderNo,Integer orderSubNo,Integer hot) {
+			String checkTime,String owerUserId,Integer orderNo,Integer orderSubNo,Integer orderSelfNo,Integer hot) {
 		this.gasType = gasType;
 		this.name = name;
 		this.namePy = namePy;
@@ -92,6 +94,7 @@ public class GasFactory implements java.io.Serializable {
 		this.owerUserId = owerUserId;
 		this.orderNo = orderNo;
 		this.orderSubNo = orderSubNo;
+		this.orderSelfNo = orderSelfNo;
 		this.hot = hot;
 	}
 
@@ -276,6 +279,15 @@ public class GasFactory implements java.io.Serializable {
 
 	public void setProvincePy(String provincePy) {
 		this.provincePy = provincePy;
+	}
+
+	@Column(name = "order_self_no", nullable = false, columnDefinition = "int(11) COMMENT '液厂自定义排序--前台展示用'")
+	public Integer getOrderSelfNo() {
+		return orderSelfNo;
+	}
+
+	public void setOrderSelfNo(Integer orderSelfNo) {
+		this.orderSelfNo = orderSelfNo;
 	}
 	
 }

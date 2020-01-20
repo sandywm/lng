@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.lng.pojo.Company;
 import com.lng.pojo.GasFactory;
 import com.lng.pojo.GasFactoryCompany;
+import com.lng.pojo.GasFactoryUserHot;
 import com.lng.pojo.LngPriceDetail;
 import com.lng.pojo.LngPriceRemark;
 import com.lng.pojo.LngPriceSubDetail;
@@ -26,6 +27,7 @@ import com.lng.pojo.MessageCenter;
 import com.lng.pojo.User;
 import com.lng.service.GasFactoryCompanyService;
 import com.lng.service.GasFactoryService;
+import com.lng.service.GasFactoryUserHotService;
 import com.lng.service.LngPriceDetailService;
 import com.lng.service.LngPriceRemarkService;
 import com.lng.service.LngPriceSubDetailService;
@@ -67,6 +69,8 @@ public class LngController {
 	private LngPriceSubDetailService lpsds;
 	@Autowired
 	private UserService us;
+	@Autowired
+	private GasFactoryUserHotService gfuhs;
 	
 	/**
 	 * 按照价格降序排序
@@ -768,14 +772,17 @@ public class LngController {
 	})
 	@ApiImplicitParams({
 		@ApiImplicitParam(name = "gfId", value = "gfId"),
-		@ApiImplicitParam(name = "specDate", value = "指定日期")
+		@ApiImplicitParam(name = "specDate", value = "指定日期"),
+		@ApiImplicitParam(name = "userId", value = "前台用户编号")
 	})
 	public GenericResponse getLngPriceDetail(HttpServletRequest request) {
 		Integer status = 200;
 		String gfId = CommonTools.getFinalStr("gfId", request);
 		String specDate = CommonTools.getFinalStr("specDate", request);
+		String userId = CommonTools.getFinalStr("userId", request);
+		String currDate = CurrentTime.getStringDate();
 		if(specDate.equals("")) {
-			specDate = CurrentTime.getStringDate();
+			specDate = currDate;
 		}
 		//获取当前日期的第一天和最后一天
 		String sYearStr = specDate.substring(0, 4);
@@ -786,6 +793,15 @@ public class LngController {
 		try {
 			GasFactory gf = gfs.getEntityById(gfId);
 			if(gf != null) {
+				User user = us.getEntityById(userId);
+				if(user != null) {
+					if(gfuhs.listInfoByOpt(userId, currDate, gfId).size() == 0) {//一个用户对一个液厂一天只能有一次点击热度
+						gfuhs.addOrUpdate(new GasFactoryUserHot(gf, user, currDate));
+						//液厂点击率+1
+						gf.setHot(gf.getHot() + 1);
+						gfs.addOrUpGasFactory(gf);
+					}
+				}
 				Map<String,Object> map = new HashMap<String,Object>();
 				map.put("gfId", gf.getId());
 				map.put("gfName", gf.getName());

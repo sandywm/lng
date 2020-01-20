@@ -3,6 +3,7 @@ package com.lng.service;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import com.lng.pojo.GasFactory;
 
@@ -106,4 +107,15 @@ public interface GasFactoryService {
 	 * @return
 	 */
 	List<Object> getTjInfo();
+	
+	/**
+	 * @description 分页获取当前用户（必须是创建贸易商的人）未加入液厂的液厂(审核通过)列表
+	 * @author wm
+	 * @Version : 1.0
+	 * @ModifiedBy : 修改人
+	 * @date  2020年01月20日 下午2:47:13
+	 * @param userId 用户编号
+	 * @return
+	 */
+	Page<GasFactory> listUnJoinGasFactoryList(String userId,Pageable pageable);
 }

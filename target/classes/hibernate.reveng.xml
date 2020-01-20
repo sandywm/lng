@@ -49,4 +49,5 @@
   <table-filter match-catalog="lng" match-name="user"/>
   <table-filter match-catalog="lng" match-name="user_company"/>
   <table-filter match-catalog="lng" match-name="user_focus"/>
+  <table-filter match-catalog="lng" match-name="gas_factory_user_hot"/>
 </hibernate-reverse-engineering>

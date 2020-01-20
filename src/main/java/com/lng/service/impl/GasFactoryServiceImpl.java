@@ -210,12 +210,12 @@ public class GasFactoryServiceImpl implements GasFactoryService{
 				}
 				return pre;
 		}};
-		Sort.Order sort1 = new Sort.Order(Sort.Direction.ASC, "orderNo");//升序排列
-		Sort.Order sort2 = new Sort.Order(Sort.Direction.ASC, "orderSubNo");//升序排列
+		Sort.Order sort1 = new Sort.Order(Sort.Direction.ASC, "orderSelfNo");//升序排列
+//		Sort.Order sort2 = new Sort.Order(Sort.Direction.ASC, "orderSubNo");//升序排列
 		Sort.Order sort3 = new Sort.Order(Sort.Direction.DESC, "hot");//升序排列
 		List<Sort.Order> list = new ArrayList<Sort.Order>();
 		list.add(sort1);
-		list.add(sort2);
+//		list.add(sort2);
 		list.add(sort3);
 		Sort sort = Sort.by(list);
 		Pageable pageable = PageRequest.of(pageIndex-1, pageSize, sort);
@@ -226,6 +226,12 @@ public class GasFactoryServiceImpl implements GasFactoryService{
 	public List<Object> getTjInfo() {
 		// TODO Auto-generated method stub
 		return gfDao.findTjInfo();
+	}
+
+	@Override
+	public Page<GasFactory> listUnJoinGasFactoryList(String userId, Pageable pageable) {
+		// TODO Auto-generated method stub
+		return gfDao.findUnJoinGasFactoryList(userId, pageable);
 	}
 
 }

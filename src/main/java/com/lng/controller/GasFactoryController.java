@@ -17,6 +17,9 @@ import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -24,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.lng.pojo.CommonProvinceOrder;
+import com.lng.pojo.Company;
 import com.lng.pojo.GasFactory;
 import com.lng.pojo.GasFactoryCompany;
 import com.lng.pojo.GasType;
@@ -33,6 +37,7 @@ import com.lng.pojo.LngPriceRemark;
 import com.lng.pojo.LngPriceSubDetail;
 import com.lng.pojo.MessageCenter;
 import com.lng.service.CommonProvinceOrderService;
+import com.lng.service.CompanyService;
 import com.lng.service.GasFactoryCompanyService;
 import com.lng.service.GasFactoryService;
 import com.lng.service.GasTypeService;
@@ -82,6 +87,8 @@ public class GasFactoryController {
 	private LngPriceSubDetailService lpsds;
 	@Autowired
 	private LngPriceRemarkService lprs;
+	@Autowired
+	private CompanyService cs;
 	
 	@PostMapping("addGasFactory")
 	@ApiOperation(value = "增加液厂--后台人员",notes = "后台人员增加液厂信息时使用")
@@ -142,7 +149,7 @@ public class GasFactoryController {
 							Integer orderSubNo = gfList.size() + 1;
 							GasFactory gf = new GasFactory(gts.findById(gasTypeId), name, namePy, CommonTools.dealUploadDetail(userId,"", facImage), province, provincePy,city,
 									county, address, lxName, lxTel, CurrentTime.getCurrentTime(), CommonTools.dealUploadDetail(userId,"", yzbgImg), 1,
-									CurrentTime.getCurrentTime(),userId,orderNo,orderSubNo,0);
+									CurrentTime.getCurrentTime(),userId,orderNo,orderSubNo,0,0);
 							uId = gfs.addOrUpGasFactory(gf);
 						}else {
 							status = 50001;
@@ -254,7 +261,7 @@ public class GasFactoryController {
 								Integer orderSubNo = i;
 								GasFactory gf = new GasFactory(gts.findById(gasTypeId), gfName, namePy, "", prov, provincePy,city,
 										county, address, lxName, lxTel, CurrentTime.getCurrentTime(), "", 1,
-										CurrentTime.getCurrentTime(),userId,orderNo,orderSubNo,0);
+										CurrentTime.getCurrentTime(),userId,orderNo,orderSubNo,0,0);
 								uId = gfs.addOrUpGasFactory(gf);
 								if(!uId.equals("")) {
 									CommonTools.addCellData(uId, gfName, gasType, gasTypeId, prov, city, county, "", "", row, style);
@@ -867,5 +874,66 @@ public class GasFactoryController {
 			status = 1000;
 		}
 		return ResponseFormat.retParam(status, uId);
+	}
+	
+	@GetMapping("getUnJoinGasFactoryList")
+	@ApiOperation(value = "分页获取当前用户（必须是创建贸易商的人）未加入液厂的液厂(审核通过)列表",
+		notes = "页获取当前用户（必须是创建贸易商的人）未加入液厂的液厂(审核通过)列表--加入液厂时使用")
+	@ApiResponses({@ApiResponse(code = 1000, message = "服务器错误"),
+		@ApiResponse(code = 50001, message = "数据未找到")
+	})
+	@ApiImplicitParams({
+		@ApiImplicitParam(name = "userId", value = "用户编号"),
+		@ApiImplicitParam(name = "page", value = "页码",dataType = "integer"),
+		@ApiImplicitParam(name = "limit", value = "每页记录条数",dataType = "integer")
+	})
+	public PageResponse getUnJoinGasFactoryList(HttpServletRequest request ) {
+		String userId = CommonTools.getFinalStr("userId", request);
+		Integer pageIndex =  CommonTools.getFinalInteger("page", request);
+		Integer pageSize =  CommonTools.getFinalInteger("limit", request);
+		Integer status = 200;
+		long count = 0;
+		List<Object> list = new ArrayList<Object>();
+		try {
+			if(pageIndex.equals(0)) {
+				pageIndex = 1;
+			}
+			if(pageSize.equals(0)) {
+				pageSize = 10;
+			}
+			List<Company> cList = cs.listSpecCpy("", "LNG贸易商",userId,1);
+			if(cList.size() > 0) {//当前用户是贸易商
+				Sort sort = Sort.by(Sort.Direction.DESC, "addTime");
+				Pageable pageable = PageRequest.of(pageIndex-1, pageSize, sort);
+				Page<GasFactory> page = gfs.listUnJoinGasFactoryList(userId, pageable);
+				count = page.getTotalElements();
+				if(count == 0) {
+					status = 50001;
+				}else {
+					for(GasFactory gf : page) {
+						Map<String,Object> map = new HashMap<String,Object>();
+						map.put("gfId", gf.getId());
+						map.put("name", gf.getName());
+						map.put("facImage", gf.getFacImage());
+						map.put("gasTypeName", gf.getGasType().getName());
+						map.put("province", gf.getProvince());
+						map.put("city", gf.getCity());
+						map.put("county", gf.getCounty());
+						map.put("address", gf.getAddress());
+						map.put("lxName", gf.getLxName());
+						map.put("addTime", gf.getAddTime());
+						map.put("yzbg", gf.getYzbgImg());
+						list.add(map);
+					}
+				}
+			}else {//不是贸易商，不能获取液厂列表
+				status = 50001;
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			status = 1000;
+		}
+		return ResponseFormat.getPageJson(pageSize,pageIndex,count,status, list);
 	}
 }
