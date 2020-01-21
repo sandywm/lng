@@ -99,7 +99,7 @@ public class LngController {
 		try {
 			if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.ADD_LNG_PRICE)) {
 				String crrentTime = CurrentTime.getCurrentTime();
-				List<GasFactory> gfList = gfs.listInfoByOpt("", "", "", "", "", 1);
+				List<GasFactory> gfList = gfs.listInfoByOpt("", "", "", "", "", 1,"");
 				List<LngPriceDetail> list = new ArrayList<LngPriceDetail>();
 				for(GasFactory gf : gfList) {
 					LngPriceDetail lpd = new LngPriceDetail(gf, 0, crrentTime, "", crrentTime);
@@ -137,7 +137,7 @@ public class LngController {
 		try {
 			if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.ADD_LNG_PRICE)) {
 				//获取全部气厂的记录(审核通过)
-				List<GasFactory> gfList = gfs.listInfoByOpt("", "", "", "", "", 1);
+				List<GasFactory> gfList = gfs.listInfoByOpt("", "", "", "", "", 1,"");
 //				for(GasFactory gf : gfList) {
 //					//获取该气厂指定日期有无价格记录
 //					if(lpds.listInfoByOpt(gf.getId(), null, priceDate).size() == 0) {//不存在记录
@@ -189,7 +189,7 @@ public class LngController {
 		try {
 			if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request), CommonTools.getLoginRoleName(request),Constants.ADD_LNG_PRICE)) {
 				//获取全部气厂的记录(审核通过)
-				List<GasFactory> gfList = gfs.listInfoByOpt("", "", "", "", "", 1);
+				List<GasFactory> gfList = gfs.listInfoByOpt("", "", "", "", "", 1,"");
 				String timeStr = currentTime.substring(10);
 				for(GasFactory gf : gfList) {
 					Map<String,Object> map_add = new HashMap<String,Object>();
@@ -1053,7 +1053,7 @@ public class LngController {
 					list.add(map_tj);
 				}
 			}else {
-				List<GasFactory> gfList = gfs.listInfoByOpt("", "", "", provName, "", 1);
+				List<GasFactory> gfList = gfs.listInfoByOpt("", "", "", provName, "", 1,"");
 				String specDate = CurrentTime.getStringDate();
 				for(GasFactory gf : gfList) {
 					Map<String,Object> map = new HashMap<String,Object>();

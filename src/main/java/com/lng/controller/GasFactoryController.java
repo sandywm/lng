@@ -127,10 +127,10 @@ public class GasFactoryController {
 			String yzbgImg = CommonTools.getFinalStr("yzbgImg", request);
 			if(!name.equals("") && !province.equals("") && !gasTypeId.equals("")) {
 				if(CommonTools.checkAuthorization(userId,CommonTools.getLoginRoleName(request), Constants.ADD_YC)) {
-					if(gfs.listInfoByOpt(name, "", "", "", "", -1).size() == 0) {
+					if(gfs.listInfoByOpt(name, "", "", "", "", -1,"").size() == 0) {
 						String namePy = CommonTools.getFirstSpell(name);
 						String provincePy = CommonTools.getFirstSpell(province);
-						List<GasFactory> gfList = gfs.listInfoByOpt("", "", "", province, "", -1);//指定省份下的液厂
+						List<GasFactory> gfList = gfs.listInfoByOpt("", "", "", province, "", -1,"");//指定省份下的液厂
 						//获取指定省份的排序
 						GasType gt = gts.findById(gasTypeId);
 						if(gt != null) {
@@ -355,7 +355,7 @@ public class GasFactoryController {
 		                String priceTime = year + "-"+monthStr + "-"+dayStr + " 08:08:08";
 		                row = sheet1.createRow(i);
 		                
-		                List<GasFactory> gfList = gfs.listInfoByOpt(gfName, "", "", "", "", 1);
+		                List<GasFactory> gfList = gfs.listInfoByOpt(gfName, "", "", "", "", 1,"");
 	                	if(gfList.size() > 0) {
 	                		//原始数据库一个液厂一天就一条记录
 	                		String lpdId = lpds.addOrUpdate(new LngPriceDetail(gfList.get(0), price, priceTime, "", CurrentTime.getCurrentTime()));
@@ -440,7 +440,7 @@ public class GasFactoryController {
 		                String date = sheet.getCell(2,i).getContents().replace(" ", "").replace("\t", "");//时间
 		                String remark = sheet.getCell(3,i).getContents().replace(" ", "").replace("\t", "");//备注
 		                row = sheet1.createRow(i);
-		                List<GasFactory> gfList = gfs.listInfoByOpt(gfName, "", "", "", "", 1);
+		                List<GasFactory> gfList = gfs.listInfoByOpt(gfName, "", "", "", "", 1,"");
 	                	if(gfList.size() > 0) {
 	                		String gfId = gfList.get(0).getId();
 	                		List<LngPriceDetail> lpdList = lpds.listInfoByOpt(gfId, 0, date);
@@ -517,7 +517,7 @@ public class GasFactoryController {
 					if(gf != null) {
 						if(!name.equals(gf.getName())) {
 							//需要检查是否重复
-							if(gfs.listInfoByOpt(name, "", "", "", "", -1).size() == 0) {
+							if(gfs.listInfoByOpt(name, "", "", "", "", -1,"").size() == 0) {
 								gf.setName(name);
 								gf.setNamePy(CommonTools.getFirstSpell(name));
 							}else {
@@ -536,7 +536,7 @@ public class GasFactoryController {
 								GasType gt = gts.findById(gasTypeId);
 								if(gt != null) {
 									Integer orderNo = 0;
-									Integer orderSubNo = gfs.listInfoByOpt("", "", gasTypeId, province, "", -1).size() + 1;
+									Integer orderSubNo = gfs.listInfoByOpt("", "", gasTypeId, province, "", -1,"").size() + 1;
 									if(gt.getName().equals("海气")) {//变更为海气时需要修改
 										HqProvinceOrder prov = hpos.getEntityByOpt(0, province);
 										if(prov != null) {
@@ -729,9 +729,12 @@ public class GasFactoryController {
 			}
 			name = CommonTools.getFinalStr(name);
 			province = CommonTools.getFinalStr(province);
+			provincePy = CommonTools.getFinalStr(provincePy);
 			gasTypeId = CommonTools.getFinalStr(gasTypeId);
 			county = CommonTools.getFinalStr(county);
-			List<GasFactory> gfList = gfs.listInfoByOpt(name, namePy, gasTypeId, province, provincePy, checkStatus);
+			namePy = CommonTools.getFinalStr(namePy);
+			owerUserId = CommonTools.getFinalStr("owerUserId", request);
+			List<GasFactory> gfList = gfs.listInfoByOpt(name, namePy, gasTypeId, province, provincePy, checkStatus,owerUserId);
 			if(gfList.size() == 0) {
 				status = 50001;
 			}else {
@@ -743,6 +746,8 @@ public class GasFactoryController {
 					map.put("gasTypeName", gf.getGasType().getName());
 					map.put("province", gf.getProvince());
 					map.put("yzbg", gf.getYzbgImg());
+					map.put("addTime", gf.getAddTime());
+					map.put("checkStatus", gf.getCheckStatus());
 					list.add(map);
 				}
 			}

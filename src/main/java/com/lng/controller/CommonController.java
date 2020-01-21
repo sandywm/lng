@@ -289,7 +289,7 @@ public class CommonController {
 								cpos.saveOrUpdate(cpo);
 								// 批量修改普通类型的液厂
 								Integer orderNo = cpo.getOrderNo();
-								List<GasFactory> gfList = gfs.listInfoByOpt("", "", "", cpo.getProvince(), "", -1);
+								List<GasFactory> gfList = gfs.listInfoByOpt("", "", "", cpo.getProvince(), "", -1,"");
 								for (GasFactory gf : gfList) {
 									if (gf.getGasType().getName().equals("海气")) {
 										continue;
@@ -315,7 +315,7 @@ public class CommonController {
 								if (gtList.size() > 0) {
 									gtId = gtList.get(0).getId();
 									List<GasFactory> gfList = gfs.listInfoByOpt("", "", gtId, hpo.getProvince(), "",
-											-1);
+											-1,"");
 									for (GasFactory gf : gfList) {
 										gf.setOrderNo(orderNo);
 										gfs.addOrUpGasFactory(gf);

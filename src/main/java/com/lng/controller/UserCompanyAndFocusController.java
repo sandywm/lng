@@ -343,7 +343,7 @@ public class UserCompanyAndFocusController {
 		List<Object> list = new ArrayList<Object>();
 		try {
 			ufs = ufService.userFocusList(userId, focusType, page - 1, limit);
-			if (ufs == null) {
+			if (ufs.getTotalElements() == 0) {
 				status = 50001;
 			} else {
 				List<UserFocus> ufsList = ufs.getContent();

@@ -43,10 +43,11 @@ public interface GasFactoryService {
 	 * @param province 省(""表示全部)
 	 * @param provincePy 市(""表示全部)
 	 * @param checkStatus 审核状态（-1:全部,0:未审核,1:审核通过,2:审核未通过）
+	 * @param owerUserId 液厂所属人编号
 	 * @return
 	 */
 	List<GasFactory> listInfoByOpt(String name,String namePy,String gasTypeId,String province,
-			String provincePy,Integer checkStatus);
+			String provincePy,Integer checkStatus, String owerUserId);
 	
 	/**
 	 * @description 根据条件分页获取液厂信息列表

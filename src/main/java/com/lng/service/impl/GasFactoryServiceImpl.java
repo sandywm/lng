@@ -35,7 +35,7 @@ public class GasFactoryServiceImpl implements GasFactoryService{
 
 	@Override
 	public List<GasFactory> listInfoByOpt(String name, String namePy, String gasTypeId, String province, String provincePy,
-			Integer checkStatus) {
+			Integer checkStatus, String owerUserId) {
 		// TODO Auto-generated method stub
 		Specification<GasFactory> spec = new Specification<GasFactory>() {
 			private static final long serialVersionUID = 1L;
@@ -61,6 +61,9 @@ public class GasFactoryServiceImpl implements GasFactoryService{
 				}
 				if(checkStatus > -1) {
 					pre.getExpressions().add(cb.equal(root.get("checkStatus"), checkStatus));
+				}
+				if(!owerUserId.isEmpty()) {
+					pre.getExpressions().add(cb.equal(root.get("owerUserId"), owerUserId));
 				}
 				return pre;
 		}};
