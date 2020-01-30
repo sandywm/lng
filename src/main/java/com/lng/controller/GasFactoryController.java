@@ -908,9 +908,11 @@ public class GasFactoryController {
 			}
 			List<Company> cList = cs.listSpecCpy("", "LNG贸易商",userId,1);
 			if(cList.size() > 0) {//当前用户是贸易商
-				Sort sort = Sort.by(Sort.Direction.DESC, "addTime");
-				Pageable pageable = PageRequest.of(pageIndex-1, pageSize, sort);
-				Page<GasFactory> page = gfs.listUnJoinGasFactoryList(userId, pageable);
+//				Sort sort = Sort.by(Sort.Direction.DESC, "addTime");
+//				Pageable pageable = PageRequest.of(pageIndex-1, pageSize, sort);
+//				Page<GasFactory> page = gfs.listUnJoinGasFactoryList(userId, pageable);
+				Page<GasFactory> page = gfs.listPageInfoByOpt("", "", "", "", "", 
+						1, "", 1, pageIndex, pageSize);
 				count = page.getTotalElements();
 				if(count == 0) {
 					status = 50001;

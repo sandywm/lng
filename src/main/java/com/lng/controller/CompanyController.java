@@ -1294,11 +1294,13 @@ public class CompanyController {
 						GasFactory gf = gfs.getEntityById(gfId);
 						if(gf != null) {
 							if(cpy.getCompanyType().getName().equalsIgnoreCase("LNG贸易商")) {//只有贸易商才能代理液厂
-								gfcId = gfcs.saveOrUpdate(new GasFactoryCompany(cpy, gf, userId,CurrentTime.getCurrentTime(),0,""));
-								Map<String,Object> map_d = new HashMap<String,Object>();
-								map_d.put("cpyId", cpy.getId());
-								map_d.put("cpyName", cpy.getName());
-								list_succ.add(map_d);
+								if(cpy.getOwerUserId().equals(userId)) {//必须是该公司的创建人才能申请
+									gfcId = gfcs.saveOrUpdate(new GasFactoryCompany(cpy, gf, userId,CurrentTime.getCurrentTime(),0,""));
+									Map<String,Object> map_d = new HashMap<String,Object>();
+									map_d.put("cpyId", cpy.getId());
+									map_d.put("cpyName", cpy.getName());
+									list_succ.add(map_d);
+								}
 							}else {
 								Map<String,Object> map_d = new HashMap<String,Object>();
 								map_d.put("cpyId", cpy.getId());
@@ -1316,15 +1318,17 @@ public class CompanyController {
 							map_d.put("cpyName", cpy.getName());
 							list_exist.add(map_d);
 						}else {
-							//存在一条未审核或者审核不通过的记录,可以申请
-							gfc.setCheckStatus(0);
-							gfc.setAddTime(CurrentTime.getCurrentTime());
-							gfc.setCheckTime("");
-							gfcId = gfcs.saveOrUpdate(gfc);
-							Map<String,Object> map_d = new HashMap<String,Object>();
-							map_d.put("cpyId", cpy.getId());
-							map_d.put("cpyName", cpy.getName());
-							list_succ.add(map_d);
+							if(cpy.getOwerUserId().equals(userId)) {//必须是该公司的创建人才能申请
+								//存在一条未审核或者审核不通过的记录,可以申请
+								gfc.setCheckStatus(0);
+								gfc.setAddTime(CurrentTime.getCurrentTime());
+								gfc.setCheckTime("");
+								gfcId = gfcs.saveOrUpdate(gfc);
+								Map<String,Object> map_d = new HashMap<String,Object>();
+								map_d.put("cpyId", cpy.getId());
+								map_d.put("cpyName", cpy.getName());
+								list_succ.add(map_d);
+							}
 						}
 					}
 				}
