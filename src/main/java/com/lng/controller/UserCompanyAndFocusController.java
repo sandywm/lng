@@ -23,6 +23,7 @@ import com.lng.pojo.GasTradeOrder;
 import com.lng.pojo.MessageCenter;
 import com.lng.pojo.PotTrade;
 import com.lng.pojo.RqDevTrade;
+import com.lng.pojo.SuperUser;
 import com.lng.pojo.TrucksTrade;
 import com.lng.pojo.TrucksType;
 import com.lng.pojo.User;
@@ -35,6 +36,7 @@ import com.lng.service.GasTradeService;
 import com.lng.service.MessageCenterService;
 import com.lng.service.PotTradeService;
 import com.lng.service.RqDevTradeService;
+import com.lng.service.SuperService;
 import com.lng.service.TrucksTradeService;
 import com.lng.service.UserCompanyService;
 import com.lng.service.UserFocusService;
@@ -76,6 +78,8 @@ public class UserCompanyAndFocusController {
 	private GasTradeService gts;
 	@Autowired
 	private GasTradeOrderService gtos;
+	@Autowired
+	private SuperService ss;
 	@PostMapping("/addUserCompany")
 	@ApiOperation(value = "添加用户公司关联", notes = "添加用户公司关联信息")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
@@ -416,13 +420,19 @@ public class UserCompanyAndFocusController {
 						map.put("showStatus", tt.getShowStatus());
 						map.put("area", tt.getArea());
 						map.put("userType", tt.getUserType());
-						User user = uService.getEntityById(tt.getAddUserId());
-						if(user != null) {
-							map.put("pubUserHead", user.getUserPortrait());
-							map.put("pubUserName", user.getRealName());
-							map.put("pubDate", tt.getAddTime());
+						Integer userType = tt.getUserType();
+						if(userType.equals(2)) {
+							User user = uService.getEntityById(tt.getAddUserId());
+							if(user != null) {
+								map.put("pubUserHead", user.getUserPortrait());
+								map.put("pubUserName", user.getRealName());
+							}
+						}else {
+							SuperUser su = ss.getEntityById(tt.getAddUserId());
+							map.put("pubUserHead", "");
+							map.put("pubUserName", su.getRealName());
 						}
-						
+						map.put("pubDate", tt.getAddTime());
 					} else if (focusType.equalsIgnoreCase("cgzm")) {
 						PotTrade pt = potTradeService.getEntityById(ufId);
 						map.put("id", pt.getId());
@@ -434,12 +444,20 @@ public class UserCompanyAndFocusController {
 						map.put("zzJzTypeName", pt.getPotZzjzType().getName());
 						map.put("leasePrice", pt.getLeasePrice());
 						map.put("sellPrice", pt.getSellPrice());
-						User user = uService.getEntityById(pt.getAddUserId());
-						if(user != null) {
-							map.put("pubUserHead", user.getUserPortrait());
-							map.put("pubUserName", user.getRealName());
-							map.put("pubDate", pt.getAddTime());
+						Integer userType = pt.getUserType();
+						if(userType.equals(2)) {
+							User user = uService.getEntityById(pt.getAddUserId());
+							if(user != null) {
+								map.put("pubUserHead", user.getUserPortrait());
+								map.put("pubUserName", user.getRealName());
+							}
+						}else {
+							SuperUser su = ss.getEntityById(pt.getAddUserId());
+							map.put("pubUserHead", "");
+							map.put("pubUserName", su.getRealName());
 						}
+						map.put("pubDate", pt.getAddTime());
+						map.put("userType", pt.getUserType());
 					} else if (focusType.equalsIgnoreCase("rqsb")) {
 						RqDevTrade rdt = rdtService.getEntityById(ufId);
 						map.put("id", rdt.getId());
@@ -448,12 +466,20 @@ public class UserCompanyAndFocusController {
 						map.put("devNo", rdt.getDevNo());
 						map.put("devPp", rdt.getDevPp());
 						map.put("devPrice", rdt.getDevPrice());
-						User user = uService.getEntityById(rdt.getAddUserId());
-						if(user != null) {
-							map.put("pubUserHead", user.getUserPortrait());
-							map.put("pubUserName", user.getRealName());
-							map.put("pubDate", rdt.getAddTime());
+						Integer userType = rdt.getUserType();
+						if(userType.equals(2)) {
+							User user = uService.getEntityById(rdt.getAddUserId());
+							if(user != null) {
+								map.put("pubUserHead", user.getUserPortrait());
+								map.put("pubUserName", user.getRealName());
+							}
+						}else {
+							SuperUser su = ss.getEntityById(rdt.getAddUserId());
+							map.put("pubUserHead", "");
+							map.put("pubUserName", su.getRealName());
 						}
+						map.put("pubDate", rdt.getAddTime());
+						map.put("userType", userType);
 					} else if (focusType.equalsIgnoreCase("rqmm")) {
 						GasTrade gt = gts.getEntityById(ufId);
 						map.put("id", gt.getId());
@@ -474,12 +500,17 @@ public class UserCompanyAndFocusController {
 						} else {
 							map.put("hpRate", "暂无");
 						}
+						map.put("userType", gt.getUserType());
 						User user = uService.getEntityById(gt.getAddUserId());
 						if(user != null) {
 							map.put("pubUserHead", user.getUserPortrait());
 							map.put("pubUserName", user.getRealName());
-							map.put("pubDate", gt.getAddTime());
+						}else {
+							SuperUser su = ss.getEntityById(gt.getAddUserId());
+							map.put("pubUserHead", "");
+							map.put("pubUserName", su.getRealName());
 						}
+						map.put("pubDate", gt.getAddTime());
 					}
 
 					list.add(map);
