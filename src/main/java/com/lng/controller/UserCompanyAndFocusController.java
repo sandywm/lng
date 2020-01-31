@@ -353,6 +353,7 @@ public class UserCompanyAndFocusController {
 					String ufId = uf.getFocusId();
 					focusType = uf.getFocusType();
 					Map<String, Object> map = new HashMap<String, Object>();
+					map.put("ufId", ufId);
 					if (focusType.equalsIgnoreCase("cczm")) {
 						TrucksTrade tt = trucksTradeService.getEntityById(ufId);
 						String cId = tt.getCompanyId();
@@ -379,7 +380,7 @@ public class UserCompanyAndFocusController {
 //						map.put("area", tt.getArea());
 						
 						map.put("mainImg", tt.getMainImg());
-						map.put("ttId", tt.getId());
+						map.put("id", tt.getId());
 						Integer tadeType = tt.getTradeType();
 						Integer price = tt.getPrice();
 						if(price.equals(0)) {
@@ -424,7 +425,7 @@ public class UserCompanyAndFocusController {
 						
 					} else if (focusType.equalsIgnoreCase("cgzm")) {
 						PotTrade pt = potTradeService.getEntityById(ufId);
-						map.put("ptId", pt.getId());
+						map.put("id", pt.getId());
 						map.put("mainImg", pt.getMainImg());
 						map.put("potPpName", pt.getTrucksPotPp().getName());
 						map.put("potVolume", pt.getPotVolume());
@@ -433,14 +434,26 @@ public class UserCompanyAndFocusController {
 						map.put("zzJzTypeName", pt.getPotZzjzType().getName());
 						map.put("leasePrice", pt.getLeasePrice());
 						map.put("sellPrice", pt.getSellPrice());
+						User user = uService.getEntityById(pt.getAddUserId());
+						if(user != null) {
+							map.put("pubUserHead", user.getUserPortrait());
+							map.put("pubUserName", user.getRealName());
+							map.put("pubDate", pt.getAddTime());
+						}
 					} else if (focusType.equalsIgnoreCase("rqsb")) {
 						RqDevTrade rdt = rdtService.getEntityById(ufId);
-						map.put("rdtId", rdt.getId());
+						map.put("id", rdt.getId());
 						map.put("mainImg", rdt.getMainImg());
 						map.put("devName", rdt.getDevName());
 						map.put("devNo", rdt.getDevNo());
 						map.put("devPp", rdt.getDevPp());
 						map.put("devPrice", rdt.getDevPrice());
+						User user = uService.getEntityById(rdt.getAddUserId());
+						if(user != null) {
+							map.put("pubUserHead", user.getUserPortrait());
+							map.put("pubUserName", user.getRealName());
+							map.put("pubDate", rdt.getAddTime());
+						}
 					} else if (focusType.equalsIgnoreCase("rqmm")) {
 						GasTrade gt = gts.getEntityById(ufId);
 						map.put("id", gt.getId());
@@ -460,6 +473,12 @@ public class UserCompanyAndFocusController {
 							map.put("hpRate", CommonTools.convertInputNumber(pjScore * 100.0 / tradeNum));
 						} else {
 							map.put("hpRate", "暂无");
+						}
+						User user = uService.getEntityById(gt.getAddUserId());
+						if(user != null) {
+							map.put("pubUserHead", user.getUserPortrait());
+							map.put("pubUserName", user.getRealName());
+							map.put("pubDate", gt.getAddTime());
 						}
 					}
 
