@@ -57,4 +57,18 @@ public interface GasFactoryCompanyService {
 	 * @return
 	 */
 	Page<GasFactoryCompany> listPageCompanyByOpt(String gfName,String gfNamePy, Integer checkStatus,Integer pageNo,Integer pageSize);
+	
+	/**
+	 * @description 根据条件获取液厂贸易商关联信息列表
+	 * @author wm
+	 * @Version : 版本
+	 * @ModifiedBy : 修改人
+	 * @date  2020年01月31日 上午10:10:40
+	 * @param gfId 液厂编号
+	 * @param cpyId 贸易商公司编号
+	 * @param checkStatus 审核状态(0:未审核,1:审核通过,2:审核未通过)
+	 * @param applyUserId 申请人编号
+	 * @return
+	 */
+	List<GasFactoryCompany> listCompanyByOpt(String gfId,String cpyId, Integer checkStatus,String applyUserId);
 }

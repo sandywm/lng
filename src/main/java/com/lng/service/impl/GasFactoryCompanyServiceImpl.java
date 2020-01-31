@@ -94,4 +94,33 @@ public class GasFactoryCompanyServiceImpl implements GasFactoryCompanyService{
 		Pageable pageable = PageRequest.of(pageNo-1, pageSize, sort);
 		return gfcDao.findAll(spec, pageable);
 	}
+
+	@SuppressWarnings("serial")
+	@Override
+	public List<GasFactoryCompany> listCompanyByOpt(String gfId, String cpyId, Integer checkStatus,
+			String applyUserId) {
+		// TODO Auto-generated method stub
+		Specification<GasFactoryCompany> spec = new Specification<GasFactoryCompany>() {
+
+			@Override
+			public Predicate toPredicate(Root<GasFactoryCompany> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+				Predicate pre = cb.conjunction();
+				if (!gfId.isEmpty()) {
+					pre.getExpressions().add(cb.like(root.get("gasFactory").get("id"), gfId));
+				}
+				if (!cpyId.isEmpty()) {
+					pre.getExpressions().add(cb.equal(root.get("company").get("id"), cpyId));
+				}
+				if (checkStatus >= 0) {
+					pre.getExpressions().add(cb.equal(root.get("checkStatus"), checkStatus));
+				}
+				if (!applyUserId.isEmpty()) {
+					pre.getExpressions().add(cb.equal(root.get("addUserId"), applyUserId));
+				}
+				return pre;
+			}
+		};
+		Sort sort = Sort.by(Sort.Direction.DESC, "addTime");
+		return gfcDao.findAll(spec, sort);
+	}
 }

@@ -943,4 +943,61 @@ public class GasFactoryController {
 		}
 		return ResponseFormat.getPageJson(pageSize,pageIndex,count,status, list);
 	}
+	
+	@GetMapping("getOwnerGasFactoryList")
+	@ApiOperation(value = "根据条件获取液厂信息列表",notes = "根据条件获取液厂信息列表--（已加入，待审核，未通过）")
+	@ApiResponses({@ApiResponse(code = 1000, message = "服务器错误"),
+		@ApiResponse(code = 50001, message = "数据未找到")
+	})
+	@ApiImplicitParams({
+		@ApiImplicitParam(name = "checkStatus", value = "审核状态(-1:全部,0:未审核,1:审核通过,2:审核未通过)"),
+		@ApiImplicitParam(name = "owerUserId", value = "液厂拥有人")
+	})
+	public GenericResponse getOwnerGasFactoryList(HttpServletRequest request) {
+		Integer status = 200;
+		List<Object> list = new ArrayList<Object>();
+		try {
+			String owerUserId = CommonTools.getFinalStr("owerUserId", request);
+			Integer checkStatus = CommonTools.getFinalInteger("checkStatus", request);
+			//获取自己创建的液厂
+			List<GasFactory> gfList = gfs.listInfoByOpt("", "", "","", "", checkStatus, owerUserId);
+			if(gfList.size() > 0) {
+				for(GasFactory gf : gfList) {
+					Map<String,Object> map = new HashMap<String,Object>();
+					map.put("gfId", gf.getId());
+					map.put("name", gf.getName());
+					map.put("gasTypeName", gf.getGasType().getName());
+					map.put("province", gf.getProvince());
+					map.put("addTime", gf.getAddTime());
+					map.put("owerFlag", true);
+					list.add(map);
+				}
+			}
+			if(checkStatus.equals(1)) {
+				//获取自己加入液厂
+				List<GasFactoryCompany> gfcList = gfcs.listCompanyByOpt("", "", checkStatus, owerUserId);
+				if(gfcList.size() > 0) {
+					for(int i = 0 ; i < gfcList.size() ; i++) {
+						GasFactory gf = gfcList.get(i).getGasFactory();
+						Map<String,Object> map = new HashMap<String,Object>();
+						map.put("gfId", gf.getId());
+						map.put("name", gf.getName());
+						map.put("gasTypeName", gf.getGasType().getName());
+						map.put("province", gf.getProvince());
+						map.put("addTime", gf.getAddTime());
+						map.put("owerFlag", false);
+						list.add(map);
+					}
+				}
+			}
+			if(list.size() == 0) {
+				status = 50001;
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			status = 1000;
+		}
+		return ResponseFormat.retParam(status, list);
+	}
 }
