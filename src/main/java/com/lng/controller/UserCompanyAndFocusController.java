@@ -512,7 +512,6 @@ public class UserCompanyAndFocusController {
 						}
 						map.put("pubDate", gt.getAddTime());
 					}
-
 					list.add(map);
 				}
 			}
