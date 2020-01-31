@@ -24,9 +24,11 @@ import com.lng.pojo.MessageCenter;
 import com.lng.pojo.PotTrade;
 import com.lng.pojo.RqDevTrade;
 import com.lng.pojo.TrucksTrade;
+import com.lng.pojo.TrucksType;
 import com.lng.pojo.User;
 import com.lng.pojo.UserCompany;
 import com.lng.pojo.UserFocus;
+import com.lng.pojo.WqPfbz;
 import com.lng.service.CompanyService;
 import com.lng.service.GasTradeOrderService;
 import com.lng.service.GasTradeService;
@@ -360,20 +362,66 @@ public class UserCompanyAndFocusController {
 						} else {
 							map.put("cpyName", "");
 						}
-						map.put("ttId", tt.getId());
+//						map.put("title", tt.getTrucksHeadPp().getName() + tt.getTrucksType().getName());
+//						map.put("ttId", tt.getId());
+//						map.put("mainImg", tt.getMainImg());
+//						map.put("spYear", tt.getSpYear());
+//						map.put("buyYear", tt.getBuyYear());
+//						map.put("headTypeName", tt.getTrucksHeadType().getName());
+//						map.put("headPpName", tt.getTrucksHeadPp().getName());
+//						map.put("trucksTypeName", tt.getTrucksType().getName());
+//						map.put("trucksTypes", tt.getTrucksType().getType());
+//						map.put("xsDistance", tt.getXsDistance());
+//						map.put("price", tt.getPrice());
+//						map.put("regPlace", tt.getRegPlace());
+//						map.put("hot", tt.getHot());
+//						map.put("tradeType", tt.getTradeType());
+//						map.put("area", tt.getArea());
+						
 						map.put("mainImg", tt.getMainImg());
-						map.put("spYear", tt.getSpYear());
-						map.put("buyYear", tt.getBuyYear());
-						map.put("headTypeName", tt.getTrucksHeadType().getName());
-						map.put("headPpName", tt.getTrucksHeadPp().getName());
-						map.put("trucksTypeName", tt.getTrucksType().getName());
-						map.put("trucksTypes", tt.getTrucksType().getType());
-						map.put("xsDistance", tt.getXsDistance());
-						map.put("price", tt.getPrice());
+						map.put("ttId", tt.getId());
+						Integer tadeType = tt.getTradeType();
+						Integer price = tt.getPrice();
+						if(price.equals(0)) {
+							map.put("price", "面议");
+						}
+						if (tadeType.equals(1)) {
+							map.put("TradeTypeName", "租赁");
+							if(price.equals(0)) {
+								map.put("price", "面议");
+							}else {
+								map.put("price", price);
+							}
+						} else if (tadeType.equals(2)) {
+							map.put("TradeTypeName", "买卖");
+							if(price.equals(0)) {
+								map.put("price", "面议");
+							}else {
+								map.put("price", price / 10000.0);
+							}
+						}
+						TrucksType trucksType = tt.getTrucksType();
+						map.put("title", tt.getTrucksHeadPp().getName() + trucksType.getName());
 						map.put("regPlace", tt.getRegPlace());
-						map.put("hot", tt.getHot());
-						map.put("tradeType", tt.getTradeType());
+						map.put("trucksTypeName", trucksType.getName());
+						if (trucksType.getType() == 1) {
+							map.put("trucksTypes", "普货车");
+						} else if (trucksType.getType() == 2) {
+							map.put("trucksTypes", "危货车");
+						}
+						map.put("xsDistance", tt.getXsDistance());
+						map.put("spYear", tt.getSpYear());
+						map.put("checkStatus", tt.getCheckStatus());
+						map.put("showStatus", tt.getShowStatus());
 						map.put("area", tt.getArea());
+						map.put("userType", tt.getUserType());
+						User user = uService.getEntityById(tt.getAddUserId());
+						if(user != null) {
+							map.put("pubUserHead", user.getUserPortrait());
+							map.put("pubUserName", user.getRealName());
+							map.put("pubDate", tt.getAddTime());
+						}
+						
 					} else if (focusType.equalsIgnoreCase("cgzm")) {
 						PotTrade pt = potTradeService.getEntityById(ufId);
 						map.put("ptId", pt.getId());
