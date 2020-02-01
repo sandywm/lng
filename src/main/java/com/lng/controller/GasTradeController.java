@@ -548,11 +548,13 @@ public class GasTradeController {
 								map_d.put("buyPrice", gto.getPrice());
 								list_d1.add(map_d);
 							}
-						}
-						//获取当前用户有无下单记录
-						List<GasTradeOrder> gtoList_1 = gtos.listComInfoByOpt(userId, gasTradeId);
-						if(gtoList_1.size() > 0) {//已下单
-							addFlag = false;
+							//获取当前用户有无下单记录
+							List<GasTradeOrder> gtoList_1 = gtos.listComInfoByOpt(userId, gasTradeId);
+							if(gtoList_1.size() > 0) {//已下单
+								addFlag = false;
+							}else {//无下单记录
+								addFlag = true;
+							}
 						}else {//无下单记录
 							addFlag = true;
 						}

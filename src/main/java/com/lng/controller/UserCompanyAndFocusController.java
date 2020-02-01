@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.lng.pojo.Company;
+import com.lng.pojo.DriverQz;
+import com.lng.pojo.DriverZp;
 import com.lng.pojo.GasTrade;
 import com.lng.pojo.GasTradeOrder;
 import com.lng.pojo.MessageCenter;
@@ -31,6 +33,8 @@ import com.lng.pojo.UserCompany;
 import com.lng.pojo.UserFocus;
 import com.lng.pojo.WqPfbz;
 import com.lng.service.CompanyService;
+import com.lng.service.DriverQzService;
+import com.lng.service.DriverZpService;
 import com.lng.service.GasTradeOrderService;
 import com.lng.service.GasTradeService;
 import com.lng.service.MessageCenterService;
@@ -80,6 +84,10 @@ public class UserCompanyAndFocusController {
 	private GasTradeOrderService gtos;
 	@Autowired
 	private SuperService ss;
+	@Autowired
+	private DriverQzService dqzs;
+	@Autowired
+	private DriverZpService dzps;
 	@PostMapping("/addUserCompany")
 	@ApiOperation(value = "添加用户公司关联", notes = "添加用户公司关联信息")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
@@ -333,7 +341,7 @@ public class UserCompanyAndFocusController {
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
 			@ApiResponse(code = 50001, message = "数据未找到") })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "userId", value = "用户编号", required = true),
-			@ApiImplicitParam(name = "focusType", value = "关注类型(cczm,rqsb,cgzm,rqmm)"), @ApiImplicitParam(name = "page", value = "第几页"),
+			@ApiImplicitParam(name = "focusType", value = "关注类型(cczm,rqsb,cgzm,rqmm,sjqz-个人简历,sjzp-招聘信息)"), @ApiImplicitParam(name = "page", value = "第几页"),
 			@ApiImplicitParam(name = "limit", value = "每页多少条") })
 	public PageResponse queryUserFocus(String userId, String focusType, Integer page, Integer limit) {
 		userId = CommonTools.getFinalStr(userId);
@@ -458,6 +466,8 @@ public class UserCompanyAndFocusController {
 						}
 						map.put("pubDate", pt.getAddTime());
 						map.put("userType", pt.getUserType());
+						map.put("checkStatus", pt.getCheckStatus());
+						map.put("showStatus", pt.getShowStatus());
 					} else if (focusType.equalsIgnoreCase("rqsb")) {
 						RqDevTrade rdt = rdtService.getEntityById(ufId);
 						map.put("id", rdt.getId());
@@ -480,6 +490,8 @@ public class UserCompanyAndFocusController {
 						}
 						map.put("pubDate", rdt.getAddTime());
 						map.put("userType", userType);
+						map.put("checkStatus", rdt.getCheckStatus());
+						map.put("showStatus", rdt.getShowStatus());
 					} else if (focusType.equalsIgnoreCase("rqmm")) {
 						GasTrade gt = gts.getEntityById(ufId);
 						map.put("id", gt.getId());
@@ -500,17 +512,83 @@ public class UserCompanyAndFocusController {
 						} else {
 							map.put("hpRate", "暂无");
 						}
-						map.put("userType", gt.getUserType());
-						User user = uService.getEntityById(gt.getAddUserId());
-						if(user != null) {
-							map.put("pubUserHead", user.getUserPortrait());
-							map.put("pubUserName", user.getRealName());
+						Integer userType = gt.getUserType();
+						map.put("userType", userType);
+						if(userType.equals(2)) {
+							User user = uService.getEntityById(gt.getAddUserId());
+							if(user != null) {
+								map.put("pubUserHead", user.getUserPortrait());
+								map.put("pubUserName", user.getRealName());
+							}
 						}else {
 							SuperUser su = ss.getEntityById(gt.getAddUserId());
 							map.put("pubUserHead", "");
 							map.put("pubUserName", su.getRealName());
 						}
 						map.put("pubDate", gt.getAddTime());
+						map.put("checkStatus", gt.getCheckStatus());
+						map.put("showStatus", gt.getShowStatus());
+					}else if (focusType.equalsIgnoreCase("sjqz")) {
+						DriverQz qz = dqzs.getEntityById(ufId);
+						if(qz != null) {
+							map.put("qzId", qz.getId());
+							map.put("userName", qz.getUserName());
+							map.put("userMobile", qz.getUserMobile());
+							map.put("userHead", qz.getUserHead());
+							map.put("jzYear", qz.getJzYear());
+							map.put("jzType", qz.getJzType());
+							map.put("checkStatus", qz.getCheckStatus());
+							map.put("showStatus", qz.getShowStatus());
+							map.put("education", qz.getEducation());
+							map.put("sex", qz.getSex());
+							map.put("age", qz.getAge());
+							map.put("prov", qz.getProvince());
+							map.put("city", qz.getCity());
+							Integer userType = qz.getUserType();
+							map.put("userType", userType);
+							if(userType.equals(2)) {
+								User user = uService.getEntityById(qz.getUserId());
+								if(user != null) {
+									map.put("pubUserHead", user.getUserPortrait());
+									map.put("pubUserName", user.getRealName());
+								}
+							}else {
+								map.put("pubUserHead", "");
+								map.put("pubUserName", "");
+							}
+							map.put("pubDate", qz.getAddTime());
+						}
+					}else if (focusType.equalsIgnoreCase("sjzp")) {
+						DriverZp zp = dzps.getEntityById(ufId);
+						if(zp != null) {
+							map.put("zpId", zp.getId());
+							map.put("companyName", zp.getCompany().getName());
+							map.put("age", zp.getSjAgeRange());
+							map.put("jlYear", zp.getJlYearRange());
+							map.put("province", zp.getProvince());
+							map.put("jzType", zp.getJzType());
+							map.put("city", zp.getCity());
+							map.put("education", zp.getEducation());
+							map.put("welfare", zp.getWelfare().split(","));
+							map.put("wage", zp.getWage());
+							map.put("addTime", zp.getAddTime());
+							map.put("checkStatus", zp.getCheckStatus());
+							map.put("showStatus", zp.getShowStatus());
+							Integer userType = zp.getUserType();
+							map.put("userType", userType);
+							if(userType.equals(2)) {
+								User user = uService.getEntityById(zp.getAddUserId());
+								if(user != null) {
+									map.put("pubUserHead", user.getUserPortrait());
+									map.put("pubUserName", user.getRealName());
+								}
+							}else {
+								SuperUser su = ss.getEntityById(zp.getAddUserId());
+								map.put("pubUserHead", "");
+								map.put("pubUserName", su.getRealName());
+							}
+							map.put("pubDate", zp.getAddTime());
+						}
 					}
 					list.add(map);
 				}

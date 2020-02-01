@@ -199,16 +199,19 @@ public class PotTradeController {
 			@ApiResponse(code = 50001, message = "数据未找到"), @ApiResponse(code = 70001, message = "无权限访问") })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "储罐租卖编号", required = true),
 			@ApiImplicitParam(name = "checkSta", value = "审核状态(0:未审核,1:审核通过,2:审核未通过)"),
-			@ApiImplicitParam(name = "showSta", value = "上/下架状态（0：上架，1：下架）") })
+			@ApiImplicitParam(name = "showSta", value = "上/下架状态（0：上架，1：下架）"),
+			@ApiImplicitParam(name = "opt", value = "0:审核，1：上下架",required = true,dataType = "integer")
+	})
 	public GenericResponse updatePotTradeByStatus(HttpServletRequest request, String id, Integer checkSta,
 			Integer showSta) {
 		id = CommonTools.getFinalStr(id);
+		Integer opt = CommonTools.getFinalInteger("opt", request);
 		String cilentInfo = CommonTools.getCilentInfo_new(request);
 		Integer status = 200;
 
 		try {
 			if (cilentInfo.equals("wxApp")) {
-
+				
 			} else if (CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),
 					CommonTools.getLoginRoleName(request), Constants.CHECK_PT)) {
 
@@ -221,19 +224,22 @@ public class PotTradeController {
 				if (pt == null) {
 					status = 50001;
 				} else {
-					if (checkSta != null && !checkSta.equals(pt.getCheckStatus())) {
-						pt.setCheckStatus(checkSta);
-						pt.setCheckTime(CurrentTime.getCurrentTime());
-					}
-					String result = "未审核通过";
-					if(checkSta.equals(1)) {
-						result = "审核通过";
-					}
-					MessageCenter mc = new MessageCenter("","您发布的储罐租卖信息("+pt.getTrucksPotPp().getName()+")"+result, "您发布的储罐租卖信息("+pt.getTrucksPotPp().getName()+")"+result, 0, CurrentTime.getCurrentTime(), 2,
-							id, "pot", "", pt.getAddUserId(), 0);
-					mcs.saveOrUpdate(mc);
-					if (showSta != null && !showSta.equals(pt.getShowStatus())) {
-						pt.setShowStatus(showSta);
+					if(opt.equals(0)) {
+						if (checkSta != null && !checkSta.equals(pt.getCheckStatus())) {
+							pt.setCheckStatus(checkSta);
+							pt.setCheckTime(CurrentTime.getCurrentTime());
+						}
+						String result = "未审核通过";
+						if(checkSta.equals(1)) {
+							result = "审核通过";
+						}
+						MessageCenter mc = new MessageCenter("","您发布的储罐租卖信息("+pt.getTrucksPotPp().getName()+")"+result, "您发布的储罐租卖信息("+pt.getTrucksPotPp().getName()+")"+result, 0, CurrentTime.getCurrentTime(), 2,
+								id, "pot", "", pt.getAddUserId(), 0);
+						mcs.saveOrUpdate(mc);
+					}else {
+						if (showSta != null && !showSta.equals(pt.getShowStatus())) {
+							pt.setShowStatus(showSta);
+						}
 					}
 					potTradeService.saveOrUpdate(pt);
 				}
@@ -569,6 +575,12 @@ public class PotTradeController {
 						}
 					}
 					String ufId = "";
+					if (!userId.isEmpty()) {
+						List<UserFocus> ufList = ufService.getUserFocusList(userId, ptId, "cgzm");
+						if(ufList.size() > 0) {
+							ufId = ufList.get(0).getId();
+						}
+					}
 					map.put("ufId", ufId);
 					map.put("detailImg", ptilist);
 					list.add(map);

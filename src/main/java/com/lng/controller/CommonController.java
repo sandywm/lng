@@ -452,7 +452,7 @@ public class CommonController {
 			@ApiResponse(code = 50001, message = "数据未找到"), @ApiResponse(code = 10002, message = "参数为空"), })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "userId", value = "用户编号", required = true),
 			@ApiImplicitParam(name = "showStatus", value = "上/下架状态（0：上架，1：下架）", required = true),
-			@ApiImplicitParam(name = "pubType", value = "发布类型（tructTrade-槽车租卖,gasDev-燃气设备,potTrade-储罐租卖,gasTrade-燃气买卖）", required = true),
+			@ApiImplicitParam(name = "pubType", value = "发布类型（tructTrade-槽车租卖,gasDev-燃气设备,potTrade-储罐租卖,gasTrade-燃气买卖,sjqz-个人简历,sjzp-招聘信息）", required = true),
 			@ApiImplicitParam(name = "page", value = "第几页"), @ApiImplicitParam(name = "limit", value = "每页多少条") })
 	public PageResponse myPublish(String userId, Integer showStatus, String pubType, Integer page, Integer limit) {
 		userId = CommonTools.getFinalStr(userId);
@@ -572,6 +572,45 @@ public class CommonController {
 							} else {
 								map.put("hpRate", "暂无");
 							}
+							list.add(map);
+						}
+					}
+				}else if (pubType.equalsIgnoreCase("sjzp")) {
+					List<DriverQz> qzList = dqzs.getDriverQzByUserId(userId);
+					if(qzList.size() > 0) {
+						DriverQz qz = qzList.get(0);
+						Map<String, Object> map = new HashMap<String, Object>();
+						map.put("qzId", qz.getId());
+						map.put("userName", qz.getUserName());
+						map.put("userMobile", qz.getUserMobile());
+						map.put("userHead", qz.getUserHead());
+						map.put("jzYear", qz.getJzYear());
+						map.put("jzType", qz.getJzType());
+						map.put("checkStatus", qz.getCheckStatus());
+						map.put("showStatus", qz.getShowStatus());
+						map.put("education", qz.getEducation());
+						map.put("sex", qz.getSex());
+						map.put("age", qz.getAge());
+						map.put("prov", qz.getProvince());
+						map.put("city", qz.getCity());
+						list.add(map);
+					}
+				}else if (pubType.equalsIgnoreCase("sjzp")) {
+					List<DriverZp> zpList = dzps.listDriverZpByOpt(userId, -1, -1);
+					if(zpList.size() > 0) {
+						for (DriverZp zp : zpList) {
+							Map<String, Object> map = new HashMap<String, Object>();
+							map.put("zpId", zp.getId());
+							map.put("companyName", zp.getCompany().getName());
+							map.put("age", zp.getSjAgeRange());
+							map.put("jlYear", zp.getJlYearRange());
+							map.put("province", zp.getProvince());
+							map.put("num", zp.getNum());
+							map.put("lxName", zp.getLxName());
+							map.put("lxTel", zp.getLxTel());
+							map.put("addTime", zp.getAddTime());
+							map.put("checkStatus", zp.getCheckStatus());
+							map.put("showStatus", zp.getShowStatus());
 							list.add(map);
 						}
 					}
