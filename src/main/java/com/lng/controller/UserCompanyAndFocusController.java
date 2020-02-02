@@ -468,6 +468,7 @@ public class UserCompanyAndFocusController {
 						map.put("userType", pt.getUserType());
 						map.put("checkStatus", pt.getCheckStatus());
 						map.put("showStatus", pt.getShowStatus());
+						map.put("tradeStatus", pt.getTradeStatus());
 					} else if (focusType.equalsIgnoreCase("rqsb")) {
 						RqDevTrade rdt = rdtService.getEntityById(ufId);
 						map.put("id", rdt.getId());
@@ -528,6 +529,7 @@ public class UserCompanyAndFocusController {
 						map.put("pubDate", gt.getAddTime());
 						map.put("checkStatus", gt.getCheckStatus());
 						map.put("showStatus", gt.getShowStatus());
+						map.put("yyd", gt.getGasFactory().getProvince());
 					}else if (focusType.equalsIgnoreCase("sjqz")) {
 						DriverQz qz = dqzs.getEntityById(ufId);
 						if(qz != null) {

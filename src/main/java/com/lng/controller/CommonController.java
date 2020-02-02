@@ -550,6 +550,7 @@ public class CommonController {
 							map.put("leasePrice", pt.getLeasePrice());
 							map.put("sellPrice", pt.getSellPrice());
 							map.put("addTime", pt.getAddTime());
+							map.put("tradeStatus", pt.getTradeStatus());
 							list.add(map);
 						}
 
@@ -601,6 +602,7 @@ public class CommonController {
 								map.put("hpRate", "暂无");
 							}
 							map.put("addTime", gt.getAddTime());
+							map.put("yyd", gt.getGasFactory().getProvince());
 							list.add(map);
 						}
 					}
