@@ -365,7 +365,7 @@ public class UserCompanyAndFocusController {
 					String ufId = uf.getFocusId();
 					focusType = uf.getFocusType();
 					Map<String, Object> map = new HashMap<String, Object>();
-					map.put("ufId", ufId);
+					map.put("ufId", uf.getId());
 					if (focusType.equalsIgnoreCase("cczm")) {
 						TrucksTrade tt = trucksTradeService.getEntityById(ufId);
 						String cId = tt.getCompanyId();

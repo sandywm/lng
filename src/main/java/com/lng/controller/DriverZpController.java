@@ -489,6 +489,7 @@ public class DriverZpController {
 					map.put("age", qz.getAge());
 					map.put("prov", qz.getProvince());
 					map.put("city", qz.getCity());
+					map.put("addTime", qz.getAddTime());
 					list.add(map);
 				}
 			}
@@ -839,7 +840,6 @@ public class DriverZpController {
 		Integer checkStatus = CommonTools.getFinalInteger("checkSta", request);
 		Integer showSta = CommonTools.getFinalInteger("showSta", request);
 		Integer status = 200;
-		Page<DriverZp> zps = null;
 		List<Object> list = new ArrayList<Object>();
 		try {
 			if(userId.equals("")) {

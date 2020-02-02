@@ -29,6 +29,7 @@ import com.lng.pojo.MessageCenter;
 import com.lng.pojo.PotTrade;
 import com.lng.pojo.RqDevTrade;
 import com.lng.pojo.TrucksTrade;
+import com.lng.pojo.TrucksType;
 import com.lng.pojo.User;
 import com.lng.pojo.UserCompany;
 import com.lng.service.CommonProvinceOrderService;
@@ -452,7 +453,7 @@ public class CommonController {
 			@ApiResponse(code = 50001, message = "数据未找到"), @ApiResponse(code = 10002, message = "参数为空"), })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "userId", value = "用户编号", required = true),
 			@ApiImplicitParam(name = "showStatus", value = "上/下架状态（0：上架，1：下架）", required = true),
-			@ApiImplicitParam(name = "pubType", value = "发布类型（tructTrade-槽车租卖,gasDev-燃气设备,potTrade-储罐租卖,gasTrade-燃气买卖,sjqz-个人简历,sjzp-招聘信息）", required = true),
+			@ApiImplicitParam(name = "pubType", value = "发布类型（tructTrade-槽车租卖,gasDev-燃气设备,potTrade-储罐租卖,gasTrade-燃气买卖）", required = true),
 			@ApiImplicitParam(name = "page", value = "第几页"), @ApiImplicitParam(name = "limit", value = "每页多少条") })
 	public PageResponse myPublish(String userId, Integer showStatus, String pubType, Integer page, Integer limit) {
 		userId = CommonTools.getFinalStr(userId);
@@ -476,10 +477,10 @@ public class CommonController {
 				if (pubType.equalsIgnoreCase("tructTrade")) {
 					Page<TrucksTrade> trucksTrades = trucksTradeService.trucksTradeOnPublish(userId, showStatus,
 							page - 1, limit);
-					if (trucksTrades == null) {
+					count = trucksTrades.getTotalElements();
+					if (count == 0) {
 						status = 50001;
 					} else {
-						count = trucksTrades.getTotalElements();
 						for (TrucksTrade tt : trucksTrades) {
 							Map<String, Object> map = new HashMap<String, Object>();
 							String cId = tt.getCompanyId();
@@ -489,7 +490,9 @@ public class CommonController {
 							} else {
 								map.put("cpyName", "");
 							}
-							map.put("ttId", tt.getId());
+							TrucksType trucksType = tt.getTrucksType();
+							map.put("title", tt.getTrucksHeadPp().getName() + trucksType.getName());
+							map.put("id", tt.getId());
 							map.put("mainImg", tt.getMainImg());
 							map.put("spYear", tt.getSpYear());
 							map.put("buyYear", tt.getBuyYear());
@@ -503,18 +506,19 @@ public class CommonController {
 							map.put("hot", tt.getHot());
 							map.put("tradeType", tt.getTradeType());
 							map.put("area", tt.getArea());
+							map.put("addTime", tt.getAddTime());
 							list.add(map);
 						}
 					}
 				} else if (pubType.equalsIgnoreCase("potTrade")) {
 					Page<PotTrade> potTrades = potTradeService.potTradeOnPublish(userId, showStatus, page - 1, limit);
-					if (potTrades == null) {
+					count = potTrades.getTotalElements();
+					if (count == 0) {
 						status = 50001;
 					} else {
-						count = potTrades.getTotalElements();
 						for (PotTrade pt : potTrades) {
 							Map<String, Object> map = new HashMap<String, Object>();
-							map.put("ptId", pt.getId());
+							map.put("id", pt.getId());
 							map.put("mainImg", pt.getMainImg());
 							map.put("potPpName", pt.getTrucksPotPp().getName());
 							map.put("potVolume", pt.getPotVolume());
@@ -523,6 +527,7 @@ public class CommonController {
 							map.put("zzJzTypeName", pt.getPotZzjzType().getName());
 							map.put("leasePrice", pt.getLeasePrice());
 							map.put("sellPrice", pt.getSellPrice());
+							map.put("addTime", pt.getAddTime());
 							list.add(map);
 						}
 
@@ -530,28 +535,29 @@ public class CommonController {
 
 				} else if (pubType.equalsIgnoreCase("gasDev")) {
 					Page<RqDevTrade> rqDevTrades = rdtService.rqDevTradeOnPublish(userId, showStatus, page - 1, limit);
-					if (rqDevTrades == null) {
+					count = rqDevTrades.getTotalElements();
+					if (count == 0) {
 						status = 50001;
 					} else {
-						count = rqDevTrades.getTotalElements();
 						for (RqDevTrade rdt : rqDevTrades) {
 							Map<String, Object> map = new HashMap<String, Object>();
-							map.put("rdtId", rdt.getId());
+							map.put("id", rdt.getId());
 							map.put("mainImg", rdt.getMainImg());
 							map.put("devName", rdt.getDevName());
 							map.put("devNo", rdt.getDevNo());
 							map.put("devPp", rdt.getDevPp());
 							map.put("devPrice", rdt.getDevPrice());
+							map.put("addTime", rdt.getAddTime());
 							list.add(map);
 						}
 
 					}
 				} else if (pubType.equalsIgnoreCase("gasTrade")) {
 					Page<GasTrade> gasTradesList = gasTrades.gasTradeOnPublish(userId, showStatus, page - 1, limit);
-					if (gasTradesList == null) {
+					count = gasTradesList.getTotalElements();
+					if (count == 0) {
 						status = 50001;
 					} else {
-						count = gasTradesList.getTotalElements();
 						for (GasTrade gt : gasTradesList) {
 							Map<String, Object> map = new HashMap<String, Object>();
 							map.put("id", gt.getId());
@@ -572,45 +578,7 @@ public class CommonController {
 							} else {
 								map.put("hpRate", "暂无");
 							}
-							list.add(map);
-						}
-					}
-				}else if (pubType.equalsIgnoreCase("sjzp")) {
-					List<DriverQz> qzList = dqzs.getDriverQzByUserId(userId);
-					if(qzList.size() > 0) {
-						DriverQz qz = qzList.get(0);
-						Map<String, Object> map = new HashMap<String, Object>();
-						map.put("qzId", qz.getId());
-						map.put("userName", qz.getUserName());
-						map.put("userMobile", qz.getUserMobile());
-						map.put("userHead", qz.getUserHead());
-						map.put("jzYear", qz.getJzYear());
-						map.put("jzType", qz.getJzType());
-						map.put("checkStatus", qz.getCheckStatus());
-						map.put("showStatus", qz.getShowStatus());
-						map.put("education", qz.getEducation());
-						map.put("sex", qz.getSex());
-						map.put("age", qz.getAge());
-						map.put("prov", qz.getProvince());
-						map.put("city", qz.getCity());
-						list.add(map);
-					}
-				}else if (pubType.equalsIgnoreCase("sjzp")) {
-					List<DriverZp> zpList = dzps.listDriverZpByOpt(userId, -1, -1);
-					if(zpList.size() > 0) {
-						for (DriverZp zp : zpList) {
-							Map<String, Object> map = new HashMap<String, Object>();
-							map.put("zpId", zp.getId());
-							map.put("companyName", zp.getCompany().getName());
-							map.put("age", zp.getSjAgeRange());
-							map.put("jlYear", zp.getJlYearRange());
-							map.put("province", zp.getProvince());
-							map.put("num", zp.getNum());
-							map.put("lxName", zp.getLxName());
-							map.put("lxTel", zp.getLxTel());
-							map.put("addTime", zp.getAddTime());
-							map.put("checkStatus", zp.getCheckStatus());
-							map.put("showStatus", zp.getShowStatus());
+							map.put("addTime", gt.getAddTime());
 							list.add(map);
 						}
 					}
