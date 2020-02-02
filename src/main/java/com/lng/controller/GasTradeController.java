@@ -438,6 +438,7 @@ public class GasTradeController {
 						if(!psArea.equals("全国")) {
 							map_all_prov.put("selFlag", false);
 							map_all_prov.put("disableFlag", true);
+							map_all_prov.put("orderNo", -1);
 							list_prov.add(map_all_prov);
 							String[] psAreaArr = psArea.split(",");
 							for(CommonProvinceOrder cpo : cpoList) {
@@ -445,6 +446,7 @@ public class GasTradeController {
 								map_prov.put("disableFlag", false);
 								map_prov.put("provName", cpo.getProvince());
 								for(int i = 0 ; i < psAreaArr.length ; i++) {
+									map_prov.put("orderNo", cpo.getOrderNo());
 									if(psAreaArr[i].equals(cpo.getProvince())) {
 										map_prov.put("selFlag", true);
 										break;
@@ -457,6 +459,7 @@ public class GasTradeController {
 						}else {
 							map_all_prov.put("selFlag", true);
 							map_all_prov.put("disableFlag", false);
+							map_all_prov.put("orderNo", -1);
 							list_prov.add(map_all_prov);
 							Map<String,Object> map_prov1 = new HashMap<String,Object>();
 							map_prov1.put("psArea", gt.getPsArea());
@@ -466,6 +469,7 @@ public class GasTradeController {
 								map_prov.put("provName", cpo.getProvince());
 								map_prov.put("selFlag", false);
 								map_prov.put("disableFlag", true);
+								map_prov.put("orderNo", cpo.getOrderNo());
 								list_prov.add(map_prov);
 							}
 						}

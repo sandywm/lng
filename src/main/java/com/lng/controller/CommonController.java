@@ -551,6 +551,7 @@ public class CommonController {
 							map.put("sellPrice", pt.getSellPrice());
 							map.put("addTime", pt.getAddTime());
 							map.put("tradeStatus", pt.getTradeStatus());
+							
 							list.add(map);
 						}
 
