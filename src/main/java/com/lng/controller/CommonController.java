@@ -551,7 +551,8 @@ public class CommonController {
 							map.put("sellPrice", pt.getSellPrice());
 							map.put("addTime", pt.getAddTime());
 							map.put("tradeStatus", pt.getTradeStatus());
-							
+							map.put("checkStatus", pt.getCheckStatus());
+							map.put("showStatus", pt.getShowStatus());
 							list.add(map);
 						}
 
@@ -572,6 +573,8 @@ public class CommonController {
 							map.put("devPp", rdt.getDevPp());
 							map.put("devPrice", rdt.getDevPrice());
 							map.put("addTime", rdt.getAddTime());
+							map.put("checkStatus", rdt.getCheckStatus());
+							map.put("showStatus", rdt.getShowStatus());
 							list.add(map);
 						}
 
@@ -604,6 +607,8 @@ public class CommonController {
 							}
 							map.put("addTime", gt.getAddTime());
 							map.put("yyd", gt.getGasFactory().getProvince());
+							map.put("checkStatus", gt.getCheckStatus());
+							map.put("showStatus", gt.getShowStatus());
 							list.add(map);
 						}
 					}

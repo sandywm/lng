@@ -52,7 +52,9 @@ public class QyTypeServiceImpl implements QyTypeService {
 				@Override
 				public Predicate toPredicate(Root<QyType> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
 					Predicate pre = cb.conjunction();
-					pre.getExpressions().add(cb.equal(root.get("name"), name));
+					if(!name.isEmpty()) {
+						pre.getExpressions().add(cb.equal(root.get("name"), name));
+					}
 					return pre;
 			}};
 			return qyTypeDao.findAll(spec);

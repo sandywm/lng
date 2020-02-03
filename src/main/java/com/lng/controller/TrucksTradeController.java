@@ -15,8 +15,10 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.lng.pojo.CommonProvinceOrder;
 import com.lng.pojo.Company;
 import com.lng.pojo.Qualification;
+import com.lng.pojo.QyType;
 import com.lng.pojo.TrucksHeadPp;
 import com.lng.pojo.TrucksHeadType;
 import com.lng.pojo.TrucksPotPp;
@@ -27,8 +29,10 @@ import com.lng.pojo.TructsTradeZz;
 import com.lng.pojo.User;
 import com.lng.pojo.UserFocus;
 import com.lng.pojo.WqPfbz;
+import com.lng.service.CommonProvinceOrderService;
 import com.lng.service.CompanyService;
 import com.lng.service.QualificationService;
+import com.lng.service.QyTypeService;
 import com.lng.service.TrucksHeadPpService;
 import com.lng.service.TrucksHeadTypeService;
 import com.lng.service.TrucksPotPpService;
@@ -81,6 +85,10 @@ public class TrucksTradeController {
 	private TrucksPotPpService tpps;
 	@Autowired
 	private UserService us;
+	@Autowired
+	private QyTypeService qyts;
+	@Autowired
+	private CommonProvinceOrderService cpos;
 
 	@PostMapping("/addTrucksTrade")
 	@ApiOperation(value = "添加货车租卖", notes = "添加货车租卖")
@@ -708,11 +716,14 @@ public class TrucksTradeController {
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
 			@ApiResponse(code = 10002, message = "参数为空"), @ApiResponse(code = 50001, message = "数据未找到") })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "货车租卖编号", required = true),
-			@ApiImplicitParam(name = "userId", value = "用户编号") })
+			@ApiImplicitParam(name = "userId", value = "用户编号"),
+			@ApiImplicitParam(name = "opt", value = "参数（0：前台详情，1：我的发布）",dataType = "integer"),
+	})
 	public GenericResponse getSpecTrucksTrade(HttpServletRequest request) {
 		Integer status = 200;
 		String ttId = CommonTools.getFinalStr("id", request);
 		String userId = CommonTools.getFinalStr("userId", request);
+		Integer opt = CommonTools.getFinalInteger("opt", request);
 		List<Object> list = new ArrayList<Object>();
 
 		try {
@@ -795,10 +806,61 @@ public class TrucksTradeController {
 					map.put("tradeType", tt.getTradeType());
 					String area = tt.getArea();
 					map.put("area", area);
+					String[] areaArr = tt.getArea().split(",");
 					if(!area.equals("")) {
-						map.put("areaArr", tt.getArea().split(","));
+						map.put("areaArr", areaArr);
 					}
-					map.put("qyTypeId", tt.getQyTypeId());
+					if(opt.equals(1)) {
+						//获取省份列表
+						List<CommonProvinceOrder> cpoList = cpos.listAllInfo("asc");
+						List<Object> list_prov = new ArrayList<Object>();
+						if(!area.equals("")) {
+							for(CommonProvinceOrder cpo : cpoList) {
+								Map<String,Object> map_prov = new HashMap<String,Object>();
+								map_prov.put("provName", cpo.getProvince());
+								for(int i = 0 ; i < areaArr.length ; i++) {
+									map_prov.put("orderNo", cpo.getOrderNo());
+									if(areaArr[i].equals(cpo.getProvince())) {
+										map_prov.put("selFlag", true);
+										break;
+									}else {
+										map_prov.put("selFlag", false);
+									}
+								}
+								list_prov.add(map_prov);
+							}
+						}else {
+							for(CommonProvinceOrder cpo : cpoList) {
+								Map<String,Object> map_prov = new HashMap<String,Object>();
+								map_prov.put("provName", cpo.getProvince());
+								map_prov.put("selFlag", false);
+								map_prov.put("orderNo", cpo.getOrderNo());
+								list_prov.add(map_prov);
+							}
+						}
+						map.put("ysAreaList", list_prov);
+					}
+					String qyTypeId = tt.getQyTypeId();
+					map.put("qyTypeId", qyTypeId);
+					if(opt.equals(1)) {
+						List<Object> qtlist = new ArrayList<Object>();
+						//获取所有气源类型
+						List<QyType> qtList = qyts.getQyTypeByNameList("");
+						if(qtList.size() > 0) {
+							for(QyType qt : qtList) {
+								Map<String, Object> qtMap = new HashMap<String, Object>();
+								qtMap.put("qtTypeId", qt.getId());
+								qtMap.put("qtTypeName", qt.getName());
+								if(qt.getId().equals(qyTypeId)) {
+									qtMap.put("selFlag", true);
+								}else {
+									qtMap.put("selFlag", false);
+								}
+								qtlist.add(qtMap);
+							}
+						}
+						map.put("qtList", qtlist);
+					}
 					map.put("pfbzId", tt.getWqPfbz().getId());
 					map.put("pfbzName", tt.getWqPfbz().getName());
 					map.put("accidentFlag", tt.getAccidentFlag());
@@ -826,6 +888,39 @@ public class TrucksTradeController {
 							qualmap.put("qualName", ttqualList.get(i).getQualification().getName());
 							tQllist.add(qualmap);
 						}
+					}
+					if(opt.equals(1)) {
+						List<Object> list_qf = new ArrayList<Object>();
+						//获取全部进港资质
+						List<Qualification> qfList = qualService.getQualificationList(0);
+						if(qfList.size() > 0) {
+							if (!ttqualList.isEmpty()) {
+								for(Qualification qf : qfList) {
+									Map<String, Object> map_qf = new HashMap<String, Object>();
+									map_qf.put("qualId", qf.getId());
+									map_qf.put("qualName", qf.getName());
+									for (int i = 0; i < ttqualList.size(); i++) {
+										Qualification qf_1 = ttqualList.get(i).getQualification();
+										if(qf_1.getId().equals(qf.getId())) {
+											map_qf.put("selFlag", true);
+											break;
+										}else {
+											map_qf.put("selFlag", false);
+										}
+									}
+									list_qf.add(map_qf);
+								}
+							}else {
+								for(Qualification qf : qfList) {
+									Map<String, Object> map_qf = new HashMap<String, Object>();
+									map_qf.put("qualId", qf.getId());
+									map_qf.put("qualName", qf.getName());
+									map_qf.put("selFlag", false);
+									list_qf.add(map_qf);
+								}
+							}
+						}
+						map.put("qfList", list_qf);
 					}
 					String ufId = "";
 					if (!userId.isEmpty()) {
