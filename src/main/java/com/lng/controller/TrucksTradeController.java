@@ -278,13 +278,15 @@ public class TrucksTradeController {
 			@ApiResponse(code = 50001, message = "数据未找到"), @ApiResponse(code = 70001, message = "无权限访问") })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "货车租卖主键", required = true),
 			@ApiImplicitParam(name = "checkSta", value = "审核状态(0:未审核,1:审核通过,2:审核未通过)"),
-			@ApiImplicitParam(name = "showSta", value = "上/下架状态（0：上架，1：下架）") })
+			@ApiImplicitParam(name = "showSta", value = "上/下架状态（0：上架，1：下架）"),
+			@ApiImplicitParam(name = "opt", value = "0:审核，1：上下架",required = true,dataType = "integer")
+	})
 	public GenericResponse updateTrTrByStatus(HttpServletRequest request, String id, Integer checkSta,
 			Integer showSta) {
 		id = CommonTools.getFinalStr(id);
 		String cilentInfo = CommonTools.getCilentInfo_new(request);
+		Integer opt = CommonTools.getFinalInteger("opt", request);
 		Integer status = 200;
-
 		try {
 			if (cilentInfo.equals("wxApp")) {
 
@@ -298,14 +300,18 @@ public class TrucksTradeController {
 				if (tt == null) {
 					status = 50001;
 				} else {
-					if (checkSta != null && !checkSta.equals(tt.getCheckStatus())) {
-						tt.setCheckStatus(checkSta);
-						tt.setCheckTime(CurrentTime.getCurrentTime());
+					if(opt.equals(0)) {
+						if (checkSta != null && !checkSta.equals(tt.getCheckStatus())) {
+							tt.setCheckStatus(checkSta);
+							tt.setCheckTime(CurrentTime.getCurrentTime());
+							trucksTradeService.saveOrUpdate(tt);
+						}
+					}else {
+						if (showSta != null && !showSta.equals(tt.getShowStatus())) {
+							tt.setShowStatus(showSta);
+							trucksTradeService.saveOrUpdate(tt);
+						}
 					}
-					if (showSta != null && !showSta.equals(tt.getShowStatus())) {
-						tt.setShowStatus(showSta);
-					}
-					trucksTradeService.saveOrUpdate(tt);
 				}
 			}
 

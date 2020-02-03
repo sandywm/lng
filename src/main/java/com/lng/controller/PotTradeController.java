@@ -228,20 +228,21 @@ public class PotTradeController {
 						if (checkSta != null && !checkSta.equals(pt.getCheckStatus())) {
 							pt.setCheckStatus(checkSta);
 							pt.setCheckTime(CurrentTime.getCurrentTime());
+							potTradeService.saveOrUpdate(pt);
+							String result = "未审核通过";
+							if(checkSta.equals(1)) {
+								result = "审核通过";
+							}
+							MessageCenter mc = new MessageCenter("","您发布的储罐租卖信息("+pt.getTrucksPotPp().getName()+")"+result, "您发布的储罐租卖信息("+pt.getTrucksPotPp().getName()+")"+result, 0, CurrentTime.getCurrentTime(), 2,
+									id, "pot", "", pt.getAddUserId(), 0);
+							mcs.saveOrUpdate(mc);
 						}
-						String result = "未审核通过";
-						if(checkSta.equals(1)) {
-							result = "审核通过";
-						}
-						MessageCenter mc = new MessageCenter("","您发布的储罐租卖信息("+pt.getTrucksPotPp().getName()+")"+result, "您发布的储罐租卖信息("+pt.getTrucksPotPp().getName()+")"+result, 0, CurrentTime.getCurrentTime(), 2,
-								id, "pot", "", pt.getAddUserId(), 0);
-						mcs.saveOrUpdate(mc);
 					}else {
 						if (showSta != null && !showSta.equals(pt.getShowStatus())) {
 							pt.setShowStatus(showSta);
+							potTradeService.saveOrUpdate(pt);
 						}
 					}
-					potTradeService.saveOrUpdate(pt);
 				}
 			}
 		} catch (Exception e) {
