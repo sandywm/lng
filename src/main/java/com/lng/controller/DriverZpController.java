@@ -201,30 +201,41 @@ public class DriverZpController {
 	})
 	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "司机求职主键", required = true),
 			@ApiImplicitParam(name = "checkSta", value = "审核状态(0:未审核,1:审核通过,2:审核未通过)"),
-			@ApiImplicitParam(name = "showSta", value = "上/下架状态（0：上架，1：下架）") })
+			@ApiImplicitParam(name = "showSta", value = "上/下架状态（0：上架，1：下架）"),
+			@ApiImplicitParam(name = "opt", value = "0:审核，1：显示/隐藏",required = true,dataType = "integer")
+	})
 	public GenericResponse updateQzByStatus(HttpServletRequest request) {
 		String  id = CommonTools.getFinalStr("id",request);
 		Integer checkSta = CommonTools.getFinalInteger("checkSta", request);
 		Integer showSta = CommonTools.getFinalInteger("showSta", request);
 		Integer status = 200;
-
+		Integer opt = CommonTools.getFinalInteger("opt", request);
 		try {
 			DriverQz qz = qzService.getEntityById(id);
 			if (qz == null) {
 				status = 50001;
 			} else {
-				
-				if(checkSta >= 0 && !checkSta.equals(qz.getCheckStatus())) {
-					if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),CommonTools.getLoginRoleName(request), Constants.CHECK_QZ)) {
-						qz.setCheckStatus(checkSta);
-						qz.setCheckTime(CurrentTime.getCurrentTime());
-						qzService.saveOrUpdate(qz);
-					}else {
-						status = 70001;
+				if(opt.equals(0)) {
+					if(checkSta >= 0 && !checkSta.equals(qz.getCheckStatus())) {
+						if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),CommonTools.getLoginRoleName(request), Constants.CHECK_QZ)) {
+							qz.setCheckStatus(checkSta);
+							qz.setCheckTime(CurrentTime.getCurrentTime());
+							qzService.saveOrUpdate(qz);
+						}else {
+							status = 70001;
+						}
 					}
-				}else if (showSta >=0 && !showSta.equals(qz.getShowStatus())) {
-					qz.setShowStatus(showSta);
-					qzService.saveOrUpdate(qz);
+				}else {
+					if (showSta >=0 && !showSta.equals(qz.getShowStatus())) {
+						qz.setShowStatus(showSta);
+						if(qz.getShowStatus() == 0) {//只有正常显示的才能进行隐藏
+							if(showSta.equals(1)) {//由正常显示到 隐藏
+								//重置审核状态为未审核
+								qz.setCheckStatus(0);
+							}
+						}
+						qzService.saveOrUpdate(qz);
+					}
 				}
 			}
 		} catch (Exception e) {
@@ -599,28 +610,41 @@ public class DriverZpController {
 	})
 	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "司机招聘主键", required = true),
 			@ApiImplicitParam(name = "checkSta", value = "审核状态(0:未审核,1:审核通过,2:审核未通过)"),
-			@ApiImplicitParam(name = "showSta", value = "上/下架状态（0：上架，1：下架）") })
+			@ApiImplicitParam(name = "showSta", value = "上/下架状态（0：上架，1：下架）"),
+			@ApiImplicitParam(name = "opt", value = "0:审核，1：显示/隐藏",required = true,dataType = "integer")
+	})
 	public GenericResponse updateZpByStatus(HttpServletRequest request) {
 		String  id = CommonTools.getFinalStr("id",request);
 		Integer checkSta = CommonTools.getFinalInteger("checkSta", request);
 		Integer showSta = CommonTools.getFinalInteger("showSta", request);
+		Integer opt = CommonTools.getFinalInteger("opt", request);
 		Integer status = 200;
 		try {
 			DriverZp zp = zpService.getEntityById(id);
 			if (zp == null) {
 				status = 50001;
 			} else {
-				if(checkSta >= 0 && !checkSta.equals(zp.getCheckStatus())) {
-					if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),CommonTools.getLoginRoleName(request), Constants.CHECK_ZP)) {
-						zp.setCheckStatus(checkSta);
-						zp.setCheckTime(CurrentTime.getCurrentTime());
-						zpService.saveOrUpdate(zp);
-					}else {
-						status = 70001;
+				if(opt.equals(0)) {
+					if(checkSta >= 0 && !checkSta.equals(zp.getCheckStatus())) {
+						if(CommonTools.checkAuthorization(CommonTools.getLoginUserId(request),CommonTools.getLoginRoleName(request), Constants.CHECK_ZP)) {
+							zp.setCheckStatus(checkSta);
+							zp.setCheckTime(CurrentTime.getCurrentTime());
+							zpService.saveOrUpdate(zp);
+						}else {
+							status = 70001;
+						}
 					}
-				}else if (showSta >=0 && !showSta.equals(zp.getShowStatus())) {
-					zp.setShowStatus(showSta);
-					zpService.saveOrUpdate(zp);
+				}else {
+					if (showSta >=0 && !showSta.equals(zp.getShowStatus())) {
+						zp.setShowStatus(showSta);
+						if(zp.getShowStatus() == 0) {//只有正常显示的才能进行隐藏
+							if(showSta.equals(1)) {//由正常显示到 隐藏
+								//重置审核状态为未审核
+								zp.setCheckStatus(0);
+							}
+						}
+						zpService.saveOrUpdate(zp);
+					}
 				}
 			}
 		} catch (Exception e) {

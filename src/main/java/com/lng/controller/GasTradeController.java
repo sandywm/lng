@@ -640,6 +640,8 @@ public class GasTradeController {
 						status = 10002;
 					}
 				}else {//上下架（正在交易时不能操作）
+					GasTrade gt = gts.getEntityById(gasTradeId);
+					checkStatus = gt.getCheckStatus();
 					if(checkStatus.equals(1)) {//审核通过的才能进行上下架
 						boolean flag = false;
 						List<GasTradeOrder> gtoList = gtos.listComInfoByOpt("", gasTradeId);
@@ -650,7 +652,6 @@ public class GasTradeController {
 							}
 						}
 						if(!flag) {
-							GasTrade gt = gts.getEntityById(gasTradeId);
 							if(gt == null) {
 								status = 50001;
 							}else {
@@ -688,7 +689,7 @@ public class GasTradeController {
 	@ApiResponses({@ApiResponse(code = 1000, message = "服务器错误"),
 		@ApiResponse(code = 70001, message = "无权限访问"),
 		@ApiResponse(code = 10002, message = "参数为空"),
-		@ApiResponse(code = 80001, message = "审核通过不能修改"),
+		@ApiResponse(code = 80001, message = "审核通过不能修改")
 	})
 	@ApiImplicitParams({
 		@ApiImplicitParam(name = "gasTradeId", value = "燃气买卖编号)",required = true),
@@ -772,7 +773,7 @@ public class GasTradeController {
 						if(gt.getCheckStatus() == 1) {//审核通过的不能进行修改
 							status = 80001;
 						}else{
-							gt.setCheckStatus(0);//审核未通过时进行修改重置为未审核
+//							gt.setCheckStatus(0);//审核未通过时进行修改重置为未审核
 							GasFactory gf = gt.getGasFactory();
 							GasType gasType = gt.getGasType();
 							if(!cpyId.equals(gt.getCompany().getId())) {
