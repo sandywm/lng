@@ -897,6 +897,58 @@ public class DriverZpController {
 		return ResponseFormat.retParam(status, list);
 	}
 	
+	@GetMapping("/getSelfDriverQz")
+	@ApiOperation(value = "获取自己发布的求职信息", notes = "获取自己发布的求职信息")
+	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
+			@ApiResponse(code = 50001, message = "数据未找到"),
+			@ApiResponse(code = 10002, message = "参数为空")
+	})
+	@ApiImplicitParams({ @ApiImplicitParam(name = "userId", value = "当前登录用编号")
+	})
+	public GenericResponse getSelfDriverQz(HttpServletRequest request) {
+		String userId = CommonTools.getFinalStr("userId", request);
+		Integer status = 200;
+		List<Object> list = new ArrayList<Object>();
+		try {
+			if(userId.equals("")) {
+				status = 10002;
+			}else {
+				List<DriverQz> qzList = qzService.getDriverQzByUserId(userId);
+				if(qzList.size() > 0) {
+					for (DriverQz qz : qzList) {
+						Map<String, Object> map = new HashMap<String, Object>();
+						map.put("id", qz.getId());
+						map.put("userName", qz.getUserName());
+						map.put("userMobile", qz.getUserMobile());
+						map.put("userHead", qz.getUserHead());
+						map.put("jzYear", qz.getJzYear());
+						map.put("jzType", qz.getJzType());
+						map.put("wage", qz.getWage());
+						map.put("privince", qz.getProvince());
+						map.put("city", qz.getCity());
+						map.put("education", qz.getEducation());
+						map.put("age", qz.getAge());
+						map.put("sex", qz.getSex());
+						map.put("workExp", qz.getWorkExp());
+						map.put("workYear", qz.getWorkYear());
+						map.put("colleges", qz.getColleges());
+						map.put("marriage", qz.getMarriage());
+						map.put("remark", qz.getRemark());
+						map.put("showStatus", qz.getShowStatus());
+						map.put("checkStatus", qz.getCheckStatus());
+						list.add(map);
+					}
+				}else {
+					status = 50001;
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			status = 1000;
+		}
+		return ResponseFormat.retParam(status, list);
+	}
+	
 	@GetMapping("/getDriverZpById")
 	@ApiOperation(value = "根据主键获取司机招聘详细信息", notes = "根据主键获取司机招聘详细信息")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
