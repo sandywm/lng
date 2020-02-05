@@ -882,6 +882,7 @@ public class DriverZpController {
 						map.put("age", zp.getSjAgeRange());
 						map.put("jlYear", zp.getJlYearRange());
 						map.put("province", zp.getProvince());
+						map.put("city", zp.getCity());
 						map.put("num", zp.getNum());
 						map.put("lxName", zp.getLxName());
 						map.put("lxTel", zp.getLxTel());
