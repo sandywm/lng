@@ -240,11 +240,10 @@ public class PotTradeController {
 					}else {
 						if (showSta != null && !showSta.equals(pt.getShowStatus())) {
 							pt.setShowStatus(showSta);
-							if(pt.getShowStatus() == 0) {
-								if(showSta.equals(1)) {//由上架到下架
-									//重置审核状态为未审核
-									pt.setCheckStatus(0);
-								}
+							if(showSta.equals(1)) {//由上架到下架
+								//重置审核状态为未审核
+								pt.setCheckStatus(0);
+								pt.setCheckTime("");
 							}
 							potTradeService.saveOrUpdate(pt);
 						}

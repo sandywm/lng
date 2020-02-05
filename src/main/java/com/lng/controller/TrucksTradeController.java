@@ -317,11 +317,10 @@ public class TrucksTradeController {
 					}else {
 						if (showSta != null && !showSta.equals(tt.getShowStatus())) {
 							tt.setShowStatus(showSta);
-							if(tt.getShowStatus() == 0) {
-								if(showSta.equals(1)) {//由上架设置为下架
-									//审核状态重置为未审核
-									tt.setCheckStatus(0);
-								}
+							if(showSta.equals(1)) {//由上架设置为下架
+								//审核状态重置为未审核
+								tt.setCheckStatus(0);
+								tt.setCheckTime("");
 							}
 							trucksTradeService.saveOrUpdate(tt);
 						}

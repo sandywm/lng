@@ -658,6 +658,7 @@ public class GasTradeController {
 								gt.setShowStatus(showStatus);
 								if(showStatus.equals(1)) {//下架操作将重置审核状态(重新上架时需要进行审核)并删除所有已取消的订单
 									gt.setCheckStatus(0);
+									gt.setCheckTime("");
 									//下架操作将删除所有已取消订单
 									for(GasTradeOrder gto : gtoList) {
 										gtols.delBatchLog(gtols.getGtLogList(gto.getId()));

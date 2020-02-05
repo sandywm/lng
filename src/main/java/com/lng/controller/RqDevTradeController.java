@@ -206,11 +206,10 @@ public class RqDevTradeController {
 					}else {
 						if (showSta != null && !showSta.equals(rdt.getShowStatus())) {
 							rdt.setShowStatus(showSta);
-							if(rdt.getShowStatus() == 0) {
-								if(showSta.equals(1)) {//由上架设置为未审核
-									//审核状态设置为未审核
-									rdt.setCheckStatus(0);
-								}
+							if(showSta.equals(1)) {//由上架设置为未审核
+								//审核状态设置为未审核
+								rdt.setCheckStatus(0);
+								rdt.setCheckTime("");
 							}
 							rdtService.saveOrUpdate(rdt);
 						}

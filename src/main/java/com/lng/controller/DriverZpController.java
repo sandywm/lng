@@ -226,12 +226,14 @@ public class DriverZpController {
 						}
 					}
 				}else {
-					if (showSta >=0 && !showSta.equals(qz.getShowStatus())) {
+					Integer showStatus_db = qz.getShowStatus();
+					if (showSta >=0 && !showSta.equals(showStatus_db)) {
 						qz.setShowStatus(showSta);
-						if(qz.getShowStatus() == 0) {//只有正常显示的才能进行隐藏
+						if(showStatus_db.equals(0)) {//只有正常显示的才能进行隐藏
 							if(showSta.equals(1)) {//由正常显示到 隐藏
 								//重置审核状态为未审核
 								qz.setCheckStatus(0);
+								qz.setCheckTime("");
 							}
 						}
 						qzService.saveOrUpdate(qz);
@@ -639,12 +641,14 @@ public class DriverZpController {
 						}
 					}
 				}else {
-					if (showSta >=0 && !showSta.equals(zp.getShowStatus())) {
+					Integer showStatus_db = zp.getShowStatus();
+					if (showSta >=0 && !showSta.equals(showStatus_db)) {
 						zp.setShowStatus(showSta);
-						if(zp.getShowStatus() == 0) {//只有正常显示的才能进行隐藏
+						if(showStatus_db.equals(0)) {//只有正常显示的才能进行隐藏
 							if(showSta.equals(1)) {//由正常显示到 隐藏
 								//重置审核状态为未审核
 								zp.setCheckStatus(0);
+								zp.setCheckTime("");
 							}
 						}
 						zpService.saveOrUpdate(zp);
