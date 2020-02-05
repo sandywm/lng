@@ -277,6 +277,7 @@ public class DriverZpController {
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
 			@ApiResponse(code = 80001, message = "审核通过不能修改"), @ApiResponse(code = 50001, message = "数据未找到") })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "司机求职主键", required = true),
+			@ApiImplicitParam(name = "userId", value = "用户编号", required = true),
 			@ApiImplicitParam(name = "userName", value = "用户姓名", required = true),
 			@ApiImplicitParam(name = "userMobile", value = "联系电话", required = true),
 			@ApiImplicitParam(name = "userHead", value = "用户头像"),
@@ -296,6 +297,7 @@ public class DriverZpController {
 			@ApiImplicitParam(name = "userType", value = "上传人员类型（1：后台管理人员，2：普通用户）", required = true) })
 	public GenericResponse updateDriverQz(HttpServletRequest request) {
 		String id = CommonTools.getFinalStr("id", request);
+		String userId = CommonTools.getFinalStr("userId", request);
 		String userName = CommonTools.getFinalStr("userName", request);
 		String userMobile = CommonTools.getFinalStr("userMobile", request);
 		String userHead = CommonTools.getFinalStr("userHead", request);
@@ -322,58 +324,60 @@ public class DriverZpController {
 			} else if (qz.getCheckStatus() == 1) {
 				status = 80001;
 			} else {
-				if (!userName.isEmpty() && !userName.equals(qz.getUserName())) {
-					qz.setUserName(userName);
+				if(userId.equals(qz.getUserId())) {
+					if (!userName.isEmpty() && !userName.equals(qz.getUserName())) {
+						qz.setUserName(userName);
+					}
+					if (!userMobile.isEmpty() && !userMobile.equals(qz.getUserMobile())) {
+						qz.setUserMobile(userMobile);
+					}
+					if (!userHead.isEmpty() && !userHead.equals(qz.getUserHead())) {
+						qz.setUserHead(CommonTools.dealUploadDetail(userId, qz.getUserHead(), userHead));
+					}
+					if (jzYear != null && !jzYear.equals(qz.getJzYear())) {
+						qz.setJzYear(jzYear);
+					}
+					if (!jzType.isEmpty() && jzType.equals(qz.getJzType())) {
+						qz.setJzType(jzType);
+					}
+					if (wage != null && !wage.equals(qz.getWage())) {
+						qz.setWage(wage);
+					}
+					if (age != null && !age.equals(qz.getAge())) {
+						qz.setAge(age);
+					}
+					if (!education.isEmpty() && !education.equals(qz.getEducation())) {
+						qz.setEducation(education);
+					}
+					if (!sex.isEmpty() && !sex.equals(qz.getSex())) {
+						qz.setSex(sex);
+					}
+					if (!workExp.isEmpty() && !workExp.equals(qz.getWorkExp())) {
+						qz.setWorkExp(workExp);
+					}
+					if (!workYear.isEmpty() && !workYear.equals(qz.getWorkYear())) {
+						qz.setWorkYear(workYear);
+					}
+					if (!colleges.isEmpty() && !colleges.equals(qz.getColleges())) {
+						qz.setColleges(colleges);
+					}
+					if (!marriage.isEmpty() && !marriage.equals(qz.getMarriage())) {
+						qz.setMarriage(marriage);
+					}
+					if (!province.isEmpty() && !province.equals(qz.getProvince())) {
+						qz.setProvince(province);
+					}
+					if (!city.isEmpty() && !city.equals(qz.getCity())) {
+						qz.setCity(city);
+					}
+					if (!remark.isEmpty() && !remark.equals(qz.getRemark())) {
+						qz.setRemark(remark);
+					}
+					if (userType != null && !userType.equals(qz.getUserType())) {
+						qz.setUserType(userType);
+					}
+					qzService.saveOrUpdate(qz);
 				}
-				if (!userMobile.isEmpty() && !userMobile.equals(qz.getUserMobile())) {
-					qz.setUserMobile(userMobile);
-				}
-				if (!userHead.isEmpty() && !userHead.equals(qz.getUserHead())) {
-					qz.setUserHead(userHead);
-				}
-				if (jzYear != null && !jzYear.equals(qz.getJzYear())) {
-					qz.setJzYear(jzYear);
-				}
-				if (!jzType.isEmpty() && jzType.equals(qz.getJzType())) {
-					qz.setJzType(jzType);
-				}
-				if (wage != null && !wage.equals(qz.getWage())) {
-					qz.setWage(wage);
-				}
-				if (age != null && !age.equals(qz.getAge())) {
-					qz.setAge(age);
-				}
-				if (!education.isEmpty() && !education.equals(qz.getEducation())) {
-					qz.setEducation(education);
-				}
-				if (!sex.isEmpty() && !sex.equals(qz.getSex())) {
-					qz.setSex(sex);
-				}
-				if (!workExp.isEmpty() && !workExp.equals(qz.getWorkExp())) {
-					qz.setWorkExp(workExp);
-				}
-				if (!workYear.isEmpty() && !workYear.equals(qz.getWorkYear())) {
-					qz.setWorkYear(workYear);
-				}
-				if (!colleges.isEmpty() && !colleges.equals(qz.getColleges())) {
-					qz.setColleges(colleges);
-				}
-				if (!marriage.isEmpty() && !marriage.equals(qz.getMarriage())) {
-					qz.setMarriage(marriage);
-				}
-				if (!province.isEmpty() && !province.equals(qz.getProvince())) {
-					qz.setProvince(province);
-				}
-				if (!city.isEmpty() && !city.equals(qz.getCity())) {
-					qz.setCity(city);
-				}
-				if (!remark.isEmpty() && !remark.equals(qz.getRemark())) {
-					qz.setRemark(remark);
-				}
-				if (userType != null && !userType.equals(qz.getUserType())) {
-					qz.setUserType(userType);
-				}
-				qzService.saveOrUpdate(qz);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
