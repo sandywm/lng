@@ -963,11 +963,14 @@ public class DriverZpController {
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
 			@ApiResponse(code = 10002, message = "参数为空"), @ApiResponse(code = 50001, message = "数据未找到") })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "司机招聘编号"),
-			@ApiImplicitParam(name = "userId", value = "用户编号编号"), })
+			@ApiImplicitParam(name = "userId", value = "用户编号编号"),
+			@ApiImplicitParam(name = "opt", value = "参数（0：浏览，1：编辑）", dataType = "integer")
+	})
 	public GenericResponse getDriverZpById(HttpServletRequest request) {
 		Integer status = 200;
 		String zpId = CommonTools.getFinalStr("id", request);
 		String userId = CommonTools.getFinalStr("userId", request);
+		Integer opt = CommonTools.getFinalInteger("opt", request);
 		List<Object> list = new ArrayList<Object>();
 		try {
 			if (zpId.equals("")) {
@@ -1014,6 +1017,31 @@ public class DriverZpController {
 						List<UserFocus> ufList = ufService.getUserFocusList(userId, zpId, "sjzp");
 						if(ufList.size() > 0) {
 							ufId = ufList.get(0).getId();
+						}
+					}
+					//获取当前用户的所有创建的公司
+					Company cpy_tmp = zp.getCompany();
+					if(opt.equals(1)) {
+						List<Object> list_cpy = new ArrayList<Object>();
+						List<Company> cList = cpService.listSpecCpy("", "", userId, 1);
+						if(cList.size() > 0) {
+							for(Company cpy : cList) {
+								Map<String, Object> map_d = new HashMap<String, Object>();
+								map_d.put("cpyId", cpy.getId());
+								map_d.put("cpyName", cpy.getName());
+								if(cpy_tmp.getId().equals(cpy.getId())) {
+									map_d.put("selFlag", true);
+								}else{
+									map_d.put("selFlag", false);
+								}
+								list_cpy.add(map_d);
+							}
+							map.put("cpyList", list_cpy);
+						}
+					}else {
+						if(cpy_tmp !=  null) {
+							map.put("cpyId", cpy_tmp.getId());
+							map.put("cpyName", cpy_tmp.getName());
 						}
 					}
 					map.put("ufId", ufId);
