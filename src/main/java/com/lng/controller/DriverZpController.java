@@ -752,9 +752,7 @@ public class DriverZpController {
 				if (!workYear.isEmpty() && !workYear.equals(zp.getWorkYear())) {
 					zp.setWorkYear(workYear);
 				}
-				if (!welfare.isEmpty() && !welfare.equals(zp.getWelfare())) {
-					zp.setWelfare(welfare);
-				}
+				zp.setWelfare(welfare);
 				if (!sjAgeRange.isEmpty() && !sjAgeRange.equals(zp.getSjAgeRange())) {
 					zp.setSjAgeRange(sjAgeRange);
 				}
