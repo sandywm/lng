@@ -48,5 +48,18 @@ public interface GasTradeOrderLogService {
 	 * @param logList
 	 */
 	void delBatchLog(List<GasTradeOrderLog> logList);
+	
+	/**
+     * 	
+     * @description 根据燃气交易订单编号、订单状态获取日志信息(升序排列)
+     * @author wm
+     * @Version : 1.0
+     * @ModifiedBy : 
+     * @date  2019年12月18日 下午2:38:43
+     * @param gtoId 燃气交易订单编号
+     * @param orderStatus 订单编号（-2-7）(已取消，已拒绝，确认订单，待付款，确认收款，待收货，待付款，确认收款，待评价，已完成)
+     * @return
+     */
+	List<GasTradeOrderLog> getGtLogList(String gtoId,Integer orderStatus);
 
 }

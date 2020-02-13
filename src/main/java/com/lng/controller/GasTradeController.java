@@ -641,20 +641,20 @@ public class GasTradeController {
 					}
 				}else {//上下架（正在交易时不能操作）
 					GasTrade gt = gts.getEntityById(gasTradeId);
-					checkStatus = gt.getCheckStatus();
-					if(checkStatus.equals(1)) {//审核通过的才能进行上下架
-						boolean flag = false;
-						List<GasTradeOrder> gtoList = gtos.listComInfoByOpt("", gasTradeId);
-						for(GasTradeOrder gto : gtoList) {
-							if(gto.getOrderStatus() >= 0) {
-								flag = true;
-								break;
+					if(gt == null) {
+						status = 50001;
+					}else {
+						checkStatus = gt.getCheckStatus();
+						if(checkStatus.equals(1)) {//审核通过的才能进行上下架
+							boolean flag = false;
+							List<GasTradeOrder> gtoList = gtos.listComInfoByOpt("", gasTradeId);
+							for(GasTradeOrder gto : gtoList) {
+								if(gto.getOrderStatus() >= 0) {
+									flag = true;
+									break;
+								}
 							}
-						}
-						if(!flag) {
-							if(gt == null) {
-								status = 50001;
-							}else {
+							if(!flag) {
 								gt.setShowStatus(showStatus);
 								if(showStatus.equals(1)) {//下架操作将重置审核状态(重新上架时需要进行审核)并删除所有已取消的订单
 									gt.setCheckStatus(0);
@@ -668,12 +668,12 @@ public class GasTradeController {
 									gt.setAddTime(CurrentTime.getCurrentTime());
 								}
 								gts.saveOrUpdate(gt);
+							}else {
+								status = 80003;
 							}
 						}else {
-							status = 80003;
+							status = 80002;
 						}
-					}else {
-						status = 80002;
 					}
 				}
 			}

@@ -90,5 +90,31 @@ public interface GasTradeOrderService {
 	 */
 	void delBatchOrder(List<GasTradeOrder> gtoList);
 	
-
+	/**
+	 * @description 根据条件获取订单列表（前台）
+	 * @author wm
+	 * @Version : 1.0
+	 * @ModifiedBy : 修改人
+	 * @date  2020年02月10日 上午10:56:39
+	 * @param gtId 燃气贸易编号
+	 * @param buyUserId 用户编号
+	 * @param ordSta 订单编号（-2-7）(已取消，已拒绝，确认订单，待付款，确认收款，待收货，待付款，确认收款，待评价，已完成)
+	 * @param sDate 开始时间
+	 * @param eDate 结束时间
+	 */
+	List<GasTradeOrder> listGtInfoByOpt(String gtId,String buyUserId,Integer ordSta,String sDate,String eDate);
+	
+	/**
+	 * @description 根据条件获取订单列表（前台）
+	 * @author wm
+	 * @Version : 1.0
+	 * @ModifiedBy : 修改人
+	 * @date  2020年02月10日 上午10:56:39
+	 * @param gtId 燃气贸易编号
+	 * @param buyUserId 用户编号
+	 * @param ordStaStr 订单编号(？,？)区间，用逗号隔开，比如（-2,1）
+	 * @param sDate 开始时间
+	 * @param eDate 结束时间
+	 */
+	List<GasTradeOrder> listGtInfoByOpt1(String gtId,String buyUserId,String ordStaStr,String sDate,String eDate);
 }

@@ -61,4 +61,24 @@ public class GasTradeOrderLogServiceImpl implements GasTradeOrderLogService {
 		gtolDao.deleteInBatch(logList);
 	}
 
+	@SuppressWarnings("serial")
+	@Override
+	public List<GasTradeOrderLog> getGtLogList(String gtoId, Integer orderStatus) {
+		// TODO Auto-generated method stub
+		Specification<GasTradeOrderLog> spec = new Specification<GasTradeOrderLog>() {
+
+			@Override
+			public Predicate toPredicate(Root<GasTradeOrderLog> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+				Predicate pre = cb.conjunction();
+				if (!gtoId.isEmpty()) {
+					pre.getExpressions().add(cb.equal(root.get("gasTradeOrder").get("id"), gtoId));
+				}
+				pre.getExpressions().add(cb.equal(root.get("orderStatus"), orderStatus));
+				return pre;
+			}
+		};
+		Sort sort = Sort.by(Sort.Direction.DESC, "addTime");// 时间降序排列
+		return gtolDao.findAll(spec,sort);
+	}
+
 }

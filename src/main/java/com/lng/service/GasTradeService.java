@@ -134,4 +134,17 @@ public interface GasTradeService {
 	 */
 	Page<GasTrade> listInfoByOpt(String sDate,String eDate,Integer checkStatus,
 			Integer showStatus, Integer pageNo,Integer pageSize);
+	
+	/**
+	 * @description 获取指定日期时间段自己发布的燃气贸易列表（时间降序排列）--审核通过且上架
+	 * @author wm
+	 * @Version : 1.0
+	 * @ModifiedBy : 修改人
+	 * @date  2020年02月11日 下午1:49:13
+	 * @param sDate 开始时间
+	 * @param eDate 结束时间
+	 * @param pubUserId 商户
+	 * @return
+	 */
+	List<GasTrade> listTradingInfoByOpt(String sDate,String eDate,String pubUserId);
 }

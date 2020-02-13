@@ -139,4 +139,67 @@ public class GasTradeOrderServiceImpl implements GasTradeOrderService {
 		gtoDao.deleteInBatch(gtoList);
 	}
 
+	@SuppressWarnings("serial")
+	@Override
+	public List<GasTradeOrder> listGtInfoByOpt(String gtId,String buyUserId,Integer ordSta,String sDate, String eDate) {
+		// TODO Auto-generated method stub
+		Sort sort = Sort.by(Sort.Direction.DESC, "gasTrade.addTime");// 降序排列
+		Specification<GasTradeOrder> spec = new Specification<GasTradeOrder>() {
+
+			@Override
+			public Predicate toPredicate(Root<GasTradeOrder> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+				Predicate pre = cb.conjunction();
+				if(!gtId.isEmpty()) {
+					pre.getExpressions().add(cb.equal(root.get("gasTrade").get("id"), gtId));
+				}
+				if (!buyUserId.isEmpty()) {
+					pre.getExpressions().add(cb.equal(root.get("user").get("id"), buyUserId));
+				}
+				if (!sDate.isEmpty() && !eDate.isEmpty()) {
+					pre.getExpressions().add(cb.greaterThanOrEqualTo(root.get("addTime"), sDate + " 00:00:01"));
+					pre.getExpressions().add(cb.greaterThanOrEqualTo(root.get("addTime"), eDate + " 23:59:59"));
+				}
+				if(ordSta <= 1) {//已取消（-2），已拒绝（-1），未确认（0）,已确认（1）
+					pre.getExpressions().add(cb.lessThanOrEqualTo(root.get("orderStatus"), 1));
+				}else {
+					pre.getExpressions().add(cb.equal(root.get("orderStatus"), ordSta));
+				}
+				return pre;
+			}
+		};
+		return gtoDao.findAll(spec,sort);
+	}
+
+	@SuppressWarnings("serial")
+	@Override
+	public List<GasTradeOrder> listGtInfoByOpt1(String gtId, String buyUserId, String ordStaStr, String sDate,
+			String eDate) {
+		// TODO Auto-generated method stub
+		Sort sort = Sort.by(Sort.Direction.DESC, "gasTrade.addTime");// 降序排列
+		Specification<GasTradeOrder> spec = new Specification<GasTradeOrder>() {
+
+			@Override
+			public Predicate toPredicate(Root<GasTradeOrder> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+				Predicate pre = cb.conjunction();
+				if(!gtId.isEmpty()) {
+					pre.getExpressions().add(cb.equal(root.get("gasTrade").get("id"), gtId));
+				}
+				if (!buyUserId.isEmpty()) {
+					pre.getExpressions().add(cb.equal(root.get("user").get("id"), buyUserId));
+				}
+				if (!sDate.isEmpty() && !eDate.isEmpty()) {
+					pre.getExpressions().add(cb.greaterThanOrEqualTo(root.get("addTime"), sDate + " 00:00:01"));
+					pre.getExpressions().add(cb.greaterThanOrEqualTo(root.get("addTime"), eDate + " 23:59:59"));
+				}
+				if(!ordStaStr.isEmpty()) {
+					String[] orderStatusArr = ordStaStr.split(",");
+					pre.getExpressions().add(cb.greaterThanOrEqualTo(root.get("orderStatus"), Integer.parseInt(orderStatusArr[0])));
+					pre.getExpressions().add(cb.lessThanOrEqualTo(root.get("orderStatus"), Integer.parseInt(orderStatusArr[1])));
+				}
+				return pre;
+			}
+		};
+		return gtoDao.findAll(spec,sort);
+	}
+
 }

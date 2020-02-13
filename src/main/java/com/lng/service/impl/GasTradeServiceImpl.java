@@ -40,9 +40,11 @@ public class GasTradeServiceImpl implements GasTradeService{
 	@Override
 	public GasTrade getEntityById(String id) {
 		// TODO Auto-generated method stub
-		Optional<GasTrade> gt = gtDao.findById(id);
-		if(gt.isPresent()) {
-			return gt.get();
+		if(!id.isEmpty()) {
+			Optional<GasTrade> gt = gtDao.findById(id);
+			if(gt.isPresent()) {
+				return gt.get();
+			}
 		}
 		return null;
 	}
@@ -205,6 +207,31 @@ public class GasTradeServiceImpl implements GasTradeService{
 				return pre;
 		}};
 		return gtDao.findAll(spec, pageable);
+	}
+
+	@Override
+	public List<GasTrade> listTradingInfoByOpt(String sDate, String eDate, String pubUserId) {
+		// TODO Auto-generated method stub
+		Sort sort = Sort.by(Sort.Direction.DESC, "addTime");// 降序排列
+		Specification<GasTrade> spec = new Specification<GasTrade>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public Predicate toPredicate(Root<GasTrade> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+				// TODO Auto-generated method stub
+				Predicate pre = cb.conjunction();
+				if(!sDate.isEmpty() && !eDate.isEmpty()) {
+					pre.getExpressions().add(cb.greaterThanOrEqualTo(root.get("addTime"), sDate + " 00:00:01"));
+					pre.getExpressions().add(cb.lessThanOrEqualTo(root.get("addTime"), eDate + " 23:59:59"));
+				}
+				pre.getExpressions().add(cb.equal(root.get("checkStatus"), 1));
+				pre.getExpressions().add(cb.equal(root.get("showStatus"), 0));
+				if (!pubUserId.isEmpty()) {
+					pre.getExpressions().add(cb.equal(root.get("addUserId"), pubUserId));
+				}
+				return pre;
+		}};
+		return gtDao.findAll(spec, sort);
 	}
 
 }
