@@ -486,6 +486,7 @@ public class GasTradeOrderController {
 						String orderStatusChi = "";
 						map.put("orderStatus", oStatus);
 						String tipsTxt = "";
+						List<Object> list_pj = new ArrayList<Object>();
 						if(oStatus.equals(-2)) {
 							orderStatusChi = "已取消";//用户主动取消
 							tipsTxt = "用户已取消订单";
@@ -516,7 +517,18 @@ public class GasTradeOrderController {
 						}else if(oStatus.equals(7)) {
 							orderStatusChi = "订单完成";//买家评价后状态修改为7，订单完成
 							tipsTxt = "订单完成";
+							//获取用户评价
+							//获取评价内容
+							String pjTime  = gto.getAddTime();
+							if(!pjTime.equals("")) {
+								Map<String,Object> map_pj = new HashMap<String,Object>();
+								map_pj.put("pjScore", gto.getOrderPjNumber());
+								map_pj.put("pjDetail", gto.getOrderPjDetail());
+								map_pj.put("pjDate", gto.getAddTime());
+								list_pj.add(map_pj);
+							}
 						}
+						map.put("pjList", list_pj);
 						List<GasTradeOrderLog> gtolList = gtolService.getGtLogList(gto.getId(),2);//用户上传的首款
 						if(gtoList.size() > 0) {
 							GasTradeOrderLog gtol = gtolList.get(gtoList.size() - 1);
@@ -624,6 +636,7 @@ public class GasTradeOrderController {
 							String orderStatusChi = "";
 							map.put("orderStatus", oStatus);
 							String tipsTxt = "";
+							List<Object> list_pj = new ArrayList<Object>();
 							if(oStatus.equals(-2)) {
 								orderStatusChi = "已取消";//用户主动取消
 								tipsTxt = "用户已取消订单";
@@ -655,10 +668,16 @@ public class GasTradeOrderController {
 								orderStatusChi = "订单完成";//买家评价后状态修改为7，订单完成
 								tipsTxt = "订单完成";
 								//获取评价内容
-								map.put("pjScore", gto.getOrderPjNumber());
-								map.put("pjDetail", gto.getOrderPjDetail());
-								map.put("pjDate", gto.getAddTime());
+								String pjTime  = gto.getAddTime();
+								if(!pjTime.equals("")) {
+									Map<String,Object> map_pj = new HashMap<String,Object>();
+									map_pj.put("pjScore", gto.getOrderPjNumber());
+									map_pj.put("pjDetail", gto.getOrderPjDetail());
+									map_pj.put("pjDate", gto.getAddTime());
+									list_pj.add(map_pj);
+								}
 							}
+							map.put("pjList", list_pj);
 							if(!gtoId_qr.equals("")) {
 								List<GasTradeOrderLog> gtolList_f = gtolService.getGtLogList(gtoId_qr,2);//用户上传的首款
 								if(gtolList_f.size() > 0) {
