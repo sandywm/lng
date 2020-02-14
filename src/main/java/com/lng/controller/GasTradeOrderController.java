@@ -106,7 +106,7 @@ public class GasTradeOrderController {
 					if(gtoList.size() > 0) {//当前用户没下过订单
 						status = 30005;
 					}else {
-						if(gt.getAddUserId().equals(userId)) {
+						if(!gt.getAddUserId().equals(userId)) {
 							GasTradeOrder gto = new GasTradeOrder();
 							gto.setOrderNo(CurrentTime.getRadomTime().substring(2));
 							GasTrade gasTrade = gtService.getEntityById(gtId);
@@ -608,6 +608,7 @@ public class GasTradeOrderController {
 						GasTradeOrder gto = null;
 						if(gtoId_qr.equals("")) {//订单未确认
 							orderNum = gtoSeriver.getInfoBygtId(gt.getId()).size();
+							oStatus = 0;
 						}else {//订单已确认
 							gto = gtoSeriver.getEntityById(gtoId_qr);
 							if(gto != null) {
@@ -627,13 +628,14 @@ public class GasTradeOrderController {
 								list_d.add(map_d);
 							}
 						}
-						if(orderNum > 0) {
+						if(orderNum > 0 && oStatus > -3) {
+							String[] orderStaArr = orderSta.split(",");
 							boolean showFlag = false;
 							if(gtoId_qr.equals("") ) {//订单未确认,且存在已下单记录
-								//显示出来
-								showFlag = true;
+								if(oStatus >= Integer.parseInt(orderStaArr[0]) && oStatus <= Integer.parseInt(orderStaArr[1])) {
+									showFlag = true;
+								}
 							}else {//存在确认订单，需要判断订单状态和状态标签数字相同
-								String[] orderStaArr = orderSta.split(",");
 								if(oStatus >= Integer.parseInt(orderStaArr[0]) && oStatus <= Integer.parseInt(orderStaArr[1])) {
 									showFlag = true;
 								}
