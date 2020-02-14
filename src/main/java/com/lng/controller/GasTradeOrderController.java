@@ -530,8 +530,8 @@ public class GasTradeOrderController {
 						}
 						map.put("pjList", list_pj);
 						List<GasTradeOrderLog> gtolList = gtolService.getGtLogList(gto.getId(),2);//用户上传的首款
-						if(gtoList.size() > 0) {
-							GasTradeOrderLog gtol = gtolList.get(gtoList.size() - 1);
+						if(gtolList.size() > 0) {
+							GasTradeOrderLog gtol = gtolList.get(gtolList.size() - 1);
 							map.put("feeImg1", gtol.getOrderImgDetail());
 							map.put("feeRemark", gtol.getOrderDetailTxt());
 						}else {
