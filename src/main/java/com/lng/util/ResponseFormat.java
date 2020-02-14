@@ -43,6 +43,7 @@ public class ResponseFormat {
         messageMap.put(30004, "该产品正在交易中，不能进行下单");
         messageMap.put(30005, "您已下过单，不能重复下单");
         messageMap.put(30006, "不能删除已确认订单");
+        messageMap.put(30007, "不能购买自己的产品");
 
         /* 系统错误：40001-49999 */
         messageMap.put(40001, "系统繁忙，请稍后重试");

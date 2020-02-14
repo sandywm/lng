@@ -68,7 +68,8 @@ public class GasTradeOrderController {
 			@ApiResponse(code = 200, message = "成功"),
 			@ApiResponse(code = 30003, message = "该交易审核未通过或已下架，不能进行操作"),
 			@ApiResponse(code = 30004, message = "该产品正在交易中，不能进行下单"),
-			@ApiResponse(code = 30005, message = "您已下过单，不能重复下单")
+			@ApiResponse(code = 30005, message = "您已下过单，不能重复下单"),
+			@ApiResponse(code = 30007, message = "不能购买自己的产品")
 	})
 	@ApiImplicitParams({ @ApiImplicitParam(name = "gtId", value = "燃气交易编号", required = true),
 			@ApiImplicitParam(name = "userId", value = "买气人编号", required = true),
@@ -105,40 +106,44 @@ public class GasTradeOrderController {
 					if(gtoList.size() > 0) {//当前用户没下过订单
 						status = 30005;
 					}else {
-						GasTradeOrder gto = new GasTradeOrder();
-						gto.setOrderNo(CurrentTime.getRadomTime().substring(2));
-						GasTrade gasTrade = gtService.getEntityById(gtId);
-						gto.setGasTrade(gasTrade);
-						User user = uService.getEntityById(userId);
-						gto.setUser(user);
-						Company company = cpyService.getEntityById(cpyId);
-						gto.setCompany(company);
-						gto.setLxMobile(lxMobile);
-						gto.setPrice(price);
-						gto.setRemark(EmojiDealUtil.changeEmojiToHtml(remark));
-						gto.setLxrProv(EmojiDealUtil.changeEmojiToHtml(lxrProv));
-						gto.setLxrCity(EmojiDealUtil.changeEmojiToHtml(lxrCity));
-						gto.setLxrAddress(EmojiDealUtil.changeEmojiToHtml(lxrAddress));
-						gto.setLxrGpsInfo(lxrGpsInfo);
-						gto.setDistance(distance);
-						gto.setAddTime(CurrentTime.getCurrentTime());
-						gto.setOrderStatus(0);
-						gto.setOrderPjNumber(-1);
-						gto.setOrderPjDetail("");
-						gtoId = gtoSeriver.addOrUpdate(gto);
-						if(!gtoId.equals("")) {
-							//增加日志
-							GasTradeOrderLog gtoLog = new GasTradeOrderLog();
-							GasTradeOrder gasTradeOrder = gtoSeriver.getEntityById(gtoId);
-							gtoLog.setGasTradeOrder(gasTradeOrder);
-							gtoLog.setOrderStatus(0);
-							gtoLog.setOrderImgDetail("");
-							gtoLog.setOrderDetailTxt("");
-							gtoLog.setAddTime(CurrentTime.getCurrentTime());
-							gtolService.addOrUpdate(gtoLog);
-							MessageCenter mc = new MessageCenter("",user.getRealName()+"想购买您发布的"+gt.getGasFactory().getName()+"燃气", user.getRealName()+"想购买您发布的"+gt.getGasFactory().getName()+"燃气", 0, CurrentTime.getCurrentTime(), 2,
-									gtId, "gasTrade", "", gt.getAddUserId(), 0);
-							mcs.saveOrUpdate(mc);
+						if(gt.getAddUserId().equals(userId)) {
+							GasTradeOrder gto = new GasTradeOrder();
+							gto.setOrderNo(CurrentTime.getRadomTime().substring(2));
+							GasTrade gasTrade = gtService.getEntityById(gtId);
+							gto.setGasTrade(gasTrade);
+							User user = uService.getEntityById(userId);
+							gto.setUser(user);
+							Company company = cpyService.getEntityById(cpyId);
+							gto.setCompany(company);
+							gto.setLxMobile(lxMobile);
+							gto.setPrice(price);
+							gto.setRemark(EmojiDealUtil.changeEmojiToHtml(remark));
+							gto.setLxrProv(EmojiDealUtil.changeEmojiToHtml(lxrProv));
+							gto.setLxrCity(EmojiDealUtil.changeEmojiToHtml(lxrCity));
+							gto.setLxrAddress(EmojiDealUtil.changeEmojiToHtml(lxrAddress));
+							gto.setLxrGpsInfo(lxrGpsInfo);
+							gto.setDistance(distance);
+							gto.setAddTime(CurrentTime.getCurrentTime());
+							gto.setOrderStatus(0);
+							gto.setOrderPjNumber(-1);
+							gto.setOrderPjDetail("");
+							gtoId = gtoSeriver.addOrUpdate(gto);
+							if(!gtoId.equals("")) {
+								//增加日志
+								GasTradeOrderLog gtoLog = new GasTradeOrderLog();
+								GasTradeOrder gasTradeOrder = gtoSeriver.getEntityById(gtoId);
+								gtoLog.setGasTradeOrder(gasTradeOrder);
+								gtoLog.setOrderStatus(0);
+								gtoLog.setOrderImgDetail("");
+								gtoLog.setOrderDetailTxt("");
+								gtoLog.setAddTime(CurrentTime.getCurrentTime());
+								gtolService.addOrUpdate(gtoLog);
+								MessageCenter mc = new MessageCenter("",user.getRealName()+"想购买您发布的"+gt.getGasFactory().getName()+"燃气", user.getRealName()+"想购买您发布的"+gt.getGasFactory().getName()+"燃气", 0, CurrentTime.getCurrentTime(), 2,
+										gtId, "gasTrade", "", gt.getAddUserId(), 0);
+								mcs.saveOrUpdate(mc);
+							}
+						}else {
+							status = 30007;
 						}
 					}
 				}
@@ -203,10 +208,21 @@ public class GasTradeOrderController {
 									//增加订单日志
 									gtolService.addOrUpdate(new GasTradeOrderLog(gasTradeOrder, orderSta, "","", currentTime));
 									//当是商家已确认订单、用户主动取消订单时，需要重置确认订单为空
-									if(gtoId_qr.equals(gtoId)) {
-										gt.setTradeOrderId("");
-										gtService.saveOrUpdate(gt);
-									}
+//									if(gtoId_qr.equals(gtoId)) {
+//										gt.setTradeOrderId("");
+//										gtService.saveOrUpdate(gt);
+//										//商家确认订单后取消
+//										//将之前自动拒绝或者手动拒绝的商户订单重置为0
+//										List<GasTradeOrder> gtoList = gtoSeriver.listGtInfoByOpt1(gt.getId(), "", "", "", "");
+//										for(GasTradeOrder gto : gtoList) {
+//											if(!gto.getId().equals(gtoId)) {
+//												if(gto.getOrderStatus() == -1) {
+//													gto.setOrderStatus(-1);
+//													gtoSeriver.addOrUpdate(gasTradeOrder);
+//												}
+//											}
+//										}
+//									}
 								}else {
 									status = 30001;
 								}
