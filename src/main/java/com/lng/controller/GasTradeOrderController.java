@@ -203,6 +203,7 @@ public class GasTradeOrderController {
 							if(orderSta.equals(-2)) {//用户取消订单时
 								if(userId.equals(buyUserId)) {//该阶段为用户操作环节
 									gasTradeOrder.setOrderStatus(orderSta);
+									gasTradeOrder.setAddTime(CurrentTime.getCurrentTime());
 									//修改其他订单为取消状态
 									gtoSeriver.addOrUpdate(gasTradeOrder);
 									//增加订单日志
@@ -229,6 +230,7 @@ public class GasTradeOrderController {
 							}else if(orderSta.equals(-1)) {//商家主动拒绝订单时
 								if(userId.equals(pubUserId)) {//该阶段为商户操作环节
 									gasTradeOrder.setOrderStatus(orderSta);
+									gasTradeOrder.setAddTime(CurrentTime.getCurrentTime());
 									//修改其他订单为取消状态
 									gtoSeriver.addOrUpdate(gasTradeOrder);
 									//增加订单日志
@@ -245,6 +247,7 @@ public class GasTradeOrderController {
 										Integer gtoLen = gtoList.size();
 										if(gtoLen > 0) {
 											gasTradeOrder.setOrderStatus(orderSta);
+											gasTradeOrder.setAddTime(CurrentTime.getCurrentTime());
 											gtoSeriver.addOrUpdate(gasTradeOrder);
 											//设置燃气交易确认订单
 											gt.setTradeOrderId(gtoId);
@@ -275,6 +278,7 @@ public class GasTradeOrderController {
 											GasTradeOrderLog gtol = gtolList.get(gtolList.size() - 1);
 											if(gtol.getOrderStatus() == 2) {
 												gasTradeOrder.setOrderStatus(orderSta);
+												gasTradeOrder.setAddTime(CurrentTime.getCurrentTime());
 												gtoSeriver.addOrUpdate(gasTradeOrder);
 												//增加订单日志
 												gtolService.addOrUpdate(new GasTradeOrderLog(gasTradeOrder, orderSta, "","", currentTime));
@@ -292,6 +296,7 @@ public class GasTradeOrderController {
 								//用户已付预付款，等待商家确认
 								if(userId.equals(buyUserId)) {//该阶段为用户操作环节
 									gasTradeOrder.setOrderStatus(orderSta);
+									gasTradeOrder.setAddTime(CurrentTime.getCurrentTime());
 									gtoSeriver.addOrUpdate(gasTradeOrder);
 									//增加订单日志
 									gtolService.addOrUpdate(new GasTradeOrderLog(gasTradeOrder, orderSta, 
@@ -302,6 +307,7 @@ public class GasTradeOrderController {
 							}else if(orderSta.equals(3)) {//商户点击确认首款到账时
 								if(userId.equals(pubUserId)) {//该阶段为商户操作环节
 									gasTradeOrder.setOrderStatus(orderSta);
+									gasTradeOrder.setAddTime(CurrentTime.getCurrentTime());
 									gtoSeriver.addOrUpdate(gasTradeOrder);
 									//增加订单日志
 									gtolService.addOrUpdate(new GasTradeOrderLog(gasTradeOrder, orderSta, 
@@ -313,6 +319,7 @@ public class GasTradeOrderController {
 								//用户已确认收货，等待用户上传余款缴费凭证
 								if(userId.equals(buyUserId)) {//该阶段为用户操作环节
 									gasTradeOrder.setOrderStatus(orderSta);
+									gasTradeOrder.setAddTime(CurrentTime.getCurrentTime());
 									gtoSeriver.addOrUpdate(gasTradeOrder);
 									//增加订单日志
 									gtolService.addOrUpdate(new GasTradeOrderLog(gasTradeOrder, orderSta, 
@@ -324,6 +331,7 @@ public class GasTradeOrderController {
 								//用户已付余款，等待商家确认
 								if(userId.equals(buyUserId)) {//该阶段为用户操作环节
 									gasTradeOrder.setOrderStatus(orderSta);
+									gasTradeOrder.setAddTime(CurrentTime.getCurrentTime());
 									gtoSeriver.addOrUpdate(gasTradeOrder);
 									//增加订单日志
 									gtolService.addOrUpdate(new GasTradeOrderLog(gasTradeOrder, orderSta, 
@@ -334,6 +342,7 @@ public class GasTradeOrderController {
 							}else if(orderSta.equals(6)) {//商户确认余款到账
 								if(userId.equals(pubUserId)) {//该阶段为商户操作环节
 									gasTradeOrder.setOrderStatus(orderSta);
+									gasTradeOrder.setAddTime(CurrentTime.getCurrentTime());
 									gtoSeriver.addOrUpdate(gasTradeOrder);
 									//增加订单日志
 									gtolService.addOrUpdate(new GasTradeOrderLog(gasTradeOrder, orderSta, 
@@ -345,6 +354,7 @@ public class GasTradeOrderController {
 								if(userId.equals(buyUserId)) {//该阶段为用户操作环节
 									if (pjScore > 0 && pjScore <= 3) {
 										gasTradeOrder.setOrderStatus(orderSta);
+										gasTradeOrder.setAddTime(CurrentTime.getCurrentTime());
 										gasTradeOrder.setOrderPjNumber(pjScore);
 										gasTradeOrder.setOrderPjDetail(EmojiDealUtil.changeEmojiToHtml(pjContent));
 										gtoSeriver.addOrUpdate(gasTradeOrder);
