@@ -486,6 +486,7 @@ public class GasTradeOrderController {
 						map.put("yyd", gf.getProvince());
 						map.put("sellPrice", gt.getGasPrice());
 						map.put("volume", gt.getGasVolume());
+						map.put("orderNo", gto.getOrderNo());
 						Integer oStatus = gto.getOrderStatus();
 						String orderStatusChi = "";
 						map.put("orderStatus", oStatus);
@@ -606,6 +607,7 @@ public class GasTradeOrderController {
 								map_d.put("psAddress", gto.getLxrAddress());
 								oStatus = gto.getOrderStatus();
 								map_d.put("orderStatus", gto.getOrderStatus());
+								map_d.put("orderNo", gto.getOrderNo());
 								list_d.add(map_d);
 							}
 						}
