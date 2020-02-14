@@ -123,6 +123,8 @@ public class GasTradeOrderController {
 						gto.setDistance(distance);
 						gto.setAddTime(CurrentTime.getCurrentTime());
 						gto.setOrderStatus(0);
+						gto.setOrderPjNumber(-1);
+						gto.setOrderPjDetail("");
 						gtoId = gtoSeriver.addOrUpdate(gto);
 						if(!gtoId.equals("")) {
 							//增加日志
@@ -164,7 +166,9 @@ public class GasTradeOrderController {
 			@ApiImplicitParam(name = "oImgDetail", value = "详情图片(买家上传缴费凭证或者上传磅单时传递或者上传余款凭证)"),
 			@ApiImplicitParam(name = "pjScore", value = "订单完成时评价分数(评价时传递)1-3星（好，中，差评，未评价时为0）"),
 			@ApiImplicitParam(name = "pjContent", value = "评价内容(评价时传递)"),
-			@ApiImplicitParam(name = "oTxtDetail", value = "备注(买家上传缴费凭证或者上传磅单时传递或者上传余款凭证)")
+			@ApiImplicitParam(name = "oTxtDetail", value = "备注(买家上传缴费凭证或者上传磅单时传递或者上传余款凭证)"),
+			@ApiImplicitParam(name = "orderSta", value = "订单状态（-2-7）"),
+			@ApiImplicitParam(name = "userId", value = "用户编号")
 	})
 	public GenericResponse dealGasTraderOrderLog(HttpServletRequest request) {
 		String gtoId = CommonTools.getFinalStr("gtoId", request);
@@ -173,6 +177,7 @@ public class GasTradeOrderController {
 		String pjContent = CommonTools.getFinalStr("pjContent", request);
 		Integer pjScore = CommonTools.getFinalInteger("pjScore", request);
 		String userId = CommonTools.getFinalStr("userId", request);
+		Integer orderSta = CommonTools.getFinalInteger("orderSta", request);
 		Integer status = 200;
 		String gtolId = "";
 		String currentTime = CurrentTime.getCurrentTime();
@@ -183,7 +188,6 @@ public class GasTradeOrderController {
 				//获取订单
 				GasTradeOrder gasTradeOrder = gtoSeriver.getEntityById(gtoId);
 				if(gasTradeOrder != null) {
-					Integer orderSta = gasTradeOrder.getOrderStatus();
 					//获取燃气贸易
 					GasTrade gt = gasTradeOrder.getGasTrade();
 					if(gt != null) {
@@ -234,7 +238,7 @@ public class GasTradeOrderController {
 											if(gtoLen > 1) {//多个订单时
 												for(GasTradeOrder gto : gtoList) {
 													if(!gto.getId().equals(gasTradeOrder.getId())) {
-														if(gto.getOrderStatus() != -1) {//当最近一次不是用户自行拒绝时
+														if(gto.getOrderStatus() == 0) {//当最近一次不是用户自行拒绝时
 															gto.setOrderStatus(-1);
 															//修改其他订单为取消状态
 															gtoSeriver.addOrUpdate(gto);
@@ -611,7 +615,8 @@ public class GasTradeOrderController {
 								//显示出来
 								showFlag = true;
 							}else {//存在确认订单，需要判断订单状态和状态标签数字相同
-								if(oStatus.equals(orderSta)) {
+								String[] orderStaArr = orderSta.split(",");
+								if(oStatus >= Integer.parseInt(orderStaArr[0]) && oStatus <= Integer.parseInt(orderStaArr[1])) {
 									showFlag = true;
 								}
 							}
@@ -621,96 +626,99 @@ public class GasTradeOrderController {
 								}else {
 									map.put("buyUserList", list_d);
 								}
+								GasFactory gf = gt.getGasFactory();
+								GasType gasType = gt.getGasType();
+								map.put("gtId", gt.getId());
+								map.put("headImg", gt.getHeadImg());
+								map.put("addDate", gt.getAddTime());
+								map.put("title", gf.getProvince()+gf.getName()+gasType.getName());
+								map.put("psArea", gt.getPsArea());
+								map.put("gsTypeName", gasType.getName());
+								map.put("yyd", gf.getProvince());
+								map.put("sellPrice", gt.getGasPrice());
+								map.put("volume", gt.getGasVolume());
+								String orderStatusChi = "";
+								map.put("orderStatus", oStatus);
+								String tipsTxt = "";
+								List<Object> list_pj = new ArrayList<Object>();
+								if(oStatus.equals(-2)) {
+									orderStatusChi = "已取消";//用户主动取消
+									tipsTxt = "用户已取消订单";
+								}else if(oStatus.equals(-1)) {
+									orderStatusChi = "已拒绝";//商户取消
+									tipsTxt = "商家已拒绝";
+								}else if(oStatus.equals(0)) {
+									orderStatusChi = "待商家确认";//下单等待商家确认0
+									tipsTxt = "买家已下单，等待商家确认";
+								}else if(oStatus.equals(1)) {
+									orderStatusChi = "待付款";//商家确认后等待用户上传付款凭证状态修改为1
+									tipsTxt = "商家已确认，等待用户付款并上传缴费凭证";
+								}else if(oStatus.equals(2)) {
+									orderStatusChi = "待发货";//商家确认无误后等待商家发货状态修改为2，确认有误时状态修改1，直到确认完成
+									tipsTxt = "用户已付预付款，等待商家确认";
+								}else if(oStatus.equals(3)) {
+									orderStatusChi = "待收货";//商家发货后状态修改为3
+									tipsTxt = "商家已发货，等待用户确认收货";
+								}else if(oStatus.equals(4)) {
+									orderStatusChi = "待付款";//买家点击收货时上传磅单，状态修改为4
+									tipsTxt = "用户已确认收货，等待用户上传余款缴费凭证";
+								}else if(oStatus.equals(5)) {
+									orderStatusChi = "待商家确认";//买家上传尾款凭证后，状态修改为5
+									tipsTxt = "用户已付余款，等待商家确认";
+								}else if(oStatus.equals(6)) {
+									orderStatusChi = "待买家评价";//商家确认后状态修改为6，确认有误时状态修改为4
+									tipsTxt = "商家已确认收款，等待用户评价";
+								}else if(oStatus.equals(7)) {
+									orderStatusChi = "订单完成";//买家评价后状态修改为7，订单完成
+									tipsTxt = "订单完成";
+									//获取评价内容
+									String pjTime  = gto.getAddTime();
+									if(!pjTime.equals("")) {
+										Map<String,Object> map_pj = new HashMap<String,Object>();
+										map_pj.put("pjScore", gto.getOrderPjNumber());
+										map_pj.put("pjDetail", gto.getOrderPjDetail());
+										map_pj.put("pjDate", gto.getAddTime());
+										list_pj.add(map_pj);
+									}
+								}
+								map.put("pjList", list_pj);
+								if(!gtoId_qr.equals("")) {
+									List<GasTradeOrderLog> gtolList_f = gtolService.getGtLogList(gtoId_qr,2);//用户上传的首款
+									if(gtolList_f.size() > 0) {
+										GasTradeOrderLog gtol = gtolList_f.get(gtolList_f.size() - 1);
+										map.put("feeImg1", gtol.getOrderImgDetail());
+										map.put("feeRemark", gtol.getOrderDetailTxt());
+									}else {
+										map.put("feeImg1", "");
+										map.put("feeRemark", "");
+									}
+									List<GasTradeOrderLog> gtolList1 = gtolService.getGtLogList(gto.getId(),4);//用户上传的磅单
+									if(gtolList1.size() > 0) {
+										GasTradeOrderLog gtol = gtolList1.get(gtolList1.size() - 1);
+										map.put("bdImg", gtol.getOrderImgDetail());
+										map.put("bdRemark", gtol.getOrderDetailTxt());
+									}else {
+										map.put("bdImg", "");
+										map.put("bdRemark", "");
+									}
+									List<GasTradeOrderLog> gtolList2 = gtolService.getGtLogList(gto.getId(),5);//用户上传的尾款
+									if(gtolList2.size() > 0) {
+										GasTradeOrderLog gtol = gtolList2.get(gtolList2.size() - 1);
+										map.put("feeImg2", gtol.getOrderImgDetail());
+										map.put("feeRemark2", gtol.getOrderDetailTxt());
+									}else {
+										map.put("feeImg2", "");
+										map.put("feeRemark2", "");
+									}
+								}
+								map.put("orderStatusChi", orderStatusChi);
+								map.put("tipsTxt", tipsTxt);
+								list.add(map);
 							}
-							GasFactory gf = gt.getGasFactory();
-							GasType gasType = gt.getGasType();
-							map.put("gtId", gt.getId());
-							map.put("headImg", gt.getHeadImg());
-							map.put("addDate", gt.getAddTime());
-							map.put("title", gf.getProvince()+gf.getName()+gasType.getName());
-							map.put("psArea", gt.getPsArea());
-							map.put("gsTypeName", gasType.getName());
-							map.put("yyd", gf.getProvince());
-							map.put("sellPrice", gt.getGasPrice());
-							map.put("volume", gt.getGasVolume());
-							String orderStatusChi = "";
-							map.put("orderStatus", oStatus);
-							String tipsTxt = "";
-							List<Object> list_pj = new ArrayList<Object>();
-							if(oStatus.equals(-2)) {
-								orderStatusChi = "已取消";//用户主动取消
-								tipsTxt = "用户已取消订单";
-							}else if(oStatus.equals(-1)) {
-								orderStatusChi = "已拒绝";//商户取消
-								tipsTxt = "商家已拒绝";
-							}else if(oStatus.equals(0)) {
-								orderStatusChi = "待商家确认";//下单等待商家确认0
-								tipsTxt = "买家已下单，等待商家确认";
-							}else if(oStatus.equals(1)) {
-								orderStatusChi = "待付款";//商家确认后等待用户上传付款凭证状态修改为1
-								tipsTxt = "商家已确认，等待用户付款并上传缴费凭证";
-							}else if(oStatus.equals(2)) {
-								orderStatusChi = "待发货";//商家确认无误后等待商家发货状态修改为2，确认有误时状态修改1，直到确认完成
-								tipsTxt = "用户已付预付款，等待商家确认";
-							}else if(oStatus.equals(3)) {
-								orderStatusChi = "待收货";//商家发货后状态修改为3
-								tipsTxt = "商家已发货，等待用户确认收货";
-							}else if(oStatus.equals(4)) {
-								orderStatusChi = "待付款";//买家点击收货时上传磅单，状态修改为4
-								tipsTxt = "用户已确认收货，等待用户上传余款缴费凭证";
-							}else if(oStatus.equals(5)) {
-								orderStatusChi = "待商家确认";//买家上传尾款凭证后，状态修改为5
-								tipsTxt = "用户已付余款，等待商家确认";
-							}else if(oStatus.equals(6)) {
-								orderStatusChi = "待买家评价";//商家确认后状态修改为6，确认有误时状态修改为4
-								tipsTxt = "商家已确认收款，等待用户评价";
-							}else if(oStatus.equals(7)) {
-								orderStatusChi = "订单完成";//买家评价后状态修改为7，订单完成
-								tipsTxt = "订单完成";
-								//获取评价内容
-								String pjTime  = gto.getAddTime();
-								if(!pjTime.equals("")) {
-									Map<String,Object> map_pj = new HashMap<String,Object>();
-									map_pj.put("pjScore", gto.getOrderPjNumber());
-									map_pj.put("pjDetail", gto.getOrderPjDetail());
-									map_pj.put("pjDate", gto.getAddTime());
-									list_pj.add(map_pj);
-								}
-							}
-							map.put("pjList", list_pj);
-							if(!gtoId_qr.equals("")) {
-								List<GasTradeOrderLog> gtolList_f = gtolService.getGtLogList(gtoId_qr,2);//用户上传的首款
-								if(gtolList_f.size() > 0) {
-									GasTradeOrderLog gtol = gtolList_f.get(gtolList_f.size() - 1);
-									map.put("feeImg1", gtol.getOrderImgDetail());
-									map.put("feeRemark", gtol.getOrderDetailTxt());
-								}else {
-									map.put("feeImg1", "");
-									map.put("feeRemark", "");
-								}
-								List<GasTradeOrderLog> gtolList1 = gtolService.getGtLogList(gto.getId(),4);//用户上传的磅单
-								if(gtolList1.size() > 0) {
-									GasTradeOrderLog gtol = gtolList1.get(gtolList1.size() - 1);
-									map.put("bdImg", gtol.getOrderImgDetail());
-									map.put("bdRemark", gtol.getOrderDetailTxt());
-								}else {
-									map.put("bdImg", "");
-									map.put("bdRemark", "");
-								}
-								List<GasTradeOrderLog> gtolList2 = gtolService.getGtLogList(gto.getId(),5);//用户上传的尾款
-								if(gtolList2.size() > 0) {
-									GasTradeOrderLog gtol = gtolList2.get(gtolList2.size() - 1);
-									map.put("feeImg2", gtol.getOrderImgDetail());
-									map.put("feeRemark2", gtol.getOrderDetailTxt());
-								}else {
-									map.put("feeImg2", "");
-									map.put("feeRemark2", "");
-								}
-							}
-							map.put("orderStatusChi", orderStatusChi);
-							map.put("tipsTxt", tipsTxt);
-							list.add(map);
 						}
+					}
+					if(list.size() == 0) {
+						status = 50001;
 					}
 				}else {
 					status = 50001;
@@ -768,6 +776,7 @@ public class GasTradeOrderController {
 						list_d.add(map_d);
 					}
 					map.put("buyUserList", list_d);
+					list.add(map);
 				}else {
 					status = 50001;
 				}
