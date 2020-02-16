@@ -819,6 +819,49 @@ public class GasTradeOrderController {
 		return ResponseFormat.retParam(status, list);
 	}
 	
+	@GetMapping("/getSpecGtInfo")
+	@ApiOperation(value = "获取指定燃气交易编号头部信息--前台", notes = "获取指定燃气交易编号头部信息订单列表")
+	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
+			@ApiResponse(code = 50001, message = "数据未找到") })
+	@ApiImplicitParams({
+			@ApiImplicitParam(name = "gtId", value = "燃气贸易编号")
+	})
+	public GenericResponse getSpecGtInfo(HttpServletRequest request) {
+		Integer status = 200;
+		String gtId = CommonTools.getFinalStr("gtId", request);
+		List<Object> list = new ArrayList<Object>();
+		GasTrade gt = gtService.getEntityById(gtId);
+		if(gt != null) {
+			String gtoId_qr = gt.getTradeOrderId();
+			Map<String,Object> map = new HashMap<String,Object>();
+			map.put("gtId", gt.getId());
+			map.put("headImg", gt.getHeadImg());
+			map.put("addDate", gt.getAddTime());
+			GasFactory gf = gt.getGasFactory();
+			GasType gasType = gt.getGasType();
+			map.put("title", gf.getProvince()+gf.getName()+gasType.getName());
+			map.put("cpyName", gt.getCompany().getName());
+			map.put("psArea", gt.getPsArea());
+			map.put("gsTypeName", gasType.getName());
+			map.put("yyd", gf.getProvince());
+			map.put("sellPrice", gt.getGasPrice());
+			map.put("volume", gt.getGasVolume());
+			map.put("gtoId", gtoId_qr);
+			String orderNo = "";
+			if(!gtoId_qr.equals("")) {
+				GasTradeOrder gto = gtoSeriver.getEntityById(gtoId_qr);
+				if(gto != null) {
+					orderNo = gto.getOrderNo();
+				}
+			}
+			map.put("orderNo", orderNo);
+			list.add(map);
+		}else {
+			status = 50001;
+		}
+		return ResponseFormat.retParam(status, list);
+	}
+	
 	@GetMapping("/queryGtOrderByGtId")
 	@ApiOperation(value = "根据燃气交易编号获取燃气交易订单详情", notes = "根据燃气交易编号获取燃气交易订单详情")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
@@ -984,6 +1027,8 @@ public class GasTradeOrderController {
 					map.put("otherImgList", list_d);
 					String tipsTxt = "";
 					String orderStatusChi = "";
+					//评价list
+					List<Object> list_pj = new ArrayList<Object>();
 					if(oStatus.equals(-2)) {
 						orderStatusChi = "已取消";//用户主动取消
 						tipsTxt = "用户已取消订单";
@@ -1014,7 +1059,15 @@ public class GasTradeOrderController {
 					}else if(oStatus.equals(7)) {
 						orderStatusChi = "订单完成";//买家评价后状态修改为7，订单完成
 						tipsTxt = "订单完成";
+						//评价信息
+						Map<String,Object> map_pj = new HashMap<String,Object>();
+						if(gto != null) {
+							map_pj.put("pjScore", gto.getOrderPjNumber());
+							map_pj.put("pjDetail", gto.getOrderPjDetail());
+							list_pj.add(map_pj);
+						}
 					}
+					map.put("pjList", list_pj);
 					map.put("oStatus", oStatus);
 					map.put("orderStatusChi", orderStatusChi);
 					map.put("tipsTxt", tipsTxt);
