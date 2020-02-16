@@ -965,7 +965,7 @@ public class GasTradeOrderController {
 					map.put("qfImg2", gt.getQfImg2());
 					map.put("qfImg3", gt.getQfImg3());
 					//磅单信息
-					map.put("bdImg", gt.getBdImg());
+					map.put("bdImgPub", gt.getBdImg());
 					//危化品信息
 					map.put("whpImg", gt.getWhpImg());
 					//
