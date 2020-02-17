@@ -209,9 +209,9 @@ public class GasTradeOrderController {
 									//增加订单日志
 									gtolService.addOrUpdate(new GasTradeOrderLog(gasTradeOrder, orderSta, "","", currentTime));
 									//当是商家已确认订单、用户主动取消订单时，需要重置确认订单为空
-//									if(gtoId_qr.equals(gtoId)) {
-//										gt.setTradeOrderId("");
-//										gtService.saveOrUpdate(gt);
+									if(gtoId_qr.equals(gtoId)) {
+										gt.setTradeOrderId("");
+										gtService.saveOrUpdate(gt);
 //										//商家确认订单后取消
 //										//将之前自动拒绝或者手动拒绝的商户订单重置为0
 //										List<GasTradeOrder> gtoList = gtoSeriver.listGtInfoByOpt1(gt.getId(), "", "", "", "");
@@ -223,7 +223,7 @@ public class GasTradeOrderController {
 //												}
 //											}
 //										}
-//									}
+									}
 								}else {
 									status = 30001;
 								}
@@ -352,7 +352,7 @@ public class GasTradeOrderController {
 								}
 							}else if(orderSta.equals(7)) {//用户评价完成时
 								if(userId.equals(buyUserId)) {//该阶段为用户操作环节
-									if (pjScore > 0 && pjScore <= 3) {
+									if (pjScore > 0 && pjScore <= 5) {
 										gasTradeOrder.setOrderStatus(orderSta);
 										gasTradeOrder.setAddTime(CurrentTime.getCurrentTime());
 										gasTradeOrder.setOrderPjNumber(pjScore);
