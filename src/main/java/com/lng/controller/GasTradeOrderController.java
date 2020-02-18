@@ -616,9 +616,20 @@ public class GasTradeOrderController {
 						String gtoId_qr = gt.getTradeOrderId();//确认订单
 						Integer orderNum = 0;
 						GasTradeOrder gto = null;
+						String unBuyInfo = "";
 						if(gtoId_qr.equals("")) {//订单未确认
-							orderNum = gtoSeriver.getInfoBygtId(gt.getId()).size();
+							List<GasTradeOrder> gtoList = gtoSeriver.getInfoBygtId(gt.getId());
+							orderNum = gtoList.size();
 							oStatus = 0;
+							if(orderNum > 0) {
+								unBuyInfo = "deal";//表示已被拒绝或者被取消
+								for(GasTradeOrder gto_tmp : gtoList) {
+									if(gto_tmp.getOrderStatus() == 0) {
+										unBuyInfo = "unDeal";//表示存在未确认的订单
+										break;
+									}
+								}
+							}
 						}else {//订单已确认
 							gto = gtoSeriver.getEntityById(gtoId_qr);
 							if(gto != null) {
@@ -680,6 +691,10 @@ public class GasTradeOrderController {
 								}else if(oStatus.equals(0)) {
 									orderStatusChi = "待商家确认";//下单等待商家确认0
 									tipsTxt = "买家已下单，等待商家确认";
+									if(unBuyInfo.equals("deal")) {
+										orderStatusChi = "订单已全被拒绝或者取消，等待新用户下单";//下单等待商家确认0
+										tipsTxt = "订单已全被拒绝或者取消，等待新用户下单";
+									}
 								}else if(oStatus.equals(1)) {
 									orderStatusChi = "待付款";//商家确认后等待用户上传付款凭证状态修改为1
 									tipsTxt = "商家已确认，等待用户付款并上传缴费凭证";
@@ -1062,6 +1077,9 @@ public class GasTradeOrderController {
 						//评价信息
 						Map<String,Object> map_pj = new HashMap<String,Object>();
 						if(gto != null) {
+							map_pj.put("pjUserHead", gto.getUser().getUserPortrait());
+							map_pj.put("pjUserName", gto.getUser().getRealName());
+							map_pj.put("pjDate", gto.getAddTime());
 							map_pj.put("pjScore", gto.getOrderPjNumber());
 							map_pj.put("pjDetail", gto.getOrderPjDetail());
 							list_pj.add(map_pj);
