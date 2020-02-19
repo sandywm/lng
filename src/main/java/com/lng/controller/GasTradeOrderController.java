@@ -281,7 +281,7 @@ public class GasTradeOrderController {
 												gasTradeOrder.setAddTime(CurrentTime.getCurrentTime());
 												gtoSeriver.addOrUpdate(gasTradeOrder);
 												//增加订单日志
-												gtolService.addOrUpdate(new GasTradeOrderLog(gasTradeOrder, orderSta, "","", currentTime));
+												gtolService.addOrUpdate(new GasTradeOrderLog(gasTradeOrder, orderSta, "","商户未收到首款或首款数目有出入", currentTime));
 											}else {//已存在确认订单，不能进行操作
 												status = 30002;
 											}
@@ -324,6 +324,13 @@ public class GasTradeOrderController {
 									//增加订单日志
 									gtolService.addOrUpdate(new GasTradeOrderLog(gasTradeOrder, orderSta, 
 											CommonTools.dealUploadDetail(userId, "", oImgDetail),oTxtDetail, currentTime));
+								}else if(userId.equals(pubUserId)){//商户拒绝余款凭证时
+									gasTradeOrder.setOrderStatus(orderSta);
+									gasTradeOrder.setAddTime(CurrentTime.getCurrentTime());
+									gtoSeriver.addOrUpdate(gasTradeOrder);
+									//增加订单日志
+									gtolService.addOrUpdate(new GasTradeOrderLog(gasTradeOrder, orderSta, 
+											CommonTools.dealUploadDetail(userId, "", oImgDetail),"商户未收到余款或余款数目有出入", currentTime));
 								}else {
 									status = 30001;
 								}
@@ -530,6 +537,13 @@ public class GasTradeOrderController {
 						}else if(oStatus.equals(1)) {
 							orderStatusChi = "待付款";//商家确认后等待用户上传付款凭证状态修改为1
 							tipsTxt = "商家已确认，等待用户付款并上传缴费凭证";
+							List<GasTradeOrderLog> gtolList = gtolService.getGtLogList(gto.getId(), 1);
+							if(gtolList.size() > 0) {
+								if(!gtolList.get(0).getOrderDetailTxt().equals("")) {
+									//表示是商户拒绝
+									tipsTxt = "商户已拒绝，请重新上传首款缴费凭证";
+								}
+							}
 						}else if(oStatus.equals(2)) {
 							orderStatusChi = "待发货";//商家确认无误后等待商家发货状态修改为2，确认有误时状态修改1，直到确认完成
 							tipsTxt = "用户已付预付款，等待商家确认";
@@ -539,6 +553,13 @@ public class GasTradeOrderController {
 						}else if(oStatus.equals(4)) {
 							orderStatusChi = "待付款";//买家点击收货时上传磅单，状态修改为4
 							tipsTxt = "用户已确认收货，等待用户上传余款缴费凭证";
+							List<GasTradeOrderLog> gtolList = gtolService.getGtLogList(gto.getId(), 4);
+							if(gtolList.size() > 0) {
+								if(!gtolList.get(0).getOrderDetailTxt().equals("")) {
+									//表示是商户拒绝
+									tipsTxt = "商户已拒绝，请重新上传余款缴费凭证";
+								}
+							}
 						}else if(oStatus.equals(5)) {
 							orderStatusChi = "待商家确认";//买家上传尾款凭证后，状态修改为5
 							tipsTxt = "用户已付余款，等待商家确认";
@@ -700,6 +721,13 @@ public class GasTradeOrderController {
 								}else if(oStatus.equals(1)) {
 									orderStatusChi = "待付款";//商家确认后等待用户上传付款凭证状态修改为1
 									tipsTxt = "商家已确认，等待用户付款并上传缴费凭证";
+									List<GasTradeOrderLog> gtolList = gtolService.getGtLogList(gto.getId(), 1);
+									if(gtolList.size() > 0) {
+										if(!gtolList.get(0).getOrderDetailTxt().equals("")) {
+											//表示是商户拒绝
+											tipsTxt = "商户已拒绝，等待用户重新上传首款缴费凭证";
+										}
+									}
 								}else if(oStatus.equals(2)) {
 									orderStatusChi = "待发货";//商家确认无误后等待商家发货状态修改为2，确认有误时状态修改1，直到确认完成
 									tipsTxt = "用户已付预付款，等待商家确认";
@@ -709,6 +737,13 @@ public class GasTradeOrderController {
 								}else if(oStatus.equals(4)) {
 									orderStatusChi = "待付款";//买家点击收货时上传磅单，状态修改为4
 									tipsTxt = "用户已确认收货，等待用户上传余款缴费凭证";
+									List<GasTradeOrderLog> gtolList = gtolService.getGtLogList(gto.getId(), 4);
+									if(gtolList.size() > 0) {
+										if(!gtolList.get(0).getOrderDetailTxt().equals("")) {
+											//表示是商户拒绝
+											tipsTxt = "商户已拒绝，等待用户重新上传余款缴费凭证";
+										}
+									}
 								}else if(oStatus.equals(5)) {
 									orderStatusChi = "待商家确认";//买家上传尾款凭证后，状态修改为5
 									tipsTxt = "用户已付余款，等待商家确认";

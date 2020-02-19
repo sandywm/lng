@@ -51,7 +51,7 @@ public interface GasTradeOrderLogService {
 	
 	/**
      * 	
-     * @description 根据燃气交易订单编号、订单状态获取日志信息(升序排列)
+     * @description 根据燃气交易订单编号、订单状态获取日志信息(降序排列)
      * @author wm
      * @Version : 1.0
      * @ModifiedBy : 
