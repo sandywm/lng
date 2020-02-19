@@ -325,12 +325,19 @@ public class GasTradeOrderController {
 									gtolService.addOrUpdate(new GasTradeOrderLog(gasTradeOrder, orderSta, 
 											CommonTools.dealUploadDetail(userId, "", oImgDetail),oTxtDetail, currentTime));
 								}else if(userId.equals(pubUserId)){//商户拒绝余款凭证时
-									gasTradeOrder.setOrderStatus(orderSta);
-									gasTradeOrder.setAddTime(CurrentTime.getCurrentTime());
-									gtoSeriver.addOrUpdate(gasTradeOrder);
-									//增加订单日志
-									gtolService.addOrUpdate(new GasTradeOrderLog(gasTradeOrder, orderSta, 
-											CommonTools.dealUploadDetail(userId, "", oImgDetail),"商户未收到余款或余款数目有出入", currentTime));
+									List<GasTradeOrderLog> gtolList = gtolService.getGtLogList(gtoId_qr);
+									if(gtolList.size() > 0) {
+										//获取最后一条订单日志
+										GasTradeOrderLog gtol = gtolList.get(gtolList.size() - 1);
+										if(gtol.getOrderStatus() == 5) {
+											gasTradeOrder.setOrderStatus(orderSta);
+											gasTradeOrder.setAddTime(CurrentTime.getCurrentTime());
+											gtoSeriver.addOrUpdate(gasTradeOrder);
+											//增加订单日志
+											gtolService.addOrUpdate(new GasTradeOrderLog(gasTradeOrder, orderSta, 
+													CommonTools.dealUploadDetail(userId, "", oImgDetail),"商户未收到余款或余款数目有出入", currentTime));
+										}
+									}
 								}else {
 									status = 30001;
 								}
