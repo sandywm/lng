@@ -553,6 +553,8 @@ public class GasTradeOrderController {
 							String pjTime  = gto.getAddTime();
 							if(!pjTime.equals("")) {
 								Map<String,Object> map_pj = new HashMap<String,Object>();
+								map_pj.put("pjUserHead", gto.getUser().getUserPortrait());
+								map_pj.put("pjUserName", gto.getUser().getRealName());
 								map_pj.put("pjScore", gto.getOrderPjNumber());
 								map_pj.put("pjDetail", gto.getOrderPjDetail());
 								map_pj.put("pjDate", gto.getAddTime());
@@ -720,6 +722,8 @@ public class GasTradeOrderController {
 									String pjTime  = gto.getAddTime();
 									if(!pjTime.equals("")) {
 										Map<String,Object> map_pj = new HashMap<String,Object>();
+										map_pj.put("pjUserHead", gto.getUser().getUserPortrait());
+										map_pj.put("pjUserName", gto.getUser().getRealName());
 										map_pj.put("pjScore", gto.getOrderPjNumber());
 										map_pj.put("pjDetail", gto.getOrderPjDetail());
 										map_pj.put("pjDate", gto.getAddTime());
