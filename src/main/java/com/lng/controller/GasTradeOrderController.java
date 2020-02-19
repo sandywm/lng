@@ -281,7 +281,8 @@ public class GasTradeOrderController {
 												gasTradeOrder.setAddTime(CurrentTime.getCurrentTime());
 												gtoSeriver.addOrUpdate(gasTradeOrder);
 												//增加订单日志
-												gtolService.addOrUpdate(new GasTradeOrderLog(gasTradeOrder, orderSta, "","商户未收到首款或首款数目有出入", currentTime));
+												gtolService.addOrUpdate(new GasTradeOrderLog(gasTradeOrder, orderSta, 
+														gtol.getOrderImgDetail(),"商户未收到首款或首款数目有出入", currentTime));
 											}else {//已存在确认订单，不能进行操作
 												status = 30002;
 											}
@@ -335,7 +336,7 @@ public class GasTradeOrderController {
 											gtoSeriver.addOrUpdate(gasTradeOrder);
 											//增加订单日志
 											gtolService.addOrUpdate(new GasTradeOrderLog(gasTradeOrder, orderSta, 
-													CommonTools.dealUploadDetail(userId, "", oImgDetail),"商户未收到余款或余款数目有出入", currentTime));
+													gtol.getOrderImgDetail(),"商户未收到余款或余款数目有出入", currentTime));
 										}
 									}
 								}else {
