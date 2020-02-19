@@ -144,6 +144,43 @@ public class FeedBackController {
         return ResponseFormat.getPageJson(limit, page, count, status, list);
     }
 
+    @GetMapping("getMyFeedBackList")
+    @ApiOperation(value = "获取自己发布的意见反馈列表", notes = "获取自己发布的意见反馈列表")
+    @ApiResponses({@ApiResponse(code = 1000, message = "服务器错误"),
+            @ApiResponse(code = 200, message = "成功"),
+            @ApiResponse(code = 50001, message = "数据未找到")})
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "userId", value = "发布者编号")
+    })
+    public GenericResponse getMyFeedBackList(HttpServletRequest request) {
+        Integer status = 200;
+        String userId = CommonTools.getFinalStr("userId",request);
+        List<Object> list = new ArrayList<Object>();
+        try {
+            List<FeedBack> fbList = feedBackService.listInfoByUserId(userId);
+            if (fbList.size() > 0) {
+                for (FeedBack fb : fbList) {
+                    Map<String, Object> map_d = new HashMap<String, Object>();
+                    map_d.put("id", fb.getId());
+                    map_d.put("typeName", fb.getTypeName());
+                    map_d.put("content", fb.getContent());
+                    map_d.put("mobile", fb.getMobile());
+                    map_d.put("readStatus", fb.getReadStatus());
+                    map_d.put("addTime", fb.getAddTime());
+                    map_d.put("realName", fb.getUser().getRealName());
+                    list.add(map_d);
+                }
+            } else {
+                status = 50001;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            status = 1000;
+        }
+
+        return ResponseFormat.retParam(status, list);
+    }
+    
     @GetMapping("/getFeedBackById")
     @ApiOperation(value = "根据主键获取意见反馈详细信息", notes = "根据主键获取意见反馈详细信息")
     @ApiResponses({@ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),

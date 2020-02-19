@@ -15,6 +15,8 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -60,4 +62,22 @@ public class FeedBackServiceImpl implements FeedBackService {
         };
         return feedBackDao.findAll(spec, pageable);
     }
+
+    @SuppressWarnings("serial")
+	@Override
+	public List<FeedBack> listInfoByUserId(String userId) {
+		// TODO Auto-generated method stub
+		Sort sort = Sort.by(Sort.Direction.DESC, "addTime");// 降序排列
+		Specification<FeedBack> spec  = new Specification<FeedBack>() {
+            @Override
+            public Predicate toPredicate(Root<FeedBack> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+                Predicate pre = cb.conjunction();
+                if (!userId.isEmpty()){
+                    pre.getExpressions().add(cb.equal(root.get("user").get("id"),userId));
+                }
+                return pre;
+            }
+        };
+        return feedBackDao.findAll(spec, sort);
+	}
 }
