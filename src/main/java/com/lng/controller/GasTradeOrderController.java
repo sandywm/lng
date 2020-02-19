@@ -549,7 +549,7 @@ public class GasTradeOrderController {
 							if(gtolList.size() > 0) {
 								if(!gtolList.get(0).getOrderDetailTxt().equals("")) {
 									//表示是商户拒绝
-									tipsTxt = "商户已拒绝，请重新上传首款缴费凭证";
+									tipsTxt = "商户已拒绝，等待 用户重新上传首款缴费凭证";
 								}
 							}
 						}else if(oStatus.equals(2)) {
@@ -565,7 +565,7 @@ public class GasTradeOrderController {
 							if(gtolList.size() > 0) {
 								if(!gtolList.get(0).getOrderDetailTxt().equals("")) {
 									//表示是商户拒绝
-									tipsTxt = "商户已拒绝，请重新上传余款缴费凭证";
+									tipsTxt = "商户已拒绝，等待用户重新上传余款缴费凭证";
 								}
 							}
 						}else if(oStatus.equals(5)) {
