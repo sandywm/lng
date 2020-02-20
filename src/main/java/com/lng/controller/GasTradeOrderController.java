@@ -593,7 +593,7 @@ public class GasTradeOrderController {
 						map.put("pjList", list_pj);
 						List<GasTradeOrderLog> gtolList = gtolService.getGtLogList(gto.getId(),2);//用户上传的首款
 						if(gtolList.size() > 0) {
-							GasTradeOrderLog gtol = gtolList.get(gtolList.size() - 1);
+							GasTradeOrderLog gtol = gtolList.get(0);
 							map.put("feeImg1", gtol.getOrderImgDetail());
 							map.put("feeRemark", gtol.getOrderDetailTxt());
 						}else {
@@ -602,7 +602,7 @@ public class GasTradeOrderController {
 						}
 						List<GasTradeOrderLog> gtolList1 = gtolService.getGtLogList(gto.getId(),4);//用户上传的磅单
 						if(gtolList1.size() > 0) {
-							GasTradeOrderLog gtol = gtolList1.get(gtolList1.size() - 1);
+							GasTradeOrderLog gtol = gtolList1.get(0);
 							map.put("bdImg", gtol.getOrderImgDetail());
 							map.put("bdRemark", gtol.getOrderDetailTxt());
 						}else {
@@ -611,7 +611,7 @@ public class GasTradeOrderController {
 						}
 						List<GasTradeOrderLog> gtolList2 = gtolService.getGtLogList(gto.getId(),5);//用户上传的尾款
 						if(gtolList2.size() > 0) {
-							GasTradeOrderLog gtol = gtolList2.get(gtolList2.size() - 1);
+							GasTradeOrderLog gtol = gtolList2.get(0);
 							map.put("feeImg2", gtol.getOrderImgDetail());
 							map.put("feeRemark2", gtol.getOrderDetailTxt());
 						}else {
@@ -777,7 +777,7 @@ public class GasTradeOrderController {
 								if(!gtoId_qr.equals("")) {
 									List<GasTradeOrderLog> gtolList_f = gtolService.getGtLogList(gtoId_qr,2);//用户上传的首款
 									if(gtolList_f.size() > 0) {
-										GasTradeOrderLog gtol = gtolList_f.get(gtolList_f.size() - 1);
+										GasTradeOrderLog gtol = gtolList_f.get(0);
 										map.put("feeImg1", gtol.getOrderImgDetail());
 										map.put("feeRemark", gtol.getOrderDetailTxt());
 									}else {
@@ -786,7 +786,7 @@ public class GasTradeOrderController {
 									}
 									List<GasTradeOrderLog> gtolList1 = gtolService.getGtLogList(gto.getId(),4);//用户上传的磅单
 									if(gtolList1.size() > 0) {
-										GasTradeOrderLog gtol = gtolList1.get(gtolList1.size() - 1);
+										GasTradeOrderLog gtol = gtolList1.get(0);
 										map.put("bdImg", gtol.getOrderImgDetail());
 										map.put("bdRemark", gtol.getOrderDetailTxt());
 									}else {
@@ -795,7 +795,7 @@ public class GasTradeOrderController {
 									}
 									List<GasTradeOrderLog> gtolList2 = gtolService.getGtLogList(gto.getId(),5);//用户上传的尾款
 									if(gtolList2.size() > 0) {
-										GasTradeOrderLog gtol = gtolList2.get(gtolList2.size() - 1);
+										GasTradeOrderLog gtol = gtolList2.get(0);
 										map.put("feeImg2", gtol.getOrderImgDetail());
 										map.put("feeRemark2", gtol.getOrderDetailTxt());
 									}else {
@@ -1003,7 +1003,7 @@ public class GasTradeOrderController {
 					if(!gtoId.equals("")) {
 						List<GasTradeOrderLog> gtolList0 = gtolService.getGtLogList(gtoId,2);//用户上传的首款
 						if(gtolList0.size() > 0) {
-							GasTradeOrderLog gtol = gtolList0.get(gtolList0.size() - 1);
+							GasTradeOrderLog gtol = gtolList0.get(0);
 							map.put("feeImg1", gtol.getOrderImgDetail());
 							map.put("feeRemark", gtol.getOrderDetailTxt());
 						}else {
@@ -1012,7 +1012,7 @@ public class GasTradeOrderController {
 						}
 						List<GasTradeOrderLog> gtolList1 = gtolService.getGtLogList(gtoId,4);//用户上传的磅单
 						if(gtolList1.size() > 0) {
-							GasTradeOrderLog gtol = gtolList1.get(gtolList1.size() - 1);
+							GasTradeOrderLog gtol = gtolList1.get(0);
 							map.put("bdImg", gtol.getOrderImgDetail());
 							map.put("bdRemark", gtol.getOrderDetailTxt());
 						}else {
@@ -1021,7 +1021,7 @@ public class GasTradeOrderController {
 						}
 						List<GasTradeOrderLog> gtolList2 = gtolService.getGtLogList(gtoId,5);//用户上传的尾款
 						if(gtolList2.size() > 0) {
-							GasTradeOrderLog gtol = gtolList2.get(gtolList2.size() - 1);
+							GasTradeOrderLog gtol = gtolList2.get(0);
 							map.put("feeImg2", gtol.getOrderImgDetail());
 							map.put("feeRemark2", gtol.getOrderDetailTxt());
 						}else {
