@@ -1169,13 +1169,15 @@ public class GasTradeOrderController {
 					if(!gtoId_qr.equals("")) {
 						GasTradeOrder gto = gtoSeriver.getEntityById(gtoId_qr);
 						if(gto != null) {
-							status = 200;
-							map_pj.put("pjUserHead", gto.getUser().getUserPortrait());
-							map_pj.put("pjUserName", gto.getUser().getRealName());
-							map_pj.put("pjDate", gto.getAddTime());
-							map_pj.put("pjScore", gto.getOrderPjNumber());
-							map_pj.put("pjDetail", gto.getOrderPjDetail());
-							list.add(map_pj);
+							if(gto.getOrderStatus() == 7) {
+								status = 200;
+								map_pj.put("pjUserHead", gto.getUser().getUserPortrait());
+								map_pj.put("pjUserName", gto.getUser().getRealName());
+								map_pj.put("pjDate", gto.getAddTime());
+								map_pj.put("pjScore", gto.getOrderPjNumber());
+								map_pj.put("pjDetail", gto.getOrderPjDetail());
+								list.add(map_pj);
+							}
 						}
 					}
 				}
