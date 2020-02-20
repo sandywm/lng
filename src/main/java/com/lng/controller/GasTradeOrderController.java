@@ -1146,6 +1146,47 @@ public class GasTradeOrderController {
 		return ResponseFormat.retParam(status, list);
 	}
 	
+	@GetMapping("/getSpecGtOrderPjDetail")
+	@ApiOperation(value = "获取指定燃气贸易的评价详情--前台用", notes = "获取指定燃气贸易的评价详情--前台用")
+	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), 
+			@ApiResponse(code = 200, message = "成功"),
+			@ApiResponse(code = 50001, message = "数据未找到") })
+	@ApiImplicitParams({ 
+		@ApiImplicitParam(name = "gtId", value = "燃气交易订单编号")
+	})
+	public GenericResponse getSpecGtOrderPjDetail(HttpServletRequest request) {
+		Integer status = 50001;
+		List<Object> list = new ArrayList<Object>();
+		String gtId = CommonTools.getFinalStr("gtId", request);
+		try {
+			if(!gtId.equals("")) {
+				GasTrade gt = gtService.getEntityById(gtId);
+				if(gt != null) {
+					String gtoId_qr = gt.getTradeOrderId();//确认订单
+					Map<String,Object> map_pj = new HashMap<String,Object>();
+					//订单信息
+					//首款凭证
+					if(!gtoId_qr.equals("")) {
+						GasTradeOrder gto = gtoSeriver.getEntityById(gtoId_qr);
+						if(gto != null) {
+							status = 200;
+							map_pj.put("pjUserHead", gto.getUser().getUserPortrait());
+							map_pj.put("pjUserName", gto.getUser().getRealName());
+							map_pj.put("pjDate", gto.getAddTime());
+							map_pj.put("pjScore", gto.getOrderPjNumber());
+							map_pj.put("pjDetail", gto.getOrderPjDetail());
+							list.add(map_pj);
+						}
+					}
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			status = 1000;
+		}
+		return ResponseFormat.retParam(status, list);
+	}
+	
 	@GetMapping("/queryGtOrderByGtoId")
 	@ApiOperation(value = "根据燃气交易订单编号获取燃气交易订单详情", notes = "根据燃气交易订单编号获取燃气交易订单详情")
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
