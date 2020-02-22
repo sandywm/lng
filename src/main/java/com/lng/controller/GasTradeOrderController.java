@@ -547,7 +547,7 @@ public class GasTradeOrderController {
 							tipsTxt = "商家已确认，等待用户付款并上传缴费凭证";
 							List<GasTradeOrderLog> gtolList = gtolService.getGtLogList(gto.getId(), 1);
 							if(gtolList.size() > 0) {
-								if(!gtolList.get(0).getOrderDetailTxt().equals("")) {
+								if(gtolList.get(0).getOrderDetailTxt().equals("商户未收到首款或首款数目有出入")) {
 									//表示是商户拒绝
 									tipsTxt = "商户已拒绝，等待 用户重新上传首款缴费凭证";
 								}
@@ -563,7 +563,7 @@ public class GasTradeOrderController {
 							tipsTxt = "用户已确认收货，等待用户上传余款缴费凭证";
 							List<GasTradeOrderLog> gtolList = gtolService.getGtLogList(gto.getId(), 4);
 							if(gtolList.size() > 0) {
-								if(!gtolList.get(0).getOrderDetailTxt().equals("")) {
+								if(gtolList.get(0).getOrderDetailTxt().equals("商户未收到余款或余款数目有出入")) {
 									//表示是商户拒绝
 									tipsTxt = "商户已拒绝，等待用户重新上传余款缴费凭证";
 								}
@@ -731,7 +731,7 @@ public class GasTradeOrderController {
 									tipsTxt = "商家已确认，等待用户付款并上传缴费凭证";
 									List<GasTradeOrderLog> gtolList = gtolService.getGtLogList(gto.getId(), 1);
 									if(gtolList.size() > 0) {
-										if(!gtolList.get(0).getOrderDetailTxt().equals("")) {
+										if(gtolList.get(0).getOrderDetailTxt().equals("商户未收到首款或首款数目有出入")) {
 											//表示是商户拒绝
 											tipsTxt = "商户已拒绝，等待用户重新上传首款缴费凭证";
 										}
@@ -747,7 +747,7 @@ public class GasTradeOrderController {
 									tipsTxt = "用户已确认收货，等待用户上传余款缴费凭证";
 									List<GasTradeOrderLog> gtolList = gtolService.getGtLogList(gto.getId(), 4);
 									if(gtolList.size() > 0) {
-										if(!gtolList.get(0).getOrderDetailTxt().equals("")) {
+										if(gtolList.get(0).getOrderDetailTxt().equals("商户未收到余款或余款数目有出入")) {
 											//表示是商户拒绝
 											tipsTxt = "商户已拒绝，等待用户重新上传余款缴费凭证";
 										}

@@ -533,7 +533,7 @@ public class UserCompanyAndFocusController {
 					}else if (focusType.equalsIgnoreCase("sjqz")) {
 						DriverQz qz = dqzs.getEntityById(ufId);
 						if(qz != null) {
-							map.put("qzId", qz.getId());
+							map.put("id", qz.getId());
 							map.put("userName", qz.getUserName());
 							map.put("userMobile", qz.getUserMobile());
 							map.put("userHead", qz.getUserHead());
@@ -563,7 +563,7 @@ public class UserCompanyAndFocusController {
 					}else if (focusType.equalsIgnoreCase("sjzp")) {
 						DriverZp zp = dzps.getEntityById(ufId);
 						if(zp != null) {
-							map.put("zpId", zp.getId());
+							map.put("id", zp.getId());
 							map.put("companyName", zp.getCompany().getName());
 							map.put("age", zp.getSjAgeRange());
 							map.put("jlYear", zp.getJlYearRange());
