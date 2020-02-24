@@ -360,7 +360,7 @@ public class DriverZpController {
 					if (!workYear.isEmpty() && !workYear.equals(qz.getWorkYear())) {
 						qz.setWorkYear(workYear);
 					}
-					if (!colleges.isEmpty() && !colleges.equals(qz.getColleges())) {
+					if (!colleges.equals(qz.getColleges())) {
 						qz.setColleges(colleges);
 					}
 					if (!marriage.isEmpty() && !marriage.equals(qz.getMarriage())) {
