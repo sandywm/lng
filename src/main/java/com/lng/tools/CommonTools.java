@@ -342,7 +342,7 @@ public class CommonTools {
 			if(upFileDb.equals("")) {//新增时上传
 				for(int i = 0 ; i < upFileArr.length ; i++) {
 					//复制原图
-					FileOpration.copyFile(ct.cp.getWeburl()+"temp/"+upFileArr[i], imagePath+"/"+upFileArr[i]);
+					FileOpration.copyFile(ct.cp.getWeburl()+"tempImg/"+upFileArr[i], imagePath+"/"+upFileArr[i]);
 					//复制缩略图
 					Integer lastIndex = upFileArr[i].lastIndexOf(".");
 					String suffix = upFileArr[i].substring(lastIndex+1);
@@ -350,10 +350,10 @@ public class CommonTools {
 					String formatName = FileOpration.getImageFormat(suffix);
 					if(!formatName.equals("")) {
 						String newFileName = newFileNamePre+"_small."+suffix;
-						FileOpration.copyFile(ct.cp.getWeburl()+"temp/"+newFileName, imagePath+"/"+newFileName);
+						FileOpration.copyFile(ct.cp.getWeburl()+"tempImg/"+newFileName, imagePath+"/"+newFileName);
 						finalPath += loingUserId + "/" + newFileName + ",";
 						//删除临时文件夹缩略图
-						FileOpration.deleteFile(ct.cp.getWeburl()+"temp/"+newFileName);
+						FileOpration.deleteFile(ct.cp.getWeburl()+"tempImg/"+newFileName);
 					}
 					
 //					Integer lastIndex = upFileArr[i].lastIndexOf(".");
@@ -367,7 +367,7 @@ public class CommonTools {
 //						finalPath += loingUserId + "/" + newFileName + ",";
 //					}
 					//删除临时文件夹图片
-					FileOpration.deleteFile(ct.cp.getWeburl()+"temp/"+upFileArr[i]);
+					FileOpration.deleteFile(ct.cp.getWeburl()+"tempImg/"+upFileArr[i]);
 				}
 			}else {//编辑时上传
 				for(int i = 0 ; i < upFileArr.length ; i++) {
@@ -380,7 +380,7 @@ public class CommonTools {
 						String newFileNamePre = upFileArr[i].substring(0, lastIndex);
 						finalPath += newFileNamePre+"_small."+suffix + ",";
 					}else {//新增加的图
-						boolean flag = FileOpration.copyFile(ct.cp.getWeburl()+"temp/"+upFileArr[i], imagePath+"/"+upFileArr[i]);
+						boolean flag = FileOpration.copyFile(ct.cp.getWeburl()+"tempImg/"+upFileArr[i], imagePath+"/"+upFileArr[i]);
 						if(flag) {
 							Integer lastIndex = upFileArr[i].lastIndexOf(".");
 							String suffix = upFileArr[i].substring(lastIndex+1);
@@ -392,16 +392,16 @@ public class CommonTools {
 //								FileOpration.makeImage(imagePath+"/"+upFileArr[i], 0.5, newUrl, formatName);
 //								finalPath += loingUserId + "/" + newFileName + ",";
 								String newFileName = newFileNamePre+"_small."+suffix;
-								flag = FileOpration.copyFile(ct.cp.getWeburl()+"temp/"+newFileName, imagePath+"/"+newFileName);
+								flag = FileOpration.copyFile(ct.cp.getWeburl()+"tempImg/"+newFileName, imagePath+"/"+newFileName);
 								if(flag) {
 									finalPath += loingUserId + "/" + newFileName + ",";
 									//删除临时文件夹缩略图
-									FileOpration.deleteFile(ct.cp.getWeburl()+"temp/"+newFileName);
+									FileOpration.deleteFile(ct.cp.getWeburl()+"tempImg/"+newFileName);
 								}
 							}
 							if(flag) {
 								//删除临时文件夹图片
-								FileOpration.deleteFile(ct.cp.getWeburl()+"temp/"+upFileArr[i]);
+								FileOpration.deleteFile(ct.cp.getWeburl()+"tempImg/"+upFileArr[i]);
 							}
 						}
 					}

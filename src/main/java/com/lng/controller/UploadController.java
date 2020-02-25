@@ -47,7 +47,7 @@ public class UploadController {
 		String newFileNamePre = "";
 		String newFileNamePre_small = "";
 		Integer status = 200;
-		File filePath = new File(cp.getWeburl() + "temp");
+		File filePath = new File(cp.getWeburl() + "tempImg");
 		if(!filePath.exists()) {
 			filePath.mkdirs();
 		}
@@ -86,7 +86,7 @@ public class UploadController {
 	public GenericResponse uploadMuti(HttpServletRequest request) throws Exception {
 		Integer status = 200;
 		List<String> list_d = new ArrayList<String>();
-		File filePath = new File(cp.getWeburl() + "temp");
+		File filePath = new File(cp.getWeburl() + "tempImg");
 		if(!filePath.exists()) {
 			filePath.mkdirs();
 		}

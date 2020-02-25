@@ -35,7 +35,7 @@ public class ScheduledService {
 	@Scheduled(cron = "0 30 2 * * *")//秒 分 时 日 月 年
 	 public void scheduled(){
 		logger.info("自动删除临时文件任务开始："+CurrentTime.getCurrentTime());
-		FileOpration.deleteAllFile(cp.getWeburl()+"temp");
+		FileOpration.deleteAllFile(cp.getWeburl()+"tempImg");
 		logger.info("自动删除临时文件任务结束："+CurrentTime.getCurrentTime());
 	}
 	

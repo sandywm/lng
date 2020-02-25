@@ -295,9 +295,9 @@ public class GasTradeController {
 						pjScore += gto.getOrderPjNumber();
 					}
 					if(tradeNum > 0) {
-						map_d.put("hpRate",CommonTools.convertInputNumber(pjScore * 100.0 / tradeNum));
+						map_d.put("hpRate",CommonTools.convertInputNumber(pjScore * 100.0 / (tradeNum * 5)));
 					}else {
-						map_d.put("hpRate","暂无");
+						map_d.put("hpRate","0.00");
 					}
 					map_d.put("tradeNum", tradeNum);
 					map_d.put("userType", gt.getUserType());

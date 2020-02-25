@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-reverse-engineering PUBLIC "-//Hibernate/Hibernate Reverse Engineering DTD 3.0//EN" "http://hibernate.org/dtd/hibernate-reverse-engineering-3.0.dtd" >
+
+<hibernate-reverse-engineering>
+  <table-filter match-catalog="lng" match-name="act_super"/>
+  <table-filter match-catalog="lng" match-name="company"/>
+  <table-filter match-catalog="lng" match-name="company_psr"/>
+  <table-filter match-catalog="lng" match-name="company_tructs_gc_cp"/>
+  <table-filter match-catalog="lng" match-name="company_tructs_head_cp"/>
+  <table-filter match-catalog="lng" match-name="company_type"/>
+  <table-filter match-catalog="lng" match-name="company_zz"/>
+  <table-filter match-catalog="lng" match-name="department"/>
+  <table-filter match-catalog="lng" match-name="driver_qz"/>
+  <table-filter match-catalog="lng" match-name="driver_zp"/>
+  <table-filter match-catalog="lng" match-name="gas_factory"/>
+  <table-filter match-catalog="lng" match-name="gas_factory_company"/>
+  <table-filter match-catalog="lng" match-name="gas_trade"/>
+  <table-filter match-catalog="lng" match-name="gas_trade_img"/>
+  <table-filter match-catalog="lng" match-name="gas_trade_order"/>
+  <table-filter match-catalog="lng" match-name="gas_trade_order_log"/>
+  <table-filter match-catalog="lng" match-name="gas_type"/>
+  <table-filter match-catalog="lng" match-name="lng_info"/>
+  <table-filter match-catalog="lng" match-name="lng_message"/>
+  <table-filter match-catalog="lng" match-name="lng_message_reply"/>
+  <table-filter match-catalog="lng" match-name="lng_message_user_zc"/>
+  <table-filter match-catalog="lng" match-name="lng_price_detail"/>
+  <table-filter match-catalog="lng" match-name="message_center"/>
+  <table-filter match-catalog="lng" match-name="module"/>
+  <table-filter match-catalog="lng" match-name="module_act"/>
+  <table-filter match-catalog="lng" match-name="pot_trade"/>
+  <table-filter match-catalog="lng" match-name="pot_trade_img"/>
+  <table-filter match-catalog="lng" match-name="pot_zzjz_type"/>
+  <table-filter match-catalog="lng" match-name="qualification"/>
+  <table-filter match-catalog="lng" match-name="qy_type"/>
+  <table-filter match-catalog="lng" match-name="rq_dev_trade"/>
+  <table-filter match-catalog="lng" match-name="rq_dev_trade_img"/>
+  <table-filter match-catalog="lng" match-name="rq_dev_type"/>
+  <table-filter match-catalog="lng" match-name="rq_dev_type1"/>
+  <table-filter match-catalog="lng" match-name="super_user"/>
+  <table-filter match-catalog="lng" match-name="super_dep"/>
+  <table-filter match-catalog="lng" match-name="system_info"/>
+  <table-filter match-catalog="lng" match-name="trucks_head_pp"/>
+  <table-filter match-catalog="lng" match-name="trucks_head_type"/>
+  <table-filter match-catalog="lng" match-name="trucks_pot_pp"/>
+  <table-filter match-catalog="lng" match-name="trucks_trade"/>
+  <table-filter match-catalog="lng" match-name="trucks_trade_qualification"/>
+  <table-filter match-catalog="lng" match-name="trucks_type"/>
+  <table-filter match-catalog="lng" match-name="tructs_trade_zz"/>
+  <table-filter match-catalog="lng" match-name="user"/>
+  <table-filter match-catalog="lng" match-name="user_company"/>
+  <table-filter match-catalog="lng" match-name="user_focus"/>
+  <table-filter match-catalog="lng" match-name="gas_factory_user_hot"/>
+</hibernate-reverse-engineering>
