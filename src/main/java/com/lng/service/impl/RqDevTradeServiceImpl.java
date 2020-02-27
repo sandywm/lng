@@ -83,7 +83,8 @@ public class RqDevTradeServiceImpl implements RqDevTradeService {
 	@SuppressWarnings("serial")
 	@Override
 	public Page<RqDevTrade> rqDevTradeOnPublish(String userId, Integer showStatus, Integer pageNo, Integer pageSize) {
-		Pageable pageable = PageRequest.of(pageNo, pageSize);
+		Sort sort = Sort.by(Sort.Direction.DESC, "addTime");// 降序排列
+		Pageable pageable = PageRequest.of(pageNo, pageSize,sort);
 		Specification<RqDevTrade> spec = new Specification<RqDevTrade>() {
 			@Override
 			public Predicate toPredicate(Root<RqDevTrade> root, CriteriaQuery<?> query,

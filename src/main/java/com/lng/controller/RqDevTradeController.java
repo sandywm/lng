@@ -210,6 +210,8 @@ public class RqDevTradeController {
 								//审核状态设置为未审核
 								rdt.setCheckStatus(0);
 								rdt.setCheckTime("");
+							}else {//上架
+								rdt.setAddTime(CurrentTime.getCurrentTime());
 							}
 							rdtService.saveOrUpdate(rdt);
 						}

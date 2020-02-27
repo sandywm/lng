@@ -83,7 +83,8 @@ public class PotTradeServiceImpl implements PotTradeService {
 	@SuppressWarnings("serial")
 	@Override
 	public Page<PotTrade> potTradeOnPublish(String userId, Integer showStatus, Integer pageNo, Integer pageSize) {
-		Pageable pageable = PageRequest.of(pageNo, pageSize);
+		Sort sort = Sort.by(Sort.Direction.DESC, "addTime");// 降序排列
+		Pageable pageable = PageRequest.of(pageNo, pageSize,sort);
 		Specification<PotTrade> spec = new Specification<PotTrade>() {
 			@Override
 			public Predicate toPredicate(Root<PotTrade> root, CriteriaQuery<?> query, CriteriaBuilder cb) {

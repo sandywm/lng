@@ -244,6 +244,8 @@ public class PotTradeController {
 								//重置审核状态为未审核
 								pt.setCheckStatus(0);
 								pt.setCheckTime("");
+							}else {//上架
+								pt.setAddTime(CurrentTime.getCurrentTime());
 							}
 							potTradeService.saveOrUpdate(pt);
 						}

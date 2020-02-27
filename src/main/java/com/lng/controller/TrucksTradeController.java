@@ -321,6 +321,8 @@ public class TrucksTradeController {
 								//审核状态重置为未审核
 								tt.setCheckStatus(0);
 								tt.setCheckTime("");
+							}else {
+								tt.setAddTime(CurrentTime.getCurrentTime());
 							}
 							trucksTradeService.saveOrUpdate(tt);
 						}
