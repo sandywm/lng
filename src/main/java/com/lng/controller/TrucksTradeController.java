@@ -17,8 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.lng.pojo.CommonProvinceOrder;
 import com.lng.pojo.Company;
+import com.lng.pojo.PotZzjzType;
 import com.lng.pojo.Qualification;
-import com.lng.pojo.QyType;
 import com.lng.pojo.TrucksHeadPp;
 import com.lng.pojo.TrucksHeadType;
 import com.lng.pojo.TrucksPotPp;
@@ -31,8 +31,8 @@ import com.lng.pojo.UserFocus;
 import com.lng.pojo.WqPfbz;
 import com.lng.service.CommonProvinceOrderService;
 import com.lng.service.CompanyService;
+import com.lng.service.PotZzjzTypeService;
 import com.lng.service.QualificationService;
-import com.lng.service.QyTypeService;
 import com.lng.service.TrucksHeadPpService;
 import com.lng.service.TrucksHeadTypeService;
 import com.lng.service.TrucksPotPpService;
@@ -86,7 +86,7 @@ public class TrucksTradeController {
 	@Autowired
 	private UserService us;
 	@Autowired
-	private QyTypeService qyts;
+	private PotZzjzTypeService zzjzs;
 	@Autowired
 	private CommonProvinceOrderService cpos;
 
@@ -111,13 +111,13 @@ public class TrucksTradeController {
 			@ApiImplicitParam(name = "lxName", value = "联系人", defaultValue = "小黑"),
 			@ApiImplicitParam(name = "lxTel", value = "联系电话", defaultValue = "13956487523"),
 			@ApiImplicitParam(name = "showStatus", value = "上/下架状态（0：上架，1：下架）", required = true, defaultValue = "0"),
-			// @ApiImplicitParam(name = "addUserId", value = "上传人员", required = true),
+			@ApiImplicitParam(name = "zzjzTypeId", value = "装载介质编号（危货）"),
 			@ApiImplicitParam(name = "qualId", value = "进港资质编号", required = true),
 			@ApiImplicitParam(name = "ttImg", value = "槽车租卖详情图片"),
 			// @ApiImplicitParam(name = "userType", value = "上传人员类型（1：后台管理人员，2：普通用户）",
 			// required = true),
 			@ApiImplicitParam(name = "tradeType", value = "贸易类型（1：租赁，2：买卖）", required = true, defaultValue = "0"),
-			@ApiImplicitParam(name = "area", value = "运输范围（租赁）"), @ApiImplicitParam(name = "qyTypeId", value = "气源类型"),
+			@ApiImplicitParam(name = "area", value = "运输范围（租赁）"),
 			@ApiImplicitParam(name = "wqpfbzId", value = "尾气排放标准编号", required = true),
 			@ApiImplicitParam(name = "accidentFlag", value = "是否发生事故（1：是,2：否，0：不填）"),
 			@ApiImplicitParam(name = "tructsHeadxsz", value = "车头行驶证（危货）"),
@@ -152,7 +152,7 @@ public class TrucksTradeController {
 		Integer userType = 1;
 		Integer tradeType = CommonTools.getFinalInteger("tradeType", request);
 		String area = CommonTools.getFinalStr("area", request);
-		String qyTypeId = CommonTools.getFinalStr("qyTypeId", request);
+		String zzjzTypeId = CommonTools.getFinalStr("zzjzTypeId", request);
 		String wqpfbzId = CommonTools.getFinalStr("wqpfbzId", request);
 		Integer accidentFlag = CommonTools.getFinalInteger("accidentFlag", request);
 		String tructsHeadxsz = CommonTools.getFinalStr("tructsHeadxsz", request);
@@ -220,7 +220,7 @@ public class TrucksTradeController {
 				trtr.setHot(0);
 				trtr.setTradeType(tradeType);
 				trtr.setArea(area);
-				trtr.setQyTypeId(qyTypeId);
+				trtr.setZzjzTypeId(zzjzTypeId);
 				WqPfbz wqPfbz = wqPfBzService.findById(wqpfbzId);
 				trtr.setWqPfbz(wqPfbz);
 				trtr.setAccidentFlag(accidentFlag);
@@ -399,7 +399,8 @@ public class TrucksTradeController {
 			@ApiImplicitParam(name = "userId", value = "人员编号（前台时传递）"),
 			@ApiImplicitParam(name = "userType", value = "上传人员类型（1：后台管理人员，2：普通用户）", required = true),
 			@ApiImplicitParam(name = "tradeType", value = "贸易类型（1：租赁，2：买卖）", required = true, defaultValue = "0"),
-			@ApiImplicitParam(name = "area", value = "运输范围（租赁）"), @ApiImplicitParam(name = "qyTypeId", value = "气源类型"),
+			@ApiImplicitParam(name = "area", value = "运输范围（租赁）"),
+			@ApiImplicitParam(name = "zzjzTypeId", value = "装载介质编号（危货）"),
 			@ApiImplicitParam(name = "wqpfbzId", value = "尾气排放标准编号", required = true),
 			@ApiImplicitParam(name = "accidentFlag", value = "是否发生事故（1：是,2：否，0：不填）"),
 			@ApiImplicitParam(name = "tructsHeadxsz", value = "车头行驶证（危货）"),
@@ -438,7 +439,7 @@ public class TrucksTradeController {
 		Integer userType = CommonTools.getFinalInteger("userType", request);
 		Integer tradeType = CommonTools.getFinalInteger("tradeType", request);
 		String area = CommonTools.getFinalStr("area", request);
-		String qyTypeId = CommonTools.getFinalStr("qyTypeId", request);
+		String zzjzTypeId = CommonTools.getFinalStr("zzjzTypeId", request);
 		String wqpfbzId = CommonTools.getFinalStr("wqpfbzId", request);
 		Integer accidentFlag = CommonTools.getFinalInteger("accidentFlag", request);
 		String tructsHeadxsz = CommonTools.getFinalStr("tructsHeadxsz", request);
@@ -538,9 +539,7 @@ public class TrucksTradeController {
 					if (!area.isEmpty() && !area.equals(trtr.getArea())) {
 						trtr.setArea(area);
 					}
-					if (!qyTypeId.isEmpty() && !qyTypeId.equals(trtr.getQyTypeId())) {
-						trtr.setQyTypeId(qyTypeId);
-					}
+					trtr.setZzjzTypeId(zzjzTypeId);
 					if (!wqpfbzId.isEmpty() && !wqpfbzId.equals(trtr.getWqPfbz().getId())) {
 						WqPfbz wqPfbz = wqPfBzService.findById(wqpfbzId);
 						trtr.setWqPfbz(wqPfbz);
@@ -845,26 +844,26 @@ public class TrucksTradeController {
 						}
 						map.put("ysAreaList", list_prov);
 					}
-					String qyTypeId = tt.getQyTypeId();
-					map.put("qyTypeId", qyTypeId);
+					String zzjzTypeId = tt.getZzjzTypeId();
+					map.put("zzjzTypeId", zzjzTypeId);
 					if(opt.equals(1)) {
-						List<Object> qtlist = new ArrayList<Object>();
-						//获取所有气源类型
-						List<QyType> qtList = qyts.getQyTypeByNameList("");
-						if(qtList.size() > 0) {
-							for(QyType qt : qtList) {
+						List<Object> jzlist = new ArrayList<Object>();
+						//获取所有装载介质类型
+						List<PotZzjzType> zzjzList = zzjzs.getPotZzjzTypeByNameList("");
+						if(zzjzList.size() > 0) {
+							for(PotZzjzType zzjz : zzjzList) {
 								Map<String, Object> qtMap = new HashMap<String, Object>();
-								qtMap.put("qtTypeId", qt.getId());
-								qtMap.put("qtTypeName", qt.getName());
-								if(qt.getId().equals(qyTypeId)) {
+								qtMap.put("zzjzTypeId", zzjz.getId());
+								qtMap.put("zzjzTypeName", zzjz.getName());
+								if(zzjz.getId().equals(zzjzTypeId)) {
 									qtMap.put("selFlag", true);
 								}else {
 									qtMap.put("selFlag", false);
 								}
-								qtlist.add(qtMap);
+								jzlist.add(qtMap);
 							}
 						}
-						map.put("qtList", qtlist);
+						map.put("zzjzList", jzlist);
 					}
 					map.put("pfbzId", tt.getWqPfbz().getId());
 					map.put("pfbzName", tt.getWqPfbz().getName());

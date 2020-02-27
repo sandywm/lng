@@ -1066,6 +1066,7 @@ public class LngController {
 					map.put("prov", provName);
 					map.put("city", gf.getCity());
 					map.put("county", gf.getCounty());
+					map.put("address", gf.getAddress());
 					map.put("price", price);
 					map.put("specDate", specDate);
 					list.add(map);

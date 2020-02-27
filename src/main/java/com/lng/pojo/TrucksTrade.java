@@ -83,8 +83,8 @@ public class TrucksTrade implements java.io.Serializable {
 	private int tradeType;
 	@ApiModelProperty(value = "运输范围（租赁）")
 	private String area;
-	@ApiModelProperty(value = "气源类型")
-	private String qyTypeId;
+	@ApiModelProperty(value = "装载介质类型编号")
+	private String zzjzTypeId;
 	@ApiModelProperty(value = "尾气排放标准")
 	private WqPfbz wqPfbz;
 	@ApiModelProperty(value = "是否发生事故")
@@ -107,7 +107,7 @@ public class TrucksTrade implements java.io.Serializable {
 			String companyId, String mainImg, String trucksNo, String trucksGcNo,String spYear, int potVolume, String spYearPot,
 			String potPpId, String buyYear, int xsDistance, int price, String regPlace, String remark, String lxName, String lxTel, int checkStatus,
 			String checkTime, int showStatus, String addUserId, String addTime, int userType, int hot, int tradeType,
-			String area, String qyTypeId, WqPfbz wqPfbz, int accidentFlag, String trucksHeadxsz, String gcXsz,
+			String area, String zzjzTypeId, WqPfbz wqPfbz, int accidentFlag, String trucksHeadxsz, String gcXsz,
 			String tructsYyz, String potJyz, String aqfBg) {
 		this.trucksHeadPp = trucksHeadPp;
 		this.trucksHeadType = trucksHeadType;
@@ -136,7 +136,7 @@ public class TrucksTrade implements java.io.Serializable {
 		this.hot = hot;
 		this.tradeType = tradeType;
 		this.area = area;
-		this.qyTypeId = qyTypeId;
+		this.zzjzTypeId = zzjzTypeId;
 		this.wqPfbz = wqPfbz;
 		this.accidentFlag = accidentFlag;
 		this.trucksHeadxsz = trucksHeadxsz;
@@ -396,15 +396,16 @@ public class TrucksTrade implements java.io.Serializable {
 	public void setArea(String area) {
 		this.area = area;
 	}
-
-	@Column(name = "qy_type_id", nullable = false,columnDefinition = "varchar(100) COMMENT'气源类型'")
-	public String getQyTypeId() {
-		return this.qyTypeId;
+	
+	@Column(name = "zzjz_type_id", nullable = false,columnDefinition = "varchar(100) COMMENT '装载介质编号'")
+	public String getZzjzTypeId() {
+		return zzjzTypeId;
 	}
 
-	public void setQyTypeId(String qyTypeId) {
-		this.qyTypeId = qyTypeId;
+	public void setZzjzTypeId(String zzjzTypeId) {
+		this.zzjzTypeId = zzjzTypeId;
 	}
+
 	@ManyToOne(fetch = FetchType.EAGER)//等同于lazy="false"
 	@JoinColumn(name = "wq_pfbz_id", nullable = false,columnDefinition = "varchar(100) COMMENT '尾气排放标准编号'")
 	public WqPfbz getWqPfbz() {
