@@ -384,6 +384,7 @@ public class TrucksTradeController {
 			@ApiImplicitParam(name = "compId", value = "公司编号"),
 			@ApiImplicitParam(name = "mainImg", value = "车辆主图", required = true),
 			@ApiImplicitParam(name = "trucksNo", value = "车牌号码", required = true),
+			@ApiImplicitParam(name = "trucksGcNo", value = "挂车车牌号码（可选）"),
 			@ApiImplicitParam(name = "spYear", value = "车头上牌年月", required = true),
 			@ApiImplicitParam(name = "potPpId", value = "储罐品牌（危货）"),
 			@ApiImplicitParam(name = "potVol", value = "储罐容积（危货）"),
@@ -416,6 +417,7 @@ public class TrucksTradeController {
 		String compId = CommonTools.getFinalStr("compId", request);
 		String mainImg = CommonTools.getFinalStr("mainImg", request);
 		String trucksNo = CommonTools.getFinalStr("trucksNo", request);
+		String trucksGcNo = CommonTools.getFinalStr("trucksGcNo",request);
 		String spYear = CommonTools.getFinalStr("spYear", request);
 		String potPpId = CommonTools.getFinalStr("potPpId", request);
 		String qualId = CommonTools.getFinalStr("qualId", request);
@@ -477,6 +479,7 @@ public class TrucksTradeController {
 					if (!trucksNo.isEmpty() && !trucksNo.equals(trtr.getTrucksNo())) {
 						trtr.setTrucksNo(trucksNo);
 					}
+					trtr.setTrucksGcNo(trucksGcNo);
 					if (!spYear.isEmpty() && !spYear.equals(trtr.getSpYear())) {
 						trtr.setSpYear(spYear);
 					}
