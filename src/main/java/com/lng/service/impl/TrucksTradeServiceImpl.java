@@ -110,7 +110,8 @@ public class TrucksTradeServiceImpl implements TrucksTradeService {
 	@SuppressWarnings("serial")
 	@Override
 	public Page<TrucksTrade> trucksTradeOnPublish(String userId, Integer showStatus, Integer pageNo, Integer pageSize) {
-		Pageable pageable = PageRequest.of(pageNo, pageSize);
+		Sort sort = Sort.by(Sort.Direction.DESC, "addTime");// 降序排列
+		Pageable pageable = PageRequest.of(pageNo, pageSize,sort);
 		Specification<TrucksTrade> spec = new Specification<TrucksTrade>() {
 			@Override
 			public Predicate toPredicate(Root<TrucksTrade> root, CriteriaQuery<?> query, CriteriaBuilder cb) {

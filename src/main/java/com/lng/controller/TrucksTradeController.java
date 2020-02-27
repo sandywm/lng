@@ -846,7 +846,12 @@ public class TrucksTradeController {
 					}
 					String zzjzTypeId = tt.getZzjzTypeId();
 					map.put("zzjzTypeId", zzjzTypeId);
-					map.put("zzjzTypeName", "");
+					if(!zzjzTypeId.equals("")) {
+						PotZzjzType zzjz = zzjzs.findById(zzjzTypeId);
+						if(zzjz != null) {
+							map.put("zzjzTypeName", zzjz.getName());
+						}
+					}
 					if(opt.equals(1)) {
 						List<Object> jzlist = new ArrayList<Object>();
 						//获取所有装载介质类型
@@ -858,7 +863,6 @@ public class TrucksTradeController {
 								qtMap.put("zzjzTypeName", zzjz.getName());
 								if(zzjz.getId().equals(zzjzTypeId)) {
 									qtMap.put("selFlag", true);
-									map.put("zzjzTypeName", zzjz.getName());
 								}else {
 									qtMap.put("selFlag", false);
 								}
