@@ -48,6 +48,7 @@ import com.lng.service.RqDevTradeService;
 import com.lng.service.TrucksTradeService;
 import com.lng.service.UserService;
 import com.lng.tools.CommonTools;
+import com.lng.tools.ContantsProperties;
 import com.lng.tools.CurrentTime;
 import com.lng.util.Constants;
 import com.lng.util.GenericResponse;
@@ -101,6 +102,8 @@ public class CommonController {
 	private CompanyService cService;
 	@Autowired
 	private GasTradeOrderService gtos;
+	@Autowired
+	private ContantsProperties cp;
 
 	@GetMapping("/getProvinceList")
 	@ApiOperation(value = "获取省份排序列表", notes = "lng液厂显示顺序用")
@@ -408,7 +411,11 @@ public class CommonController {
 			for (MessageCenter mc : mcList_xw) {
 				Map<String, Object> map_d = new HashMap<String, Object>();
 				map_d.put("newId", mc.getId());
-				map_d.put("mainImg", mc.getMainImg());
+				String mainImg = mc.getMainImg();
+				if(mainImg.equals("")) {//系统默认图片
+					mainImg = cp.getDefaultNewsImg();
+				}
+				map_d.put("mainImg", mainImg);
 				map_d.put("newTitle", mc.getTitle());
 				map_d.put("addTime", mc.getAddTime());
 				list_news.add(map_d);
