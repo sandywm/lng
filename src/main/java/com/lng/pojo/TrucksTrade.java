@@ -397,7 +397,7 @@ public class TrucksTrade implements java.io.Serializable {
 		this.area = area;
 	}
 	
-	@Column(name = "zzjz_type_id", nullable = false,columnDefinition = "varchar(100) COMMENT '装载介质编号'")
+	@Column(name = "zzjz_type_id", columnDefinition = "varchar(100) COMMENT '装载介质编号'")
 	public String getZzjzTypeId() {
 		return zzjzTypeId;
 	}
