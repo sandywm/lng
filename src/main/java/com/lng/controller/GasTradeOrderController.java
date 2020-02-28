@@ -445,7 +445,12 @@ public class GasTradeOrderController {
 					GasFactory gf = gt.getGasFactory();
 					GasType gasType = gt.getGasType();
 					map.put("gasTradeId", gt.getId());
-					map.put("headImg", gt.getHeadImg());
+					String headImg = gt.getHeadImg();
+					if(headImg.equals("")) {
+						//系统默认图
+						headImg = gt.getGasType().getYzImg();
+					}
+					map.put("headImg", headImg);
 					map.put("orderNo", gto.getOrderNo());
 					map.put("title", gf.getProvince()+gf.getName()+gasType.getName());
 					map.put("psArea", gt.getPsArea());
@@ -519,7 +524,11 @@ public class GasTradeOrderController {
 						GasFactory gf = gt.getGasFactory();
 						GasType gasType = gt.getGasType();
 						map.put("gtId", gt.getId());
-						map.put("headImg", gt.getHeadImg());
+						String headImg = gt.getHeadImg();
+						if(headImg.equals("")) {
+							headImg = gt.getGasType().getYzImg();
+						}
+						map.put("headImg", headImg);
 						map.put("addDate", gt.getAddTime());
 						map.put("title", gf.getProvince()+gf.getName()+gasType.getName());
 						map.put("psArea", gt.getPsArea());
@@ -701,7 +710,12 @@ public class GasTradeOrderController {
 								GasFactory gf = gt.getGasFactory();
 								GasType gasType = gt.getGasType();
 								map.put("gtId", gt.getId());
-								map.put("headImg", gt.getHeadImg());
+								String headImg = gt.getHeadImg();
+								if(headImg.equals("")) {
+									//系统默认图
+									headImg = gt.getGasType().getYzImg();
+								}
+								map.put("headImg", headImg);
 								map.put("addDate", gt.getAddTime());
 								map.put("title", gf.getProvince()+gf.getName()+gasType.getName());
 								map.put("psArea", gt.getPsArea());
@@ -844,7 +858,12 @@ public class GasTradeOrderController {
 				if(gtoList.size() > 0) {
 					Map<String,Object> map = new HashMap<String,Object>();
 					map.put("gtId", gt.getId());
-					map.put("headImg", gt.getHeadImg());
+					String headImg = gt.getHeadImg();
+					if(headImg.equals("")) {
+						//系统默认图
+						headImg = gt.getGasType().getYzImg();
+					}
+					map.put("headImg", headImg);
 					map.put("addDate", gt.getAddTime());
 					GasFactory gf = gt.getGasFactory();
 					GasType gasType = gt.getGasType();
@@ -897,7 +916,12 @@ public class GasTradeOrderController {
 			String gtoId_qr = gt.getTradeOrderId();
 			Map<String,Object> map = new HashMap<String,Object>();
 			map.put("gtId", gt.getId());
-			map.put("headImg", gt.getHeadImg());
+			String headImg = gt.getHeadImg();
+			if(headImg.equals("")) {
+				//系统默认图
+				headImg = gt.getGasType().getYzImg();
+			}
+			map.put("headImg", headImg);
 			map.put("addDate", gt.getAddTime());
 			GasFactory gf = gt.getGasFactory();
 			GasType gasType = gt.getGasType();
@@ -968,23 +992,43 @@ public class GasTradeOrderController {
 					String userType = "";
 					//贸易信息
 					map.put("gtId", gt.getId());
-					map.put("headImg", gt.getHeadImg());
+					String headImg = gt.getHeadImg();
+					if(headImg.equals("")) {
+						//系统默认图
+						headImg = gt.getGasType().getYzImg();
+					}
+					map.put("headImg", headImg);
 					map.put("addDate", gt.getAddTime());
 					map.put("psArea", gt.getPsArea());
 					map.put("gsTypeName", gt.getGasType().getName());
 					map.put("yyd", gt.getGasFactory().getProvince());
 					map.put("sellPrice", gt.getGasPrice());
 					map.put("volume", gt.getGasVolume());
-					map.put("lxName", gt.getLxName());
-					map.put("lxTel", gt.getLxTel());
 					String pubUserId = gt.getAddUserId();
 					Integer oStatus = -3;
 					if(pubUserId.equals(userId)) {//商家
 						//显示确认订单的信息
 						gtoId = gtoId_qr;
 						userType = "pubUser";
+						//商家看的是确认用户的信息
+						List<GasTradeOrderLog> gtolList = gtolService.getGtLogList(gtoId);
+						if(gtolList.size() > 0) {
+							User buyUser = gtolList.get(0).getGasTradeOrder().getUser();
+							map.put("userHead", buyUser.getUserPortrait());
+							map.put("lxName", buyUser.getWxName());
+							map.put("lxTel", buyUser.getMobile());
+						}
 					}else {//用户
 						userType = "buyUser";
+						//用户查看的是商家的联系 信息
+						User user = uService.getEntityById(pubUserId);
+						if(user != null) {
+							map.put("userHead", user.getUserPortrait());
+						}else {
+							map.put("userHead", "");
+						}
+						map.put("lxName", gt.getLxName());
+						map.put("lxTel", gt.getLxTel());
 						//获取指定用户指定燃气贸易的订单编号
 						List<GasTradeOrder> gtoList = gtoSeriver.listComInfoByOpt(userId, gtId);
 						if(gtoList.size() > 0) {
@@ -992,12 +1036,6 @@ public class GasTradeOrderController {
 						}
 					}
 					map.put("userType", userType);
-					User user = uService.getEntityById(pubUserId);
-					if(user != null) {
-						map.put("userHead", user.getUserPortrait());
-					}else {
-						map.put("userHead", "");
-					}
 					//订单信息
 					//首款凭证
 					if(!gtoId.equals("")) {

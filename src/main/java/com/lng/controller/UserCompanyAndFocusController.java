@@ -116,7 +116,7 @@ public class UserCompanyAndFocusController {
 						uc.setCheckTime("");
 						ucId = ucService.addOrUpdate(uc);
 						MessageCenter mc = new MessageCenter("",user.getRealName()+"申请加入"+company.getName()+"您的公司", user.getRealName()+"申请加入"+company.getName()+"您的公司", 0, CurrentTime.getCurrentTime(), 2,
-								ucId, "joinCpy", "", uc.getUser().getId(), 0);
+								ucId, "joinCpy", "", uc.getCompany().getOwerUserId(), 0);
 						mcs.saveOrUpdate(mc);
 					}else {
 						UserCompany uc = ucList.get(0);
@@ -129,7 +129,7 @@ public class UserCompanyAndFocusController {
 							uc.setCheckTime("");
 							ucId = ucService.addOrUpdate(uc);
 							MessageCenter mc = new MessageCenter("",user.getRealName()+"申请加入"+company.getName()+"您的公司", user.getRealName()+"申请加入"+company.getName()+"您的公司", 0, CurrentTime.getCurrentTime(), 2,
-									ucId, "joinCpy", "", uc.getUser().getId(), 0);
+									ucId, "joinCpy", "", uc.getCompany().getOwerUserId(), 0);
 							mcs.saveOrUpdate(mc);
 						}else {
 							status = 50001;

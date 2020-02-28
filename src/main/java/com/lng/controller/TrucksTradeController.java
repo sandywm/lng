@@ -27,6 +27,7 @@ import com.lng.pojo.TrucksTradeQualification;
 import com.lng.pojo.TrucksType;
 import com.lng.pojo.TructsTradeZz;
 import com.lng.pojo.User;
+import com.lng.pojo.UserCompany;
 import com.lng.pojo.UserFocus;
 import com.lng.pojo.WqPfbz;
 import com.lng.service.CommonProvinceOrderService;
@@ -40,6 +41,7 @@ import com.lng.service.TrucksTradeQualService;
 import com.lng.service.TrucksTradeService;
 import com.lng.service.TrucksTypeService;
 import com.lng.service.TructsTradeZzService;
+import com.lng.service.UserCompanyService;
 import com.lng.service.UserFocusService;
 import com.lng.service.UserService;
 import com.lng.service.WqPfbzService;
@@ -89,6 +91,8 @@ public class TrucksTradeController {
 	private PotZzjzTypeService zzjzs;
 	@Autowired
 	private CommonProvinceOrderService cpos;
+	@Autowired
+	private UserCompanyService ucs;
 
 	@PostMapping("/addTrucksTrade")
 	@ApiOperation(value = "添加货车租卖", notes = "添加货车租卖")
@@ -726,7 +730,7 @@ public class TrucksTradeController {
 			@ApiResponse(code = 10002, message = "参数为空"), @ApiResponse(code = 50001, message = "数据未找到") })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "货车租卖编号", required = true),
 			@ApiImplicitParam(name = "userId", value = "用户编号"),
-			@ApiImplicitParam(name = "opt", value = "参数（0：前台详情，1：我的发布）",dataType = "integer"),
+			@ApiImplicitParam(name = "opt", value = "参数（0：前台详情，1：我的发布，2：前台编辑，3：后台编辑）",dataType = "integer"),
 	})
 	public GenericResponse getSpecTrucksTrade(HttpServletRequest request) {
 		Integer status = 200;
@@ -745,7 +749,8 @@ public class TrucksTradeController {
 				} else {
 					// 获取该租卖的进港资质
 					Map<String, Object> map = new HashMap<String, Object>();
-					map.put("companyId", tt.getCompanyId());
+					String cpyId = tt.getCompanyId();
+					map.put("companyId", cpyId);
 					map.put("title", tt.getTrucksHeadPp().getName() + tt.getTrucksType().getName());
 					map.put("mainImg", tt.getMainImg());
 					map.put("trucksNo", tt.getTrucksNo());
@@ -753,25 +758,101 @@ public class TrucksTradeController {
 					map.put("spYear", tt.getSpYear());
 					String potPpId = tt.getPotPpId();
 					String potPpName = "";
+					List<Object> list_tpp = new ArrayList<Object>();
 					map.put("potPpId", potPpId);
 					if(!potPpId.equals("")) {
 						TrucksPotPp tpp = tpps.findById(potPpId);
 						if(tpp != null) {
 							potPpName = tpp.getName();
 						}
+						List<TrucksPotPp> tppList = tpps.getTrucksPotPpByNameList("");
+						if(tppList.size() > 0 && (opt.equals(2) || opt.equals(3))) {//前/后台编辑时出现
+							for(TrucksPotPp tpp_tmp : tppList) {
+								Map<String,Object> map_tpp = new HashMap<String,Object>();
+								map_tpp.put("potPpId", tpp_tmp.getId());
+								map_tpp.put("potPpName", tpp_tmp.getName());
+								if(potPpId.equals(tpp_tmp.getId())) {
+									map_tpp.put("selFlag", true);
+								}else {
+									map_tpp.put("selFlag", false);
+								}
+								list_tpp.add(map_tpp);
+							}
+						}
 					}
 					map.put("potPpName", potPpName);
+					map.put("pptPpList", list_tpp);//储罐品牌
 					map.put("potVol", tt.getPotVolume());
 					map.put("spYearPot", tt.getSpYearPot());
 					map.put("buyYear", tt.getBuyYear());
-					map.put("headTypeId", tt.getTrucksHeadType().getId());
+					String headTypeId = tt.getTrucksHeadType().getId();
+					map.put("headTypeId", headTypeId);
 					map.put("headTypeName", tt.getTrucksHeadType().getName());
-					map.put("headPpId", tt.getTrucksHeadPp().getId());
+					List<Object> list_tht = new ArrayList<Object>();
+					if(!headTypeId.equals("") && (opt.equals(2) || opt.equals(3))) {//前/后台编辑时出现
+						//获取系统所有车头类型
+						List<TrucksHeadType> thtList = headTypeService.getTrucksHeadTypeByNameList("");
+						if(thtList.size() > 0) {
+							for(TrucksHeadType tht : thtList) {
+								Map<String,Object> map_tht = new HashMap<String,Object>();
+								map_tht.put("headTypeId", tht.getId());
+								map_tht.put("headTypeName", tht.getName());
+								if(headTypeId.equals(tht.getId())) {
+									map_tht.put("selFlag", true);
+								}else {
+									map_tht.put("selFlag", false);
+								}
+								list_tht.add(map_tht);
+							}
+						}
+					}
+					map.put("headTypeList", list_tht);
+					String headPpId = tt.getTrucksHeadPp().getId();
+					map.put("headPpId", headPpId);
 					map.put("headPpName", tt.getTrucksHeadPp().getName());
+					List<Object> list_thpp = new ArrayList<Object>();
+					if(!headPpId.equals("") && (opt.equals(2) || opt.equals(3))) {//前/后台编辑时出现
+						//获取系统所有车头匹配
+						List<TrucksHeadPp> thppList = headPpService.getTrucksHeadPpByNameList("");
+						if(thppList.size() > 0) {
+							for(TrucksHeadPp thpp : thppList) {
+								Map<String,Object> map_thpp = new HashMap<String,Object>();
+								map_thpp.put("headPpId", thpp.getId());
+								map_thpp.put("headPpName", thpp.getName());
+								if(headPpId.equals(thpp.getId())) {
+									map_thpp.put("selFlag", true);
+								}else {
+									map_thpp.put("selFlag", false);
+								}
+								list_thpp.add(map_thpp);
+							}
+						}
+					}
+					map.put("headPpList", list_thpp);//车头品牌
 					TrucksType trucksType  = tt.getTrucksType();
-					map.put("trucksTypeId", trucksType.getId());
+					String trucksTypeId = trucksType.getId();
+					map.put("trucksTypeId", trucksTypeId);
 					map.put("trucksTypes", trucksType.getType());
 					map.put("trucksTypeName", trucksType.getName());
+					List<Object> list_tt = new ArrayList<Object>();
+					if(!trucksTypeId.equals("") && (opt.equals(2) || opt.equals(3))) {//前/后台编辑时出现
+						//获取系统所有槽车类型
+						List<TrucksType> ttList = typeService.getTrucksTypeByNameList("");
+						if(ttList.size() > 0) {
+							for(TrucksType tt_tmp : ttList) {
+								Map<String,Object> map_tt = new HashMap<String,Object>();
+								map_tt.put("trucksTypeId", tt_tmp.getId());
+								map_tt.put("trucksTypeName", tt_tmp.getName());
+								if(trucksTypeId.equals(tt_tmp.getId())) {
+									map_tt.put("selFlag", true);
+								}else {
+									map_tt.put("selFlag", false);
+								}
+								list_tt.add(map_tt);
+							}
+						}
+					}
+					map.put("trucksTypeList", list_tt);//槽车类型
 					map.put("xsDistance", tt.getXsDistance());
 					if (!tt.getCompanyId().isEmpty()) {
 						Company cpy = comService.getEntityById(tt.getCompanyId());
@@ -779,6 +860,45 @@ public class TrucksTradeController {
 					}else {
 						map.put("CompanyName", "个人");
 					}
+					List<Object> list_cpy = new ArrayList<Object>();
+					if(!cpyId.equals("")) {
+						Map<String,Object> map_cpy = new HashMap<String,Object>();
+						if(opt.equals(2)) {//前台编辑
+							//获取当前用户所有创建和加入的公司
+							List<UserCompany>  ucList = ucs.getUserCompanyListByOpt("", "", 1, userId);
+							if(ucList.size() > 0) {
+								for(UserCompany uc : ucList) {
+									Company cpy = uc.getCompany();
+									String cpyId_tmp = cpy.getId();
+									map_cpy.put("cpyId", cpyId_tmp);
+									map_cpy.put("cpyName", cpy.getName());
+									if(cpyId.equals(cpyId_tmp)) {
+										map_cpy.put("selFlag", true);
+									}else {
+										map_cpy.put("selFlag", false);
+									}
+									list_cpy.add(map_cpy);
+								}
+							}
+						}else if(opt.equals(3)) {//后台编辑
+							//获取所有公司列表
+							List<Company> cpyList = comService.listSpecCpy("", "", "", 1);
+							if(cpyList.size() > 0) {
+								for(Company cpy : cpyList) {
+									String cpyId_tmp = cpy.getId();
+									map_cpy.put("cpyId", cpyId_tmp);
+									map_cpy.put("cpyName", cpy.getName());
+									if(cpyId.equals(cpyId_tmp)) {
+										map_cpy.put("selFlag", true);
+									}else {
+										map_cpy.put("selFlag", false);
+									}
+									list_cpy.add(map_cpy);
+								}
+							}
+						}
+					}
+					map.put("cpyList", list_cpy);//公司列表
 					Integer tadeType = tt.getTradeType();
 					Integer price = tt.getPrice();
 					String tradeTypeName = tadeType.equals(1) ? "租赁" : "买卖";
@@ -819,10 +939,10 @@ public class TrucksTradeController {
 					if(!area.equals("")) {
 						map.put("areaArr", areaArr);
 					}
-					if(opt.equals(1)) {
+					List<Object> list_prov = new ArrayList<Object>();
+					if((opt.equals(2) || opt.equals(3)) && tadeType.equals(1)) {//前后台编辑且是租赁时
 						//获取省份列表
 						List<CommonProvinceOrder> cpoList = cpos.listAllInfo("asc");
-						List<Object> list_prov = new ArrayList<Object>();
 						if(!area.equals("")) {
 							for(CommonProvinceOrder cpo : cpoList) {
 								Map<String,Object> map_prov = new HashMap<String,Object>();
@@ -847,8 +967,9 @@ public class TrucksTradeController {
 								list_prov.add(map_prov);
 							}
 						}
-						map.put("ysAreaList", list_prov);
 					}
+					map.put("ysAreaList", list_prov);//配送范围
+					List<Object> jzlist = new ArrayList<Object>();
 					String zzjzTypeId = tt.getZzjzTypeId();
 					map.put("zzjzTypeId", zzjzTypeId);
 					if(!zzjzTypeId.equals("")) {
@@ -857,8 +978,7 @@ public class TrucksTradeController {
 							map.put("zzjzTypeName", zzjz.getName());
 						}
 					}
-					if(opt.equals(1)) {
-						List<Object> jzlist = new ArrayList<Object>();
+					if(!zzjzTypeId.equals("") && (opt.equals(2) || opt.equals(3))) {//前后台编辑时
 						//获取所有装载介质类型
 						List<PotZzjzType> zzjzList = zzjzs.getPotZzjzTypeByNameList("");
 						if(zzjzList.size() > 0) {
@@ -874,10 +994,30 @@ public class TrucksTradeController {
 								jzlist.add(qtMap);
 							}
 						}
-						map.put("zzjzList", jzlist);
 					}
-					map.put("pfbzId", tt.getWqPfbz().getId());
+					map.put("zzjzList", jzlist);//装载介质
+					String pfbzId = tt.getWqPfbz().getId();
+					map.put("pfbzId", pfbzId);
 					map.put("pfbzName", tt.getWqPfbz().getName());
+					List<Object> list_pfbz = new ArrayList<Object>();
+					if(!pfbzId.equals("") && (opt.equals(2) || opt.equals(3))) {//前后台编辑时
+						//获取系统尾气排放标准
+						List<WqPfbz> wqpfList = wqPfBzService.getWqPfbzByNameList("");
+						if(wqpfList.size() > 0) {
+							for(WqPfbz wq : wqpfList) {
+								Map<String, Object> map_wqpf = new HashMap<String, Object>();
+								map_wqpf.put("pfbzId", wq.getId());
+								map_wqpf.put("pfbzName", wq.getName());
+								if(wq.getId().equals(pfbzId)) {
+									map_wqpf.put("selFlag", true);
+								}else {
+									map_wqpf.put("selFlag", false);
+								}
+								list_pfbz.add(map_wqpf);
+							}
+						}
+					}
+					map.put("pfbzList", list_pfbz);
 					map.put("accidentFlag", tt.getAccidentFlag());
 					map.put("tructsHeadxsz", tt.getTrucksHeadxsz());
 					map.put("gcXsz", tt.getGcXsz());
@@ -885,7 +1025,7 @@ public class TrucksTradeController {
 					map.put("potjyz", tt.getPotJyz());
 					map.put("aqfBg", tt.getAqfBg());
 					List<TructsTradeZz> zzs = ttzzService.getTructsTradeZzByttId(ttId);
-					List<Object> zzlist = new ArrayList<Object>();
+					List<Object> zzlist = new ArrayList<Object>();//货车租卖详细图片
 					if (!zzs.isEmpty()) {
 						for (int i = 0; i < zzs.size(); i++) {
 							Map<String, Object> zzmap = new HashMap<String, Object>();
@@ -893,8 +1033,8 @@ public class TrucksTradeController {
 							zzlist.add(zzmap);
 						}
 					}
-
-					List<TrucksTradeQualification> ttqualList = ttQualService.getTrucksTradeQualList(ttId);
+					
+					List<TrucksTradeQualification> ttqualList = ttQualService.getTrucksTradeQualList(ttId);//已选择的进港资质
 					List<Object> tQllist = new ArrayList<Object>();
 					if (!ttqualList.isEmpty()) {
 						for (int i = 0; i < ttqualList.size(); i++) {
@@ -904,8 +1044,8 @@ public class TrucksTradeController {
 							tQllist.add(qualmap);
 						}
 					}
-					if(opt.equals(1)) {
-						List<Object> list_qf = new ArrayList<Object>();
+					List<Object> list_qf = new ArrayList<Object>();//进港资质匹配后列表
+					if(opt.equals(2) || opt.equals(3)) {//前台后台编辑时
 						//获取全部进港资质
 						List<Qualification> qfList = qualService.getQualificationList(0);
 						if(qfList.size() > 0) {
@@ -935,8 +1075,8 @@ public class TrucksTradeController {
 								}
 							}
 						}
-						map.put("qfList", list_qf);
 					}
+					map.put("qfList", list_qf);
 					String ufId = "";
 					if (!userId.isEmpty()) {
 						List<UserFocus> ufList = ufService.getUserFocusList(userId, ttId, "cczm");
