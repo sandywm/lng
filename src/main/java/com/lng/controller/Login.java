@@ -27,6 +27,7 @@ import com.lng.service.UserService;
 import com.lng.tools.AuthImg;
 import com.lng.tools.CommonTools;
 import com.lng.tools.CurrentTime;
+import com.lng.tools.EmojiDealUtil;
 import com.lng.tools.WxTools;
 import com.lng.util.Constants;
 import com.lng.util.GenericResponse;
@@ -268,7 +269,7 @@ public class Login {
 								Map<String,String> map = new HashMap<String,String>();
 								map.put("userId", user.getId());
 								map.put("wxOpenId", user.getAccount());
-								map.put("wxName", user.getWxName());
+								map.put("wxName", EmojiDealUtil.changeStrToEmoji(user.getWxName()));
 								list_d.add(map);
 								status = 200;
 							}else{
@@ -281,7 +282,8 @@ public class Login {
 							}else {
 								sex = "女";
 							}
-							String userId = us.saveAndUpdate(new User(wxOpenId, "E10ADC3949BA59ABBE56E057F20F883E", nickName, nickName, sex, "",
+							String wxName = EmojiDealUtil.changeEmojiToHtml(nickName);
+							String userId = us.saveAndUpdate(new User(wxOpenId, "E10ADC3949BA59ABBE56E057F20F883E", wxName, wxName, sex, "",
 									currTime, "",currTime, 1, 1, 1,"wx", headImg, ""));
 							Map<String,String> map = new HashMap<String,String>();
 							map.put("userId", userId);
