@@ -322,13 +322,13 @@ public class GasTradeController {
 	})
 	@ApiImplicitParams({
 		@ApiImplicitParam(name = "gasTradeId", value = "燃气买卖编号)",required = true),
-		@ApiImplicitParam(name = "opt", value = "用途（0：审核用，1：前台使用）", dataType = "integer"),
+		@ApiImplicitParam(name = "opt", value = "用途（0：审核用，1：前台浏览，2：前台编辑）", dataType = "integer"),
 		@ApiImplicitParam(name = "userId", value = "前台用户编号（前台时传递）")
 	})
 	public GenericResponse getSpecGasTradeDetail(HttpServletRequest request) {
 		Integer status = 200;
 		String gasTradeId = CommonTools.getFinalStr("gasTradeId", request);
-		Integer opt = CommonTools.getFinalInteger("opt", request);//用途（0：审核用，1：前台使用）
+		Integer opt = CommonTools.getFinalInteger("opt", request);//用途（0：审核用，1：前台浏览，2：前台编辑）
 		String userId = "";
 		List<Object> list = new ArrayList<Object>();
 		if(gasTradeId.equals("")) {
@@ -343,20 +343,23 @@ public class GasTradeController {
 					map.put("id", gt.getId());
 					Company cpy = gt.getCompany();
 					String cpyId = cpy.getId();
+					String cpyName = cpy.getName();
+					map.put("userFocus", false);
+					map.put("ufId", "");
+					String addUserId = gt.getAddUserId();
+					if(!addUserId.equals("")) {
+						User user = us.getEntityById(addUserId);
+						if(user != null) {
+							map.put("userHead", user.getUserPortrait());
+						}else {
+							map.put("userHead", "");
+						}
+					}
 					List<Object> list_cpy = new ArrayList<Object>();
-					if(opt.equals(1)) {//前台
+					if(opt.equals(2)) {//前台编辑
 						userId = CommonTools.getFinalStr("userId", request);
 						//获取自己的所有贸易公司
 						List<UserCompany> ucList = ucs.getUserCompanyListByOpt("", "LNG贸易商", 1, userId);
-						String addUserId = gt.getAddUserId();
-						if(!addUserId.equals("")) {
-							User user = us.getEntityById(addUserId);
-							if(user != null) {
-								map.put("userHead", user.getUserPortrait());
-							}else {
-								map.put("userHead", "");
-							}
-						}
 						for(UserCompany uc : ucList) {
 							Map<String, Object> map_d = new HashMap<String, Object>();
 							Company cpy_tmp = uc.getCompany();
@@ -364,21 +367,14 @@ public class GasTradeController {
 							map_d.put("cpyName", cpy_tmp.getName());
 							if(cpy_tmp.getId().equals(cpyId)) {
 								map_d.put("selFlag", true);
+								cpyName = cpy_tmp.getName();
 							}else {
 								map_d.put("selFlag", false);
 							}
 							list_cpy.add(map_d);
 						}
-						//获取用户关注(前台)
-						List<UserFocus> ufList = ufs.getUserFocusList(userId, gasTradeId, "rqmm");
-						if(ufList.size() > 0) {
-							map.put("userFocus", true);
-							map.put("ufId", ufList.get(0).getId());
-						}else {
-							map.put("userFocus", false);
-							map.put("ufId", "");
-						}
-					}else {//后台--获取所有贸易商公司
+						
+					}else if(opt.equals(0)){//后台--获取所有贸易商公司
 						List<Company> cList = cs.listSpecCpy("","LNG贸易商","",1);
 						for(Company cpy_tmp : cList) {
 							Map<String, Object> map_d = new HashMap<String, Object>();
@@ -386,95 +382,110 @@ public class GasTradeController {
 							map_d.put("cpyName", cpy_tmp.getName());
 							if(cpy_tmp.getId().equals(cpyId)) {
 								map_d.put("selFlag", true);
+								cpyName = cpy_tmp.getName();
 							}else {
 								map_d.put("selFlag", false);
 							}
 							list_cpy.add(map_d);
 						}
+					}else {//前台浏览
+						//获取用户关注(前台)
+						List<UserFocus> ufList = ufs.getUserFocusList(userId, gasTradeId, "rqmm");
+						if(ufList.size() > 0) {
+							map.put("userFocus", true);
+							map.put("ufId", ufList.get(0).getId());
+						}
 					}
 					map.put("cpyList", list_cpy);
+					map.put("cpyName", cpyName);
 					//液质类型是通过液厂获取出来
 					GasType gasType = gt.getGasType();
 					map.put("gasTypeId", gasType.getId());
 					map.put("gasTypeName", gasType.getName());
 					List<Object> list_gf = new ArrayList<Object>();
 					GasFactory gf = gt.getGasFactory();
-					List<GasFactoryCompany>  gfcList = gfcs.listCompanyByGfId("", cpyId, 1);
 					String headImg = gt.getHeadImg();
-					for(GasFactoryCompany gfc:gfcList) {
-						Map<String,Object> map_gfc = new HashMap<String,Object>();
-						GasFactory gf_tmp = gfc.getGasFactory();
-						GasType gt_tmp = gf_tmp.getGasType();
-						map_gfc.put("gfId", gf_tmp.getId());
-						map_gfc.put("gfName", gf_tmp.getName());
-						map_gfc.put("headImg", gt_tmp.getYzImg());
-						map_gfc.put("gasTypeId", gt_tmp.getId());
-						map_gfc.put("gasTypeName", gt_tmp.getName());
-						if(gf_tmp.getId().equals(gf.getId())) {
-							map_gfc.put("selFlag", true);
-							if(headImg.equals("")) {
-								headImg = gt_tmp.getYzImg();
+					if(headImg.equals("")) {
+						headImg = gf.getGasType().getYzImg();
+					}
+					map.put("headImg", headImg);
+					if(opt.equals(0) || opt.equals(2)) {//前台后台编辑时
+						//获取指定贸易商公司代理的液厂列表
+						List<GasFactoryCompany>  gfcList = gfcs.listCompanyByGfId("", cpyId, 1);
+						for(GasFactoryCompany gfc:gfcList) {
+							Map<String,Object> map_gfc = new HashMap<String,Object>();
+							GasFactory gf_tmp = gfc.getGasFactory();
+							GasType gt_tmp = gf_tmp.getGasType();
+							map_gfc.put("gfId", gf_tmp.getId());
+							map_gfc.put("gfName", gf_tmp.getName());
+							map_gfc.put("headImg", gt_tmp.getYzImg());
+							map_gfc.put("gasTypeId", gt_tmp.getId());
+							map_gfc.put("gasTypeName", gt_tmp.getName());
+							if(gf_tmp.getId().equals(gf.getId())) {
+								map_gfc.put("selFlag", true);
+							}else {
+								map_gfc.put("selFlag", false);
 							}
-						}else {
-							map_gfc.put("selFlag", false);
+							list_gf.add(map_gfc);
 						}
-						list_gf.add(map_gfc);
 					}
 					map.put("gasFacotryList", list_gf);
-					map.put("headImg", headImg);
 					map.put("yyd", gf.getProvince());
 					map.put("gasVolume", gt.getGasVolume());
 					map.put("gasPrice", gt.getGasPrice());
 					map.put("zcDate", gt.getZcDate());
 					map.put("lxName", gt.getLxName());
 					map.put("lxTel", gt.getLxTel());
-					//获取省份列表
-					List<CommonProvinceOrder> cpoList = cpos.listAllInfo("asc");
 					String psArea = gt.getPsArea();
+					map.put("psArea", psArea);
 					List<Object> list_prov = new ArrayList<Object>();
-					Map<String,Object> map_all_prov = new HashMap<String,Object>();
-					map_all_prov.put("provName", "全国");
-					if(!psArea.equals("")) {
-						if(!psArea.equals("全国")) {
-							map_all_prov.put("selFlag", false);
-							map_all_prov.put("disableFlag", true);
-							map_all_prov.put("orderNo", -1);
-							list_prov.add(map_all_prov);
-							String[] psAreaArr = psArea.split(",");
-							for(CommonProvinceOrder cpo : cpoList) {
-								Map<String,Object> map_prov = new HashMap<String,Object>();
-								map_prov.put("disableFlag", false);
-								map_prov.put("provName", cpo.getProvince());
-								for(int i = 0 ; i < psAreaArr.length ; i++) {
-									map_prov.put("orderNo", cpo.getOrderNo());
-									if(psAreaArr[i].equals(cpo.getProvince())) {
-										map_prov.put("selFlag", true);
-										break;
-									}else {
-										map_prov.put("selFlag", false);
+					if(opt.equals(0) || opt.equals(2)) {//前台后台编辑时
+						//获取省份列表
+						List<CommonProvinceOrder> cpoList = cpos.listAllInfo("asc");
+						Map<String,Object> map_all_prov = new HashMap<String,Object>();
+						map_all_prov.put("provName", "全国");
+						if(!psArea.equals("")) {
+							if(!psArea.equals("全国")) {
+								map_all_prov.put("selFlag", false);
+								map_all_prov.put("disableFlag", true);
+								map_all_prov.put("orderNo", -1);
+								list_prov.add(map_all_prov);
+								String[] psAreaArr = psArea.split(",");
+								for(CommonProvinceOrder cpo : cpoList) {
+									Map<String,Object> map_prov = new HashMap<String,Object>();
+									map_prov.put("disableFlag", false);
+									map_prov.put("provName", cpo.getProvince());
+									for(int i = 0 ; i < psAreaArr.length ; i++) {
+										map_prov.put("orderNo", cpo.getOrderNo());
+										if(psAreaArr[i].equals(cpo.getProvince())) {
+											map_prov.put("selFlag", true);
+											break;
+										}else {
+											map_prov.put("selFlag", false);
+										}
 									}
+									list_prov.add(map_prov);
 								}
-								list_prov.add(map_prov);
-							}
-						}else {
-							map_all_prov.put("selFlag", true);
-							map_all_prov.put("disableFlag", false);
-							map_all_prov.put("orderNo", -1);
-							list_prov.add(map_all_prov);
-							Map<String,Object> map_prov1 = new HashMap<String,Object>();
-							map_prov1.put("psArea", gt.getPsArea());
-							map_prov1.put("selFlag", true);
-							for(CommonProvinceOrder cpo : cpoList) {
-								Map<String,Object> map_prov = new HashMap<String,Object>();
-								map_prov.put("provName", cpo.getProvince());
-								map_prov.put("selFlag", false);
-								map_prov.put("disableFlag", true);
-								map_prov.put("orderNo", cpo.getOrderNo());
-								list_prov.add(map_prov);
+							}else {
+								map_all_prov.put("selFlag", true);
+								map_all_prov.put("disableFlag", false);
+								map_all_prov.put("orderNo", -1);
+								list_prov.add(map_all_prov);
+								Map<String,Object> map_prov1 = new HashMap<String,Object>();
+								map_prov1.put("psArea", gt.getPsArea());
+								map_prov1.put("selFlag", true);
+								for(CommonProvinceOrder cpo : cpoList) {
+									Map<String,Object> map_prov = new HashMap<String,Object>();
+									map_prov.put("provName", cpo.getProvince());
+									map_prov.put("selFlag", false);
+									map_prov.put("disableFlag", true);
+									map_prov.put("orderNo", cpo.getOrderNo());
+									list_prov.add(map_prov);
+								}
 							}
 						}
 					}
-					map.put("psArea", list_prov);
+					map.put("psAreaList", list_prov);
 					map.put("checkStatus", gt.getCheckStatus());
 					map.put("checkTime", gt.getCheckTime());
 					map.put("showStatus", gt.getShowStatus());
@@ -482,35 +493,41 @@ public class GasTradeController {
 					map.put("userType", gt.getUserType());
 					map.put("cpNo", gt.getCpNo());
 					map.put("gcNo", gt.getGcNo());
-					//获取公司驾驶员押运人
-					List<CompanyPsr> cpyPsrList = cps.getCompanyPsrList(cpyId);
 					List<Object> list_jsr = new ArrayList<Object>();
 					List<Object> list_yyr = new ArrayList<Object>();
 					String jsyName = gt.getJsyName();
 					String jsyMobile = gt.getJsyMobile();
 					String yyrName = gt.getYyrName();
 					String yyrMobile = gt.getYyrMobile();
-					for(CompanyPsr psr : cpyPsrList) {
-						Map<String,Object> map_d = new HashMap<String,Object>();
-						String driverName = psr.getName();
-						String driverMobile = psr.getMobile();
-						map_d.put("jsyName", driverName);
-						map_d.put("jsyMobile", driverMobile);
-						if(driverName.equals(jsyName) && driverMobile.equals(jsyMobile)) {
-							map_d.put("selFlag", true);
-						}else {
-							map_d.put("selFlag", false);
+					map.put("jsyName", jsyName);
+					map.put("jsyMobile", jsyMobile);
+					map.put("yyrName", yyrName);
+					map.put("yyrMobile", yyrMobile);
+					if(opt.equals(0) || opt.equals(2)) {//前台后台编辑时
+						//获取公司驾驶员押运人
+						List<CompanyPsr> cpyPsrList = cps.getCompanyPsrList(cpyId);
+						for(CompanyPsr psr : cpyPsrList) {
+							Map<String,Object> map_d = new HashMap<String,Object>();
+							String driverName = psr.getName();
+							String driverMobile = psr.getMobile();
+							map_d.put("jsyName", driverName);
+							map_d.put("jsyMobile", driverMobile);
+							if(driverName.equals(jsyName) && driverMobile.equals(jsyMobile)) {
+								map_d.put("selFlag", true);
+							}else {
+								map_d.put("selFlag", false);
+							}
+							list_jsr.add(map_d);
+							Map<String,Object> map_d1 = new HashMap<String,Object>();
+							map_d1.put("yyrName", driverName);
+							map_d1.put("yyrMobile", driverMobile);
+							if(driverName.equals(yyrName) && driverMobile.equals(yyrMobile)) {
+								map_d1.put("selFlag", true);
+							}else {
+								map_d1.put("selFlag", false);
+							}
+							list_yyr.add(map_d1);
 						}
-						list_jsr.add(map_d);
-						Map<String,Object> map_d1 = new HashMap<String,Object>();
-						map_d1.put("yyrName", driverName);
-						map_d1.put("yyrMobile", driverMobile);
-						if(driverName.equals(yyrName) && driverMobile.equals(yyrMobile)) {
-							map_d1.put("selFlag", true);
-						}else {
-							map_d1.put("selFlag", false);
-						}
-						list_yyr.add(map_d1);
 					}
 					map.put("jsrList", list_jsr);
 					map.put("yyrList", list_yyr);
@@ -540,18 +557,28 @@ public class GasTradeController {
 					map.put("otherImgList", list_d);
 					List<Object> list_d1 = new ArrayList<Object>();
 					boolean addFlag = false;
-					if(opt.equals(1)) {
-						//获取燃气买卖订单列表
-						List<GasTradeOrder> gtoList = gtos.getInfoBygtId(gasTradeId);
-						if(gtoList.size() > 0) {
-							for(GasTradeOrder gto : gtoList) {
-								Map<String,Object> map_d = new HashMap<String,Object>();
-								User user = gto.getUser();
-								map_d.put("gtoId", gto.getId());
-								map_d.put("buyUserName", user.getRealName());
-								map_d.put("buyPrice", gto.getPrice());
-								list_d1.add(map_d);
+					String gtoId_qr = gt.getTradeOrderId();//确认订单
+					boolean confirmFlag = false;
+					if(!gtoId_qr.equals("")) {
+						confirmFlag = true;
+					}
+					if(opt.equals(1)) {//前台浏览时
+						if(confirmFlag) {//已确认订单时
+							//获取燃气买卖订单列表
+							List<GasTradeOrder> gtoList = gtos.getInfoBygtId(gasTradeId);
+							if(gtoList.size() > 0) {
+								for(GasTradeOrder gto : gtoList) {
+									Map<String,Object> map_d = new HashMap<String,Object>();
+									User user = gto.getUser();
+									map_d.put("gtoId", gto.getId());
+									map_d.put("buyUserName", user.getRealName());
+									map_d.put("buyPrice", gto.getPrice());
+									list_d1.add(map_d);
+								}
+							}else {//无下单记录
+								addFlag = true;
 							}
+						}else {//无确认订单时
 							//获取当前用户有无下单记录
 							List<GasTradeOrder> gtoList_1 = gtos.listComInfoByOpt(userId, gasTradeId);
 							if(gtoList_1.size() > 0) {//已下单
@@ -559,8 +586,6 @@ public class GasTradeController {
 							}else {//无下单记录
 								addFlag = true;
 							}
-						}else {//无下单记录
-							addFlag = true;
 						}
 					}
 					//从燃气交易中获取好评度
@@ -571,13 +596,14 @@ public class GasTradeController {
 						pjScore += gto.getOrderPjNumber();
 					}
 					if(tradeNum > 0) {
-						map.put("hpRate",CommonTools.convertInputNumber(pjScore * 100.0 / tradeNum));
+						map.put("hpRate",CommonTools.convertInputNumber(pjScore * 100.0 / (tradeNum * 5)));
 					}else {
 						map.put("hpRate","暂无");
 					}
 					map.put("tradeNum", tradeNum);
 					map.put("tradeOrderList", list_d1);
 					map.put("addFlag", addFlag);
+					map.put("confirmFlag", confirmFlag);
 					list.add(map);
 				}
 			} catch (Exception e) {
