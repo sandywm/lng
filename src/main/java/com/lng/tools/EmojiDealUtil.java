@@ -67,7 +67,7 @@ public class EmojiDealUtil  extends EmojiParser{
 	 * @return
 	 */
 	public static String changeEmojiToHtml(String emoji){
-      if(!EmojiDealUtil.getEmojiUnicodeString(emoji).trim().equals("")){
+	  if(!EmojiDealUtil.getEmojiUnicodeString(emoji).trim().equals("")){
 	       String hexadecimal = EmojiParser.parseToHtmlHexadecimal(emoji);
 	       return Review.textReview(hexadecimal);
 	  }else {
@@ -92,6 +92,7 @@ public class EmojiDealUtil  extends EmojiParser{
     }
 	
 	public static void main(String[] args) {
+		System.out.println(EmojiDealUtil.changeEmojiToHtml(""));
 		System.out.println(EmojiDealUtil.changeEmojiToHtml("opicContentto腐败麻蛋去你妈的，去你码的picContent腐败\uD83D\uDE0A"));
 		System.out.println(EmojiDealUtil.changeStrToEmoji("opicContentto腐败picContent腐败\uD83D\uDE0A"));
 	}

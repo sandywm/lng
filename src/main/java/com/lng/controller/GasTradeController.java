@@ -565,19 +565,19 @@ public class GasTradeController {
 					if(opt.equals(1)) {//前台浏览时
 						if(confirmFlag) {//已确认订单时
 							//获取燃气买卖订单列表
-							List<GasTradeOrder> gtoList = gtos.getInfoBygtId(gasTradeId);
-							if(gtoList.size() > 0) {
-								for(GasTradeOrder gto : gtoList) {
-									Map<String,Object> map_d = new HashMap<String,Object>();
-									User user = gto.getUser();
-									map_d.put("gtoId", gto.getId());
-									map_d.put("buyUserName", user.getRealName());
-									map_d.put("buyPrice", gto.getPrice());
-									list_d1.add(map_d);
-								}
-							}else {//无下单记录
-								addFlag = true;
-							}
+//							List<GasTradeOrder> gtoList = gtos.getInfoBygtId(gasTradeId);
+//							if(gtoList.size() > 0) {
+//								for(GasTradeOrder gto : gtoList) {
+//									Map<String,Object> map_d = new HashMap<String,Object>();
+//									User user = gto.getUser();
+//									map_d.put("gtoId", gto.getId());
+//									map_d.put("buyUserName", user.getRealName());
+//									map_d.put("buyPrice", gto.getPrice());
+//									list_d1.add(map_d);
+//								}
+//							}else {//无下单记录
+//								addFlag = true;
+//							}
 						}else {//无确认订单时
 							//获取当前用户有无下单记录
 							List<GasTradeOrder> gtoList_1 = gtos.listComInfoByOpt(userId, gasTradeId);

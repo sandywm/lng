@@ -19,38 +19,40 @@ public class Review {
 	public static final String SECRET_KEY = "s3smniuM8FaYAvKPAFiihmjqa7lQrrrq";
 
 	public static String textReview(String content) {
-		AipContentCensor client = new AipContentCensor(APP_ID, API_KEY, SECRET_KEY);
-		String result = "";
-		JSONObject outJson = client.antiSpam(content, null);
-		JSONArray rejectJson = outJson.getJSONObject("result").getJSONArray("reject");
-		JSONArray reviewJson = outJson.getJSONObject("result").getJSONArray("review");
-		if (rejectJson.length() != 0) {
-			for (int i = 0; i < rejectJson.length(); i++) {
-				JSONObject rejects = rejectJson.getJSONObject(i);
-				JSONArray hits = (JSONArray) rejects.get("hit");
-				if (hits.length() != 0) {
-					for (int j = 0; j < hits.length(); j++) {
-						result += hits.get(j) + ",";
+		if(!content.equals("")) {
+			AipContentCensor client = new AipContentCensor(APP_ID, API_KEY, SECRET_KEY);
+			String result = "";
+			JSONObject outJson = client.antiSpam(content, null);
+			JSONArray rejectJson = outJson.getJSONObject("result").getJSONArray("reject");
+			JSONArray reviewJson = outJson.getJSONObject("result").getJSONArray("review");
+			if (rejectJson.length() != 0) {
+				for (int i = 0; i < rejectJson.length(); i++) {
+					JSONObject rejects = rejectJson.getJSONObject(i);
+					JSONArray hits = (JSONArray) rejects.get("hit");
+					if (hits.length() != 0) {
+						for (int j = 0; j < hits.length(); j++) {
+							result += hits.get(j) + ",";
+						}
 					}
 				}
 			}
-		}
-		if(reviewJson.length() !=0) {
-			for (int i = 0; i < reviewJson.length(); i++) {
-				JSONObject review = reviewJson.getJSONObject(i);
-				JSONArray hits = (JSONArray) review.get("hit");
-				if (hits.length() != 0) {
-					for (int j = 0; j < hits.length(); j++) {
-						result += hits.get(j) + ",";
+			if(reviewJson.length() !=0) {
+				for (int i = 0; i < reviewJson.length(); i++) {
+					JSONObject review = reviewJson.getJSONObject(i);
+					JSONArray hits = (JSONArray) review.get("hit");
+					if (hits.length() != 0) {
+						for (int j = 0; j < hits.length(); j++) {
+							result += hits.get(j) + ",";
+						}
 					}
 				}
 			}
-		}
-		if (result.length() > 0) {
-			String[] resArr = result.substring(0, result.length() - 1).split(",");
-			for (int i = 0; i < resArr.length; i++) {
-				String res = resArr[i];
-				content = content.replace(res, "***");
+			if (result.length() > 0) {
+				String[] resArr = result.substring(0, result.length() - 1).split(",");
+				for (int i = 0; i < resArr.length; i++) {
+					String res = resArr[i];
+					content = content.replace(res, "***");
+				}
 			}
 		}
 		return content;

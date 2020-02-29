@@ -402,7 +402,7 @@ public class TrucksTradeController {
 			@ApiImplicitParam(name = "ttImg", value = "槽车租卖详情图片"), @ApiImplicitParam(name = "remark", value = "备注"),
 			@ApiImplicitParam(name = "lxName", value = "联系人", defaultValue = "小黑"),
 			@ApiImplicitParam(name = "lxTel", value = "联系电话", defaultValue = "13956487523"),
-			@ApiImplicitParam(name = "showStatus", value = "上/下架状态（0：上架，1：下架）", required = true, defaultValue = "0"),
+//			@ApiImplicitParam(name = "showStatus", value = "上/下架状态（0：上架，1：下架）", required = true, defaultValue = "0"),
 			@ApiImplicitParam(name = "userId", value = "人员编号（前台时传递）"),
 			@ApiImplicitParam(name = "userType", value = "上传人员类型（1：后台管理人员，2：普通用户）", required = true),
 			@ApiImplicitParam(name = "tradeType", value = "贸易类型（1：租赁，2：买卖）", required = true, defaultValue = "0"),
@@ -437,7 +437,7 @@ public class TrucksTradeController {
 		String lxName = CommonTools.getFinalStr("lxName", request);
 		String lxTel = CommonTools.getFinalStr("lxTel", request);
 		String regPlace = CommonTools.getFinalStr("regPlace", request);
-		Integer showStatus = CommonTools.getFinalInteger("showStatus", request);
+//		Integer showStatus = CommonTools.getFinalInteger("showStatus", request);
 		Integer price = 0;
 		String priceStr = CommonTools.getFinalStr("price", request);
 		if(!priceStr.equals("面议")) {
@@ -532,9 +532,9 @@ public class TrucksTradeController {
 					if (price != null && !price.equals(trtr.getPrice())) {
 						trtr.setPrice(price);
 					}
-					if (showStatus != null && !showStatus.equals(trtr.getShowStatus())) {
-						trtr.setShowStatus(showStatus);
-					}
+//					if (showStatus != null && !showStatus.equals(trtr.getShowStatus())) {
+//						trtr.setShowStatus(showStatus);
+//					}
 					if(cilentInfo.equals("wxApp")) {
 						trtr.setAddUserId(loginUserId);
 					}
@@ -862,12 +862,12 @@ public class TrucksTradeController {
 					}
 					List<Object> list_cpy = new ArrayList<Object>();
 					if(!cpyId.equals("")) {
-						Map<String,Object> map_cpy = new HashMap<String,Object>();
 						if(opt.equals(2)) {//前台编辑
 							//获取当前用户所有创建和加入的公司
 							List<UserCompany>  ucList = ucs.getUserCompanyListByOpt("", "", 1, userId);
 							if(ucList.size() > 0) {
 								for(UserCompany uc : ucList) {
+									Map<String,Object> map_cpy = new HashMap<String,Object>();
 									Company cpy = uc.getCompany();
 									String cpyId_tmp = cpy.getId();
 									map_cpy.put("cpyId", cpyId_tmp);
@@ -886,6 +886,7 @@ public class TrucksTradeController {
 							if(cpyList.size() > 0) {
 								for(Company cpy : cpyList) {
 									String cpyId_tmp = cpy.getId();
+									Map<String,Object> map_cpy = new HashMap<String,Object>();
 									map_cpy.put("cpyId", cpyId_tmp);
 									map_cpy.put("cpyName", cpy.getName());
 									if(cpyId.equals(cpyId_tmp)) {
