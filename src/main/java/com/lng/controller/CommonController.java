@@ -595,7 +595,11 @@ public class CommonController {
 						for (GasTrade gt : gasTradesList) {
 							Map<String, Object> map = new HashMap<String, Object>();
 							map.put("id", gt.getId());
-							map.put("headImg", gt.getHeadImg());
+							String headImg = gt.getHeadImg();
+							if(headImg.equals("")) {
+								headImg = gt.getGasType().getYzImg();
+							}
+							map.put("headImg", headImg);
 							map.put("gasPrice", gt.getGasPrice());
 							map.put("psArea", gt.getPsArea());
 							map.put("gasName", gt.getGasType().getName());
@@ -608,7 +612,7 @@ public class CommonController {
 								pjScore += gto.getOrderPjNumber();
 							}
 							if (tradeNum > 0) {
-								map.put("hpRate", CommonTools.convertInputNumber(pjScore * 100.0 / tradeNum));
+								map.put("hpRate", CommonTools.convertInputNumber(pjScore * 100.0 / tradeNum * 5));
 							} else {
 								map.put("hpRate", "暂无");
 							}

@@ -997,7 +997,12 @@ public class DriverZpController {
 					map.put("education",zp.getEducation());
 					map.put("workYear", zp.getWorkYear());
 					map.put("num", zp.getNum());
-					map.put("welftare", zp.getWelfare().split(","));
+					String welfare = zp.getWelfare();
+					if(!welfare.equals("")) {
+						map.put("welftare", welfare.split(","));
+					}else {
+						map.put("welftare", welfare);
+					}
 					map.put("wage", zp.getWage());
 					map.put("remark", zp.getRemark());
 					String addUserId = zp.getAddUserId();

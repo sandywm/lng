@@ -343,9 +343,10 @@ public class PotTradeController {
 		String loginUserId = CommonTools.getLoginUserId(request);
 		String cilentInfo = CommonTools.getCilentInfo_new(request);
 		Integer status = 200;
-
+		Integer userType = 1;
 		try {
 			if (cilentInfo.equals("wxApp")) {
+				userType = 2;
 				loginUserId = CommonTools.getFinalStr("userId", request);
 				if (loginUserId.isEmpty()) {
 					status = 20001;
@@ -371,7 +372,9 @@ public class PotTradeController {
 						Company company = companyService.getEntityById(compId);
 						pt.setCompany(company);
 					}
-
+					if(userType.equals(2)) {
+						pt.setUserType(2);
+					}
 					if (!potPpId.isEmpty() && !potPpId.equals(pt.getTrucksPotPp().getId())) {
 						TrucksPotPp trucksPotPp = potPpService.findById(potPpId);
 						pt.setTrucksPotPp(trucksPotPp);

@@ -305,9 +305,10 @@ public class RqDevTradeController {
 		String loginUserId = CommonTools.getLoginUserId(request);
 		Integer status = 200;
 		String cilentInfo = CommonTools.getCilentInfo_new(request);
+		Integer userType = 1;
 		try {
 			if (cilentInfo.equals("wxApp")) {
-
+				userType = 2;
 			} else if (CommonTools.checkAuthorization(loginUserId, CommonTools.getLoginRoleName(request),
 					Constants.UP_RDT)) {
 
@@ -321,6 +322,9 @@ public class RqDevTradeController {
 				} else if (rdt.getCheckStatus() == 1) {
 					status = 80001;
 				} else {
+					if(userType.equals(2)) {
+						rdt.setUserType(2);
+					}
 					if (!mainImg.equals(rdt.getMainImg())) {
 						rdt.setMainImg(CommonTools.dealUploadDetail(loginUserId, rdt.getMainImg(), mainImg));
 					}

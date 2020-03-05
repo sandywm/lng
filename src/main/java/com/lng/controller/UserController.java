@@ -20,6 +20,7 @@ import com.lng.pojo.User;
 import com.lng.service.UserService;
 import com.lng.tools.CommonTools;
 import com.lng.tools.CurrentTime;
+import com.lng.tools.EmojiDealUtil;
 import com.lng.util.Constants;
 import com.lng.util.GenericResponse;
 import com.lng.util.PageResponse;
@@ -62,8 +63,8 @@ public class UserController {
 				User user = new User();
 				user.setAccount(account);
 				user.setPassword("");
-				user.setWxName(wxName);
-				user.setRealName(realName);
+				user.setWxName(EmojiDealUtil.changeEmojiToHtml(wxName));
+				user.setRealName(EmojiDealUtil.changeEmojiToHtml(realName));
 				user.setSex(sex);
 				user.setMobile(mobile);
 				user.setSignDate(CurrentTime.getCurrentTime());
@@ -98,6 +99,8 @@ public class UserController {
 	public PageResponse queryUserByWxName(String wxName, Integer page, Integer limit) {
 		Integer status = 200;
 		Page<User> users = null;
+		long count = 0;
+		List<Object> list = new ArrayList<Object>();
 		try {
 			wxName = CommonTools.getFinalStr(wxName);
 			if (page == null) {
@@ -107,14 +110,32 @@ public class UserController {
 				limit = 10;
 			}
 			users = userService.listPageInfoByWxName(wxName, page, limit);
-			if (users.getTotalElements() == 0) {
+			count = users.getTotalElements();
+			if (count == 0) {
 				status = 50001;
+			}else {
+				for(User user : users) {
+					Map<String,Object> map = new HashMap<String,Object>();
+					map.put("id", user.getId());
+					map.put("account", user.getAccount());
+					map.put("wxName", user.getWxName());
+					map.put("realName", user.getRealName());
+					map.put("sex", user.getSex());
+					map.put("mobile", user.getMobile());
+					map.put("birthday", user.getBirthday());
+					map.put("loginStatus", user.getLoginStatus());
+					map.put("accountStatus", user.getAccountStatus());
+					map.put("accountType", user.getAccountType());
+					map.put("userPortrait", user.getUserPortrait());
+					map.put("specFun", user.getSpecFun());
+					list.add(map);
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			status = 1000;
 		}
-		return ResponseFormat.getPageJson(limit, page, users.getTotalElements(), status, users.getContent());
+		return ResponseFormat.getPageJson(limit, page, count, status, list);
 	}
 	
 	@GetMapping("/getSpecUserDetail")
@@ -178,11 +199,11 @@ public class UserController {
 			if (user == null) {
 				status = 50001;
 			} else {
-				if(!wxName.isEmpty() && !wxName.equals(user.getWxName())) {
-					user.setWxName(wxName);
+				if(!wxName.isEmpty()) {
+					user.setWxName(EmojiDealUtil.changeEmojiToHtml(wxName));
 				}
-				if(!realName.isEmpty() && ! realName.equals(user.getRealName())) {
-					user.setRealName(realName);
+				if(!realName.isEmpty()) {
+					user.setRealName(EmojiDealUtil.changeEmojiToHtml(realName));
 				}
 				if(!mobile.isEmpty()&& ! mobile.equals(user.getMobile())) {
 					user.setMobile(mobile);

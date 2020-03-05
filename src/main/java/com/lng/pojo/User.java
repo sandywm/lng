@@ -9,6 +9,8 @@ import javax.persistence.Table;
 
 import org.hibernate.annotations.GenericGenerator;
 
+import com.lng.tools.EmojiDealUtil;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -117,7 +119,7 @@ public class User implements java.io.Serializable {
 
 	@Column(name = "wx_name",columnDefinition = "varchar(100) COMMENT '微信名称'")
 	public String getWxName() {
-		return this.wxName;
+		return EmojiDealUtil.changeStrToEmoji(this.wxName);
 	}
 
 	public void setWxName(String wxName) {
@@ -126,7 +128,7 @@ public class User implements java.io.Serializable {
 
 	@Column(name = "real_name", columnDefinition = "varchar(30) COMMENT '真实姓名'")
 	public String getRealName() {
-		return this.realName;
+		return EmojiDealUtil.changeStrToEmoji(this.realName);
 	}
 
 	public void setRealName(String realName) {
@@ -225,7 +227,7 @@ public class User implements java.io.Serializable {
 
 	@Column(name = "birthday",columnDefinition = "varchar(30) COMMENT '生日'")
 	public String getBirthday() {
-		return birthday;
+		return this.birthday;
 	}
 
 	public void setBirthday(String birthday) {

@@ -970,24 +970,24 @@ public class GasFactoryController {
 					map.put("province", gf.getProvince());
 					map.put("addTime", gf.getAddTime());
 					map.put("owerFlag", true);
+					map.put("applyCpyName", "");
 					list.add(map);
 				}
 			}
-			if(checkStatus.equals(1)) {
-				//获取自己加入液厂
-				List<GasFactoryCompany> gfcList = gfcs.listCompanyByOpt("", "", checkStatus, owerUserId);
-				if(gfcList.size() > 0) {
-					for(int i = 0 ; i < gfcList.size() ; i++) {
-						GasFactory gf = gfcList.get(i).getGasFactory();
-						Map<String,Object> map = new HashMap<String,Object>();
-						map.put("gfId", gf.getId());
-						map.put("name", gf.getName());
-						map.put("gasTypeName", gf.getGasType().getName());
-						map.put("province", gf.getProvince());
-						map.put("addTime", gf.getAddTime());
-						map.put("owerFlag", false);
-						list.add(map);
-					}
+			//获取自己加入液厂
+			List<GasFactoryCompany> gfcList = gfcs.listCompanyByOpt("", "", checkStatus, owerUserId);
+			if(gfcList.size() > 0) {
+				for(int i = 0 ; i < gfcList.size() ; i++) {
+					GasFactory gf = gfcList.get(i).getGasFactory();
+					Map<String,Object> map = new HashMap<String,Object>();
+					map.put("gfId", gf.getId());
+					map.put("name", gf.getName());
+					map.put("gasTypeName", gf.getGasType().getName());
+					map.put("province", gf.getProvince());
+					map.put("addTime", gfcList.get(i).getAddTime());
+					map.put("owerFlag", false);
+					map.put("applyCpyName", gfcList.get(i).getCompany().getName());
+					list.add(map);
 				}
 			}
 			if(list.size() == 0) {

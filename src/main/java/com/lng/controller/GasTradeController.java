@@ -578,6 +578,7 @@ public class GasTradeController {
 //							}else {//无下单记录
 //								addFlag = true;
 //							}
+							addFlag = true;
 						}else {//无确认订单时
 							//获取当前用户有无下单记录
 							List<GasTradeOrder> gtoList_1 = gtos.listComInfoByOpt(userId, gasTradeId);
@@ -783,10 +784,11 @@ public class GasTradeController {
 		String tructsImg = CommonTools.getFinalStr("tructsImg", request);
 		String userId = CommonTools.getLoginUserId(request);
 		String cilentInfo = CommonTools.getCilentInfo_new(request);
+		Integer userType = 1;
 		try {
 			if(!gasTradeId.equals("")  && !userId.equals("")){
 				if(cilentInfo.equals("wxApp")){
-					
+					userType = 2;
 				}else if(CommonTools.checkAuthorization(userId, CommonTools.getLoginRoleName(request),Constants.UP_GAS_TRADE)) {
 					
 				}else {
@@ -815,6 +817,9 @@ public class GasTradeController {
 							}
 							if(!headImg.equals(gasType.getYzImg().replace("_small", ""))) {//说明是自己上传
 								gt.setHeadImg(CommonTools.dealUploadDetail(userId, gt.getHeadImg(), headImg));
+							}
+							if(userType.equals(2)) {
+								gt.setUserType(userType);
 							}
 							//如果图片不是液厂默认图片--上传
 							gt.setGasVolume(gasVolume);

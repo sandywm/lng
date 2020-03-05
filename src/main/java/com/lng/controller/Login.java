@@ -269,7 +269,7 @@ public class Login {
 								Map<String,String> map = new HashMap<String,String>();
 								map.put("userId", user.getId());
 								map.put("wxOpenId", user.getAccount());
-								map.put("wxName", EmojiDealUtil.changeStrToEmoji(user.getWxName()));
+								map.put("wxName", user.getWxName());
 								list_d.add(map);
 								status = 200;
 							}else{

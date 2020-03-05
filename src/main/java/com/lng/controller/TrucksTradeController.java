@@ -461,8 +461,10 @@ public class TrucksTradeController {
 
 		try {
 		 if (cilentInfo.equals("wxApp")) {
-
-			}else if(CommonTools.checkAuthorization(loginUserId, CommonTools.getLoginRoleName(request), Constants.UP_TRTR)) {} else {
+			 	userType = 2;
+			}else if(CommonTools.checkAuthorization(loginUserId, CommonTools.getLoginRoleName(request), Constants.UP_TRTR)) {
+				userType = 1;
+			} else {
 				status = 70001;
 			}
 
@@ -539,8 +541,8 @@ public class TrucksTradeController {
 						trtr.setAddUserId(loginUserId);
 					}
 
-					if (userType != null && !userType.equals(trtr.getUserType())) {
-						trtr.setUserType(userType);
+					if(userType.equals(2)) {
+						trtr.setUserType(2);
 					}
 					if (tradeType != null && tradeType.equals(trtr.getTradeType())) {
 						trtr.setTradeType(tradeType);
@@ -909,7 +911,10 @@ public class TrucksTradeController {
 						if (tadeType.equals(1)) {
 							map.put("price", price);
 						} else if (tadeType.equals(2)) {
-							map.put("price", price / 10000.0);
+							map.put("price", price / 10000.0);//浏览时用以万为单位数据
+							if(opt.equals(2) || opt.equals(3)) {//前后台编辑时用原始数据
+								map.put("price", price);
+							}
 						}
 					}
 					map.put("TradeTypeName", tradeTypeName);

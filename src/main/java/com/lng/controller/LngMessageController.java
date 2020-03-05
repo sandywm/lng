@@ -220,7 +220,7 @@ public class LngMessageController {
 						User user = lm.getUser();
 						map_d.put("headImg", user.getUserPortrait());
 						map_d.put("userName", user.getWxName());
-						map_d.put("content", EmojiDealUtil.changeStrToEmoji(lm.getContent()));
+						map_d.put("content", lm.getContent());
 						map_d.put("addTime", lm.getAddTime());
 						list_reply.add(map_d);
 					}

@@ -118,8 +118,8 @@ public class GasTradeOrderController {
 							gto.setLxMobile(lxMobile);
 							gto.setPrice(price);
 							gto.setRemark(EmojiDealUtil.changeEmojiToHtml(remark));
-							gto.setLxrProv(EmojiDealUtil.changeEmojiToHtml(lxrProv));
-							gto.setLxrCity(EmojiDealUtil.changeEmojiToHtml(lxrCity));
+							gto.setLxrProv(lxrProv);
+							gto.setLxrCity(lxrCity);
 							gto.setLxrAddress(EmojiDealUtil.changeEmojiToHtml(lxrAddress));
 							gto.setLxrGpsInfo(lxrGpsInfo);
 							gto.setDistance(distance);
@@ -646,7 +646,7 @@ public class GasTradeOrderController {
 						map_d.put("buyUserHead", buyUser.getUserPortrait());
 						map_d.put("buyUserName", buyUser.getWxName());
 						map_d.put("buyPrice", gto.getPrice());
-						map_d.put("psAddress", gto.getLxrProv() + gto.getLxrCity() + gto.getLxrAddress());
+						map_d.put("psAddress", gto.getLxrProv() + gto.getLxrCity() + EmojiDealUtil.changeStrToEmoji(gto.getLxrAddress()));
 						list_d.add(map_d);
 						map.put("buyUserList", list_d);
 						list.add(map);
@@ -691,7 +691,7 @@ public class GasTradeOrderController {
 								map_d.put("buyUserHead", buyUser.getUserPortrait());
 								map_d.put("buyUserName", buyUser.getWxName());
 								map_d.put("buyPrice", gto.getPrice());
-								map_d.put("psAddress", gto.getLxrProv() + gto.getLxrCity() + gto.getLxrAddress());
+								map_d.put("psAddress", gto.getLxrProv() + gto.getLxrCity() + EmojiDealUtil.changeStrToEmoji(gto.getLxrAddress()));
 								oStatus = gto.getOrderStatus();
 								map_d.put("orderStatus", gto.getOrderStatus());
 								map_d.put("orderNo", gto.getOrderNo());
@@ -891,7 +891,7 @@ public class GasTradeOrderController {
 						map_d.put("buyUserHead", buyUser.getUserPortrait());
 						map_d.put("buyUserName", buyUser.getWxName());
 						map_d.put("buyPrice", gto.getPrice());
-						map_d.put("psAddress", gto.getLxrProv() + gto.getLxrCity() + gto.getLxrAddress());
+						map_d.put("psAddress", gto.getLxrProv() + gto.getLxrCity() + EmojiDealUtil.changeStrToEmoji(gto.getLxrAddress()));
 						map_d.put("orderStatus", gto.getOrderStatus());
 						list_d.add(map_d);
 					}
@@ -1036,7 +1036,7 @@ public class GasTradeOrderController {
 						}else {
 							map.put("userHead", "");
 						}
-						map.put("lxName", gt.getLxName());
+						map.put("lxName", EmojiDealUtil.changeStrToEmoji(gt.getLxName()));
 						map.put("lxTel", gt.getLxTel());
 						//获取指定用户指定燃气贸易的订单编号
 						List<GasTradeOrder> gtoList = gtoSeriver.listComInfoByOpt(userId, gtId);
@@ -1091,7 +1091,7 @@ public class GasTradeOrderController {
 						oStatus = gto.getOrderStatus();
 						addOrderTime = gto.getAddTime();
 						orderNo = gto.getOrderNo();
-						orderRemark = gto.getRemark();//订单备注
+						orderRemark = EmojiDealUtil.changeStrToEmoji(gto.getRemark());//订单备注
 					}
 					map.put("orderNo", orderNo);
 					map.put("orderRemark", orderRemark);
@@ -1271,7 +1271,7 @@ public class GasTradeOrderController {
 				map.put("remark", gt.getRemark());
 				map.put("userProv", gt.getLxrProv());
 				map.put("userCity", gt.getLxrCity());
-				map.put("userAddress", gt.getLxrAddress());
+				map.put("userAddress", gt.getLxrProv() + gt.getLxrCity() + EmojiDealUtil.changeStrToEmoji(gt.getLxrAddress()));
 				map.put("gpsInfo", gt.getLxrGpsInfo());
 				map.put("distance", gt.getDistance());
 				map.put("addTime", gt.getAddTime());
