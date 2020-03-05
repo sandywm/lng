@@ -241,7 +241,6 @@ public class JumpPageController {
 	public ModelAndView goDriverZpPage(){
 		return new ModelAndView("driverZp/driverZpList");
 	}
-	
 	@ApiOperation("司机求职管理")
 	@GetMapping("goDriverQzPage") 
 	public ModelAndView goDriverQzPage(){
@@ -252,5 +251,11 @@ public class JumpPageController {
 	@GetMapping("goNewsCenPage") 
 	public ModelAndView goNewsCenPage(){
 		return new ModelAndView("newsCen/newsCenList");
+	}
+	
+	@ApiOperation("意见反馈管理")
+	@GetMapping("goFeedBackPage") 
+	public ModelAndView goFeedBackPage(){
+		return new ModelAndView("feedBackManager/feedBackList");
 	}
 }
