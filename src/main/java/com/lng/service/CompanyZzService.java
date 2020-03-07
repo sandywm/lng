@@ -51,10 +51,10 @@ public interface CompanyZzService {
 
 	/**
 	 * 
-	 * @description 通过公司名称分页查询公司资质信息
+	 * @description 通过公司编号查询公司资质信息
 	 * @author zdf
 	 * @Version : 1.0
-	 * @ModifiedBy : 
+	 * @ModifiedBy : wm
 	 * @date  2019年12月10日 上午9:38:00
 	 * @param compId 公司编号
 	 * @return

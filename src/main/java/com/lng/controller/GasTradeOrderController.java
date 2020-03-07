@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.lng.pojo.Company;
+import com.lng.pojo.CompanyZz;
 import com.lng.pojo.GasFactory;
 import com.lng.pojo.GasTrade;
 import com.lng.pojo.GasTradeImg;
@@ -25,6 +26,7 @@ import com.lng.pojo.GasType;
 import com.lng.pojo.MessageCenter;
 import com.lng.pojo.User;
 import com.lng.service.CompanyService;
+import com.lng.service.CompanyZzService;
 import com.lng.service.GasTradeOrderLogService;
 import com.lng.service.GasTradeOrderService;
 import com.lng.service.GasTradeService;
@@ -61,6 +63,8 @@ public class GasTradeOrderController {
 	private GasTradeOrderLogService gtolService;
 	@Autowired
 	private MessageCenterService mcs;
+	@Autowired
+	private CompanyZzService cpyzzs;
 	
 	@PostMapping("/addGasTraderOrder")
 	@ApiOperation(value = "添加燃气交易订单", notes = "添加燃气交易订单信息并增加订单日志")
@@ -138,7 +142,7 @@ public class GasTradeOrderController {
 								gtoLog.setOrderDetailTxt("");
 								gtoLog.setAddTime(CurrentTime.getCurrentTime());
 								gtolService.addOrUpdate(gtoLog);
-								MessageCenter mc = new MessageCenter("",user.getRealName()+"想购买您发布的"+gt.getGasFactory().getName()+"燃气", user.getRealName()+"想购买您发布的"+gt.getGasFactory().getName()+"燃气", 0, CurrentTime.getCurrentTime(), 2,
+								MessageCenter mc = new MessageCenter("",gt.getGasFactory().getName()+"燃气已被"+user.getRealName()+"下单", gt.getGasFactory().getName()+"燃气已被"+user.getRealName()+"下单", 0, CurrentTime.getCurrentTime(), 2,
 										gtId, "gasTrade", "", gt.getAddUserId(), 0);
 								mcs.saveOrUpdate(mc);
 							}
@@ -893,6 +897,18 @@ public class GasTradeOrderController {
 						map_d.put("buyPrice", gto.getPrice());
 						map_d.put("psAddress", gto.getLxrProv() + gto.getLxrCity() + EmojiDealUtil.changeStrToEmoji(gto.getLxrAddress()));
 						map_d.put("orderStatus", gto.getOrderStatus());
+						//获取购买人所在公司的资质文件
+						String buyUserCpyId = gto.getCompany().getId();
+						List<CompanyZz> zzList = cpyzzs.getCompanyZzList(buyUserCpyId);
+						List<Object> list_zz = new ArrayList<Object>();
+						if(zzList.size() > 0) {
+							for(CompanyZz zz : zzList) {
+								Map<String,Object> map_zz = new HashMap<String,Object>();
+								map_zz.put("zzImg", zz.getCompanyZzImg());
+								list_zz.add(map_zz);
+							}
+						}
+						map_d.put("cpyZzList", list_zz);
 						list_d.add(map_d);
 					}
 					map.put("buyUserList", list_d);
