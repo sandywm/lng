@@ -1,6 +1,8 @@
 package com.lng.controller;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,6 +56,28 @@ public class ModuleController {
 	@Autowired
 	private ActSuperService ass;
 	
+	/**
+	 * 按照模块升序排序
+	 * @author wm
+	 * @Version : 1.0
+	 * @ModifiedBy : 修改人
+	 * @date  2019年12月15日 上午8:33:39
+	 */
+	private class SortClass implements Comparator<Object> {
+		@Override
+		@SuppressWarnings("unchecked")
+	    public int compare(Object obj0, Object obj1) {
+		Map<String, Integer> map0 = (Map<String, Integer>) obj0;
+	      Map<String, Integer> map1 = (Map<String, Integer>) obj1;
+	      if(map0.get("modOrder") != null && map1.get("modOrder") != null) {
+	    	  int flag = map0.get("modOrder").compareTo(map1.get("modOrder"));
+		      return flag; // 不取反，则按正序排列
+	      }else {
+	    	  return 1;
+	      }
+	    }
+	 }
+	
 	@GetMapping("getModuleData")
 	@ApiOperation(value = "获取平台模块--所有人",notes = "超管和后台管理人员通用，当时超管时获取全平台所有模块，当是其他管理人员时，只显示分配的权限模块")
 	@ApiResponses({@ApiResponse(code = 1000, message = "服务器错误"),@ApiResponse(code = 50001, message = "数据未找到")})
@@ -101,6 +125,7 @@ public class ModuleController {
 						map_d.put("modId", mod.getId());
 						map_d.put("modName", mod.getModName());
 						map_d.put("modUrl", mod.getModUrl());
+						map_d.put("modOrder", mod.getModOrder());
 						List<Object> list_d1 = new ArrayList<Object>();
 						List<ActSuper> asList = ass.listSpecConfigInfoByOpt(superUserId, mod.getId());
 						if(asList.size() > 0) {
@@ -140,13 +165,11 @@ public class ModuleController {
 									}
 								}
 								if(exist_status.equals(1)){//不存在
-									if(mod.getModOrder() > 0) {//不加载系统配置模块
-										map_d.put("modId", mod.getId());
-										map_d.put("modName", mod.getModName());
-										map_d.put("modUrl", mod.getModUrl());
-										map_d.put("modOrder", mod.getModOrder());
-										map_d.put("subModList", new ArrayList<Object>());
-									}
+									map_d.put("modId", mod.getId());
+									map_d.put("modName", mod.getModName());
+									map_d.put("modUrl", mod.getModUrl());
+									map_d.put("modOrder", mod.getModOrder());
+									map_d.put("subModList", new ArrayList<Object>());
 									if(!map_d.isEmpty()) {
 										list_d.add(map_d);
 										list_m.add(mod);
@@ -157,6 +180,9 @@ public class ModuleController {
 					}
 					if(list_d.size() == 0) {
 						status = 50001;
+					}else {
+						SortClass sort = new SortClass();
+						Collections.sort(list_d, sort);//list_d中modOrder升序排列
 					}
 				}
 			}else {

@@ -9,6 +9,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -44,6 +45,7 @@ public class PotTradeImgServiceImpl implements PotTradeImgService {
 	@SuppressWarnings("serial")
 	@Override
 	public List<PotTradeImg> getPotTradeImgByPtId(String PtId) {
+		Sort sort = Sort.by(Sort.Direction.ASC, "orderNum");
 		Specification<PotTradeImg> spec = new Specification<PotTradeImg>() {
 			@Override
 			public Predicate toPredicate(Root<PotTradeImg> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
@@ -55,7 +57,7 @@ public class PotTradeImgServiceImpl implements PotTradeImgService {
 			}
 		};
 
-		return ptImgDao.findAll(spec);
+		return ptImgDao.findAll(spec,sort);
 	}
 
 	@Override

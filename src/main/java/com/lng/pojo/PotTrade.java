@@ -49,6 +49,8 @@ public class PotTrade implements java.io.Serializable {
 	private String city;
 	@ApiModelProperty(value = "租赁价格")
 	private double leasePrice;
+	@ApiModelProperty(value = "租赁时间单位")
+	private String leaseUnit;
 	@ApiModelProperty(value = "官方价格")
 	private double sellPrice;
 	@ApiModelProperty(value = "备注")
@@ -79,7 +81,7 @@ public class PotTrade implements java.io.Serializable {
 
 	public PotTrade(Company company, PotZzjzType potZzjzType, TrucksPotPp trucksPotPp, String mainImg,
 			int potVolume, String sxInfo, String buyYear, String province, String city, double leasePrice,
-			double sellPrice, String remark, String lxName, String lxTel, int checkStatus, String checkTime,
+			String leaseUnit,double sellPrice, String remark, String lxName, String lxTel, int checkStatus, String checkTime,
 			int showStatus, String addUserId, String addTime, int userType, int hot, int tradeStatus) {
 		this.company = company;
 		this.potZzjzType = potZzjzType;
@@ -91,6 +93,7 @@ public class PotTrade implements java.io.Serializable {
 		this.province = province;
 		this.city = city;
 		this.leasePrice = leasePrice;
+		this.leaseUnit = leaseUnit;
 		this.sellPrice = sellPrice;
 		this.remark = remark;
 		this.lxName = lxName;
@@ -207,6 +210,15 @@ public class PotTrade implements java.io.Serializable {
 
 	public void setLeasePrice(double leasePrice) {
 		this.leasePrice = leasePrice;
+	}
+
+	@Column(name = "lease_unit", columnDefinition = "varchar(30) COMMENT '租赁时间单位（每年/月/日）'")
+	public String getLeaseUnit() {
+		return leaseUnit;
+	}
+
+	public void setLeaseUnit(String leaseUnit) {
+		this.leaseUnit = leaseUnit;
 	}
 
 	@Column(name = "sell_price", nullable = false, precision = 10, columnDefinition = "COMMENT '官方价格'")

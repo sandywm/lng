@@ -33,13 +33,16 @@ public class RqDevTradeImg implements java.io.Serializable {
 	private RqDevTrade rqDevTrade;
 	@ApiModelProperty(value = "燃气设备详情图")
 	private String reDevDetailImg;
+	@ApiModelProperty(value = "图片顺序")
+	private int orderNum;
 
 	public RqDevTradeImg() {
 	}
 
-	public RqDevTradeImg(RqDevTrade rqDevTrade, String reDevDetailImg) {
+	public RqDevTradeImg(RqDevTrade rqDevTrade, String reDevDetailImg,int orderNum) {
 		this.rqDevTrade = rqDevTrade;
 		this.reDevDetailImg = reDevDetailImg;
+		this.orderNum = orderNum;
 	}
 
 	@Id
@@ -71,5 +74,13 @@ public class RqDevTradeImg implements java.io.Serializable {
 	public void setReDevDetailImg(String reDevDetailImg) {
 		this.reDevDetailImg = reDevDetailImg;
 	}
+	
+	@Column(name = "order_num", nullable = false, columnDefinition = "int(11) COMMENT '图片顺序'")
+	public int getOrderNum() {
+		return orderNum;
+	}
 
+	public void setOrderNum(int orderNum) {
+		this.orderNum = orderNum;
+	}
 }

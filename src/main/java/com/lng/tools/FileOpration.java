@@ -110,7 +110,8 @@ public class FileOpration {
 	 public static void makeImage(String url, Double rate, String newUrl, String formatName)throws Exception{
 		 long startTime=System.currentTimeMillis();
 		 //读取图片
-	     BufferedImage bi = ImageIO.read(new File(url));
+		 File file_1 = new File(url);
+	     BufferedImage bi = ImageIO.read(file_1);
 	     Integer width_old = bi.getWidth();//原始尺寸
 	     //用Image里的方法对图片进行等比压缩,只要宽和高其一值为负,则以正的那个值为最大边进行等比压缩
 	     Image image = bi.getScaledInstance((int)(width_old * rate), -1,Image.SCALE_AREA_AVERAGING);
@@ -122,10 +123,13 @@ public class FileOpration {
 	     //在新的缓存图片中画图
 	     g.drawImage(image, 0, 0, null);
 	     //构造IO流输出到文件
-	     FileOutputStream fos = new FileOutputStream(new File(newUrl));
+	     File file_2 = new File(newUrl);
+	     FileOutputStream fos = new FileOutputStream(file_2);
 	     ImageIO.write(bi1, formatName, fos);
 	     fos.flush();
 	     fos.close();
+	     file_1 = null;//file置为null是为了告诉gc此块内存可以回收
+	     file_2 = null;//file置为null是为了告诉gc此块内存可以回收
 	     long endTime=System.currentTimeMillis();
 			float excTime=(float)(endTime-startTime)/1000;
 			System.out.println("等比压缩耗费时间--"+excTime);

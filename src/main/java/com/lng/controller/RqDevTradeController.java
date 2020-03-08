@@ -156,6 +156,7 @@ public class RqDevTradeController {
 						RqDevTradeImg rdti = new RqDevTradeImg();
 						rdti.setRqDevTrade(rdt);
 						rdti.setReDevDetailImg(dImgArr[i]);
+						rdti.setOrderNum(i);
 						rdtiList.add(rdti);
 					}
 					rdtiService.addOrUpdateBatch(rdtiList);
@@ -384,6 +385,7 @@ public class RqDevTradeController {
 							RqDevTradeImg rdti = new RqDevTradeImg();
 							rdti.setRqDevTrade(rdt);
 							rdti.setReDevDetailImg(dImgArr[i]);
+							rdti.setOrderNum(i);
 							rdtiList.add(rdti);
 						}
 						rdtiService.addOrUpdateBatch(rdtiList);

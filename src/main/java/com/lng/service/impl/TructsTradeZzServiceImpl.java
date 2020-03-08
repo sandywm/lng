@@ -9,6 +9,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -45,6 +46,7 @@ public class TructsTradeZzServiceImpl implements TructsTradeZzService {
 	@SuppressWarnings("serial")
 	@Override
 	public List<TructsTradeZz> getTructsTradeZzByttId(String ttId) {
+		Sort sort = Sort.by(Sort.Direction.ASC, "orderNum");// 升序排列
 		Specification<TructsTradeZz> spec = new Specification<TructsTradeZz>() {
 			@Override
 			public Predicate toPredicate(Root<TructsTradeZz> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
@@ -56,7 +58,7 @@ public class TructsTradeZzServiceImpl implements TructsTradeZzService {
 			}
 		};
 
-		return trZzDao.findAll(spec);
+		return trZzDao.findAll(spec,sort);
 	}
 
 	@Override

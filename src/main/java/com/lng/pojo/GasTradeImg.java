@@ -33,13 +33,17 @@ public class GasTradeImg implements java.io.Serializable {
 	private GasTrade gasTrade;
 	@ApiModelProperty(value = "其他图片信息")
 	private String otherImg;
+	@ApiModelProperty(value = "图片顺序")
+	private int orderNum;
+
 
 	public GasTradeImg() {
 	}
 
-	public GasTradeImg(GasTrade gasTrade, String otherImg) {
+	public GasTradeImg(GasTrade gasTrade, String otherImg,int orderNum) {
 		this.gasTrade = gasTrade;
 		this.otherImg = otherImg;
+		this.orderNum = orderNum;
 	}
 
 	@Id
@@ -70,6 +74,15 @@ public class GasTradeImg implements java.io.Serializable {
 
 	public void setOtherImg(String otherImg) {
 		this.otherImg = otherImg;
+	}
+
+	@Column(name = "order_num", nullable = false, columnDefinition = "int(11) COMMENT '图片顺序'")
+	public int getOrderNum() {
+		return orderNum;
+	}
+
+	public void setOrderNum(int orderNum) {
+		this.orderNum = orderNum;
 	}
 
 }

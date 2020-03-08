@@ -115,9 +115,9 @@ public class GasTradeController {
 		@ApiImplicitParam(name = "qfTxt1", value = "铅封文字信息一"),
 		@ApiImplicitParam(name = "qfTxt2", value = "铅封文字信息二"),
 		@ApiImplicitParam(name = "qfTxt3", value = "铅封文字信息三"),
-		@ApiImplicitParam(name = "qfImg1", value = "铅封图片信息一"),
-		@ApiImplicitParam(name = "qfImg2", value = "铅封图片信息二"),
-		@ApiImplicitParam(name = "qfImg3", value = "铅封图片信息三"),
+		@ApiImplicitParam(name = "qfImg", value = "铅封图片信息(多个用逗号隔开)"),
+//		@ApiImplicitParam(name = "qfImg2", value = "铅封图片信息二"),
+//		@ApiImplicitParam(name = "qfImg3", value = "铅封图片信息三"),
 		@ApiImplicitParam(name = "remark", value = "备注"),
 		@ApiImplicitParam(name = "gpsInfo", value = "gps信息"),
 		@ApiImplicitParam(name = "bdImg", value = "磅单图片"),
@@ -149,9 +149,10 @@ public class GasTradeController {
 		String qfTxt1 = CommonTools.getFinalStr("qfTxt1", request);
 		String qfTxt2 = CommonTools.getFinalStr("qfTxt2", request);
 		String qfTxt3 = CommonTools.getFinalStr("qfTxt3", request);
-		String qfImg1 = CommonTools.getFinalStr("qfImg1", request);
-		String qfImg2 = CommonTools.getFinalStr("qfImg2", request);
-		String qfImg3 = CommonTools.getFinalStr("qfImg3", request);
+//		String qfImg1 = CommonTools.getFinalStr("qfImg1", request);
+//		String qfImg2 = CommonTools.getFinalStr("qfImg2", request);
+//		String qfImg3 = CommonTools.getFinalStr("qfImg3", request);
+		String qfImg = CommonTools.getFinalStr("qfImg", request);
 		String remark = CommonTools.getFinalStr("remark", request);
 		String gpsInfo = CommonTools.getFinalStr("gpsInfo", request);
 		String bdImg = CommonTools.getFinalStr("bdImg", request);
@@ -184,6 +185,23 @@ public class GasTradeController {
 								break;
 							}
 						}
+						String qfImg1 = "";
+						String qfImg2 = "";
+						String qfImg3 = "";
+						if(!qfImg.equals("")) {
+							String[]  qfImgArr = qfImg.split(",");
+							Integer qfLen = qfImgArr.length;
+							if(qfLen.equals(1)) {
+								qfImg1 = qfImg;
+							}else if(qfLen.equals(2)) {
+								qfImg1 = qfImgArr[0];
+								qfImg2 = qfImgArr[1];
+							}else if(qfLen.equals(3)) {
+								qfImg1 = qfImgArr[0];
+								qfImg2 = qfImgArr[1];
+								qfImg3 = qfImgArr[2];
+							}
+						}
 						GasTrade gt = new GasTrade(cpy, gf, gasType, 
 								CommonTools.dealUploadDetail(userId, "", headImg), gasVolume,
 								Double.parseDouble(gasPrice), zcDate,lxName, lxTel, psArea,checkStatus,
@@ -198,7 +216,7 @@ public class GasTradeController {
 								String[] otherImg_new = CommonTools.dealUploadDetail(userId, "", otherImg).split(",");
 								List<GasTradeImg> gtiList_new = new ArrayList<GasTradeImg>();
 								for(int i = 0 ; i < otherImg_new.length ; i++) {
-									GasTradeImg gti = new GasTradeImg(gt, otherImg_new[i]);
+									GasTradeImg gti = new GasTradeImg(gt, otherImg_new[i],i);
 									gtiList_new.add(gti);
 								}
 								gts.addBatchInfo(gtiList_new);
@@ -740,9 +758,9 @@ public class GasTradeController {
 		@ApiImplicitParam(name = "qfTxt1", value = "铅封文字信息一"),
 		@ApiImplicitParam(name = "qfTxt2", value = "铅封文字信息二"),
 		@ApiImplicitParam(name = "qfTxt3", value = "铅封文字信息三"),
-		@ApiImplicitParam(name = "qfImg1", value = "铅封图片信息一"),
-		@ApiImplicitParam(name = "qfImg2", value = "铅封图片信息二"),
-		@ApiImplicitParam(name = "qfImg3", value = "铅封图片信息三"),
+		@ApiImplicitParam(name = "qfImg", value = "铅封图片信息（多个用逗号隔开）"),
+//		@ApiImplicitParam(name = "qfImg2", value = "铅封图片信息二"),
+//		@ApiImplicitParam(name = "qfImg3", value = "铅封图片信息三"),
 		@ApiImplicitParam(name = "remark", value = "备注"),
 		@ApiImplicitParam(name = "gpsInfo", value = "gps信息"),
 		@ApiImplicitParam(name = "bdImg", value = "磅单图片",required = true),
@@ -773,9 +791,9 @@ public class GasTradeController {
 		String qfTxt1 = CommonTools.getFinalStr("qfTxt1", request);
 		String qfTxt2 = CommonTools.getFinalStr("qfTxt2", request);
 		String qfTxt3 = CommonTools.getFinalStr("qfTxt3", request);
-		String qfImg1 = CommonTools.getFinalStr("qfImg1", request);
-		String qfImg2 = CommonTools.getFinalStr("qfImg2", request);
-		String qfImg3 = CommonTools.getFinalStr("qfImg3", request);
+		String qfImg = CommonTools.getFinalStr("qfImg", request);
+//		String qfImg2 = CommonTools.getFinalStr("qfImg2", request);
+//		String qfImg3 = CommonTools.getFinalStr("qfImg3", request);
 		String remark = CommonTools.getFinalStr("remark", request);
 		String gpsInfo = CommonTools.getFinalStr("gpsInfo", request);
 		String bdImg = CommonTools.getFinalStr("bdImg", request);
@@ -837,9 +855,26 @@ public class GasTradeController {
 							gt.setQfText1(qfTxt1);
 							gt.setQfText2(qfTxt2);
 							gt.setQfText3(qfTxt3);
-							gt.setQfImg1(qfImg1);
-							gt.setQfImg2(qfImg2);
-							gt.setQfImg3(qfImg3);
+							String qfImg1 = "";
+							String qfImg2 = "";
+							String qfImg3 = "";
+							if(!qfImg.equals("")) {
+								String[]  qfImgArr = qfImg.split(",");
+								Integer qfLen = qfImgArr.length;
+								if(qfLen.equals(1)) {
+									qfImg1 = qfImg;
+								}else if(qfLen.equals(2)) {
+									qfImg1 = qfImgArr[0];
+									qfImg2 = qfImgArr[1];
+								}else if(qfLen.equals(3)) {
+									qfImg1 = qfImgArr[0];
+									qfImg2 = qfImgArr[1];
+									qfImg3 = qfImgArr[2];
+								}
+							}
+							gt.setQfImg1(CommonTools.dealUploadDetail(userId, gt.getQfImg1(), qfImg1));
+							gt.setQfImg2(CommonTools.dealUploadDetail(userId, gt.getQfImg2(), qfImg2));
+							gt.setQfImg3(CommonTools.dealUploadDetail(userId, gt.getQfImg3(), qfImg3));
 							gt.setRemark(remark);
 							gt.setGpsInfo(gpsInfo);
 							gt.setBdImg(CommonTools.dealUploadDetail(userId, gt.getBdImg(), bdImg));
@@ -855,7 +890,7 @@ public class GasTradeController {
 									String[] otherImg_new = CommonTools.dealUploadDetail(userId, "", otherImg).split(",");
 									List<GasTradeImg> gtiList_new = new ArrayList<GasTradeImg>();
 									for(int i = 0 ; i < otherImg_new.length ; i++) {
-										GasTradeImg gti = new GasTradeImg(gt, otherImg_new[i]);
+										GasTradeImg gti = new GasTradeImg(gt, otherImg_new[i],i);
 										gtiList_new.add(gti);
 									}
 									gts.addBatchInfo(gtiList_new);
@@ -871,7 +906,7 @@ public class GasTradeController {
 									gts.delBatchByGtId(gtiList);
 									List<GasTradeImg> gtiList_new = new ArrayList<GasTradeImg>();
 									for(int i = 0 ; i < otherImg_new.length ; i++) {
-										GasTradeImg gti = new GasTradeImg(gt, otherImg_new[i]);
+										GasTradeImg gti = new GasTradeImg(gt, otherImg_new[i],i);
 										gtiList_new.add(gti);
 									}
 									gts.addBatchInfo(gtiList_new);

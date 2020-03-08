@@ -82,6 +82,7 @@ public class PotTradeController {
 			@ApiImplicitParam(name = "province", value = "省", defaultValue = "河南", required = true),
 			@ApiImplicitParam(name = "city", value = "市", defaultValue = "濮阳", required = true),
 			@ApiImplicitParam(name = "leasePrice", value = "租赁价格", defaultValue = "3000", required = true),
+			@ApiImplicitParam(name = "leaseUnit", value = "租赁时间单位（每年/月/日）-租赁价格为0时为空", defaultValue = "1年"),
 			@ApiImplicitParam(name = "sellPrice", value = "官方价格", defaultValue = "35000", required = true),
 			@ApiImplicitParam(name = "remark", value = "备注"),
 			@ApiImplicitParam(name = "lxName", value = "联系人", defaultValue = "小黑"),
@@ -104,6 +105,7 @@ public class PotTradeController {
 		String province = CommonTools.getFinalStr("province", request);
 		String city = CommonTools.getFinalStr("city", request);
 		Double leasePrice = CommonTools.getFinalDouble("leasePrice", request);
+		String leaseUnit = CommonTools.getFinalStr("leaseUnit", request);
 		Double sellPrice = CommonTools.getFinalDouble("sellPrice", request);
 		String remark = CommonTools.getFinalStr("remark", request);
 		String lxName = CommonTools.getFinalStr("lxName", request);
@@ -149,6 +151,11 @@ public class PotTradeController {
 				pt.setProvince(province);
 				pt.setCity(city);
 				pt.setLeasePrice(leasePrice);
+				if(leasePrice > 0) {
+					pt.setLeaseUnit(leaseUnit);
+				}else {
+					pt.setLeaseUnit("");
+				}
 				pt.setSellPrice(sellPrice);
 				if (!remark.isEmpty()) {
 					pt.setRemark(EmojiDealUtil.changeEmojiToHtml(remark));
@@ -180,6 +187,7 @@ public class PotTradeController {
 						PotTradeImg pti = new PotTradeImg();
 						pti.setPotTrade(pt);
 						pti.setPotDetailImg(ptimgArr[i]);
+						pti.setOrderNum(i);
 						ptList.add(pti);
 					}
 					ptiService.addOrUpdateBatch(ptList);
@@ -313,6 +321,7 @@ public class PotTradeController {
 			@ApiImplicitParam(name = "province", value = "省", defaultValue = "河南", required = true),
 			@ApiImplicitParam(name = "city", value = "市", defaultValue = "濮阳", required = true),
 			@ApiImplicitParam(name = "leasePrice", value = "租赁价格", defaultValue = "3000", required = true),
+			@ApiImplicitParam(name = "leaseUnit", value = "租赁时间单位（每年/月/日）-租赁价格为0时为空", defaultValue = "1年"),
 			@ApiImplicitParam(name = "sellPrice", value = "官方价格", defaultValue = "35000", required = true),
 			@ApiImplicitParam(name = "remark", value = "备注"),
 			@ApiImplicitParam(name = "lxName", value = "联系人", defaultValue = "小黑"),
@@ -333,6 +342,7 @@ public class PotTradeController {
 		String province = CommonTools.getFinalStr("province", request);
 		String city = CommonTools.getFinalStr("city", request);
 		Double leasePrice = CommonTools.getFinalDouble("leasePrice", request);
+		String leaseUnit = CommonTools.getFinalStr("leaseUnit", request);
 		Double sellPrice = CommonTools.getFinalDouble("sellPrice", request);
 		String remark = CommonTools.getFinalStr("remark", request);
 		String lxName = CommonTools.getFinalStr("lxName", request);
@@ -401,6 +411,11 @@ public class PotTradeController {
 					if (leasePrice != null && !leasePrice.equals(pt.getLeasePrice())) {
 						pt.setLeasePrice(leasePrice);
 					}
+					if(leasePrice > 0) {
+						pt.setLeaseUnit(leaseUnit);
+					}else {
+						pt.setLeaseUnit("");
+					}
 					if (sellPrice != null && !sellPrice.equals(pt.getSellPrice())) {
 						pt.setSellPrice(sellPrice);
 					}
@@ -438,6 +453,7 @@ public class PotTradeController {
 							PotTradeImg pti = new PotTradeImg();
 							pti.setPotTrade(pt);
 							pti.setPotDetailImg(ptimgArr[i]);
+							pti.setOrderNum(i);;
 							ptList.add(pti);
 						}
 						ptiService.addOrUpdateBatch(ptList);
@@ -506,8 +522,19 @@ public class PotTradeController {
 					map.put("potPpName", pt.getTrucksPotPp().getName());
 					map.put("potVol", pt.getPotVolume());
 					map.put("sxInfo", pt.getSxInfo());
-					map.put("leasePrice", pt.getLeasePrice());
-					map.put("sellPrice", pt.getSellPrice());
+					Double leasePirce = pt.getLeasePrice();
+					if(leasePirce >= 10000) {
+						map.put("leasePrice", (leasePirce / 10000) + "万");
+					}else {
+						map.put("leasePrice", leasePirce);
+					}
+					map.put("leaseUnit", pt.getLeaseUnit());
+					Double sellPrice = pt.getSellPrice();
+					if(sellPrice >= 10000) {
+						map.put("sellPrice", (sellPrice / 10000) + "万");
+					}else {
+						map.put("sellPrice", sellPrice);
+					}
 					map.put("checkStatus", pt.getCheckStatus());
 					map.put("showStatus", pt.getShowStatus());
 					map.put("mainImg", pt.getMainImg());
@@ -528,13 +555,15 @@ public class PotTradeController {
 	@ApiResponses({ @ApiResponse(code = 1000, message = "服务器错误"), @ApiResponse(code = 200, message = "成功"),
 			@ApiResponse(code = 10002, message = "参数为空"), @ApiResponse(code = 50001, message = "数据未找到") })
 	@ApiImplicitParams({ @ApiImplicitParam(name = "id", value = "储罐租卖编号", required = true),
-			@ApiImplicitParam(name = "userId", value = "用户编号") })
+			@ApiImplicitParam(name = "userId", value = "用户编号"),
+			@ApiImplicitParam(name = "opt", value = "参数（0：前台详情，1：前/后台编辑）",dataType = "integer"),
+	})
 	public GenericResponse getPotTradeById(HttpServletRequest request) {
 		Integer status = 200;
 		String ptId = CommonTools.getFinalStr("id", request);
 		String userId = CommonTools.getFinalStr("userId", request);
+		Integer opt = CommonTools.getFinalInteger("opt", request);//0：前台浏览，1：前/后台修改浏览
 		List<Object> list = new ArrayList<Object>();
-
 		try {
 			if (ptId.equals("")) {
 				status = 10002;
@@ -556,8 +585,28 @@ public class PotTradeController {
 					map.put("zzJzTypeName", pt.getPotZzjzType().getName());
 					map.put("province", pt.getProvince());
 					map.put("city", pt.getCity());
-					map.put("leasePrice", pt.getLeasePrice());
-					map.put("sellPrice", pt.getSellPrice());
+					Double leasePirce = pt.getLeasePrice();
+					if(opt.equals(0)) {
+						if(leasePirce >= 10000) {
+							map.put("leasePrice", (leasePirce / 10000) + "万");
+						}else {
+							map.put("leasePrice", leasePirce);
+						}
+					}else {
+						map.put("leasePrice", leasePirce);
+					}
+					map.put("leaseUnit", pt.getLeaseUnit());
+					Double sellPrice = pt.getSellPrice();
+					if(opt.equals(0)) {
+						if(sellPrice >= 10000) {
+							map.put("sellPrice", (sellPrice / 10000) + "万");
+						}else {
+							map.put("sellPrice", sellPrice);
+						}
+					}else {
+						map.put("sellPrice", sellPrice);
+					}
+					map.put("leaseUnit", pt.getLeaseUnit());
 					map.put("reMark", EmojiDealUtil.changeStrToEmoji(pt.getRemark()));
 					map.put("lxName", EmojiDealUtil.changeStrToEmoji(pt.getLxName()));
 					map.put("lxTel", pt.getLxTel());

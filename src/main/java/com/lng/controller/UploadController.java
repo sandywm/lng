@@ -103,6 +103,7 @@ public class UploadController {
 				String newFilePath = filePath+File.separator+newFileNamePre;
 				String newSmallFilePath = filePath+File.separator+newFileNamePre_small;
 				file.transferTo(new File(newFilePath));
+				file = null;//file置为null是为了告诉gc此块内存可以回收
 				String formatName = FileOpration.getImageFormat(suffix);
 //				List<SystemInfo> sList = scs.findInfo();
 //				String waterMark = "";

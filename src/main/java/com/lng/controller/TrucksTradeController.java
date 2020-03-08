@@ -269,6 +269,7 @@ public class TrucksTradeController {
 							TructsTradeZz ttzz = new TructsTradeZz();
 							ttzz.setTrucksTrade(trtr);
 							ttzz.setTructsTradeZz(ttimgArr[i]);
+							ttzz.setOrderNum(i);
 							zzlist.add(ttzz);
 						}
 						ttzzService.addOrUpdateBatch(zzlist);

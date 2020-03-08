@@ -33,13 +33,16 @@ public class TructsTradeZz implements java.io.Serializable {
 	private TrucksTrade trucksTrade;
 	@ApiModelProperty(value = "槽车资质")
 	private String tructsTradeZz;
+	@ApiModelProperty(value = "图片顺序")
+	private int orderNum;
 
 	public TructsTradeZz() {
 	}
 
-	public TructsTradeZz(TrucksTrade trucksTrade, String tructsTradeZz) {
+	public TructsTradeZz(TrucksTrade trucksTrade, String tructsTradeZz,int orderNum) {
 		this.trucksTrade = trucksTrade;
 		this.tructsTradeZz = tructsTradeZz;
+		this.orderNum = orderNum;
 	}
 
 	@Id
@@ -70,6 +73,15 @@ public class TructsTradeZz implements java.io.Serializable {
 
 	public void setTructsTradeZz(String tructsTradeZz) {
 		this.tructsTradeZz = tructsTradeZz;
+	}
+
+	@Column(name = "order_num", nullable = false, columnDefinition = "int(11) COMMENT '图片顺序'")
+	public int getOrderNum() {
+		return orderNum;
+	}
+
+	public void setOrderNum(int orderNum) {
+		this.orderNum = orderNum;
 	}
 
 }

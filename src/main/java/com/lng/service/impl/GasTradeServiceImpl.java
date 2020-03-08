@@ -126,6 +126,7 @@ public class GasTradeServiceImpl implements GasTradeService{
 	@Override
 	public List<GasTradeImg> listInfoByGtId(String gtId) {
 		// TODO Auto-generated method stub
+		Sort sort = Sort.by(Sort.Direction.ASC, "orderNum");// 升序排列
 		Specification<GasTradeImg> spec = new Specification<GasTradeImg>() {
 			private static final long serialVersionUID = 1L;
 
@@ -138,7 +139,7 @@ public class GasTradeServiceImpl implements GasTradeService{
 				}
 				return pre;
 		}};
-		return gtiDao.findAll(spec);
+		return gtiDao.findAll(spec,sort);
 	}
 
 	@Override

@@ -9,6 +9,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -43,6 +44,7 @@ public class RqDevTradeImgServiceImpl implements RqDevTradeImgService {
 	@SuppressWarnings("serial")
 	@Override
 	public List<RqDevTradeImg> getRdtImgByRdtId(String rdtId) {
+		Sort sort = Sort.by(Sort.Direction.ASC, "orderNum");// 升序排列
 		Specification<RqDevTradeImg> spec = new Specification<RqDevTradeImg>() {
 			@Override
 			public Predicate toPredicate(Root<RqDevTradeImg> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
@@ -54,7 +56,7 @@ public class RqDevTradeImgServiceImpl implements RqDevTradeImgService {
 			}
 		};
 
-		return rdtImgDao.findAll(spec);
+		return rdtImgDao.findAll(spec,sort);
 	}
 
 	@Override

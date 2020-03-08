@@ -33,13 +33,16 @@ public class PotTradeImg implements java.io.Serializable {
 	private PotTrade potTrade;
 	@ApiModelProperty(value = "储罐详情图")
 	private String potDetailImg;
+	@ApiModelProperty(value = "图片顺序")
+	private int orderNum;
 
 	public PotTradeImg() {
 	}
 
-	public PotTradeImg(PotTrade potTrade, String potDetailImg) {
+	public PotTradeImg(PotTrade potTrade, String potDetailImg,int orderNum) {
 		this.potTrade = potTrade;
 		this.potDetailImg = potDetailImg;
+		this.orderNum = orderNum;
 	}
 
 	@Id
@@ -72,4 +75,12 @@ public class PotTradeImg implements java.io.Serializable {
 		this.potDetailImg = potDetailImg;
 	}
 
+	@Column(name = "order_num", nullable = false, columnDefinition = "int(11) COMMENT '图片顺序'")
+	public int getOrderNum() {
+		return orderNum;
+	}
+
+	public void setOrderNum(int orderNum) {
+		this.orderNum = orderNum;
+	}
 }
