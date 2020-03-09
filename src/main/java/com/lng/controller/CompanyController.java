@@ -500,6 +500,8 @@ public class CompanyController {
 						map_d.put("cpyId", cpy.getId());
 						map_d.put("cpyName", cpy.getName());
 						map_d.put("address", cpy.getAddress());
+						map_d.put("lxName", cpy.getLxName());
+						map_d.put("lxTel", cpy.getLxTel());
 						list.add(map_d);
 					}
 				}else {

@@ -34,5 +34,4 @@ public class LngApplication{
 //		SpringApplication.run(LngApplication.class, args);
 //		logger.info("启动成功");
 //	}
-//
 //}

@@ -118,7 +118,7 @@ public class FileOpration {
 	     BufferedImage bi = ImageIO.read(file_1);
 	     Integer width_old = bi.getWidth();//原始尺寸
 	     Integer height_old = bi.getHeight();
-	     //用Image里的方法对图片进行等比压缩,只要宽和高其一值为负,则以正的那个值为最大边进行等比压缩
+//	     //用Image里的方法对图片进行等比压缩,只要宽和高其一值为负,则以正的那个值为最大边进行等比压缩
 //	     Image image = bi.getScaledInstance((int)(width_old * rate), -1,Image.SCALE_AREA_AVERAGING);
 //	     int height = image.getHeight(null);
 //	     int width = image.getWidth(null);
@@ -144,7 +144,7 @@ public class FileOpration {
              BufferedImage tag = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_RGB);
              tag.getGraphics().drawImage(bi, 0, 0, newWidth, newHeight, null);
              out = new FileOutputStream(newUrl);
-             ImageIO.write(tag, "jpg", out);
+             ImageIO.write(tag, formatName, out);
              out.flush();
              out.close();
              tag.flush();
@@ -195,8 +195,7 @@ public class FileOpration {
 //			 long oldtime = new Date().getTime();//相比较的时间
 //			 Long time = (oldtime - systime);//相差毫秒数
 //			 System.out.println("按照"+(i*10)+"%等比压缩图片耗费时间："+time+"毫秒");
-			 FileOpration.makeImage("d:/IMG_20200228_172347.jpg", 0.5, "d:/1a1a1aaaa"+i+".jpg", "JPEG");
 		 }
-		 
+		 FileOpration.makeImage("d:/IMG_20200228_172347.jpg", 0.5, "d:/1a1a1aaaa.jpg", "JPEG");
 	 }
 }

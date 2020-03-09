@@ -929,17 +929,21 @@ public class GasTradeOrderController {
 			}else {
 				status = 50001;
 			}
-			Map<String,Object> map_num = new HashMap<String,Object>();
-			map_num.put("confirmNum", confirmNum);//订单确认数量
-			map_num.put("firstDealNum", firstDealNum);//首款处理数量
-			map_num.put("lastDealNum", lastDealNum);//余款处理数量
-			map_num.put("completeSellNum", completeSellNum);//已完成数量
-			map_num.put("firstPayNum", firstPayNum);//代付首款数量
-			map_num.put("receveNum", receveNum);//待收货数量
-			map_num.put("lastPayNum", lastPayNum);//待付余款数量
-			map_num.put("evaluateNum", evaluateNum);//待评价数量
-			map_num.put("completeBuyNum", completeBuyNum);//已完成数量
-			list.add(map_num);
+//			List<Object> list_tj = new ArrayList<Object>();
+//			Map<String,Object> map_num = new HashMap<String,Object>();
+//			map_num.put("confirmNum", confirmNum);//订单确认数量
+//			map_num.put("firstDealNum", firstDealNum);//首款处理数量
+//			map_num.put("lastDealNum", lastDealNum);//余款处理数量
+//			map_num.put("completeSellNum", completeSellNum);//已完成数量
+//			map_num.put("firstPayNum", firstPayNum);//代付首款数量
+//			map_num.put("receveNum", receveNum);//待收货数量
+//			map_num.put("lastPayNum", lastPayNum);//待付余款数量
+//			map_num.put("evaluateNum", evaluateNum);//待评价数量
+//			map_num.put("completeBuyNum", completeBuyNum);//已完成数量
+//			list_tj.add(map_num);
+//			Map<String,Object> map_tj = new HashMap<String,Object>();
+//			map_tj.put("tjInfo", list_tj);
+//			list.add(map_tj);
 		} catch (Exception e) {
 			e.printStackTrace();
 			status = 1000;

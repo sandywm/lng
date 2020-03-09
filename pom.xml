@@ -29,7 +29,7 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
-			<!-- 取消内置tomcat 当生成war包时使用，jar包时不需要 >
+			<!-- 取消内置tomcat 当生成war包时使用，jar包时不需要>
 			<exclusions>
 				<exclusion>
 					<groupId>org.springframework.boot</groupId>
