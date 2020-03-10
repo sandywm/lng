@@ -75,7 +75,7 @@ public class LngMessageController {
 					map_d.put("id", lm.getId());
 					User user = lm.getUser();
 					map_d.put("headImg", user.getUserPortrait());
-					map_d.put("userName", user.getRealName());
+					map_d.put("userName", EmojiDealUtil.changeStrToEmoji(user.getRealName()));
 					map_d.put("content", EmojiDealUtil.changeStrToEmoji(lm.getContent()));
 					map_d.put("addTime", lm.getAddTime());
 					map_d.put("zcTimes", lm.getZcTimes());
@@ -201,7 +201,7 @@ public class LngMessageController {
 			Map<String, Object> map = new HashMap<String, Object>();
 			User user_tmp = lsg.getUser();
 			map.put("headImg", user_tmp.getUserPortrait());
-			map.put("userName", user_tmp.getRealName());
+			map.put("userName", EmojiDealUtil.changeStrToEmoji(user_tmp.getRealName()));
 			map.put("content", EmojiDealUtil.changeStrToEmoji(lsg.getContent()));
 			map.put("addTime", lsg.getAddTime());
 			map.put("zcTimes", lsg.getZcTimes());
@@ -219,8 +219,8 @@ public class LngMessageController {
 						Map<String, String> map_d = new HashMap<String, String>();
 						User user = lm.getUser();
 						map_d.put("headImg", user.getUserPortrait());
-						map_d.put("userName", user.getWxName());
-						map_d.put("content", lm.getContent());
+						map_d.put("userName", EmojiDealUtil.changeStrToEmoji(user.getWxName()));
+						map_d.put("content", EmojiDealUtil.changeStrToEmoji(lm.getContent()));
 						map_d.put("addTime", lm.getAddTime());
 						list_reply.add(map_d);
 					}

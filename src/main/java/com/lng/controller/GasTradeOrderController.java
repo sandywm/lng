@@ -142,7 +142,8 @@ public class GasTradeOrderController {
 								gtoLog.setOrderDetailTxt("");
 								gtoLog.setAddTime(CurrentTime.getCurrentTime());
 								gtolService.addOrUpdate(gtoLog);
-								MessageCenter mc = new MessageCenter("",gt.getGasFactory().getName()+"燃气已被"+user.getRealName()+"下单", gt.getGasFactory().getName()+"燃气已被"+user.getRealName()+"下单", 0, CurrentTime.getCurrentTime(), 2,
+								String content = gt.getGasFactory().getName()+"燃气已被"+EmojiDealUtil.changeStrToEmoji(user.getRealName())+"下单";
+								MessageCenter mc = new MessageCenter("",content, content, 0, CurrentTime.getCurrentTime(), 2,
 										gtId, "gasTrade", "", gt.getAddUserId(), 0);
 								mcs.saveOrUpdate(mc);
 							}
@@ -205,7 +206,7 @@ public class GasTradeOrderController {
 							String pubUserId = gt.getAddUserId();//商家
 							User buyUser = gasTradeOrder.getUser();
 							String buyUserId = buyUser.getId();//买家
-							String buyUserName = buyUser.getRealName();
+							String buyUserName = EmojiDealUtil.changeStrToEmoji(buyUser.getRealName());
 							if(orderSta.equals(-2)) {//用户取消订单时
 								if(userId.equals(buyUserId)) {//该阶段为用户操作环节
 									//只有订单状态为0或者1时用户才能取消订单
@@ -584,6 +585,8 @@ public class GasTradeOrderController {
 		String eDate = CommonTools.getFinalStr("eDate",request);
 		String orderSta = CommonTools.getFinalStr("orderSta", request);
 		Integer opt = CommonTools.getFinalInteger("opt", request);
+		List<Object> list_final = new ArrayList<Object>();
+		Map<String,Object> map_final = new HashMap<String,Object>();
 		List<Object> list = new ArrayList<Object>();
 		try {
 			String buyUserId = "";
@@ -683,7 +686,7 @@ public class GasTradeOrderController {
 								if(!pjTime.equals("")) {
 									Map<String,Object> map_pj = new HashMap<String,Object>();
 									map_pj.put("pjUserHead", gto.getUser().getUserPortrait());
-									map_pj.put("pjUserName", gto.getUser().getRealName());
+									map_pj.put("pjUserName", EmojiDealUtil.changeStrToEmoji(gto.getUser().getRealName()));
 									map_pj.put("pjScore", gto.getOrderPjNumber());
 									map_pj.put("pjDetail", gto.getOrderPjDetail());
 									map_pj.put("pjDate", gto.getAddTime());
@@ -727,7 +730,7 @@ public class GasTradeOrderController {
 							User buyUser = gto.getUser();
 							map_d.put("buyUserId", buyUser.getId());
 							map_d.put("buyUserHead", buyUser.getUserPortrait());
-							map_d.put("buyUserName", buyUser.getWxName());
+							map_d.put("buyUserName", EmojiDealUtil.changeStrToEmoji(buyUser.getWxName()));
 							map_d.put("buyPrice", gto.getPrice());
 							map_d.put("psAddress", gto.getLxrProv() + gto.getLxrCity() + EmojiDealUtil.changeStrToEmoji(gto.getLxrAddress()));
 							list_d.add(map_d);
@@ -772,7 +775,7 @@ public class GasTradeOrderController {
 									map_d.put("gtoId", gto.getId());
 									map_d.put("buyUserId", buyUser.getId());
 									map_d.put("buyUserHead", buyUser.getUserPortrait());
-									map_d.put("buyUserName", buyUser.getWxName());
+									map_d.put("buyUserName", EmojiDealUtil.changeStrToEmoji(buyUser.getWxName()));
 									map_d.put("buyPrice", gto.getPrice());
 									map_d.put("psAddress", gto.getLxrProv() + gto.getLxrCity() + EmojiDealUtil.changeStrToEmoji(gto.getLxrAddress()));
 									oStatus = gto.getOrderStatus();
@@ -875,7 +878,7 @@ public class GasTradeOrderController {
 										if(!pjTime.equals("")) {
 											Map<String,Object> map_pj = new HashMap<String,Object>();
 											map_pj.put("pjUserHead", gto.getUser().getUserPortrait());
-											map_pj.put("pjUserName", gto.getUser().getRealName());
+											map_pj.put("pjUserName", EmojiDealUtil.changeStrToEmoji(gto.getUser().getRealName()));
 											map_pj.put("pjScore", gto.getOrderPjNumber());
 											map_pj.put("pjDetail", gto.getOrderPjDetail());
 											map_pj.put("pjDate", gto.getAddTime());
@@ -919,36 +922,37 @@ public class GasTradeOrderController {
 								}
 							}
 						}
-						if(list.size() == 0) {
-							status = 50001;
-						}
 					}else {
 						status = 50001;
 					}
 				}
+				if(list.size() == 0) {
+					status = 50001;
+				}else {
+					map_final.put("orderList", list);
+					List<Object> list_tj = new ArrayList<Object>();
+					Map<String,Object> map_num = new HashMap<String,Object>();
+					map_num.put("confirmNum", confirmNum);//订单确认数量
+					map_num.put("firstDealNum", firstDealNum);//首款处理数量
+					map_num.put("lastDealNum", lastDealNum);//余款处理数量
+					map_num.put("completeSellNum", completeSellNum);//已完成数量
+					map_num.put("firstPayNum", firstPayNum);//代付首款数量
+					map_num.put("receveNum", receveNum);//待收货数量
+					map_num.put("lastPayNum", lastPayNum);//待付余款数量
+					map_num.put("evaluateNum", evaluateNum);//待评价数量
+					map_num.put("completeBuyNum", completeBuyNum);//已完成数量
+					list_tj.add(map_num);
+					map_final.put("tjInfo", list_tj);
+					list_final.add(map_final);
+				}
 			}else {
 				status = 50001;
 			}
-//			List<Object> list_tj = new ArrayList<Object>();
-//			Map<String,Object> map_num = new HashMap<String,Object>();
-//			map_num.put("confirmNum", confirmNum);//订单确认数量
-//			map_num.put("firstDealNum", firstDealNum);//首款处理数量
-//			map_num.put("lastDealNum", lastDealNum);//余款处理数量
-//			map_num.put("completeSellNum", completeSellNum);//已完成数量
-//			map_num.put("firstPayNum", firstPayNum);//代付首款数量
-//			map_num.put("receveNum", receveNum);//待收货数量
-//			map_num.put("lastPayNum", lastPayNum);//待付余款数量
-//			map_num.put("evaluateNum", evaluateNum);//待评价数量
-//			map_num.put("completeBuyNum", completeBuyNum);//已完成数量
-//			list_tj.add(map_num);
-//			Map<String,Object> map_tj = new HashMap<String,Object>();
-//			map_tj.put("tjInfo", list_tj);
-//			list.add(map_tj);
 		} catch (Exception e) {
 			e.printStackTrace();
 			status = 1000;
 		}
-		return ResponseFormat.retParam(status, list);
+		return ResponseFormat.retParam(status, list_final);
 	}
 	
 	@GetMapping("/getConfirmOrderList")
@@ -994,7 +998,7 @@ public class GasTradeOrderController {
 						map_d.put("gtoId", gto.getId());
 						map_d.put("buyUserId", buyUser.getId());
 						map_d.put("buyUserHead", buyUser.getUserPortrait());
-						map_d.put("buyUserName", buyUser.getWxName());
+						map_d.put("buyUserName", EmojiDealUtil.changeStrToEmoji(buyUser.getWxName()));
 						map_d.put("buyPrice", gto.getPrice());
 						map_d.put("psAddress", gto.getLxrProv() + gto.getLxrCity() + EmojiDealUtil.changeStrToEmoji(gto.getLxrAddress()));
 						map_d.put("orderStatus", gto.getOrderStatus());
@@ -1141,7 +1145,7 @@ public class GasTradeOrderController {
 						if(gtolList.size() > 0) {
 							User buyUser = gtolList.get(0).getGasTradeOrder().getUser();
 							map.put("userHead", buyUser.getUserPortrait());
-							map.put("lxName", buyUser.getWxName());
+							map.put("lxName", EmojiDealUtil.changeStrToEmoji(buyUser.getWxName()));
 							map.put("lxTel", buyUser.getMobile());
 						}
 					}else {//用户
@@ -1289,7 +1293,7 @@ public class GasTradeOrderController {
 						Map<String,Object> map_pj = new HashMap<String,Object>();
 						if(gto != null) {
 							map_pj.put("pjUserHead", gto.getUser().getUserPortrait());
-							map_pj.put("pjUserName", gto.getUser().getRealName());
+							map_pj.put("pjUserName", EmojiDealUtil.changeStrToEmoji(gto.getUser().getRealName()));
 							map_pj.put("pjDate", gto.getAddTime());
 							map_pj.put("pjScore", gto.getOrderPjNumber());
 							map_pj.put("pjDetail", gto.getOrderPjDetail());
@@ -1336,7 +1340,7 @@ public class GasTradeOrderController {
 							if(gto.getOrderStatus() == 7) {
 								status = 200;
 								map_pj.put("pjUserHead", gto.getUser().getUserPortrait());
-								map_pj.put("pjUserName", gto.getUser().getRealName());
+								map_pj.put("pjUserName", EmojiDealUtil.changeStrToEmoji(gto.getUser().getRealName()));
 								map_pj.put("pjDate", gto.getAddTime());
 								map_pj.put("pjScore", gto.getOrderPjNumber());
 								map_pj.put("pjDetail", gto.getOrderPjDetail());
@@ -1381,7 +1385,7 @@ public class GasTradeOrderController {
 				map.put("headImg", headImg);
 				map.put("gasTradeId", gasTrade.getId());
 				map.put("sellCpyName", gasTrade.getCompany().getName());
-				map.put("buyUserName", gt.getUser().getRealName());
+				map.put("buyUserName", EmojiDealUtil.changeStrToEmoji(gt.getUser().getRealName()));
 				map.put("buyCpyName", gt.getCompany().getName());
 				map.put("buyUserMobile", gt.getLxMobile());
 				map.put("price", gt.getPrice());

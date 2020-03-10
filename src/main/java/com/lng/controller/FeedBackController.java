@@ -6,6 +6,7 @@ import com.lng.service.FeedBackService;
 import com.lng.service.UserService;
 import com.lng.tools.CommonTools;
 import com.lng.tools.CurrentTime;
+import com.lng.tools.EmojiDealUtil;
 import com.lng.util.GenericResponse;
 import com.lng.util.PageResponse;
 import com.lng.util.ResponseFormat;
@@ -130,7 +131,7 @@ public class FeedBackController {
                     map_d.put("mobile", fb.getMobile());
                     map_d.put("readStatus", fb.getReadStatus());
                     map_d.put("addTime", fb.getAddTime());
-                    map_d.put("realName", fb.getUser().getRealName());
+                    map_d.put("realName", EmojiDealUtil.changeStrToEmoji(fb.getUser().getRealName()));
                     list.add(map_d);
                 }
             } else {
@@ -167,7 +168,7 @@ public class FeedBackController {
                     map_d.put("mobile", fb.getMobile());
                     map_d.put("readStatus", fb.getReadStatus());
                     map_d.put("addTime", fb.getAddTime());
-                    map_d.put("realName", fb.getUser().getRealName());
+                    map_d.put("realName", EmojiDealUtil.changeStrToEmoji(fb.getUser().getRealName()));
                     list.add(map_d);
                 }
             } else {
@@ -212,7 +213,7 @@ public class FeedBackController {
                     map.put("mobile", fb.getMobile());
                     map.put("readStatus", fb.getReadStatus());
                     map.put("addTime", fb.getAddTime());
-                    map.put("realName", fb.getUser().getRealName());
+                    map.put("realName", EmojiDealUtil.changeStrToEmoji(fb.getUser().getRealName()));
                     list.add(map);
                 }
             }

@@ -119,7 +119,7 @@ public class User implements java.io.Serializable {
 
 	@Column(name = "wx_name",columnDefinition = "varchar(100) COMMENT '微信名称'")
 	public String getWxName() {
-		return EmojiDealUtil.changeStrToEmoji(this.wxName);
+		return this.wxName;
 	}
 
 	public void setWxName(String wxName) {
@@ -128,7 +128,7 @@ public class User implements java.io.Serializable {
 
 	@Column(name = "real_name", columnDefinition = "varchar(30) COMMENT '真实姓名'")
 	public String getRealName() {
-		return EmojiDealUtil.changeStrToEmoji(this.realName);
+		return this.realName;
 	}
 
 	public void setRealName(String realName) {

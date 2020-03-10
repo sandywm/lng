@@ -24,6 +24,7 @@ import com.lng.service.UserService;
 import com.lng.tools.CommonTools;
 import com.lng.tools.ContantsProperties;
 import com.lng.tools.CurrentTime;
+import com.lng.tools.EmojiDealUtil;
 import com.lng.util.Constants;
 import com.lng.util.GenericResponse;
 import com.lng.util.PageResponse;
@@ -78,11 +79,18 @@ public class MessageCenterController {
 		Page<MessageCenter> mcs = null;
 		List<Object> list = new ArrayList<Object>();
 		try {
-			mcs = mcService.getMessageCenterByOption(msgTypeId,toUserId, showStatus, readSta, page - 1, limit);
-			count = mcs.getTotalElements();
-			if (count == 0) {
-				status = 50001;
+			if(msgTypeId.equals(2)) {//系统通知时(前台使用需要指定toUserId)
+				if(toUserId.equals("")) {
+					count = 0;
+				}else {
+					mcs = mcService.getMessageCenterByOption(msgTypeId,toUserId, showStatus, readSta, page - 1, limit);
+					count = mcs.getTotalElements();
+				}
 			}else {
+				mcs = mcService.getMessageCenterByOption(msgTypeId,toUserId, showStatus, readSta, page - 1, limit);
+				count = mcs.getTotalElements();
+			}
+			if (count > 0) {
 				for(MessageCenter mc : mcs) {
 					Map<String,Object> map = new HashMap<String,Object>();
 					if(mc.getMessageType() == 1) {
@@ -114,11 +122,11 @@ public class MessageCenterController {
 						map.put("addUserId", addUserId);
 						User user = us.getEntityById(addUserId);
 						if(user != null) {
-							addUserName = user.getRealName();
+							addUserName = EmojiDealUtil.changeStrToEmoji(user.getRealName());
 						}
 						User toUser = us.getEntityById(toUserId_tmp);
 						if(toUser != null) {
-							toUserName = toUser.getRealName();
+							toUserName = EmojiDealUtil.changeStrToEmoji(toUser.getRealName());
 						}
 						if(msgType.equals(2)) {//系统通知
 							String primaryType = mc.getPrimaryType();
@@ -139,6 +147,8 @@ public class MessageCenterController {
 					map.put("toUserName", toUserName);
 					list.add(map);
 				}
+			}else {
+				status = 50001;
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -186,11 +196,11 @@ public class MessageCenterController {
 					map.put("addUserId", addUserId);
 					User user = us.getEntityById(addUserId);
 					if(user != null) {
-						addUserName = user.getRealName();
+						addUserName = EmojiDealUtil.changeStrToEmoji(user.getRealName());
 					}
 					User toUser = us.getEntityById(toUserId);
 					if(toUser != null) {
-						toUserName = toUser.getRealName();
+						toUserName = EmojiDealUtil.changeStrToEmoji(toUser.getRealName());
 					}
 				}
 				map.put("addUserId", addUserId);

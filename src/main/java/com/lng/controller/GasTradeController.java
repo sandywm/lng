@@ -43,6 +43,7 @@ import com.lng.service.UserFocusService;
 import com.lng.service.UserService;
 import com.lng.tools.CommonTools;
 import com.lng.tools.CurrentTime;
+import com.lng.tools.EmojiDealUtil;
 import com.lng.util.Constants;
 import com.lng.util.GenericResponse;
 import com.lng.util.PageResponse;
@@ -289,7 +290,7 @@ public class GasTradeController {
 					if(userType.equals(2)) {
 						User user = us.getEntityById(pubUserId);
 						if(user != null) {
-							map_d.put("pubUserName", user.getRealName());
+							map_d.put("pubUserName", EmojiDealUtil.changeStrToEmoji(user.getRealName()));
 						}else {
 							map_d.put("pubUserName", "");
 						}
@@ -305,6 +306,8 @@ public class GasTradeController {
 					map_d.put("addTime", gt.getAddTime());
 					map_d.put("checkStatus", gt.getCheckStatus());
 					map_d.put("showStatus",gt.getShowStatus());
+					String confirmtoId = gt.getTradeOrderId();
+					map_d.put("comfirmOrderId", confirmtoId);//确认订单（列表时显示能不能下单）
 					//从燃气交易中获取好评度
 					Integer pjScore = 0;
 					List<GasTradeOrder> gtoList = gtos.listComInfoByCpyId(cpyId);
@@ -407,6 +410,7 @@ public class GasTradeController {
 							list_cpy.add(map_d);
 						}
 					}else {//前台浏览
+						userId = CommonTools.getFinalStr("userId", request);
 						//获取用户关注(前台)
 						List<UserFocus> ufList = ufs.getUserFocusList(userId, gasTradeId, "rqmm");
 						if(ufList.size() > 0) {
@@ -596,7 +600,7 @@ public class GasTradeController {
 //							}else {//无下单记录
 //								addFlag = true;
 //							}
-							addFlag = true;
+							addFlag = false;
 						}else {//无确认订单时
 							//获取当前用户有无下单记录
 							List<GasTradeOrder> gtoList_1 = gtos.listComInfoByOpt(userId, gasTradeId);

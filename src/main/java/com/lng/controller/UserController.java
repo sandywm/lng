@@ -118,8 +118,8 @@ public class UserController {
 					Map<String,Object> map = new HashMap<String,Object>();
 					map.put("id", user.getId());
 					map.put("account", user.getAccount());
-					map.put("wxName", user.getWxName());
-					map.put("realName", user.getRealName());
+					map.put("wxName", EmojiDealUtil.changeStrToEmoji(user.getWxName()));
+					map.put("realName", EmojiDealUtil.changeStrToEmoji(user.getRealName()));
 					map.put("sex", user.getSex());
 					map.put("mobile", user.getMobile());
 					map.put("birthday", user.getBirthday());
@@ -156,8 +156,8 @@ public class UserController {
 				map.put("id", userId);
 				map.put("account", user.getAccount());
 				map.put("password", user.getPassword());
-				map.put("wxName", user.getWxName());
-				map.put("realName", user.getRealName());
+				map.put("wxName", EmojiDealUtil.changeStrToEmoji(user.getWxName()));
+				map.put("realName", EmojiDealUtil.changeStrToEmoji(user.getRealName()));
 				map.put("sex", user.getSex());
 				map.put("mobile", user.getMobile());
 				map.put("birthday", user.getBirthday());

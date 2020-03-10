@@ -51,6 +51,7 @@ import com.lng.service.UserService;
 import com.lng.tools.CommonTools;
 import com.lng.tools.ContantsProperties;
 import com.lng.tools.CurrentTime;
+import com.lng.tools.EmojiDealUtil;
 import com.lng.util.Constants;
 import com.lng.util.GenericResponse;
 import com.lng.util.PageResponse;
@@ -399,7 +400,7 @@ public class CommonController {
 				User user = us.getEntityById(addUserId);
 				String title = "";
 				if (user != null) {
-					title = user.getRealName() + "发布了一条卖气信息";
+					title = EmojiDealUtil.changeStrToEmoji(user.getRealName()) + "发布了一条卖气信息";
 				}
 				map_d.put("title", title);
 				map_d.put("psArea", gt.getPsArea());
@@ -621,6 +622,7 @@ public class CommonController {
 							map.put("yyd", gt.getGasFactory().getProvince());
 							map.put("checkStatus", gt.getCheckStatus());
 							map.put("showStatus", gt.getShowStatus());
+							//获取下单人数--订单确认前获取，并获取当前处理事务
 //							Integer oStatus = 
 //							if(oStatus.equals(-2)) {
 //								orderStatusChi = "已取消";//用户主动取消

@@ -47,6 +47,7 @@ import com.lng.service.UserFocusService;
 import com.lng.service.UserService;
 import com.lng.tools.CommonTools;
 import com.lng.tools.CurrentTime;
+import com.lng.tools.EmojiDealUtil;
 import com.lng.util.GenericResponse;
 import com.lng.util.PageResponse;
 import com.lng.util.ResponseFormat;
@@ -115,7 +116,8 @@ public class UserCompanyAndFocusController {
 						uc.setCheckStatus(0);
 						uc.setCheckTime("");
 						ucId = ucService.addOrUpdate(uc);
-						MessageCenter mc = new MessageCenter("",user.getRealName()+"申请加入您的"+company.getName()+"公司", user.getRealName()+"申请加入您的"+company.getName()+"公司", 0, CurrentTime.getCurrentTime(), 2,
+						String content = EmojiDealUtil.changeStrToEmoji(user.getRealName())+"申请加入您的"+company.getName()+"公司";
+						MessageCenter mc = new MessageCenter("",content, content, 0, CurrentTime.getCurrentTime(), 2,
 								ucId, "joinCpy", "", uc.getCompany().getOwerUserId(), 0);
 						mcs.saveOrUpdate(mc);
 					}else {
@@ -128,7 +130,8 @@ public class UserCompanyAndFocusController {
 							uc.setCheckStatus(0);
 							uc.setCheckTime("");
 							ucId = ucService.addOrUpdate(uc);
-							MessageCenter mc = new MessageCenter("",user.getRealName()+"申请加入您的"+company.getName()+"公司", user.getRealName()+"申请加入您的"+company.getName()+"公司", 0, CurrentTime.getCurrentTime(), 2,
+							String content = EmojiDealUtil.changeStrToEmoji(user.getRealName())+"申请加入您的"+company.getName()+"公司";
+							MessageCenter mc = new MessageCenter("",content, content, 0, CurrentTime.getCurrentTime(), 2,
 									ucId, "joinCpy", "", uc.getCompany().getOwerUserId(), 0);
 							mcs.saveOrUpdate(mc);
 						}else {
@@ -279,7 +282,7 @@ public class UserCompanyAndFocusController {
 					User user = uc.getUser();
 					map_d.put("userId", user.getId());
 					map_d.put("userHead", user.getUserPortrait());
-					map_d.put("userName", user.getRealName());
+					map_d.put("userName", EmojiDealUtil.changeStrToEmoji(user.getRealName()));
 					map_d.put("userMobile", user.getMobile());
 					map_d.put("addTime", uc.getAddTime());
 					map_d.put("checkStatus",uc.getCheckStatus());
@@ -433,7 +436,7 @@ public class UserCompanyAndFocusController {
 							User user = uService.getEntityById(tt.getAddUserId());
 							if(user != null) {
 								map.put("pubUserHead", user.getUserPortrait());
-								map.put("pubUserName", user.getRealName());
+								map.put("pubUserName", EmojiDealUtil.changeStrToEmoji(user.getRealName()));
 							}else {
 								map.put("pubUserHead", "");
 								map.put("pubUserName", "");
@@ -464,7 +467,7 @@ public class UserCompanyAndFocusController {
 							User user = uService.getEntityById(pt.getAddUserId());
 							if(user != null) {
 								map.put("pubUserHead", user.getUserPortrait());
-								map.put("pubUserName", user.getRealName());
+								map.put("pubUserName", EmojiDealUtil.changeStrToEmoji(user.getRealName()));
 							}
 						}else {
 							SuperUser su = ss.getEntityById(pt.getAddUserId());
@@ -489,7 +492,7 @@ public class UserCompanyAndFocusController {
 							User user = uService.getEntityById(rdt.getAddUserId());
 							if(user != null) {
 								map.put("pubUserHead", user.getUserPortrait());
-								map.put("pubUserName", user.getRealName());
+								map.put("pubUserName", EmojiDealUtil.changeStrToEmoji(user.getRealName()));
 							}
 						}else {
 							SuperUser su = ss.getEntityById(rdt.getAddUserId());
@@ -530,7 +533,7 @@ public class UserCompanyAndFocusController {
 							User user = uService.getEntityById(gt.getAddUserId());
 							if(user != null) {
 								map.put("pubUserHead", user.getUserPortrait());
-								map.put("pubUserName", user.getRealName());
+								map.put("pubUserName", EmojiDealUtil.changeStrToEmoji(user.getRealName()));
 							}
 						}else {
 							SuperUser su = ss.getEntityById(gt.getAddUserId());
@@ -563,7 +566,7 @@ public class UserCompanyAndFocusController {
 								User user = uService.getEntityById(qz.getUserId());
 								if(user != null) {
 									map.put("pubUserHead", user.getUserPortrait());
-									map.put("pubUserName", user.getRealName());
+									map.put("pubUserName", EmojiDealUtil.changeStrToEmoji(user.getRealName()));
 								}
 							}else {
 								map.put("pubUserHead", "");
@@ -593,7 +596,7 @@ public class UserCompanyAndFocusController {
 								User user = uService.getEntityById(zp.getAddUserId());
 								if(user != null) {
 									map.put("pubUserHead", user.getUserPortrait());
-									map.put("pubUserName", user.getRealName());
+									map.put("pubUserName", EmojiDealUtil.changeStrToEmoji(user.getRealName()));
 								}
 							}else {
 								SuperUser su = ss.getEntityById(zp.getAddUserId());
