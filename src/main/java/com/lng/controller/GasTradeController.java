@@ -556,9 +556,22 @@ public class GasTradeController {
 					map.put("qfTxt1", gt.getQfText1());
 					map.put("qfTxt2", gt.getQfText2());
 					map.put("qfTxt3", gt.getQfText3());
-					map.put("qfImg1", gt.getQfImg1());
-					map.put("qfImg2", gt.getQfImg2());
-					map.put("qfImg3", gt.getQfImg3());
+					List<Object> list_qf = new ArrayList<Object>();
+					Map<String,String> map_qf = new HashMap<String,String>();
+					String qfImg1 = gt.getQfImg1();
+					String qfImg2 = gt.getQfImg2();
+					String qfImg3 = gt.getQfImg3();
+					if(!qfImg1.equals("")) {
+						map_qf.put("qfImg1", qfImg1);
+					}
+					if(!qfImg2.equals("")) {
+						map_qf.put("qfImg2", qfImg2);
+					}
+					if(!qfImg3.equals("")) {
+						map_qf.put("qfImg3", qfImg3);
+					}
+					list_qf.add(map_qf);
+					map.put("qfList", list_qf);
 					map.put("remark", gt.getRemark());
 					map.put("gpsInfo", gt.getGpsInfo());
 					map.put("bdImg", gt.getBdImg());
