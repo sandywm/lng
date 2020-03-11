@@ -570,6 +570,7 @@ public class GasTradeController {
 					if(!qfImg3.equals("")) {
 						map_qf.put("qfImg3", qfImg3);
 					}
+					//测试
 					list_qf.add(map_qf);
 					map.put("qfList", list_qf);
 					map.put("remark", gt.getRemark());
